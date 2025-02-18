@@ -1,0 +1,32 @@
+name: Server Workflow
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # Install dependencies for server
+      - name: Install dependencies for server
+        working-directory: server
+        run: npm install
+
+      # Build server
+      - name: Build server
+        working-directory: server
+        run: npm run build
