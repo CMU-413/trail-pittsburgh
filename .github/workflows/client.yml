@@ -26,6 +26,11 @@ jobs:
         working-directory: client
         run: npm install
 
+      # Run ESLint for client
+      - name: Run ESLint for client
+        working-directory: client
+        run: npm run lint
+
       # Build client
       - name: Build client
         working-directory: client
