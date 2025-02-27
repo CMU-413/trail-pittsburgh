@@ -23,6 +23,8 @@ export const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
     const [isSuccess, setIsSuccess] = useState(false);
 
     const handleImageChange = (file: File | null, previewUrl: string | null) => {
+        // eslint-disable-next-line no-console
+        console.log({ file, previewUrl });
         setImagePreview(previewUrl);
     };
 

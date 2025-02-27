@@ -143,6 +143,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     const handleImageChange = (file: File | null, previewUrl: string | null) => {
         // We would later upload the file to a server and get a URL back
         if (previewUrl) {
+            // eslint-disable-next-line no-console
+            console.log({ file, previewUrl });
             setFormData((prev) => ({ ...prev, issue_image: previewUrl }));
         } else {
             setFormData((prev) => {

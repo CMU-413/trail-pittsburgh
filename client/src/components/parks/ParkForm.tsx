@@ -36,10 +36,11 @@ export const ParkForm: React.FC<ParkFormProps> = ({
         });
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleImageChange = (file: File | null, previewUrl: string | null) => {
         // This would be used to store the image file and preview
         // For now, we're just defining the function for the ImageUpload component
+        // eslint-disable-next-line no-console
+        console.log({ file, previewUrl });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
