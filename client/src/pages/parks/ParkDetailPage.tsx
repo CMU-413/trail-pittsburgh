@@ -1,7 +1,11 @@
 // src/pages/parks/ParkDetailPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Park, Trail, Issue } from '../../types';
+import {
+    Link, useParams, useNavigate 
+} from 'react-router-dom';
+import {
+    Park, Trail, Issue 
+} from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -51,9 +55,10 @@ export const ParkDetailPage: React.FC = () => {
                 // Fetch issues for this park
                 const issuesData = await mockApi.getIssuesByPark(id);
                 // Filter to only show public issues or open issues
-                const filteredIssues = issuesData.filter(issue => issue.is_public);
+                const filteredIssues = issuesData.filter((issue) => issue.is_public);
                 setIssues(filteredIssues);
             } catch (err) {
+                // eslint-disable-next-line no-console
                 console.error('Error fetching park details:', err);
                 setError('Failed to load park details. Please try again later.');
             } finally {
@@ -86,7 +91,7 @@ export const ParkDetailPage: React.FC = () => {
     }
     
     // Count open issues
-    const openIssuesCount = issues.filter(issue => issue.status === 'open').length;
+    const openIssuesCount = issues.filter((issue) => issue.status === 'open').length;
     
     return (
         <div>
@@ -163,7 +168,7 @@ export const ParkDetailPage: React.FC = () => {
                     />
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {trails.map(trail => (
+                        {trails.map((trail) => (
                             <TrailCard key={trail.trail_id} trail={trail} parkId={park.park_id} />
                         ))}
                     </div>

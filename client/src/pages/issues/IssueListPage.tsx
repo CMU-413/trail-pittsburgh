@@ -1,7 +1,9 @@
 // src/pages/issues/IssueListPage.tsx
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Issue, Park, Trail, IssueStatus } from '../../types';
+import {
+    Issue, Park, Trail, IssueStatus 
+} from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -35,7 +37,7 @@ export const IssueListPage: React.FC = () => {
                 // Fetch parks for lookup and filtering
                 const parksData = await mockApi.getParks();
                 const parksMap: Record<number, Park> = {};
-                parksData.forEach(park => {
+                parksData.forEach((park) => {
                     parksMap[park.park_id] = park;
                 });
                 setParks(parksMap);
@@ -43,7 +45,7 @@ export const IssueListPage: React.FC = () => {
                 // Fetch trails for lookup and filtering
                 const trailsData = await mockApi.getTrails();
                 const trailsMap: Record<number, Trail> = {};
-                trailsData.forEach(trail => {
+                trailsData.forEach((trail) => {
                     trailsMap[trail.trail_id] = trail;
                 });
                 setTrails(trailsMap);
@@ -63,15 +65,16 @@ export const IssueListPage: React.FC = () => {
                 }
 
                 // Filter by public status (for non-admins)
-                issuesData = issuesData.filter(issue => issue.is_public);
+                issuesData = issuesData.filter((issue) => issue.is_public);
 
                 // Apply status filter if selected
                 if (selectedStatus !== 'all') {
-                    issuesData = issuesData.filter(issue => issue.status === selectedStatus);
+                    issuesData = issuesData.filter((issue) => issue.status === selectedStatus);
                 }
 
                 setIssues(issuesData);
             } catch (err) {
+                // eslint-disable-next-line no-console
                 console.error('Error fetching issues:', err);
                 setError('Failed to load issues. Please try again later.');
             } finally {
@@ -100,7 +103,7 @@ export const IssueListPage: React.FC = () => {
 
     // Filter trails based on selected park
     const filteredTrails = Object.values(trails).filter(
-        trail => !selectedParkId || trail.park_id === selectedParkId
+        (trail) => !selectedParkId || trail.park_id === selectedParkId
     );
 
     if (isLoading) {
@@ -128,7 +131,7 @@ export const IssueListPage: React.FC = () => {
                             { value: '', label: 'All Parks' },
                             ...Object.values(parks)
                                 .sort((a, b) => a.name.localeCompare(b.name))
-                                .map(park => ({ value: park.park_id.toString(), label: park.name }))
+                                .map((park) => ({ value: park.park_id.toString(), label: park.name }))
                         ]}
                         value={selectedParkId?.toString() || ''}
                         onChange={handleParkChange}
@@ -140,7 +143,7 @@ export const IssueListPage: React.FC = () => {
                             { value: '', label: selectedParkId ? 'All Trails in Selected Park' : 'All Trails' },
                             ...filteredTrails
                                 .sort((a, b) => a.name.localeCompare(b.name))
-                                .map(trail => ({ value: trail.trail_id.toString(), label: trail.name }))
+                                .map((trail) => ({ value: trail.trail_id.toString(), label: trail.name }))
                         ]}
                         value={selectedTrailId?.toString() || ''}
                         onChange={handleTrailChange}

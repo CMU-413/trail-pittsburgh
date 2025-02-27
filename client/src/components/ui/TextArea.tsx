@@ -34,9 +34,9 @@ export const TextArea: React.FC<TextAreaProps> = ({
                     rows={rows}
                     className={`block w-full rounded-md py-2 px-3 transition-colors duration-200 ease-in-out sm:text-sm
                     ${error 
-                        ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' 
-                        : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                    }`}
+            ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' 
+            : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+        }`}
                     aria-invalid={error ? 'true' : 'false'}
                     aria-describedby={error ? `${textareaId}-error` : helperText ? `${textareaId}-description` : undefined}
                     {...props}

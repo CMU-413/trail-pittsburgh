@@ -1,11 +1,9 @@
 
-
 // src/pages/parks/ParkCreatePage.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Park } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
-import { Card } from '../../components/ui/Card';
 import { ParkForm } from '../../components/parks/ParkForm';
 import { mockApi } from '../../services/mockData';
 
@@ -17,6 +15,7 @@ export const ParkCreatePage: React.FC = () => {
             const newPark = await mockApi.createPark(data);
             navigate(`/parks/${newPark.park_id}`);
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error creating park:', err);
             throw err;
         }

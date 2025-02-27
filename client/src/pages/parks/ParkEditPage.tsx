@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Park } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
-import { Card } from '../../components/ui/Card';
 import { ParkForm } from '../../components/parks/ParkForm';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
@@ -38,6 +37,7 @@ export const ParkEditPage: React.FC = () => {
                 
                 setPark(parkData);
             } catch (err) {
+                // eslint-disable-next-line no-console
                 console.error('Error fetching park:', err);
                 setError('Failed to load park. Please try again later.');
             } finally {
@@ -49,7 +49,7 @@ export const ParkEditPage: React.FC = () => {
     }, [parkId]);
     
     const handleSubmit = async (data: Omit<Park, 'park_id'>) => {
-        if (!park) return;
+        if (!park) {return;}
         
         try {
             const updatedPark = await mockApi.updatePark({
@@ -59,6 +59,7 @@ export const ParkEditPage: React.FC = () => {
             
             navigate(`/parks/${updatedPark.park_id}`);
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error updating park:', err);
             throw err;
         }

@@ -24,12 +24,10 @@ export const ParkForm: React.FC<ParkFormProps> = ({
         owner_id: 2, // Default owner - in real app, this might come from auth context
         ...initialData
     });
-    
-    const [parkImage, setParkImage] = useState<File | null>(null);
-    const [parkImagePreview, setParkImagePreview] = useState<string | null>(null);
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setFormData({
@@ -37,29 +35,28 @@ export const ParkForm: React.FC<ParkFormProps> = ({
             [name]: type === 'checkbox' ? checked : value
         });
     };
-    
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleImageChange = (file: File | null, previewUrl: string | null) => {
-        setParkImage(file);
-        setParkImagePreview(previewUrl);
+        // This would be used to store the image file and preview
+        // For now, we're just defining the function for the ImageUpload component
     };
-    
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError(null);
-        
+
         try {
             if (!formData.name || formData.name.trim() === '') {
                 throw new Error('Park name is required');
             }
-            
+
             if (!formData.county || formData.county.trim() === '') {
                 throw new Error('County is required');
             }
-            
-            // In a real app, you'd upload the image to a server here
-            // and get back a URL to store with the park
-            
+
+            //  We would later upload the image to a server here and get back a URL to store with the park
             await onSubmit(formData as Omit<Park, 'park_id'>);
         } catch (err) {
             if (err instanceof Error) {
@@ -67,12 +64,13 @@ export const ParkForm: React.FC<ParkFormProps> = ({
             } else {
                 setError('An error occurred while saving the park.');
             }
-            console.error(err);
+            // eslint-disable-next-line no-console
+            console.error('Error submitting park form:', err);
         } finally {
             setIsLoading(false);
         }
     };
-    
+
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
             {error && (
@@ -80,10 +78,10 @@ export const ParkForm: React.FC<ParkFormProps> = ({
                     {error}
                 </Alert>
             )}
-            
+
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">Park Information</h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <Input
                         label="Park Name"
@@ -93,7 +91,7 @@ export const ParkForm: React.FC<ParkFormProps> = ({
                         required
                         fullWidth
                     />
-                    
+
                     <Input
                         label="County"
                         name="county"
@@ -103,13 +101,13 @@ export const ParkForm: React.FC<ParkFormProps> = ({
                         fullWidth
                     />
                 </div>
-                
+
                 <ImageUpload
                     label="Park Image (Optional)"
                     onChange={handleImageChange}
                     className="mb-6"
                 />
-                
+
                 <div className="flex items-center">
                     <input
                         id="is_active"
@@ -124,7 +122,7 @@ export const ParkForm: React.FC<ParkFormProps> = ({
                     </label>
                 </div>
             </div>
-            
+
             <div className="flex justify-end">
                 <Button
                     type="submit"

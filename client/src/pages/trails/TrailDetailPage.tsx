@@ -1,7 +1,11 @@
 // src/pages/trails/TrailDetailPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Trail, Park, Issue } from '../../types';
+import {
+    Link, useParams, useNavigate 
+} from 'react-router-dom';
+import {
+    Trail, Park, Issue 
+} from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -58,9 +62,10 @@ export const TrailDetailPage: React.FC = () => {
                 // Fetch issues for this trail
                 const issuesData = await mockApi.getIssuesByTrail(trailIdNum);
                 // Filter to only show public issues
-                const filteredIssues = issuesData.filter(issue => issue.is_public);
+                const filteredIssues = issuesData.filter((issue) => issue.is_public);
                 setIssues(filteredIssues);
             } catch (err) {
+                // eslint-disable-next-line no-console
                 console.error('Error fetching trail details:', err);
                 setError('Failed to load trail details. Please try again later.');
             } finally {
@@ -72,7 +77,7 @@ export const TrailDetailPage: React.FC = () => {
     }, [parkId, trailId]);
     
     const handleToggleTrailStatus = async () => {
-        if (!trail) return;
+        if (!trail) {return;}
         
         try {
             const updatedTrail = await mockApi.updateTrail({
@@ -82,6 +87,7 @@ export const TrailDetailPage: React.FC = () => {
             
             setTrail(updatedTrail);
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error updating trail status:', err);
         }
     };
@@ -108,7 +114,7 @@ export const TrailDetailPage: React.FC = () => {
     }
     
     // Count open issues
-    const openIssuesCount = issues.filter(issue => issue.status === 'open').length;
+    const openIssuesCount = issues.filter((issue) => issue.status === 'open').length;
     
     return (
         <div>

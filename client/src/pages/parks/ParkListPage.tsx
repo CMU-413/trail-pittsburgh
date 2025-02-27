@@ -20,6 +20,7 @@ export const ParkListPage: React.FC = () => {
                 const response = await mockApi.getParks();
                 setParks(response);
             } catch (err) {
+                // eslint-disable-next-line no-console
                 console.error('Error fetching parks:', err);
                 setError('Failed to load parks. Please try again later.');
             } finally {
@@ -78,8 +79,8 @@ export const ParkListPage: React.FC = () => {
     // Filter active parks first, then sort alphabetically
     const sortedParks = [...parks].sort((a, b) => {
         // Active parks first
-        if (a.is_active && !b.is_active) return -1;
-        if (!a.is_active && b.is_active) return 1;
+        if (a.is_active && !b.is_active) {return -1;}
+        if (!a.is_active && b.is_active) {return 1;}
         
         // Then alphabetically
         return a.name.localeCompare(b.name);
@@ -98,7 +99,7 @@ export const ParkListPage: React.FC = () => {
             />
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sortedParks.map(park => (
+                {sortedParks.map((park) => (
                     <ParkCard key={park.park_id} park={park} />
                 ))}
             </div>

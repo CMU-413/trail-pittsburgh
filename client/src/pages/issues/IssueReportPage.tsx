@@ -20,6 +20,7 @@ export const IssueReportPage: React.FC = () => {
             const newIssue = await mockApi.createIssue(data);
             navigate(`/issues/${newIssue.issue_id}`);
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error creating issue:', err);
             throw err;
         }

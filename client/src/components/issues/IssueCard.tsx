@@ -1,9 +1,12 @@
 // src/components/issues/IssueCard.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Issue, Park, Trail } from '../../types';
+import {
+    Issue, Park, Trail 
+} from '../../types';
 import { Card } from '../ui/Card';
-import { IssueStatusBadge, getIssueStatusBgColor } from './IssueStatusBadge';
+import { IssueStatusBadge } from './IssueStatusBadge';
+import { getIssueStatusBgColor } from '../../utils/issueStatusUtils';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 
 interface IssueCardProps {

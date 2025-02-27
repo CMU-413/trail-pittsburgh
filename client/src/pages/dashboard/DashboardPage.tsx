@@ -1,15 +1,16 @@
 // src/pages/dashboard/DashboardPage.tsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Issue, Park, Trail } from '../../types';
+import {
+    Issue, Park, Trail 
+} from '../../types';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { mockApi } from '../../services/mockData';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
-import { getIssueStatusBgColor, getIssueStatusDotColor } from '../../components/issues/IssueStatusBadge';
-import DashboardCharts from './DashboardCharts';
+import { getIssueStatusBgColor, getIssueStatusDotColor } from '../../utils/issueStatusUtils';
 
 export const DashboardPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -27,29 +28,30 @@ export const DashboardPage: React.FC = () => {
             try {
                 // Fetch issues
                 const issuesData = await mockApi.getIssues();
-                const filteredIssues = issuesData.filter(issue => issue.is_public);
+                const filteredIssues = issuesData.filter((issue) => issue.is_public);
                 setIssues(filteredIssues.slice(0, 6)); // Show only the most recent 6 issues
 
                 // Calculate statistics
                 setTotalIssues(filteredIssues.length);
-                setOpenIssues(filteredIssues.filter(i => i.status === 'open').length);
-                setResolvedIssues(filteredIssues.filter(i => i.status === 'resolved').length);
+                setOpenIssues(filteredIssues.filter((i) => i.status === 'open').length);
+                setResolvedIssues(filteredIssues.filter((i) => i.status === 'resolved').length);
 
                 // Fetch parks and trails for display
                 const parksData = await mockApi.getParks();
                 const parksMap: Record<number, Park> = {};
-                parksData.forEach(park => {
+                parksData.forEach((park) => {
                     parksMap[park.park_id] = park;
                 });
                 setParks(parksMap);
 
                 const trailsData = await mockApi.getTrails();
                 const trailsMap: Record<number, Trail> = {};
-                trailsData.forEach(trail => {
+                trailsData.forEach((trail) => {
                     trailsMap[trail.trail_id] = trail;
                 });
                 setTrails(trailsMap);
             } catch (err) {
+                // eslint-disable-next-line no-console
                 console.error('Error fetching dashboard data:', err);
             } finally {
                 setIsLoading(false);
@@ -116,12 +118,6 @@ export const DashboardPage: React.FC = () => {
                 />
             </div>
 
-            {/* Analytics and Charts Section */}
-            <div className="mb-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Analytics Overview</h2>
-                <DashboardCharts />
-            </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                     <Card
@@ -133,7 +129,7 @@ export const DashboardPage: React.FC = () => {
                         }
                     >
                         <div className="divide-y divide-gray-200">
-                            {recentIssues.map(issue => (
+                            {recentIssues.map((issue) => (
                                 <div key={issue.issue_id} className="flex items-start py-4 first:pt-0 last:pb-0">
                                     <div className={`flex-shrink-0 w-10 h-10 rounded-lg ${getIssueStatusBgColor(issue.status)} flex items-center justify-center mr-4`}>
                                         <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -164,7 +160,7 @@ export const DashboardPage: React.FC = () => {
                 <div className="space-y-6">
                     <Card title="Parks Overview">
                         <div className="divide-y divide-gray-200">
-                            {Object.values(parks).slice(0, 5).map(park => (
+                            {Object.values(parks).slice(0, 5).map((park) => (
                                 <div key={park.park_id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
                                     <Link to={`/parks/${park.park_id}`} className="font-medium text-blue-600 hover:text-blue-500 truncate max-w-[70%]">
                                         {park.name}
@@ -172,7 +168,7 @@ export const DashboardPage: React.FC = () => {
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${park.is_active
                                         ? 'bg-green-100 text-green-800'
                                         : 'bg-gray-100 text-gray-800'
-                                        }`}>
+                                    }`}>
                                         {park.is_active ? 'Active' : 'Inactive'}
                                     </span>
                                 </div>

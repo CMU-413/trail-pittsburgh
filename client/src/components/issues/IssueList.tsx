@@ -1,6 +1,8 @@
 // src/components/issues/IssueList.tsx
 import React from 'react';
-import { Issue, Park, Trail } from '../../types';
+import {
+    Issue, Park, Trail 
+} from '../../types';
 import { IssueCard } from './IssueCard';
 import { EmptyState } from '../layout/EmptyState';
 import { Link } from 'react-router-dom';
@@ -42,7 +44,7 @@ export const IssueList: React.FC<IssueListProps> = ({
     
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {issues.map(issue => (
+            {issues.map((issue) => (
                 <IssueCard
                     key={issue.issue_id}
                     issue={issue}

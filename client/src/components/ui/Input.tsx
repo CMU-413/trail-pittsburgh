@@ -46,9 +46,9 @@ export const Input: React.FC<InputProps> = ({
                     ${trailingIcon ? 'pr-10' : 'pr-3'}
                     py-2
                     ${error 
-                        ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' 
-                        : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                    }`}
+            ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' 
+            : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+        }`}
                     aria-invalid={error ? 'true' : 'false'}
                     aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-description` : undefined}
                     {...props}

@@ -1,6 +1,8 @@
 // src/components/issues/IssueReportForm.tsx
 import React, { useState, useEffect } from 'react';
-import { Issue, Park, Trail } from '../../types';
+import {
+    Issue, Park, Trail
+} from '../../types';
 import { Input } from '../ui/Input';
 import { TextArea } from '../ui/TextArea';
 import { Select } from '../ui/Select';
@@ -38,8 +40,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [emailError, setEmailError] = useState<string | null>(null);
 
     const issueTypes = [
@@ -56,14 +56,15 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         const fetchParks = async () => {
             try {
                 const parksData = await mockApi.getParks();
-                setParks(parksData.filter(park => park.is_active));
+                setParks(parksData.filter((park) => park.is_active));
 
                 // If we have a park ID, load its trails
                 if (initialParkId) {
                     const trailsData = await mockApi.getTrailsByPark(initialParkId);
-                    setTrails(trailsData.filter(trail => trail.is_active));
+                    setTrails(trailsData.filter((trail) => trail.is_active));
                 }
             } catch (err) {
+                // eslint-disable-next-line no-console
                 console.error('Error loading parks:', err);
                 setError('Unable to load parks. Please try again later.');
             }
@@ -78,27 +79,28 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             if (formData.park_id) {
                 try {
                     const trailsData = await mockApi.getTrailsByPark(formData.park_id);
-                    setTrails(trailsData.filter(trail => trail.is_active));
+                    setTrails(trailsData.filter((trail) => trail.is_active));
 
                     // Reset trail selection if the current selection doesn't belong to this park
                     if (formData.trail_id) {
-                        const trailExists = trailsData.some(t => t.trail_id === formData.trail_id);
+                        const trailExists = trailsData.some((t) => t.trail_id === formData.trail_id);
                         if (!trailExists) {
-                            setFormData(prev => ({ ...prev, trail_id: 0 }));
+                            setFormData((prev) => ({ ...prev, trail_id: 0 }));
                         }
                     }
                 } catch (err) {
+                    // eslint-disable-next-line no-console
                     console.error('Error loading trails:', err);
                     setError('Unable to load trails. Please try again later.');
                 }
             } else {
                 setTrails([]);
-                setFormData(prev => ({ ...prev, trail_id: 0 }));
+                setFormData((prev) => ({ ...prev, trail_id: 0 }));
             }
         };
 
         fetchTrails();
-    }, [formData.park_id]);
+    }, [formData.park_id, formData.trail_id]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -106,7 +108,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         // Handle checkbox inputs
         if (type === 'checkbox') {
             const checked = (e.target as HTMLInputElement).checked;
-            setFormData(prev => ({ ...prev, [name]: checked }));
+            setFormData((prev) => ({ ...prev, [name]: checked }));
 
             // Clear email error when notify_reporter is unchecked
             if (name === 'notify_reporter' && !checked) {
@@ -118,7 +120,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
         // Handle number inputs
         if (type === 'number') {
-            setFormData(prev => ({ ...prev, [name]: Number(value) }));
+            setFormData((prev) => ({ ...prev, [name]: Number(value) }));
             return;
         }
 
@@ -127,26 +129,23 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             setEmailError(null);
         }
 
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSelectChange = (name: string) => (value: string) => {
-        setFormData(prev => ({ ...prev, [name]: Number(value) || value }));
+        setFormData((prev) => ({ ...prev, [name]: Number(value) || value }));
     };
 
     const handleUrgencySelect = (level: number) => {
-        setFormData(prev => ({ ...prev, urgency: level }));
+        setFormData((prev) => ({ ...prev, urgency: level }));
     };
 
     const handleImageChange = (file: File | null, previewUrl: string | null) => {
-        setImageFile(file);
-        setImagePreview(previewUrl);
-
-        // In a real app, we would upload the file to a server and get a URL back
+        // We would later upload the file to a server and get a URL back
         if (previewUrl) {
-            setFormData(prev => ({ ...prev, issue_image: previewUrl }));
+            setFormData((prev) => ({ ...prev, issue_image: previewUrl }));
         } else {
-            setFormData(prev => {
+            setFormData((prev) => {
                 const newData = { ...prev };
                 delete newData.issue_image;
                 return newData;
@@ -204,9 +203,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 reported_at: new Date().toISOString()
             } as Omit<Issue, 'issue_id'>;
 
-            const { reporter_email, ...issueData } = dataToSubmit;
-
-            await onSubmit(issueData);
+            await onSubmit(dataToSubmit);
             setSuccess(true);
 
             // Reset form
@@ -223,9 +220,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 reported_at: new Date().toISOString()
             });
 
-            setImageFile(null);
-            setImagePreview(null);
-
             // Auto-scroll to top on success
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (err) {
@@ -234,7 +228,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             } else {
                 setError('An error occurred while submitting the issue.');
             }
-            console.error(err);
+            // eslint-disable-next-line no-console
+            console.error('Error submitting issue:', err);
         } finally {
             setIsLoading(false);
         }
@@ -242,23 +237,23 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
     const getUrgencyLabel = (level: number) => {
         switch (level) {
-            case 1: return 'Very Low';
-            case 2: return 'Low';
-            case 3: return 'Medium';
-            case 4: return 'High';
-            case 5: return 'Very High';
-            default: return 'Medium';
+        case 1: return 'Very Low';
+        case 2: return 'Low';
+        case 3: return 'Medium';
+        case 4: return 'High';
+        case 5: return 'Very High';
+        default: return 'Medium';
         }
     };
 
     const getUrgencyColor = (level: number) => {
         switch (level) {
-            case 1: return 'bg-green-100 text-green-800 border-green-200';
-            case 2: return 'bg-blue-100 text-blue-800 border-blue-200';
-            case 3: return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 4: return 'bg-orange-100 text-orange-800 border-orange-200';
-            case 5: return 'bg-red-100 text-red-800 border-red-200';
-            default: return 'bg-gray-100 text-gray-800 border-gray-200';
+        case 1: return 'bg-green-100 text-green-800 border-green-200';
+        case 2: return 'bg-blue-100 text-blue-800 border-blue-200';
+        case 3: return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        case 4: return 'bg-orange-100 text-orange-800 border-orange-200';
+        case 5: return 'bg-red-100 text-red-800 border-red-200';
+        default: return 'bg-gray-100 text-gray-800 border-gray-200';
         }
     };
 
@@ -292,7 +287,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         label="Which park is the issue in?"
                         options={[
                             { value: '', label: 'Select a park' },
-                            ...parks.map(park => ({ value: park.park_id.toString(), label: park.name }))
+                            ...parks.map((park) => ({ value: park.park_id.toString(), label: park.name }))
                         ]}
                         value={formData.park_id?.toString() || ''}
                         onChange={handleSelectChange('park_id')}
@@ -306,7 +301,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         label="Which trail is affected?"
                         options={[
                             { value: '', label: formData.park_id ? 'Select a trail' : 'Select a park first' },
-                            ...trails.map(trail => ({ value: trail.trail_id.toString(), label: trail.name }))
+                            ...trails.map((trail) => ({ value: trail.trail_id.toString(), label: trail.name }))
                         ]}
                         value={formData.trail_id?.toString() || ''}
                         onChange={handleSelectChange('trail_id')}
@@ -348,8 +343,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                                     className={`
                                         py-3 px-2 rounded-lg text-center border transition-all
                                         ${formData.urgency === level
-                                            ? `${getUrgencyColor(level)} ring-2 ring-offset-1 ring-blue-500 font-medium`
-                                            : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}
+                                    ? `${getUrgencyColor(level)} ring-2 ring-offset-1 ring-blue-500 font-medium`
+                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}
                                     `}
                                 >
                                     {getUrgencyLabel(level)}

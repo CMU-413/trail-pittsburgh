@@ -16,23 +16,23 @@ export const UrgencySelect: React.FC<UrgencySelectProps> = ({
 }) => {
     const getUrgencyLabel = (level: number) => {
         switch (level) {
-            case 1: return 'Very Low';
-            case 2: return 'Low';
-            case 3: return 'Medium';
-            case 4: return 'High';
-            case 5: return 'Very High';
-            default: return 'Medium';
+        case 1: return 'Very Low';
+        case 2: return 'Low';
+        case 3: return 'Medium';
+        case 4: return 'High';
+        case 5: return 'Very High';
+        default: return 'Medium';
         }
     };
 
     const getUrgencyColor = (level: number) => {
         switch (level) {
-            case 1: return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-            case 2: return 'bg-blue-100 text-blue-800 border-blue-200';
-            case 3: return 'bg-amber-100 text-amber-800 border-amber-200';
-            case 4: return 'bg-orange-100 text-orange-800 border-orange-200';
-            case 5: return 'bg-red-100 text-red-800 border-red-200';
-            default: return 'bg-gray-100 text-gray-800 border-gray-200';
+        case 1: return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        case 2: return 'bg-blue-100 text-blue-800 border-blue-200';
+        case 3: return 'bg-amber-100 text-amber-800 border-amber-200';
+        case 4: return 'bg-orange-100 text-orange-800 border-orange-200';
+        case 5: return 'bg-red-100 text-red-800 border-red-200';
+        default: return 'bg-gray-100 text-gray-800 border-gray-200';
         }
     };
 
@@ -52,8 +52,8 @@ export const UrgencySelect: React.FC<UrgencySelectProps> = ({
                         className={`
                             py-3 px-1 rounded-lg text-center border transition-all
                             ${value === level
-                                ? `${getUrgencyColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
-                                : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}
+                        ? `${getUrgencyColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
+                        : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}
                         `}
                     >
                         <div className="text-xs">{getUrgencyLabel(level)}</div>

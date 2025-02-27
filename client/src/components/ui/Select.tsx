@@ -65,13 +65,13 @@ export const Select: React.FC<SelectProps> = ({
                         ease-in-out
                         text-sm
                         ${error
-                            ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500'
-                            : 'border-gray-300'
-                        }
+            ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500'
+            : 'border-gray-300'
+        }
                         ${disabled
-                            ? 'bg-gray-100 cursor-not-allowed text-gray-500'
-                            : 'bg-white'
-                        }
+            ? 'bg-gray-100 cursor-not-allowed text-gray-500'
+            : 'bg-white'
+        }
                     `}
                     aria-invalid={error ? 'true' : 'false'}
                     aria-describedby={error ? `${selectId}-error` : helperText ? `${selectId}-description` : undefined}

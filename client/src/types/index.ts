@@ -59,6 +59,7 @@ export type IssueResolutionUpdate = {
     res_id: number;
     issue_id: number;
     resolve_image?: string;
+    resolve_notes?: string;
     resolved_at: string;
     resolved_by: number; // user_id
 };

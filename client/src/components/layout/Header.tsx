@@ -57,7 +57,7 @@ export const Header: React.FC = () => {
 
     return (
         <nav className={`fixed w-full z-10 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-white/80 backdrop-blur-md'
-            }`}>
+        }`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     <div className="flex">
@@ -100,9 +100,9 @@ export const Header: React.FC = () => {
                                     key={item.name}
                                     to={item.href}
                                     className={`${item.current
-                                            ? 'border-[#BD4602] text-[#BD4602]'
-                                            : 'border-transparent text-gray-700 hover:border-gray-300 hover:text-[#BD4602]'
-                                        } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200`}
+                                        ? 'border-[#BD4602] text-[#BD4602]'
+                                        : 'border-transparent text-gray-700 hover:border-gray-300 hover:text-[#BD4602]'
+                                    } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200`}
                                     aria-current={item.current ? 'page' : undefined}
                                 >
                                     {item.name}
@@ -187,9 +187,9 @@ export const Header: React.FC = () => {
                                 key={item.name}
                                 to={item.href}
                                 className={`${item.current
-                                        ? 'bg-orange-50 text-[#BD4602] border-l-4 border-[#BD4602]'
-                                        : 'text-gray-700 hover:bg-gray-50 hover:text-[#BD4602] border-l-4 border-transparent'
-                                    } block pl-3 pr-4 py-2 text-base font-medium transition-colors duration-200`}
+                                    ? 'bg-orange-50 text-[#BD4602] border-l-4 border-[#BD4602]'
+                                    : 'text-gray-700 hover:bg-gray-50 hover:text-[#BD4602] border-l-4 border-transparent'
+                                } block pl-3 pr-4 py-2 text-base font-medium transition-colors duration-200`}
                                 aria-current={item.current ? 'page' : undefined}
                                 onClick={() => setIsMenuOpen(false)}
                             >

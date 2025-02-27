@@ -26,6 +26,7 @@ export const TrailCreatePage: React.FC = () => {
             
             navigate(`/parks/${parkId}/trails/${newTrail.trail_id}`);
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error creating trail:', err);
             throw err;
         }

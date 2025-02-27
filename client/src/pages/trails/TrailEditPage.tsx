@@ -46,6 +46,7 @@ export const TrailEditPage: React.FC = () => {
                 
                 setTrail(trailData);
             } catch (err) {
+                // eslint-disable-next-line no-console
                 console.error('Error fetching trail:', err);
                 setError('Failed to load trail. Please try again later.');
             } finally {
@@ -57,7 +58,7 @@ export const TrailEditPage: React.FC = () => {
     }, [parkId, trailId]);
     
     const handleSubmit = async (data: Omit<Trail, 'trail_id'>) => {
-        if (!trail || !parkId) return;
+        if (!trail || !parkId) {return;}
         
         try {
             const updatedTrail = await mockApi.updateTrail({
@@ -68,6 +69,7 @@ export const TrailEditPage: React.FC = () => {
             
             navigate(`/parks/${parkId}/trails/${updatedTrail.trail_id}`);
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error updating trail:', err);
             throw err;
         }

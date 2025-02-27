@@ -16,43 +16,41 @@ export const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
     onResolve
 }) => {
     const [notes, setNotes] = useState('');
-    const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isConfirming, setIsConfirming] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    
+
     const handleImageChange = (file: File | null, previewUrl: string | null) => {
-        setImageFile(file);
         setImagePreview(previewUrl);
     };
-    
+
     const handleConfirm = () => {
         if (!notes.trim()) {
             setError('Please provide resolution notes');
             return;
         }
-        
+
         setError(null);
         setIsConfirming(true);
     };
-    
+
     const handleCancelConfirm = () => {
         setIsConfirming(false);
     };
-    
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!notes.trim()) {
             setError('Please provide resolution notes');
             return;
         }
-        
+
         setIsLoading(true);
         setError(null);
-        
+
         try {
             await onResolve(issue.issue_id, notes, imagePreview || undefined);
             setIsSuccess(true);
@@ -60,12 +58,13 @@ export const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
         } catch (err) {
             setError('An error occurred while resolving the issue.');
             setIsConfirming(false);
-            console.error(err);
+            // eslint-disable-next-line no-console
+            console.error('Error resolving issue:', err);
         } finally {
             setIsLoading(false);
         }
     };
-    
+
     // If the issue is already resolved, don't show the form
     if (issue.status === 'resolved') {
         return (
@@ -74,7 +73,7 @@ export const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
             </Alert>
         );
     }
-    
+
     // Show success message
     if (isSuccess) {
         return (
@@ -93,7 +92,7 @@ export const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
             </div>
         );
     }
-    
+
     // Show confirmation dialog
     if (isConfirming) {
         return (
@@ -108,16 +107,16 @@ export const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
                     <p className="mt-2 text-gray-600 max-w-xl mx-auto">
                         Are you sure you want to mark this issue as resolved? This action will notify any users who requested to be informed.
                     </p>
-                    
+
                     <div className="mt-8 flex justify-center space-x-4">
-                        <Button 
-                            variant="secondary" 
+                        <Button
+                            variant="secondary"
                             onClick={handleCancelConfirm}
                         >
                             Cancel
                         </Button>
-                        <Button 
-                            variant="success" 
+                        <Button
+                            variant="success"
                             onClick={handleSubmit}
                             isLoading={isLoading}
                         >
@@ -128,18 +127,18 @@ export const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
             </div>
         );
     }
-    
+
     // Show the main form
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all duration-300">
             <h2 className="text-xl font-bold text-gray-900 mb-6">Resolve Issue</h2>
-            
+
             {error && (
                 <Alert variant="danger" className="mb-4" onDismiss={() => setError(null)}>
                     {error}
                 </Alert>
             )}
-            
+
             <form onSubmit={(e) => { e.preventDefault(); handleConfirm(); }} className="space-y-6">
                 <TextArea
                     label="Resolution Notes"
@@ -150,12 +149,12 @@ export const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
                     fullWidth
                     error={error && !notes.trim() ? 'Please provide resolution notes' : undefined}
                 />
-                
+
                 <ImageUpload
                     label="Resolution Photo (Optional)"
                     onChange={handleImageChange}
                 />
-                
+
                 <div className="flex justify-end mt-8">
                     <Button
                         type="submit"

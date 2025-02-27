@@ -362,14 +362,14 @@ export const issueResolutions: IssueResolutionUpdate[] = [
 export const mockApi = {
     // Parks
     getParks: () => Promise.resolve([...parks]),
-    getPark: (id: number) => Promise.resolve(parks.find(park => park.park_id === id)),
+    getPark: (id: number) => Promise.resolve(parks.find((park) => park.park_id === id)),
     createPark: (park: Omit<Park, 'park_id'>) => {
         const newPark = { ...park, park_id: parks.length + 1 };
         parks.push(newPark);
         return Promise.resolve(newPark);
     },
     updatePark: (park: Park) => {
-        const index = parks.findIndex(p => p.park_id === park.park_id);
+        const index = parks.findIndex((p) => p.park_id === park.park_id);
         if (index !== -1) {
             parks[index] = park;
             return Promise.resolve(park);
@@ -380,15 +380,15 @@ export const mockApi = {
     // Trails
     getTrails: () => Promise.resolve([...trails]),
     getTrailsByPark: (parkId: number) => 
-        Promise.resolve(trails.filter(trail => trail.park_id === parkId)),
-    getTrail: (id: number) => Promise.resolve(trails.find(trail => trail.trail_id === id)),
+        Promise.resolve(trails.filter((trail) => trail.park_id === parkId)),
+    getTrail: (id: number) => Promise.resolve(trails.find((trail) => trail.trail_id === id)),
     createTrail: (trail: Omit<Trail, 'trail_id'>) => {
         const newTrail = { ...trail, trail_id: trails.length + 1 };
         trails.push(newTrail);
         return Promise.resolve(newTrail);
     },
     updateTrail: (trail: Trail) => {
-        const index = trails.findIndex(t => t.trail_id === trail.trail_id);
+        const index = trails.findIndex((t) => t.trail_id === trail.trail_id);
         if (index !== -1) {
             trails[index] = trail;
             return Promise.resolve(trail);
@@ -399,25 +399,25 @@ export const mockApi = {
     // Issues
     getIssues: () => Promise.resolve([...issues]),
     getIssuesByPark: (parkId: number) => 
-        Promise.resolve(issues.filter(issue => issue.park_id === parkId)),
+        Promise.resolve(issues.filter((issue) => issue.park_id === parkId)),
     getIssuesByTrail: (trailId: number) => 
-        Promise.resolve(issues.filter(issue => issue.trail_id === trailId)),
-    getIssue: (id: number) => Promise.resolve(issues.find(issue => issue.issue_id === id)),
+        Promise.resolve(issues.filter((issue) => issue.trail_id === trailId)),
+    getIssue: (id: number) => Promise.resolve(issues.find((issue) => issue.issue_id === id)),
     createIssue: (issue: Omit<Issue, 'issue_id'>) => {
         const newIssue = { ...issue, issue_id: issues.length + 1 };
         issues.push(newIssue);
         return Promise.resolve(newIssue);
     },
     updateIssue: (issue: Issue) => {
-        const index = issues.findIndex(i => i.issue_id === issue.issue_id);
+        const index = issues.findIndex((i) => i.issue_id === issue.issue_id);
         if (index !== -1) {
             issues[index] = issue;
             return Promise.resolve(issue);
         }
         return Promise.reject(new Error('Issue not found'));
     },
-    resolveIssue: (issueId: number, userId: number, resolveImage?: string) => {
-        const issue = issues.find(i => i.issue_id === issueId);
+    resolveIssue: (issueId: number, userId: number, resolveImage?: string, resolvenotes?: string) => {
+        const issue = issues.find((i) => i.issue_id === issueId);
         if (!issue) {
             return Promise.reject(new Error('Issue not found'));
         }
@@ -433,6 +433,7 @@ export const mockApi = {
             res_id: issueResolutions.length + 1,
             issue_id: issueId,
             resolve_image: resolveImage,
+            resolve_notes: resolvenotes,
             resolved_at: resolvedAt,
             resolved_by: userId
         };
@@ -444,18 +445,18 @@ export const mockApi = {
     // Users
     getUsers: () => Promise.resolve([...users]),
     getUsersByRole: (role: string) => 
-        Promise.resolve(users.filter(user => user.role === role)),
-    getUser: (id: number) => Promise.resolve(users.find(user => user.user_id === id)),
+        Promise.resolve(users.filter((user) => user.role === role)),
+    getUser: (id: number) => Promise.resolve(users.find((user) => user.user_id === id)),
     
     // Steward Assignments
     getStewardAssignments: () => Promise.resolve([...stewardAssignments]),
     getStewardAssignmentsByPark: (parkId: number) => 
-        Promise.resolve(stewardAssignments.filter(a => a.park_id === parkId)),
+        Promise.resolve(stewardAssignments.filter((a) => a.park_id === parkId)),
     getStewardAssignmentsBySteward: (userId: number) => 
-        Promise.resolve(stewardAssignments.filter(a => a.user_id === userId)),
+        Promise.resolve(stewardAssignments.filter((a) => a.user_id === userId)),
     
     // Resolution Updates
     getResolutionUpdates: () => Promise.resolve([...issueResolutions]),
     getResolutionUpdatesByIssue: (issueId: number) => 
-        Promise.resolve(issueResolutions.filter(r => r.issue_id === issueId))
+        Promise.resolve(issueResolutions.filter((r) => r.issue_id === issueId))
 };
