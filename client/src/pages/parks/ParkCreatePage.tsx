@@ -1,0 +1,35 @@
+
+
+// src/pages/parks/ParkCreatePage.tsx
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Park } from '../../types';
+import { PageHeader } from '../../components/layout/PageHeader';
+import { Card } from '../../components/ui/Card';
+import { ParkForm } from '../../components/parks/ParkForm';
+import { mockApi } from '../../services/mockData';
+
+export const ParkCreatePage: React.FC = () => {
+    const navigate = useNavigate();
+    
+    const handleSubmit = async (data: Omit<Park, 'park_id'>) => {
+        try {
+            const newPark = await mockApi.createPark(data);
+            navigate(`/parks/${newPark.park_id}`);
+        } catch (err) {
+            console.error('Error creating park:', err);
+            throw err;
+        }
+    };
+    
+    return (
+        <div>
+            <PageHeader 
+                title="Create New Park"
+                subtitle="Add a new park to the trail system"
+            />
+            
+            <ParkForm onSubmit={handleSubmit} />
+        </div>
+    );
+};
