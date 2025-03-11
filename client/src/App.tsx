@@ -1,5 +1,7 @@
-import {BrowserRouter, Route, Routes} from "react-router-dom";
-import {HomePage} from "./pages";
+import {
+    BrowserRouter, Route, Routes 
+} from 'react-router-dom';
+import { HomePage } from './pages';
 
 export function App() {
     return (
@@ -12,5 +14,5 @@ export function App() {
                 </main>
             </div>
         </BrowserRouter>
-    )
+    );
 }

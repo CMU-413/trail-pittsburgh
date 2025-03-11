@@ -10,7 +10,7 @@ app.use(express.json());
 
 // Health check route
 app.get('/healthz', (req: express.Request, res: express.Response) => {
-    res.status(200).json({ status: 'ok'});
+    res.status(200).json({ status: 'ok' });
 });
 
 app.get('/api/trails', getTrails);

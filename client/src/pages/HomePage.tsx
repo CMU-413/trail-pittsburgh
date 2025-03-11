@@ -1,7 +1,7 @@
 export function HomePage() {
     return (
         <div>
-            Hello world.
+            Hello world!
         </div>
-    )
+    );
 }
