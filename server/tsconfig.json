@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    // "module": "ESNext",
-    "module": "NodeNext",
+    "module": "ESNext",
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
@@ -13,10 +12,9 @@
       "@/*": ["./src/*"]
     },
     "baseUrl": ".",
-    // "moduleResolution": "Bundler",
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Bundler",
     "types": ["node"]
   },
-  "include": ["src/**/*", "src/prisma/seed.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }
