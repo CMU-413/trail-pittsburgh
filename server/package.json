@@ -11,6 +11,7 @@
     "seed": "npx prisma db seed"
   },
   "prisma": {
+    "schema": "src/prisma/schema.prisma",
     "seed": "tsx src/prisma/seed.ts"
   },
   "keywords": [],
