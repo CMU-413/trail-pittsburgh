@@ -19,15 +19,6 @@ export const getIssueStatusTextColor = (status: IssueStatus): string => {
     }
 };
 
-export const getIssueStatusBgColor = (status: IssueStatus): string => {
-    switch (status) {
-    case 'open': return 'bg-red-500';
-    case 'in_progress': return 'bg-yellow-500';
-    case 'resolved': return 'bg-green-500';
-    default: return 'bg-gray-500';
-    }
-};
-
 export const getIssueStatusDotColor = (status: IssueStatus): string => {
     switch (status) {
     case 'open': return 'bg-red-500';

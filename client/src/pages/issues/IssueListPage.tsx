@@ -1,8 +1,10 @@
 // src/pages/issues/IssueListPage.tsx
-import React, { useState, useEffect } from 'react';
+import React, {
+    useState, useEffect, useCallback 
+} from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-    Issue, Park, Trail, IssueStatus 
+    Issue, Park, Trail, IssueStatus
 } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
@@ -12,6 +14,14 @@ import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { IssueList } from '../../components/issues/IssueList';
 import { mockApi } from '../../services/mockData';
+import { subDays } from 'date-fns/subDays';
+import { subMonths } from 'date-fns/subMonths';
+import { subYears } from 'date-fns/subYears';
+import { parseISO } from 'date-fns/parseISO';
+
+// Define filter and sort options
+type DateFilter = 'all' | 'week' | 'month' | '3months' | 'year';
+type SortOption = 'newest' | 'oldest' | 'urgency-high' | 'urgency-low';
 
 export const IssueListPage: React.FC = () => {
     const location = useLocation();
@@ -21,6 +31,7 @@ export const IssueListPage: React.FC = () => {
     const initialStatus = queryParams.get('status') as IssueStatus | undefined || undefined;
 
     const [issues, setIssues] = useState<Issue[]>([]);
+    const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
     const [parks, setParks] = useState<Record<number, Park>>({});
     const [trails, setTrails] = useState<Record<number, Trail>>({});
     const [isLoading, setIsLoading] = useState(true);
@@ -30,6 +41,59 @@ export const IssueListPage: React.FC = () => {
     const [selectedParkId, setSelectedParkId] = useState<number | undefined>(initialParkId);
     const [selectedTrailId, setSelectedTrailId] = useState<number | undefined>(initialTrailId);
     const [selectedStatus, setSelectedStatus] = useState<IssueStatus | 'all'>(initialStatus || 'all');
+    const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+    const [sortBy, setSortBy] = useState<SortOption>('newest');
+
+    // Apply date filter and sorting
+    const applyFiltersAndSort = useCallback((issuesData: Issue[]) => {
+        let result = [...issuesData];
+
+        // Apply date filter
+        if (dateFilter !== 'all') {
+            const now = new Date();
+            let cutoffDate: Date;
+
+            switch (dateFilter) {
+            case 'week':
+                cutoffDate = subDays(now, 7);
+                break;
+            case 'month':
+                cutoffDate = subMonths(now, 1);
+                break;
+            case '3months':
+                cutoffDate = subMonths(now, 3);
+                break;
+            case 'year':
+                cutoffDate = subYears(now, 1);
+                break;
+            default:
+                cutoffDate = new Date(0); // Beginning of time
+            }
+
+            result = result.filter((issue) => {
+                const issueDate = parseISO(issue.reported_at);
+                return issueDate >= cutoffDate;
+            });
+        }
+
+        // Apply sorting
+        result.sort((a, b) => {
+            switch (sortBy) {
+            case 'newest':
+                return new Date(b.reported_at).getTime() - new Date(a.reported_at).getTime();
+            case 'oldest':
+                return new Date(a.reported_at).getTime() - new Date(b.reported_at).getTime();
+            case 'urgency-high':
+                return b.urgency - a.urgency;
+            case 'urgency-low':
+                return a.urgency - b.urgency;
+            default:
+                return 0;
+            }
+        });
+
+        setFilteredIssues(result);
+    }, [dateFilter, sortBy]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -73,6 +137,7 @@ export const IssueListPage: React.FC = () => {
                 }
 
                 setIssues(issuesData);
+                applyFiltersAndSort(issuesData);
             } catch (err) {
                 // eslint-disable-next-line no-console
                 console.error('Error fetching issues:', err);
@@ -83,7 +148,14 @@ export const IssueListPage: React.FC = () => {
         };
 
         fetchData();
-    }, [selectedParkId, selectedTrailId, selectedStatus]);
+    }, [selectedParkId, selectedTrailId, selectedStatus, applyFiltersAndSort]);
+
+    // Apply filters and sort when these values change
+    useEffect(() => {
+        if (issues.length > 0) {
+            applyFiltersAndSort(issues);
+        }
+    }, [issues, applyFiltersAndSort]);
 
     // Handle filter changes
     const handleParkChange = (value: string) => {
@@ -99,6 +171,10 @@ export const IssueListPage: React.FC = () => {
 
     const handleStatusChange = (value: string) => {
         setSelectedStatus(value as IssueStatus | 'all');
+    };
+
+    const handleDateFilterChange = (value: string) => {
+        setDateFilter(value as DateFilter);
     };
 
     // Filter trails based on selected park
@@ -124,7 +200,7 @@ export const IssueListPage: React.FC = () => {
 
             <Card className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Issues</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <Select
                         label="Park"
                         options={[
@@ -161,6 +237,19 @@ export const IssueListPage: React.FC = () => {
                         value={selectedStatus}
                         onChange={handleStatusChange}
                     />
+
+                    <Select
+                        label="Time Period"
+                        options={[
+                            { value: 'all', label: 'All Time' },
+                            { value: 'week', label: 'Past Week' },
+                            { value: 'month', label: 'Past Month' },
+                            { value: '3months', label: 'Past 3 Months' },
+                            { value: 'year', label: 'Past Year' }
+                        ]}
+                        value={dateFilter}
+                        onChange={handleDateFilterChange}
+                    />
                 </div>
             </Card>
 
@@ -178,12 +267,27 @@ export const IssueListPage: React.FC = () => {
                 <div>
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-semibold text-gray-900">
-                            {issues.length} {issues.length === 1 ? 'Issue' : 'Issues'} Found
+                            {filteredIssues.length} {filteredIssues.length === 1 ? 'Issue' : 'Issues'} Found
                         </h2>
+                        <div className="flex items-center">
+                            <span className="text-sm text-gray-600 mr-3">Sort by:</span>
+                            <div className="w-48">
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value as SortOption)}
+                                    className="block w-full rounded-md py-1.5 px-3 text-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                                >
+                                    <option value="newest">Newest First</option>
+                                    <option value="oldest">Oldest First</option>
+                                    <option value="urgency-high">Highest Urgency</option>
+                                    <option value="urgency-low">Lowest Urgency</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <IssueList
-                        issues={issues}
+                        issues={filteredIssues}
                         parks={parks}
                         trails={trails}
                         emptyStateMessage="No issues match the selected filters"

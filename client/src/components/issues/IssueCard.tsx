@@ -6,7 +6,6 @@ import {
 } from '../../types';
 import { Card } from '../ui/Card';
 import { IssueStatusBadge } from './IssueStatusBadge';
-import { getIssueStatusBgColor } from '../../utils/issueStatusUtils';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 
 interface IssueCardProps {
@@ -31,12 +30,6 @@ export const IssueCard: React.FC<IssueCardProps> = ({
             <Card className="h-full transition-all duration-300 group-hover:shadow-lg border border-gray-100 group-hover:border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
-                        {/* Issue type icon with status-based color */}
-                        <div className={`w-10 h-10 rounded-lg ${getIssueStatusBgColor(issue.status)} flex items-center justify-center mr-3`}>
-                            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900">
                                 {issue.issue_type.charAt(0).toUpperCase() + issue.issue_type.slice(1)}
@@ -70,12 +63,12 @@ export const IssueCard: React.FC<IssueCardProps> = ({
                             {Array.from({ length: 5 }).map((_, i) => (
                                 <svg
                                     key={i}
-                                    className={`w-4 h-4 ${i < issue.urgency ? 'text-yellow-400' : 'text-gray-300'}`}
+                                    className={`w-4 h-4 ${i < issue.urgency ? 'text-red-500' : 'text-gray-300'}`}
                                     fill="currentColor"
                                     viewBox="0 0 20 20"
                                     xmlns="http://www.w3.org/2000/svg"
                                 >
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    <path d="M10.865 2.23a1 1 0 00-1.73 0L1.322 16.23A1 1 0 002.152 18h15.696a1 1 0 00.83-1.77L10.865 2.23zM10 14a1 1 0 110 2 1 1 0 010-2zm-.75-7.5a.75.75 0 011.5 0v4.5a.75.75 0 01-1.5 0V6.5z" />
                                 </svg>
                             ))}
                         </div>

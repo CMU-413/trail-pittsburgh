@@ -58,7 +58,6 @@ export const UrgencySelect: React.FC<UrgencySelectProps> = ({
                     >
                         <div className="text-xs">{getUrgencyLabel(level)}</div>
                         <div className="mt-1 flex justify-center">
-                            {/* Replacing stars with alert triangles that increase in size based on urgency */}
                             {Array.from({ length: 1 }).map((_, i) => (
                                 <svg
                                     key={i}

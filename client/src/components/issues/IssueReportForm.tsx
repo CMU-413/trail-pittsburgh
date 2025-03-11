@@ -59,8 +59,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 setParks(parksData.filter((park) => park.is_active));
 
                 // If we have a park ID, load its trails
-                if (initialParkId) {
-                    const trailsData = await mockApi.getTrailsByPark(initialParkId);
+                if (formData.park_id) {
+                    const trailsData = await mockApi.getTrailsByPark(formData.park_id);
                     setTrails(trailsData.filter((trail) => trail.is_active));
                 }
             } catch (err) {
@@ -71,7 +71,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         };
 
         fetchParks();
-    }, [initialParkId]);
+    }, [formData.park_id]);
 
     // When park changes, update trails
     useEffect(() => {
@@ -81,7 +81,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                     const trailsData = await mockApi.getTrailsByPark(formData.park_id);
                     setTrails(trailsData.filter((trail) => trail.is_active));
 
-                    // Reset trail selection if the current selection doesn't belong to this park
+                    // If current trail doesn't belong to selected park, reset it
                     if (formData.trail_id) {
                         const trailExists = trailsData.some((t) => t.trail_id === formData.trail_id);
                         if (!trailExists) {
@@ -210,8 +210,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
             // Reset form
             setFormData({
-                park_id: initialParkId || 0,
-                trail_id: initialTrailId || 0,
+                park_id: 0,
+                trail_id: 0,
                 is_public: true,
                 status: 'open',
                 description: '',
@@ -295,7 +295,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         onChange={handleSelectChange('park_id')}
                         required
                         fullWidth
-                        disabled={!!initialParkId}
                         helperText="Select the park where you found the issue"
                     />
 
@@ -309,7 +308,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         onChange={handleSelectChange('trail_id')}
                         required
                         fullWidth
-                        disabled={!formData.park_id || !!initialTrailId}
+                        disabled={!formData.park_id}
                         helperText="Select the specific trail with the issue"
                     />
                 </div>

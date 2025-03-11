@@ -10,7 +10,7 @@ import { PageHeader } from '../../components/layout/PageHeader';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { mockApi } from '../../services/mockData';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
-import { getIssueStatusBgColor, getIssueStatusDotColor } from '../../utils/issueStatusUtils';
+import { getIssueStatusDotColor } from '../../utils/issueStatusUtils';
 
 export const DashboardPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -131,11 +131,6 @@ export const DashboardPage: React.FC = () => {
                         <div className="divide-y divide-gray-200">
                             {recentIssues.map((issue) => (
                                 <div key={issue.issue_id} className="flex items-start py-4 first:pt-0 last:pb-0">
-                                    <div className={`flex-shrink-0 w-10 h-10 rounded-lg ${getIssueStatusBgColor(issue.status)} flex items-center justify-center mr-4`}>
-                                        <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                        </svg>
-                                    </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between">
                                             <Link to={`/issues/${issue.issue_id}`} className="font-medium text-blue-600 hover:text-blue-500 truncate">
