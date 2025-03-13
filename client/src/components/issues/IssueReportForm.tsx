@@ -415,20 +415,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                             />
                         </div>
                     )}
-
-                    <div className="flex items-center">
-                        <input
-                            id="is_public"
-                            name="is_public"
-                            type="checkbox"
-                            checked={formData.is_public}
-                            onChange={handleChange}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        <label htmlFor="is_public" className="ml-3 block text-sm text-gray-700">
-                            Make this report public (visible to all users)
-                        </label>
-                    </div>
                 </div>
             </div>
 
