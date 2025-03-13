@@ -436,7 +436,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 <Button
                     type="submit"
                     variant="primary"
-                    size="lg"
+                    size="md"
                     isLoading={isLoading}
                     className="px-10 sm:px-12"
                 >

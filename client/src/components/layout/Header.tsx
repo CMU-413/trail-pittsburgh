@@ -1,12 +1,20 @@
 // src/components/layout/Header.tsx
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import {
+    Link, useLocation, useNavigate 
+} from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { APP_NAME } from '../../constants/config';
 
 export const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
+
+    // Get auth context
+    const { user, isAuthenticated, hasPermission, logout } = useAuth();
 
     // Handle scroll effect for header
     useEffect(() => {
@@ -33,27 +41,28 @@ export const Header: React.FC = () => {
         };
     }, [isProfileOpen]);
 
-    // Mock user
-    const currentUser = {
-        name: 'Random Guy',
-        role: 'steward',
-        avatar: 'https://randomuser.me/api/portraits/men/2.jpg'
-    };
-
-    const navigation = [
-        { name: 'Dashboard', href: '/dashboard', current: location.pathname === '/dashboard' },
-        { name: 'Parks', href: '/parks', current: location.pathname.startsWith('/parks') },
+    // Navigation links that are public
+    const publicNavigation = [
+        { name: 'Home', href: '/', current: location.pathname === '/' },
         { name: 'Report Issue', href: '/issues/report', current: location.pathname === '/issues/report' },
     ];
 
-    // Add admin links for stewards and owners
-    if (currentUser.role === 'steward' || currentUser.role === 'owner') {
-        navigation.push({
-            name: 'Issues',
-            href: '/issues',
-            current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report'
-        });
-    }
+    // Navigation links for authenticated users
+    const authNavigation = [
+        { name: 'Dashboard', href: '/dashboard', current: location.pathname === '/dashboard' },
+        { name: 'Parks', href: '/parks', current: location.pathname.startsWith('/parks') },
+        { name: 'Issues', href: '/issues', current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report' },
+    ];
+
+    // Determine which navigation to use
+    const navigation = hasPermission ? [...publicNavigation, ...authNavigation] : publicNavigation;
+
+    // Handle profile actions
+    const handleLogout = () => {
+        setIsProfileOpen(false);
+        logout();
+        navigate('/');
+    };
 
     return (
         <nav className={`fixed w-full z-10 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-white/80 backdrop-blur-md'
@@ -91,7 +100,7 @@ export const Header: React.FC = () => {
                                         strokeLinejoin="round"
                                     />
                                 </svg>
-                                <span className="text-[#BD4602] text-xl font-bold">Trail Pittsburgh</span>
+                                <span className="text-[#BD4602] text-xl font-bold">{APP_NAME}</span>
                             </Link>
                         </div>
                         <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -113,29 +122,38 @@ export const Header: React.FC = () => {
                     <div className="hidden sm:ml-6 sm:flex sm:items-center">
                         {/* Profile dropdown */}
                         <div className="ml-3 relative profile-dropdown">
-                            <div>
-                                <button
-                                    type="button"
-                                    className="flex items-center space-x-3 bg-white p-1 rounded-full hover:bg-gray-50 transition-colors"
-                                    id="user-menu-button"
-                                    aria-expanded={isProfileOpen}
-                                    aria-haspopup="true"
-                                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                            {isAuthenticated ? (
+                                <div>
+                                    <button
+                                        type="button"
+                                        className="flex items-center space-x-3 bg-white p-1 rounded-full hover:bg-gray-50 transition-colors"
+                                        id="user-menu-button"
+                                        aria-expanded={isProfileOpen}
+                                        aria-haspopup="true"
+                                        onClick={() => setIsProfileOpen(!isProfileOpen)}
+                                    >
+                                        <div className="text-right hidden md:block">
+                                            <p className="text-sm font-medium text-gray-700 truncate">{user?.name}</p>
+                                            <p className="text-xs text-gray-500 capitalize">{hasPermission ? 'Staff' : 'Public'}</p>
+                                        </div>
+                                        <div className="relative flex-shrink-0">
+                                            <img
+                                                className="h-10 w-10 rounded-full object-cover ring-2 ring-white"
+                                                src={user?.picture || `https://placehold.co/600x400?text=${encodeURIComponent(user?.name || 'User Name')}`}
+                                                alt={user?.name || 'User profile'}
+                                            />
+                                            <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-emerald-400 ring-1 ring-white"></span>
+                                        </div>
+                                    </button>
+                                </div>
+                            ) : (
+                                <Link
+                                    to="/login"
+                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD4602] hover:bg-[#a33e02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD4602]"
                                 >
-                                    <div className="text-right hidden md:block">
-                                        <p className="text-sm font-medium text-gray-700 truncate">{currentUser.name}</p>
-                                        <p className="text-xs text-gray-500 capitalize">{currentUser.role}</p>
-                                    </div>
-                                    <div className="relative flex-shrink-0">
-                                        <img
-                                            className="h-10 w-10 rounded-full object-cover ring-2 ring-white"
-                                            src={currentUser.avatar}
-                                            alt={currentUser.name}
-                                        />
-                                        <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-emerald-400 ring-1 ring-white"></span>
-                                    </div>
-                                </button>
-                            </div>
+                                    Sign in
+                                </Link>
+                            )}
 
                             {/* Dropdown menu */}
                             {isProfileOpen && (
@@ -146,9 +164,29 @@ export const Header: React.FC = () => {
                                     aria-labelledby="user-menu-button"
                                 >
                                     <div className="py-1" role="none">
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Profile</a>
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
+                                        <Link
+                                            to="/profile"
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            role="menuitem"
+                                            onClick={() => setIsProfileOpen(false)}
+                                        >
+                                            Profile
+                                        </Link>
+                                        <Link
+                                            to="/settings"
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            role="menuitem"
+                                            onClick={() => setIsProfileOpen(false)}
+                                        >
+                                            Settings
+                                        </Link>
+                                        <button
+                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            role="menuitem"
+                                            onClick={handleLogout}
+                                        >
+                                            Sign out
+                                        </button>
                                     </div>
                                 </div>
                             )}
@@ -197,27 +235,57 @@ export const Header: React.FC = () => {
                             </Link>
                         ))}
                     </div>
-                    <div className="pt-4 pb-3 border-t border-gray-200">
-                        <div className="flex items-center px-4 py-2">
-                            <div className="flex-shrink-0 relative">
-                                <img
-                                    className="h-10 w-10 rounded-full object-cover"
-                                    src={currentUser.avatar}
-                                    alt={currentUser.name}
-                                />
-                                <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-emerald-400 ring-1 ring-white"></span>
+
+                    {isAuthenticated ? (
+                        <div className="pt-4 pb-3 border-t border-gray-200">
+                            <div className="flex items-center px-4 py-2">
+                                <div className="flex-shrink-0 relative">
+                                    <img
+                                        className="h-10 w-10 rounded-full object-cover"
+                                        src={user?.picture || 'https://via.placeholder.com/150'}
+                                        alt={user?.name || 'User profile'}
+                                    />
+                                    <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-emerald-400 ring-1 ring-white"></span>
+                                </div>
+                                <div className="ml-3">
+                                    <div className="text-base font-medium text-gray-800">{user?.name}</div>
+                                    <div className="text-sm font-medium text-gray-500 capitalize">{hasPermission ? 'Staff' : 'Public'}</div>
+                                </div>
                             </div>
-                            <div className="ml-3">
-                                <div className="text-base font-medium text-gray-800">{currentUser.name}</div>
-                                <div className="text-sm font-medium text-gray-500 capitalize">{currentUser.role}</div>
+                            <div className="mt-3 space-y-1">
+                                <Link
+                                    to="/profile"
+                                    className="block px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#BD4602]"
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    Profile
+                                </Link>
+                                <Link
+                                    to="/settings"
+                                    className="block px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#BD4602]"
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    Settings
+                                </Link>
+                                <button
+                                    className="block w-full text-left px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#BD4602]"
+                                    onClick={handleLogout}
+                                >
+                                    Sign out
+                                </button>
                             </div>
                         </div>
-                        <div className="mt-3 space-y-1">
-                            <a href="#" className="block px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#BD4602]">Profile</a>
-                            <a href="#" className="block px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#BD4602]">Settings</a>
-                            <a href="#" className="block px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#BD4602]">Sign out</a>
+                    ) : (
+                        <div className="pt-4 pb-3 border-t border-gray-200">
+                            <Link
+                                to="/login"
+                                className="block px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#BD4602]"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                Sign in
+                            </Link>
                         </div>
-                    </div>
+                    )}
                 </div>
             )}
         </nav>
