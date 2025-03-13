@@ -162,7 +162,7 @@ export const TrailForm: React.FC<TrailFormProps> = ({
                 <Button
                     type="submit"
                     variant="primary"
-                    size="lg"
+                    size="md"
                     isLoading={isLoading}
                 >
                     {isEditing ? 'Update Trail' : 'Create Trail'}
