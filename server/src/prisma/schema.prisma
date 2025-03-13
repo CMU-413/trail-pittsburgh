@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Trails {
+  trail_id   Int     @id @default(autoincrement())
+  trail_name String  @db.VarChar(150)
+  location   String? @db.VarChar(200)
+
+  @@map("trails")
+}
+
+model Users {
+  user_id    Int       @id @default(autoincrement())
+  username   String    @unique @db.VarChar(100)
+  email      String    @unique @db.VarChar(100)
+  created_at DateTime? @default(now())
+
+  @@map("users")
+}
+
+model Parks {
+  park_id   Int       @id(map: "Parks_pkey") @default(autoincrement())
+  park_name String    @db.VarChar(150)
+  created_at DateTime? @default(now())
+
+  @@map("parks")
+}
