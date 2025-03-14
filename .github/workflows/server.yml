@@ -31,6 +31,11 @@ jobs:
         working-directory: server
         run: npm run lint
 
+      # Generate Prisma Schema
+      - name: Generate Prisma Schema
+        working-directory: server/src
+        run: npx prisma generate
+
       # Build server
       - name: Build server
         working-directory: server

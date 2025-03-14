@@ -128,7 +128,7 @@ export const ParkForm: React.FC<ParkFormProps> = ({
                 <Button
                     type="submit"
                     variant="primary"
-                    size="lg"
+                    size="md"
                     isLoading={isLoading}
                 >
                     {isEditing ? 'Update Park' : 'Create Park'}

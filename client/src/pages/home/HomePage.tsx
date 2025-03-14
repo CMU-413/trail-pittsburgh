@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
+import { VOLUNTEER_LINK } from '../../constants/config';
 
 export const HomePage: React.FC = () => {
     return (
@@ -127,8 +128,8 @@ export const HomePage: React.FC = () => {
                                     Want to help maintain Pittsburgh's trails? Join our volunteer network and help keep our trail system in top shape.
                                 </p>
                                 <div className="mt-8">
-                                    <a href="https://www.trailpittsburgh.org/volunteer/" target="_blank" rel="noopener noreferrer">
-                                        <button className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-indigo-700 bg-white hover:bg-indigo-50 transition-all hover:-translate-y-0.5">
+                                    <a href={VOLUNTEER_LINK} target="_blank" rel="noopener noreferrer">
+                                        <button className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-indigo-700 bg-white hover:bg-indigo-50 transition-all hover:-translate-y-0.5 cursor-pointer">
                                             Become a Volunteer
                                         </button>
                                     </a>

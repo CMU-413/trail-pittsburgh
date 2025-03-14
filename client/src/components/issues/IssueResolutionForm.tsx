@@ -161,7 +161,7 @@ export const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
                     <Button
                         type="submit"
                         variant="success"
-                        size="lg"
+                        size="md"
                     >
                         Mark as Resolved
                     </Button>
