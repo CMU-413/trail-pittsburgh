@@ -15,31 +15,31 @@ export class ParkController {
         this.deletePark = this.deletePark.bind(this);
     }
 
-    public async getPark(
-        req: express.Request, res: express.Response
-    ) {
+    public async getPark(req: express.Request, res: express.Response) {
         const park = await this.parkService.getPark(Number(req.params.id));
-        res.json({ success: true, park });
+        if (!park) {
+            res.status(404).json({ message: 'Park not found.' });
+        }
+        res.json({ data: park });
     }
 
-    public async getAllParks(
-        req: express.Request, res: express.Response
-    ) {
+    public async getAllParks(req: express.Request, res: express.Response) {
         const parks = await this.parkService.getAllParks();
-        res.json({ success: true, parks });
+        res.json({ data: parks });
     }
 
     public async createPark(req: express.Request, res: express.Response) {
         const park = await this.parkService.createPark(req.body.parkName);
-        res.json({ success: true, park });
+        res.status(201).json({ data:park });
     }
 
-    public async deletePark(
-        req: express.Request, res: express.Response
-    ) {
-        console.log('deletePark', req.params.id);
-        await this.parkService.deletePark(Number(req.params.id));
-        res.json({ success: true });
+    public async deletePark(req: express.Request, res: express.Response) {
+        const deleted =
+            await this.parkService.deletePark(Number(req.params.id));
+        if (!deleted) {
+            return res.status(404).json({ message: 'Park not found.' });
+        }
+        return res.status(204).send();
     }
 }
 
