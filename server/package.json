@@ -20,14 +20,19 @@
   "type": "module",
   "description": "",
   "dependencies": {
+    "@google-cloud/secret-manager": "^5.6.0",
+    "@google-cloud/storage": "^7.15.1",
     "@prisma/client": "^6.4.1",
     "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1",
     "express": "^4.21.2",
     "pg": "^8.13.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
     "@types/express": "^5.0.0",
+    "@types/multer": "^1.4.12",
     "@types/node": "^22.13.10",
     "@types/pg": "^8.11.11",
     "eslint": "^9.20.1",
