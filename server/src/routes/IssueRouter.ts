@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { IssueController } from '@/controllers/';
+import { errorHandlerWrapper } from '@/middlewares';
 import { IssueRepository } from '@/repositories';
 import { IssueService } from '@/services/IssueService';
 
@@ -10,6 +11,6 @@ const issueController = new IssueController(issueService);
 
 const router = express.Router();
 
-router.get('/:id', issueController.getIssue);
+router.get('/:id', errorHandlerWrapper(issueController.getIssue));
 
 export { router as issueRouter };
