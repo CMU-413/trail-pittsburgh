@@ -25,7 +25,6 @@ export class ParkRepository {
 
     public async setParkStatus(parkId: number, isActive: boolean) {
         try {
-            console.log(isActive);
             return await prisma.parks.update({
                 where: { park_id: parkId },
                 data: { is_active: isActive }
