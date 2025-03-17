@@ -14,6 +14,7 @@ const router = express.Router();
 router.get('/:id', errorHandlerWrapper(parkController.getPark));
 router.get('/', errorHandlerWrapper(parkController.getAllParks));
 router.post('/', errorHandlerWrapper(parkController.createPark));
+router.put('/:id', errorHandlerWrapper(parkController.updatePark));
 router.delete('/:id', errorHandlerWrapper(parkController.deletePark));
 
 export { router as parkRouter };

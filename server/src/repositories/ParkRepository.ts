@@ -23,22 +23,32 @@ export class ParkRepository {
         return prisma.parks.findMany();
     }
 
-    public async deletePark(parkId: number) {
+    public async setParkStatus(parkId: number, isActive: boolean) {
         try {
-            await prisma.parks.delete({
-                where: {
-                    park_id: parkId,
-                },
+            console.log(isActive);
+            return await prisma.parks.update({
+                where: { park_id: parkId },
+                data: { is_active: isActive }
             });
         } catch (error) {
-            // Park id not found
-            if (error instanceof Prisma.PrismaClientKnownRequestError &&
-                (error.code === 'P2025' || error.code === 'P2016')
-            ) {
-                return false;
-            }
+            if (isParkNotFoundError(error)) { return null; }
             throw error;
         }
-        return true;
     }
+
+    public async deletePark(parkId: number) {
+        try {
+            await prisma.parks.delete({ where: { park_id: parkId } });
+            return true;
+        } catch (error) {
+            // Park id not found
+            if (isParkNotFoundError(error)) { return false; }
+            throw error;
+        }
+    }
+}
+
+function isParkNotFoundError(error: unknown) {
+    return (error instanceof Prisma.PrismaClientKnownRequestError &&
+        (error.code === 'P2025' || error.code === 'P2016'));
 }

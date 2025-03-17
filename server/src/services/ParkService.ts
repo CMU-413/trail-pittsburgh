@@ -20,6 +20,12 @@ export class ParkService {
         return this.parkRepository.createPark(parkName);
     }
 
+    public async updatePark(
+        parkId: number, { isActive }: { isActive: boolean }
+    ) {
+        return this.parkRepository.setParkStatus(parkId, isActive);
+    }
+
     public async deletePark(parkId: number) {
         return this.parkRepository.deletePark(parkId);
     }
