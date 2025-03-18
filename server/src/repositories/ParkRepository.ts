@@ -15,7 +15,7 @@ export class ParkRepository {
         return prisma.parks.create({
             data: {
                 name: parkName,
-                county: "Random Temp County"
+                county: 'Random Temp County'
             }
         });
     }
