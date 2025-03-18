@@ -14,7 +14,8 @@ export class ParkRepository {
     public async createPark(parkName: string) {
         return prisma.parks.create({
             data: {
-                park_name: parkName,
+                name: parkName,
+                county: "Random Temp County"
             }
         });
     }
