@@ -14,7 +14,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22.x
-          cache: "npm"
 
       - name: Install dependencies
         working-directory: server
