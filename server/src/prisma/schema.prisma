@@ -8,27 +8,86 @@ datasource db {
 }
 
 model Trails {
-  trail_id   Int     @id @default(autoincrement())
-  trail_name String  @db.VarChar(150)
-  location   String? @db.VarChar(200)
+  trail_id  Int      @id @default(autoincrement())
+  park_id   Int
+  name      String   @db.VarChar(150)
+  is_active Boolean
+  is_open   Boolean
+  issues    Issues[]
 
-  @@map("trails")
+  //Foreign key relation to Park
+  park Parks @relation(fields: [park_id], references: [park_id])
 }
 
 model Users {
-  user_id    Int       @id @default(autoincrement())
-  username   String    @unique @db.VarChar(100)
-  email      String    @unique @db.VarChar(100)
-  created_at DateTime? @default(now())
+  user_id         Int       @id @default(autoincrement())
+  name            String    @unique @db.VarChar(100)
+  is_admin        Boolean
+  is_hubspot_user Boolean
+  picture         String    @db.VarChar
+  email           String    @unique @db.VarChar(100)
+  created_at      DateTime? @default(now())
+  is_active       Boolean
 
-  @@map("users")
+  //Relation: one user can have multiple permissions
+  permissions   Permissions[]
+  notifications Notifications[]
 }
 
 model Parks {
-  park_id   Int       @id(map: "Parks_pkey") @default(autoincrement())
-  park_name String    @db.VarChar(150)
-  is_active Boolean  @default(true)
-  created_at DateTime @default(now())
+  park_id   Int     @id(map: "Parks_pkey") @default(autoincrement())
+  name      String  @db.VarChar(150)
+  county    String  @db.VarChar(150)
+  is_active Boolean @default(true)
 
-  @@map("parks")
+  trails      Trails[]
+  issues      Issues[]
+  permissions Permissions[]
+}
+
+model Permissions {
+  permission_id   Int       @id @default(autoincrement())
+  user_id         Int
+  resource_type   String    @db.VarChar(150)
+  resource_id     Int
+  permission_type String    @db.VarChar(150)
+  assigned_date   DateTime? @default(now())
+  is_active       Boolean
+
+  //Foreign Key in relation to Users
+  user Users @relation(fields: [user_id], references: [user_id])
+  park Parks @relation(fields: [resource_id], references: [park_id])
+}
+
+model Issues {
+  issue_id        Int       @id @default(autoincrement())
+  park_id         Int
+  trail_id        Int
+  is_public       Boolean
+  status          String    @db.VarChar(150)
+  description     String    @db.VarChar(150)
+  created_at      DateTime? @default(now())
+  issue_type      String    @db.VarChar(150)
+  urgency         Int
+  issue_image     String    @db.VarChar(150)
+  notify_reporter Boolean
+  resolved_at     DateTime? @default(now())
+
+  //Foreign Key in relation to Parks and Trails
+  park  Parks  @relation(fields: [park_id], references: [park_id])
+  trail Trails @relation(fields: [trail_id], references: [trail_id])
+}
+
+model Notifications {
+  notification_id Int    @id @default(autoincrement())
+  recipient_id    Int
+  content         String @db.VarChar(150)
+
+  //Foreign Key in relation to Users
+  user Users @relation(fields: [recipient_id], references: [user_id])
+}
+
+model Anonymous_users {
+  email  String @id @unique
+  status String @db.VarChar(150)
 }
