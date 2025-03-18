@@ -24,7 +24,12 @@ jobs:
       # Install dependencies for client
       - name: Install dependencies for client
         working-directory: client
-        run: npm install
+        run: npm ci
+
+      # Run ESLint for client
+      - name: Run ESLint for client
+        working-directory: client
+        run: npm run lint
 
       # Build client
       - name: Build client
