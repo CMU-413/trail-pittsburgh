@@ -15,6 +15,7 @@ import { IssueStatusBadge } from '../../components/issues/IssueStatusBadge';
 import { IssueResolutionForm } from '../../components/issues/IssueResolutionForm';
 import { mockApi } from '../../services/mockData';
 import { format } from 'date-fns';
+import Location from '../../components/ui/Location';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -187,13 +188,12 @@ export const IssueDetailPage: React.FC = () => {
                     {issue.lon && issue.lat && (
                         <div className="mb-6">
                             <h4 className="text-sm font-medium text-gray-500 mb-2">Location</h4>
-                            <p className="text-gray-700">
-                                Coordinates: {issue.lat.toFixed(6)}, {issue.lon.toFixed(6)}
-                            </p>
-                            {/* In a real app, you might display a map here */}
-                            <div className="mt-2 h-48 rounded-lg bg-gray-100 flex items-center justify-center">
-                                <p className="text-gray-500">Map would be displayed here</p>
-                            </div>
+                            <Location
+                                initialLat={issue.lat}
+                                initialLon={issue.lon}
+                                readOnly={true}
+                                variant="plain"
+                            />
                         </div>
                     )}
 
