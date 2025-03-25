@@ -5,11 +5,11 @@ import { prisma } from '@/prisma/prismaClient'; // Your Express app
 
 describe('Park Routes', () => {
     beforeAll(async () => {
-        await prisma.parks.deleteMany();
+        await prisma.park.deleteMany();
     });
 
     afterEach(async () => {
-        await prisma.parks.deleteMany();
+        await prisma.park.deleteMany();
     });
 
     afterAll(async () => {
@@ -17,7 +17,7 @@ describe('Park Routes', () => {
     });
 
     it('should create a new park', async () => {
-        const newPark = { parkName: 'Central Park' };
+        const newPark = { name: 'Central Park' };
 
         const response = await request(app)
             .post('/api/parks')
@@ -30,7 +30,7 @@ describe('Park Routes', () => {
     });
 
     it('should get all parks', async () => {
-        const newPark = { parkName: 'Central Park' };
+        const newPark = { name: 'Central Park' };
 
         const NUMBER_OF_PARKS = 5;
         for (let i = 0; i < NUMBER_OF_PARKS; i++) {
@@ -49,7 +49,7 @@ describe('Park Routes', () => {
     });
 
     it('should get a park', async () => {
-        const newPark = { parkName: 'Central Park' };
+        const newPark = { name: 'Central Park' };
 
         const createResponse = await request(app)
             .post('/api/parks')
@@ -67,7 +67,7 @@ describe('Park Routes', () => {
     });
 
     it('should delete a park', async () => {
-        const newPark = { parkName: 'Central Park' };
+        const newPark = { name: 'Central Park' };
 
         const createResponse = await request(app)
             .post('/api/parks')
