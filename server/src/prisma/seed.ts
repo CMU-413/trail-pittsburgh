@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
     
-    const park1 = await prisma.parks.create({
+    const park1 = await prisma.park.create({
         data: {
             name: 'Grand Canyon National Park', 
             county: 'Coconino',
@@ -12,7 +12,7 @@ async function main() {
         }
     });
 
-    const park2 = await prisma.parks.create({
+    const park2 = await prisma.park.create({
         data: {
             name: 'Yellowstone National Park',
             county: 'Teton',
@@ -20,7 +20,7 @@ async function main() {
         }
     });
 
-    await prisma.trails.createMany({
+    await prisma.trail.createMany({
         data: [
             {
                 park_id: park1.park_id, 
