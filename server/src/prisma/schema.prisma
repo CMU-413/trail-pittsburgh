@@ -21,7 +21,7 @@ model Trail {
 
 model User {
   user_id                  Int       @id @default(autoincrement())
-  name                     String    @unique @db.VarChar(100)
+  username                 String    @unique @db.VarChar(100)
   is_admin                 Boolean
   is_hubspot_user          Boolean
   profile_image_key        String    @db.VarChar
