@@ -9,7 +9,7 @@ describe('ParkService', () => {
     const mockPark = {
         park_id: 1,
         name: 'Test Park',
-        county: "mockC",
+        county: 'Test County',
         is_active: true,
         created_at: new Date()
     };
@@ -23,9 +23,11 @@ describe('ParkService', () => {
     test('should create a new park', async () => {
         parkRepositoryMock.createPark.mockResolvedValue(mockPark);
 
-        const result = await parkService.createPark('Test Park');
+        const newParkInput = { name: 'Test Park', county: 'Test County' };
+        const result = await parkService.createPark(newParkInput);
 
-        expect(parkRepositoryMock.createPark).toHaveBeenCalledWith('Test Park');
+        expect(parkRepositoryMock.createPark)
+            .toHaveBeenCalledWith(newParkInput);
         expect(result).toEqual(mockPark);
     });
 
