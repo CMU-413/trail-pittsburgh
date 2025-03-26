@@ -70,7 +70,7 @@ export const Select: React.FC<SelectProps> = ({
         }
                         ${disabled
             ? 'bg-gray-100 cursor-not-allowed text-gray-500'
-            : 'bg-white'
+            : 'bg-white cursor-pointer'
         }
                     `}
                     aria-invalid={error ? 'true' : 'false'}

@@ -1,4 +1,5 @@
-// src/components/issues/IssueReportForm.tsx
+// Updated IssueReportForm.tsx with card-based issue type selector and mobile-first urgency design
+
 import React, { useState, useEffect } from 'react';
 import {
     Issue, Park, Trail
@@ -140,6 +141,10 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         setFormData((prev) => ({ ...prev, [name]: Number(value) || value }));
     };
 
+    const handleIssueTypeSelect = (type: string) => {
+        setFormData((prev) => ({ ...prev, issue_type: type }));
+    };
+
     const handleUrgencySelect = (level: number) => {
         setFormData((prev) => ({ ...prev, urgency: level }));
     };
@@ -167,6 +172,49 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             lon
         }));
         setLocationProvided(true);
+    };
+
+    // Get issue type icon
+    const getIssueTypeIcon = (type: string) => {
+        switch (type) {
+        case 'obstruction':
+            return (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            );
+        case 'erosion':
+            return (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+            );
+        case 'flooding':
+            return (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                </svg>
+            );
+        case 'signage':
+            return (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            );
+        case 'vandalism':
+            return (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+            );
+        case 'other':
+        default:
+            return (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            );
+        }
     };
 
     // Validate email format
@@ -267,9 +315,9 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
     const getUrgencyColor = (level: number) => {
         switch (level) {
-        case 1: return 'bg-green-100 text-green-800 border-green-200';
+        case 1: return 'bg-emerald-100 text-emerald-800 border-emerald-200';
         case 2: return 'bg-blue-100 text-blue-800 border-blue-200';
-        case 3: return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        case 3: return 'bg-amber-100 text-amber-800 border-amber-200';
         case 4: return 'bg-orange-100 text-orange-800 border-orange-200';
         case 5: return 'bg-red-100 text-red-800 border-red-200';
         default: return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -335,37 +383,81 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-5">Issue Details</h3>
                 <div className="space-y-6">
-                    <Select
-                        label="What type of issue is it?"
-                        options={[
-                            { value: '', label: 'Select issue type' },
-                            ...issueTypes
-                        ]}
-                        value={formData.issue_type || ''}
-                        onChange={handleSelectChange('issue_type')}
-                        required
-                        fullWidth
-                        helperText="Select the category that best describes the issue"
-                    />
+                    {/* New card-based issue type selector */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                            What type of issue is it?
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {issueTypes.map((type) => (
+                                <button
+                                    key={type.value}
+                                    type="button"
+                                    onClick={() => handleIssueTypeSelect(type.value)}
+                                    className={`
+                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                        ${formData.issue_type === type.value
+                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                    : 'border-gray-200'
+                                }
+                                    `}
+                                >
+                                    <div className={`p-2 rounded-full mr-3 ${formData.issue_type === type.value ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
+                                        {getIssueTypeIcon(type.value)}
+                                    </div>
+                                    <span className="font-medium text-sm">{type.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <p className="mt-2 text-xs text-gray-500">Select the category that best describes the issue</p>
+                    </div>
 
+                    {/* Urgency selector */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                             How urgent is this issue?
                         </label>
-                        <div className="grid grid-cols-5 gap-2">
+                        {/* For large screens: all options in one row */}
+                        <div className="hidden md:grid md:grid-cols-5 gap-3">
                             {[1, 2, 3, 4, 5].map((level) => (
                                 <button
                                     key={level}
                                     type="button"
                                     onClick={() => handleUrgencySelect(level)}
                                     className={`
-                                        py-3 px-2 rounded-lg text-center border transition-all
+                                        p-3 rounded-lg text-center border transition-all cursor-pointer
                                         ${formData.urgency === level
-                                    ? `${getUrgencyColor(level)} ring-2 ring-offset-1 ring-blue-500 font-medium`
-                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}
+                                    ? `${getUrgencyColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
+                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                                }
                                     `}
                                 >
-                                    {getUrgencyLabel(level)}
+                                    <div className="text-sm font-medium">{getUrgencyLabel(level)}</div>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* For mobile: options stacked one per row */}
+                        <div className="grid grid-cols-1 gap-3 md:hidden">
+                            {[1, 2, 3, 4, 5].map((level) => (
+                                <button
+                                    key={level}
+                                    type="button"
+                                    onClick={() => handleUrgencySelect(level)}
+                                    className={`
+                                        p-3 rounded-lg text-center border transition-all flex justify-between items-center cursor-pointer
+                                        ${formData.urgency === level
+                                    ? `${getUrgencyColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
+                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                                }
+                                    `}
+                                >
+                                    <div className="text-sm font-medium">{getUrgencyLabel(level)}</div>
+                                    {formData.urgency === level && (
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    )}
                                 </button>
                             ))}
                         </div>
