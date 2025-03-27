@@ -19,10 +19,10 @@ const parkController = new ParkController(parkService);
 
 const router = express.Router();
 
-router.get('/:id', validateRequest(getParkSchema), errorHandlerWrapper(parkController.getPark));
+router.get('/:parkId', validateRequest(getParkSchema), errorHandlerWrapper(parkController.getPark));
 router.get('/', validateRequest(getAllParksSchema), errorHandlerWrapper(parkController.getAllParks));
 router.post('/', validateRequest(createParkSchema), errorHandlerWrapper(parkController.createPark));
-router.put('/:id', validateRequest(updateParkSchema), errorHandlerWrapper(parkController.updatePark));
-router.delete('/:id', validateRequest(deleteParkSchema), errorHandlerWrapper(parkController.deletePark));
+router.put('/:parkId', validateRequest(updateParkSchema), errorHandlerWrapper(parkController.updatePark));
+router.delete('/:parkId', validateRequest(deleteParkSchema), errorHandlerWrapper(parkController.deletePark));
 
 export { router as parkRouter };

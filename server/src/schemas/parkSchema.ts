@@ -11,7 +11,7 @@ export const getAllParksSchema = z.object({});
 export const createParkSchema = z.object({
     body: z.object({
         name: z.string(),
-        country: z.string(),
+        county: z.string(),
     })
 });
 
