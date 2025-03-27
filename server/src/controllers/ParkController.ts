@@ -17,7 +17,7 @@ export class ParkController {
     }
 
     public async getPark(req: express.Request, res: express.Response) {
-        const parkId = Number(req.params.id);
+        const parkId = Number(req.params.parkId);
         const park = await this.parkService.getPark(parkId);
 
         if (!park) {
@@ -38,7 +38,7 @@ export class ParkController {
     }
 
     public async updatePark(req: express.Request, res: express.Response) {
-        const parkId = Number(req.params.id);
+        const parkId = Number(req.params.parkId);
         const { isActive } = req.body;
         const updatedPark =
             await this.parkService.updatePark(parkId, { isActive });
@@ -51,7 +51,7 @@ export class ParkController {
     }
 
     public async deletePark(req: express.Request, res: express.Response) {
-        const parkId = Number(req.params.id);
+        const parkId = Number(req.params.parkId);
         const deleted =
             await this.parkService.deletePark(parkId);
 
