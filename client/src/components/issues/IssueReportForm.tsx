@@ -9,6 +9,7 @@ import { Select } from '../ui/Select';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
 import { ImageUpload } from '../ui/ImageUpload';
+import Location from '../ui/Location';
 import { mockApi } from '../../services/mockData';
 
 interface IssueReportFormProps {
@@ -32,7 +33,9 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         urgency: 3,
         notify_reporter: true,
         reporter_email: '',
-        reported_at: new Date().toISOString()
+        reported_at: new Date().toISOString(),
+        lon: undefined,
+        lat: undefined
     });
 
     const [parks, setParks] = useState<Park[]>([]);
@@ -41,6 +44,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [emailError, setEmailError] = useState<string | null>(null);
+    const [locationProvided, setLocationProvided] = useState(false);
 
     const issueTypes = [
         { value: 'obstruction', label: 'Obstruction (tree down, etc.)' },
@@ -155,6 +159,16 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         }
     };
 
+    // Handle location selection
+    const handleLocationSelected = (lat: number, lon: number) => {
+        setFormData((prev) => ({
+            ...prev,
+            lat,
+            lon
+        }));
+        setLocationProvided(true);
+    };
+
     // Validate email format
     const validateEmail = (email: string): boolean => {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -219,8 +233,11 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 urgency: 3,
                 notify_reporter: true,
                 reporter_email: '',
-                reported_at: new Date().toISOString()
+                reported_at: new Date().toISOString(),
+                lon: undefined,
+                lat: undefined
             });
+            setLocationProvided(false);
 
             // Auto-scroll to top on success
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -374,6 +391,14 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                     />
                 </div>
             </div>
+
+            {/* Location Picker Section */}
+            <Location
+                onLocationSelected={handleLocationSelected}
+                initialLat={formData.lat}
+                initialLon={formData.lon}
+            />
+            {locationProvided}
 
             {/* Preferences Section */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">

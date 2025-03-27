@@ -3,11 +3,44 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-    await prisma.trails.createMany({
+    
+    const park1 = await prisma.park.create({
+        data: {
+            name: 'Grand Canyon National Park', 
+            county: 'Coconino',
+            is_active: true
+        }
+    });
+
+    const park2 = await prisma.park.create({
+        data: {
+            name: 'Yellowstone National Park',
+            county: 'Teton',
+            is_active:true
+        }
+    });
+
+    await prisma.trail.createMany({
         data: [
-            { trail_name: 'Great Allegheny Passage', location: 'Pittsburgh, PA' },
-            { trail_name: 'Three Rivers Heritage Trail', location: 'Pittsburgh, PA' },
-            { trail_name: "Vicky's Wonderland", location: 'LalaLand, Utopia' }
+            {
+                park_id: park1.park_id, 
+                name: 'Great Allegheny Passage',
+                is_active: true, 
+                is_open: true
+            },
+            {
+                park_id: park1.park_id,
+                name: 'Three Rivers Heritage Trail',
+                is_active: true,
+                is_open: false
+            },
+            {
+                park_id: park2.park_id,
+                name: 'Vicky\'s Wonderland',
+                is_active: true,
+                is_open: false
+            }
+           
         ]
     });
     // eslint-disable-next-line no-console
