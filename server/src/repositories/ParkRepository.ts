@@ -11,12 +11,9 @@ export class ParkRepository {
         });
     }
 
-    public async createPark(parkName: string) {
+    public async createPark(newParkData : Prisma.ParkCreateInput) {
         return prisma.park.create({
-            data: {
-                name: parkName,
-                county: 'Random Temp County'
-            }
+            data: newParkData
         });
     }
 

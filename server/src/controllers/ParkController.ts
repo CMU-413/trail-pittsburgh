@@ -33,8 +33,8 @@ export class ParkController {
     }
 
     public async createPark(req: express.Request, res: express.Response) {
-        const park = await this.parkService.createPark(req.body.parkName);
-        res.status(201).json({ data:park });
+        const park = await this.parkService.createPark(req.body);
+        res.status(201).json({ data: park });
     }
 
     public async updatePark(req: express.Request, res: express.Response) {

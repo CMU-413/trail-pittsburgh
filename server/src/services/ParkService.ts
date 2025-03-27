@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client';
+
 import { ParkRepository } from '@/repositories';
 
 export class ParkService {
@@ -16,8 +18,8 @@ export class ParkService {
         return this.parkRepository.getAllParks();
     }
 
-    public async createPark(parkName: string) {
-        return this.parkRepository.createPark(parkName);
+    public async createPark(newPark: Prisma.ParkCreateInput) {
+        return this.parkRepository.createPark(newPark);
     }
 
     public async updatePark(
