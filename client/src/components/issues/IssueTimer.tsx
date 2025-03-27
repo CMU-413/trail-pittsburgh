@@ -91,7 +91,7 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
         updateTime();
 
         // Update at appropriate intervals
-        let intervalId: NodeJS.Timeout;
+        let intervalId: ReturnType<typeof setInterval>;
         if (!isResolved) {
             // Update more frequently for newer issues
             const reportedDate = parseISO(issue.reported_at);
@@ -111,13 +111,13 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
         }
 
         return () => {
-            if (intervalId) {clearInterval(intervalId);}
+            if (intervalId) { clearInterval(intervalId); }
         };
     }, [issue, isResolved]);
 
     // Get status indicator color
     const getStatusColor = () => {
-        if (isResolved) {return 'bg-gray-100 text-gray-600';}
+        if (isResolved) { return 'bg-gray-100 text-gray-600'; }
 
         switch (statusIndicator) {
         case 'Critical':
