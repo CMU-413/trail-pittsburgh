@@ -16,6 +16,7 @@ import { IssueResolutionForm } from '../../components/issues/IssueResolutionForm
 import { mockApi } from '../../services/mockData';
 import { format } from 'date-fns';
 import Location from '../../components/ui/Location';
+import { IssueTimer } from '../../components/issues/IssueTimer';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -307,6 +308,8 @@ export const IssueDetailPage: React.FC = () => {
                                     </span>
                                 </div>
                             </div>
+
+                            <IssueTimer issue={issue} />
 
                             <div>
                                 <p className="text-sm font-medium text-gray-500">Location</p>

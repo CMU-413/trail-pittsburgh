@@ -28,7 +28,7 @@ export const Select: React.FC<SelectProps> = ({
     ...props
 }) => {
     const selectId = id || label?.toLowerCase().replace(/\s+/g, '-');
-    const widthClass = fullWidth ? 'w-full' : '';
+    const widthClass = fullWidth ? 'w-full' : 'w-full'; // Always full width for consistency
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         if (onChange) {
@@ -37,7 +37,7 @@ export const Select: React.FC<SelectProps> = ({
     };
 
     return (
-        <div className={`${widthClass} ${className}`}>
+        <div className={`${widthClass} ${className} mb-2`}>
             {label && (
                 <label
                     htmlFor={selectId}
@@ -46,13 +46,13 @@ export const Select: React.FC<SelectProps> = ({
                     {label}
                 </label>
             )}
-            <div className="relative">
+            <div className="relative w-full">
                 <select
                     id={selectId}
                     className={`
                         appearance-none 
                         block w-full 
-                        px-3 py-2 
+                        px-3 py-2.5
                         border border-gray-300 
                         rounded-md 
                         shadow-sm 
@@ -64,13 +64,14 @@ export const Select: React.FC<SelectProps> = ({
                         duration-200 
                         ease-in-out
                         text-sm
+                        pr-10
                         ${error
             ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500'
             : 'border-gray-300'
         }
                         ${disabled
             ? 'bg-gray-100 cursor-not-allowed text-gray-500'
-            : 'bg-white'
+            : 'bg-white cursor-pointer'
         }
                     `}
                     aria-invalid={error ? 'true' : 'false'}
@@ -90,8 +91,7 @@ export const Select: React.FC<SelectProps> = ({
                     ))}
                 </select>
 
-                {/* Custom dropdown icon */}
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
                     <svg
                         className="h-5 w-5"
                         xmlns="http://www.w3.org/2000/svg"
