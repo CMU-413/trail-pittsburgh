@@ -77,7 +77,7 @@ export const IssueReportPage: React.FC = () => {
                         </div>
                         <h2 className="text-3xl font-bold text-gray-900 mb-4">Thank You!</h2>
                         <p className="text-lg text-gray-600 max-w-lg mb-8">
-                            Your issue has been successfully reported. We appreciate your help in maintaining our trails.
+                            The issue has been successfully reported. We appreciate your help in maintaining our trails.
                         </p>
                         <Button variant="primary" onClick={handleSubmitAnother}>
                             Report Another Issue
