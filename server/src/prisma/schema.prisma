@@ -27,6 +27,8 @@ model Users {
 model Parks {
   park_id   Int       @id(map: "Parks_pkey") @default(autoincrement())
   park_name String    @db.VarChar(150)
+  county    String
+  owner_id  Int?
   is_active Boolean  @default(true)
   created_at DateTime @default(now())
 

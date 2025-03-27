@@ -7,7 +7,9 @@ import { Button } from '../../components/ui/Button';
 import { ParkCard } from '../../components/parks/ParkCard';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
-import { mockApi } from '../../services/mockData';
+// import { mockApi } from '../../services/mockData';
+import { parkApi } from '../../services/api';
+
 
 export const ParkListPage: React.FC = () => {
     const [parks, setParks] = useState<Park[]>([]);
@@ -17,7 +19,7 @@ export const ParkListPage: React.FC = () => {
     useEffect(() => {
         const fetchParks = async () => {
             try {
-                const response = await mockApi.getParks();
+                const response = await parkApi.getParks();
                 setParks(response);
             } catch (err) {
                 // eslint-disable-next-line no-console

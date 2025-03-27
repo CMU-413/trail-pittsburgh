@@ -63,3 +63,33 @@ export type IssueResolutionUpdate = {
     resolved_at: string;
     resolved_by: number; // user_id
 };
+
+export interface ParkInterface {
+    park_id: number;
+    name: string;
+    county: string;
+    owner_id: number;
+    is_active: boolean;
+  }
+  
+  export interface TrailInterface {
+    trail_id: number;
+    park_id: number;
+    name: string;
+    description: string;
+    length: number;
+    difficulty: 'easy' | 'moderate' | 'difficult';
+    is_active: boolean;
+  }
+  
+  export interface IssueInterface {
+    issue_id: number;
+    trail_id: number;
+    title: string;
+    description: string;
+    status: 'open' | 'in-progress' | 'resolved' | 'closed';
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    reported_by: string;
+    reported_at: string;
+    is_public: boolean;
+  }

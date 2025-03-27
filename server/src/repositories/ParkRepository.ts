@@ -1,6 +1,13 @@
-import { Prisma } from '@prisma/client';
-
+// import { Prisma } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { prisma } from '@/prisma/prismaClient';
+
+interface ParkData {
+    name?: string;
+    county?: string;
+    owner_id?: number | null;
+    is_active?: boolean;
+}
 
 export class ParkRepository {
     public async getPark(parkId: number) {
@@ -11,12 +18,45 @@ export class ParkRepository {
         });
     }
 
-    public async createPark(parkName: string) {
+    public async createPark(parkData: ParkData) {
         return prisma.parks.create({
             data: {
-                park_name: parkName,
+                park_name: parkData.name!,
+                county: parkData.county!,
+                owner_id: parkData.owner_id || null,
+                is_active: parkData.is_active !== undefined ? parkData.is_active : true
             }
         });
+    }
+
+    public async updatePark(parkId: number, parkData: ParkData) {
+        try {
+            const updateData: any = {};
+            
+            if (parkData.name !== undefined) {
+                updateData.park_name = parkData.name;
+            }
+            
+            if (parkData.county !== undefined) {
+                updateData.county = parkData.county;
+            }
+            
+            if (parkData.owner_id !== undefined) {
+                updateData.owner_id = parkData.owner_id;
+            }
+            
+            if (parkData.is_active !== undefined) {
+                updateData.is_active = parkData.is_active;
+            }
+            
+            return await prisma.parks.update({
+                where: { park_id: parkId },
+                data: updateData
+            });
+        } catch (error) {
+            if (isParkNotFoundError(error)) { return null; }
+            throw error;
+        }
     }
 
     public async getAllParks() {
@@ -47,7 +87,19 @@ export class ParkRepository {
     }
 }
 
-function isParkNotFoundError(error: unknown) {
-    return (error instanceof Prisma.PrismaClientKnownRequestError &&
-        (error.code === 'P2025' || error.code === 'P2016'));
+// function isParkNotFoundError(error: unknown) {
+//     return (error instanceof Prisma.PrismaClientKnownRequestError &&
+//         (error.code === 'P2025' || error.code === 'P2016'));
+// }
+function isParkNotFoundError(error: unknown): boolean {
+    if (!error || typeof error !== 'object') {
+        return false;
+    }
+    
+    const prismaError = error as { code?: string };
+    if (prismaError.code === 'P2025' || prismaError.code === 'P2016') {
+        return true;
+    }
+    
+    return false;
 }
