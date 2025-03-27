@@ -1,7 +1,7 @@
 // src/services/api.ts
 import { Park } from '../types';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = 'http://localhost:3000/api';
 
 // Error handling helper
 const handleResponse = async (response: Response) => {
@@ -64,7 +64,6 @@ export const parkApi = {
   },
 };
 
-// You can add more API services for trails and issues here
 export const trailApi = {
   // Get trails by park ID
   getTrailsByPark: async (parkId: number) => {
@@ -72,17 +71,15 @@ export const trailApi = {
     return handleResponse(response);
   },
   
-  // Additional trail API methods...
 };
 
 export const issueApi = {
   // Get issues by park ID
   getIssuesByPark: async (parkId: number) => {
-    // You might need to implement this endpoint in your backend
-    // Or you could filter issues by parkId on the client side
+    // Todo: will need to implement this endpoint on backend
+    // Or filter issues by parkId on the client side
     const response = await fetch(`${API_BASE_URL}/issues?parkId=${parkId}`);
     return handleResponse(response);
   },
   
-  // Additional issue API methods...
 };
