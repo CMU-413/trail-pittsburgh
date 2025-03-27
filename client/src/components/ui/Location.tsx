@@ -270,16 +270,19 @@ const Location: React.FC<LocationProps> = ({
                         ></div>
                     </div>
 
-                    <div className="flex items-center space-x-2 mt-2">
-                        <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <p className="text-sm text-gray-700">
-                            Coordinates: <span className="font-medium">{(lat || initialLat)?.toFixed(6)}, {(lon || initialLon)?.toFixed(6)}</span>
-                        </p>
+                    {/* Coordinates display */}
+                    <div className="flex flex-col space-y-2 mt-2 sm:flex-row sm:space-y-0 sm:space-x-2 sm:items-center">
+                        <div className="flex items-center">
+                            <svg className="w-5 h-5 text-gray-500 flex-shrink-0 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p className="text-sm text-gray-700 break-words">
+                                Coordinates: <span className="font-medium">{(lat || initialLat)?.toFixed(6)}, {(lon || initialLon)?.toFixed(6)}</span>
+                            </p>
+                        </div>
                         {locationAccuracy && (
-                            <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full">
+                            <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full self-start sm:self-auto inline-block">
                                 Accuracy: ±{Math.round(locationAccuracy)}m
                             </span>
                         )}
