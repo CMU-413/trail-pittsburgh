@@ -39,7 +39,6 @@ model Park {
   name      String  @db.VarChar(150)
   county    String  @db.VarChar(150)
   is_active Boolean @default(true)
-
   trails      Trail[]
   issues      Issue[]
   permissions Permission[]

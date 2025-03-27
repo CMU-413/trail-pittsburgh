@@ -3,13 +3,15 @@ import request from 'supertest';
 import { app } from '@/app';
 import { prisma } from '@/prisma/prismaClient'; // Your Express app
 
+const newPark = { name: 'Central Park', county: 'Test County' };
+
 describe('Park Routes', () => {
     beforeAll(async () => {
-        await prisma.parks.deleteMany();
+        await prisma.park.deleteMany();
     });
 
     afterEach(async () => {
-        await prisma.parks.deleteMany();
+        await prisma.park.deleteMany();
     });
 
     afterAll(async () => {
@@ -17,7 +19,6 @@ describe('Park Routes', () => {
     });
 
     it('should create a new park', async () => {
-        const newPark = { parkName: 'Central Park' };
 
         const response = await request(app)
             .post('/api/parks')
@@ -25,12 +26,11 @@ describe('Park Routes', () => {
 
         expect(response.status).toBe(201);
         expect(response.body.data).toHaveProperty('park_id');
-        expect(response.body.data.park_name).toEqual('Central Park');
+        expect(response.body.data.name).toEqual('Central Park');
 
     });
 
     it('should get all parks', async () => {
-        const newPark = { parkName: 'Central Park' };
 
         const NUMBER_OF_PARKS = 5;
         for (let i = 0; i < NUMBER_OF_PARKS; i++) {
@@ -49,7 +49,6 @@ describe('Park Routes', () => {
     });
 
     it('should get a park', async () => {
-        const newPark = { parkName: 'Central Park' };
 
         const createResponse = await request(app)
             .post('/api/parks')
@@ -63,16 +62,16 @@ describe('Park Routes', () => {
 
         expect(response.status).toBe(200);
         expect(response.body.data).toHaveProperty('park_id');
-        expect(response.body.data.park_name).toBe('Central Park');
+        expect(response.body.data.name).toBe('Central Park');
     });
 
     it('should delete a park', async () => {
-        const newPark = { parkName: 'Central Park' };
 
         const createResponse = await request(app)
             .post('/api/parks')
             .send(newPark);
 
+        console.log(createResponse.body);
         const id: number = createResponse.body.data.park_id;
 
         const deleteResponse = await request(app)
