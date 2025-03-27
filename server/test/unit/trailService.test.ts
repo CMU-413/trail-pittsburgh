@@ -8,6 +8,7 @@ describe('TrailService', () => {
     let trailRepositoryMock: jest.Mocked<TrailRepository>;
 
     beforeEach(() => {
+        // eslint-disable-next-line
         trailRepositoryMock = new TrailRepository() as jest.Mocked<TrailRepository>;
         trailService = new TrailService(trailRepositoryMock);
     });
