@@ -1,8 +1,8 @@
-// Updated IssueReportForm.tsx with card-based issue type selector and mobile-first urgency design
+// src/components/issues/IssueReportForm.tsx
 
 import React, { useState, useEffect } from 'react';
 import {
-    Issue, Park, Trail
+    Issue, Park, Trail, ImageMetadata
 } from '../../types';
 import { Input } from '../ui/Input';
 import { TextArea } from '../ui/TextArea';
@@ -14,7 +14,7 @@ import Location from '../ui/Location';
 import { mockApi } from '../../services/mockData';
 
 interface IssueReportFormProps {
-    onSubmit: (data: Omit<Issue, 'issue_id'>) => Promise<void>;
+    onSubmit: (data: Omit<Issue, 'issue_id'> & { imageMetadata?: ImageMetadata }) => Promise<void>; // Fixed: replaced 'any' with 'ImageMetadata'
     initialParkId?: number;
     initialTrailId?: number;
 }
@@ -24,7 +24,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     initialParkId,
     initialTrailId
 }) => {
-    const [formData, setFormData] = useState<Partial<Issue> & { reporter_email?: string }>({
+    const [formData, setFormData] = useState<Partial<Issue> & { reporter_email?: string, imageMetadata?: ImageMetadata }>({
         park_id: initialParkId || 0,
         trail_id: initialTrailId || 0,
         is_public: true,
@@ -36,7 +36,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         reporter_email: '',
         reported_at: new Date().toISOString(),
         lon: undefined,
-        lat: undefined
+        lat: undefined,
+        imageMetadata: undefined
     });
 
     const [parks, setParks] = useState<Park[]>([]);
@@ -148,17 +149,24 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     const handleUrgencySelect = (level: number) => {
         setFormData((prev) => ({ ...prev, urgency: level }));
     };
+    
+    const handleImageChange = (file: File | null, previewUrl: string | null, metadata?: ImageMetadata) => {
+        void file; // Added to suppress 'unused variable' warning
 
-    const handleImageChange = (file: File | null, previewUrl: string | null) => {
-        // We would later upload the file to a server and get a URL back
         if (previewUrl) {
-            // eslint-disable-next-line no-console
-            console.log({ file, previewUrl });
-            setFormData((prev) => ({ ...prev, issue_image: previewUrl }));
+            setFormData((prev) => {
+                const newData = {
+                    ...prev,
+                    issue_image: previewUrl,
+                    imageMetadata: metadata || {}
+                };
+                return newData;
+            });
         } else {
             setFormData((prev) => {
                 const newData = { ...prev };
                 delete newData.issue_image;
+                delete newData.imageMetadata;
                 return newData;
             });
         }
@@ -265,7 +273,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             const dataToSubmit = {
                 ...formData,
                 reported_at: new Date().toISOString()
-            } as Omit<Issue, 'issue_id'>;
+            } as Omit<Issue, 'issue_id'> & { imageMetadata?: ImageMetadata };
 
             await onSubmit(dataToSubmit);
             setSuccess(true);
@@ -383,7 +391,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-5">Issue Details</h3>
                 <div className="space-y-6">
-                    {/* New card-based issue type selector */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                             What type of issue is it?
@@ -479,7 +486,9 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         label="Add a photo (optional)"
                         onChange={handleImageChange}
                         existingImageUrl={formData.issue_image}
+                        existingMetadata={formData.imageMetadata}
                         className="mt-4"
+                        acceptedFormats="image/jpeg,image/png,image/gif,image/heic,image/heif"
                     />
                 </div>
             </div>
