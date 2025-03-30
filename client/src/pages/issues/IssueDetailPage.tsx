@@ -39,6 +39,20 @@ export const IssueDetailPage: React.FC = () => {
         role: 'steward'
     };
 
+    const formatDate = (dateString: string, formatStr: string = 'PPP p') => {
+        try {
+            if (!dateString) return 'unknown time';
+            
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'unknown time';
+            
+            return format(date, formatStr);
+        } catch (err) {
+            console.error('Error formatting date:', err, dateString);
+            return 'unknown time';
+        }
+    };
+
     useEffect(() => {
         const fetchIssueData = async () => {
             if (!issueId) {
@@ -165,7 +179,7 @@ export const IssueDetailPage: React.FC = () => {
                                     {issue.issue_type.charAt(0).toUpperCase() + issue.issue_type.slice(1)}
                                 </h3>
                                 <p className="text-sm text-gray-500">
-                                    Reported {format(new Date(issue.reported_at), 'PPP p')}
+                                    Reported {formatDate(issue.reported_at)}
                                 </p>
                             </div>
                         </div>
@@ -248,7 +262,7 @@ export const IssueDetailPage: React.FC = () => {
                             <div className="flex justify-between mb-4">
                                 <h4 className="text-lg font-semibold text-gray-900">Resolution</h4>
                                 <span className="text-sm text-gray-500">
-                                    {format(new Date(resolution.resolved_at), 'PPP p')}
+                                    {formatDate(resolution.resolved_at)}
                                 </span>
                             </div>
 
