@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import Location from '../../components/ui/Location';
 import { IssueTimer } from '../../components/issues/IssueTimer';
 import { ImageMetadataDisplay } from '../../components/ui/ImageMetadataDisplay';
+import { parkApi, trailApi, issueApi } from '../../services/api';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -50,7 +51,7 @@ export const IssueDetailPage: React.FC = () => {
                 const id = parseInt(issueId, 10);
 
                 // Fetch issue details
-                const issueData = await mockApi.getIssue(id);
+                const issueData = await issueApi.getIssue(id);
 
                 if (!issueData) {
                     setError('Issue not found');
@@ -61,14 +62,16 @@ export const IssueDetailPage: React.FC = () => {
                 setIssue(issueData);
 
                 // Fetch related park
-                const parkData = await mockApi.getPark(issueData.park_id);
+                const parkData = await parkApi.getPark(issueData.park_id);
                 setPark(parkData || null);
 
                 // Fetch related trail
-                const trailData = await mockApi.getTrail(issueData.trail_id);
+                const trailData = await trailApi.getTrail(issueData.trail_id);
                 setTrail(trailData || null);
 
                 // Fetch resolution info if resolved
+                // we still need to use mock API since this endpoint hasn't been 
+                // implemented in the real API yet
                 if (issueData.status === 'resolved') {
                     const resolutions = await mockApi.getResolutionUpdatesByIssue(id);
                     if (resolutions.length > 0) {

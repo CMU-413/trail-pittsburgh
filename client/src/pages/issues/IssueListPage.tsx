@@ -13,11 +13,11 @@ import { Select } from '../../components/ui/Select';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { IssueList } from '../../components/issues/IssueList';
-import { mockApi } from '../../services/mockData';
 import { subDays } from 'date-fns/subDays';
 import { subMonths } from 'date-fns/subMonths';
 import { subYears } from 'date-fns/subYears';
 import { parseISO } from 'date-fns/parseISO';
+import { parkApi, trailApi, issueApi } from '../../services/api';
 
 // Define filter and sort options
 type DateFilter = 'all' | 'week' | 'month' | '3months' | 'year';
@@ -99,7 +99,7 @@ export const IssueListPage: React.FC = () => {
         const fetchData = async () => {
             try {
                 // Fetch parks for lookup and filtering
-                const parksData = await mockApi.getParks();
+                const parksData = await parkApi.getParks();
                 const parksMap: Record<number, Park> = {};
                 parksData.forEach((park) => {
                     parksMap[park.park_id] = park;
@@ -107,7 +107,7 @@ export const IssueListPage: React.FC = () => {
                 setParks(parksMap);
 
                 // Fetch trails for lookup and filtering
-                const trailsData = await mockApi.getTrails();
+                const trailsData = await trailApi.getAllTrails();
                 const trailsMap: Record<number, Trail> = {};
                 trailsData.forEach((trail) => {
                     trailsMap[trail.trail_id] = trail;
@@ -119,13 +119,13 @@ export const IssueListPage: React.FC = () => {
 
                 if (selectedTrailId) {
                     // If trail is selected, fetch issues for that trail
-                    issuesData = await mockApi.getIssuesByTrail(selectedTrailId);
+                    issuesData = await issueApi.getIssuesByTrail(selectedTrailId);
                 } else if (selectedParkId) {
                     // If only park is selected, fetch issues for that park
-                    issuesData = await mockApi.getIssuesByPark(selectedParkId);
+                    issuesData = await issueApi.getIssuesByPark(selectedParkId);
                 } else {
                     // No filters, get all issues
-                    issuesData = await mockApi.getIssues();
+                    issuesData = await issueApi.getAllIssues();
                 }
 
                 // Filter by public status (for non-admins)

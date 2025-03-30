@@ -12,7 +12,7 @@ import { Alert } from '../ui/Alert';
 import { ImageUpload } from '../ui/ImageUpload';
 import Location from '../ui/Location';
 import { mockApi } from '../../services/mockData';
-import { parkApi } from '../../services/api';
+import { parkApi, trailApi, issueApi } from '../../services/api';
 
 
 interface IssueReportFormProps {
@@ -86,7 +86,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         const fetchTrails = async () => {
             if (formData.park_id) {
                 try {
-                    const trailsData = await mockApi.getTrailsByPark(formData.park_id);
+                    const trailsData = await trailApi.getTrailsByPark(formData.park_id);
                     setTrails(trailsData.filter((trail) => trail.is_active));
 
                     // If current trail doesn't belong to selected park, reset it

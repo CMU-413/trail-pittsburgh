@@ -13,8 +13,7 @@ import { Badge } from '../../components/ui/Badge';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { IssueList } from '../../components/issues/IssueList';
-import { mockApi } from '../../services/mockData';
-import { parkApi, trailApi } from '../../services/api';
+import { parkApi, trailApi, issueApi } from '../../services/api';
 
 
 export const TrailDetailPage: React.FC = () => {
@@ -62,7 +61,7 @@ export const TrailDetailPage: React.FC = () => {
                 setTrail(trailData);
                 
                 // Fetch issues for this trail
-                const issuesData = await mockApi.getIssuesByTrail(trailIdNum);
+                const issuesData = await issueApi.getIssuesByTrail(trailIdNum);
                 // Filter to only show public issues
                 const filteredIssues = issuesData.filter((issue) => issue.is_public);
                 setIssues(filteredIssues);
