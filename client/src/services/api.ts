@@ -73,7 +73,18 @@ export const trailApi = {
     getTrailsByPark: async (parkId: number): Promise<Trail[]> => {
       const response = await fetch(`${API_BASE_URL}/parks/${parkId}/trails`);
       return handleResponse(response);
-    }
+    },
+
+    createTrail: async (trailData: Omit<Trail, 'trail_id'>): Promise<Trail> => {
+      const response = await fetch(`${API_BASE_URL}/trails`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(trailData),
+      });
+      return handleResponse(response);
+    },
 };
 
 export const issueApi = {

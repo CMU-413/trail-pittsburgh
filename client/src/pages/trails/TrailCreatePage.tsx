@@ -7,7 +7,7 @@ import { Card } from '../../components/ui/Card';
 import { TrailForm } from '../../components/trails/TrailForm';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { Button } from '../../components/ui/Button';
-import { mockApi } from '../../services/mockData';
+import { trailApi } from '../../services/api';
 
 export const TrailCreatePage: React.FC = () => {
     const { parkId } = useParams<{ parkId: string }>();
@@ -19,7 +19,7 @@ export const TrailCreatePage: React.FC = () => {
         }
         
         try {
-            const newTrail = await mockApi.createTrail({
+            const newTrail = await trailApi.createTrail({
                 ...data,
                 park_id: parseInt(parkId, 10)
             });
