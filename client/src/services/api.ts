@@ -96,7 +96,6 @@ export const trailApi = {
   },
 
   // Update a trail
-  // Update this function in your api.ts file
   updateTrail: async (trailData: Trail): Promise<Trail> => {
     const response = await fetch(`${API_BASE_URL}/trails/${trailData.trail_id}`, {
       method: 'PUT',

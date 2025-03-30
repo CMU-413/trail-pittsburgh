@@ -29,15 +29,6 @@ export class ParkService {
         return this.parkRepository.createPark(parkData);
     }
 
-    // public async createPark(newPark: Prisma.ParkCreateInput) {
-    //     return this.parkRepository.createPark(newPark);
-    // }
-
-    // public async updatePark(
-    //     parkId: number, { isActive }: { isActive: boolean }
-    // ) {
-    //     return this.parkRepository.setParkStatus(parkId, isActive);
-    // }
     public async updatePark(parkId: number, parkData: Partial<ParkData>) {
         const existingPark = await this.parkRepository.getPark(parkId);
         if (!existingPark) {

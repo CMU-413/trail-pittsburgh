@@ -50,17 +50,14 @@ export const ParkDetailPage: React.FC = () => {
                 setPark(parkData);
                 
                 // Fetch trails for this park
-                // const trailsData = await mockApi.getTrailsByPark(id);
-                // setTrails(trailsData);
-                // Fetch trails for this park - use real API instead of mock
                 try {
                     const trailsData = await trailApi.getTrailsByPark(id);
                     setTrails(trailsData);
                 } catch (trailErr) {
                     console.error('Error fetching trails:', trailErr);
-                    // Fallback to mock data if the real API fails
-                    const trailsData = await mockApi.getTrailsByPark(id);
-                    setTrails(trailsData);
+                    // Fallback to mock data if the real API fails (took down)
+                    // const trailsData = await mockApi.getTrailsByPark(id);
+                    // setTrails(trailsData);
                 }
                 
                 // Fetch issues for this park

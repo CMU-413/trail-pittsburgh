@@ -17,8 +17,6 @@ router.post('/', errorHandlerWrapper(parkController.createPark));
 router.put('/:id', errorHandlerWrapper(parkController.updatePark));
 router.delete('/:id', errorHandlerWrapper(parkController.deletePark));
 
-// router.get('/:id/trails', errorHandlerWrapper(parkController.getTrailsByPark));
-
 router.get('/:id/trails', (req, res, next) => {
     console.log('Route hit: GET /parks/:id/trails, params:', req.params);
     next();

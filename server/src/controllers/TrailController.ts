@@ -7,7 +7,6 @@ export class TrailController {
     constructor(trailService: TrailService) {
         this.trailService = trailService;
 
-        // Bind methods to this instance
         this.getAllTrails = this.getAllTrails.bind(this);
         this.getTrail = this.getTrail.bind(this);
         this.createTrail = this.createTrail.bind(this);

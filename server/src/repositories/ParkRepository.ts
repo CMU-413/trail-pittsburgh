@@ -18,16 +18,6 @@ export class ParkRepository {
         });
     }
 
-
-    // public async createPark(parkData: ParkData) {
-    //     return prisma.park.create({
-    //         data: {
-    //             name: parkData.name,
-    //             county: parkData.county!,
-    //             owner_id: parkData.owner_id || null
-    //         }
-    //     });
-    // }
     public async createPark(parkData: ParkData) {
         console.log('Creating park with data:', parkData);
         try {
@@ -35,7 +25,6 @@ export class ParkRepository {
                 data: {
                     name: parkData.name,
                     county: parkData.county!,
-                    // owner_id: parkData.owner_id || null,
                     // No need to include is_active as it has a default value
                 }
             });
@@ -127,10 +116,6 @@ export class ParkRepository {
     }
 }
 
-// function isParkNotFoundError(error: unknown) {
-//     return (error instanceof Prisma.PrismaClientKnownRequestError &&
-//         (error.code === 'P2025' || error.code === 'P2016'));
-// }
 function isParkNotFoundError(error: unknown): boolean {
     if (!error || typeof error !== 'object') {
         return false;
