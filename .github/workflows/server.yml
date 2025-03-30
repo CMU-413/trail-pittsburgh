@@ -7,25 +7,41 @@ jobs:
   install:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22.x
-
-      - name: Install dependencies
-        working-directory: server
-        run: npm ci
-
-      - name: Cache Node modules (Server)
-        uses: actions/cache@v3
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
         with:
           path: server/node_modules
-          key: ${{ runner.os }}-server-node-${{ hashFiles('server/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-server-node-
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: npm ci
+
+#  install:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Set up Node.js
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: 22.x
+#
+#      - name: Install dependencies
+#        working-directory: server
+#        run: npm ci
+#
+#      - name: Cache Node modules (Server)
+#        uses: actions/cache@v3
+#        with:
+#          path: server/node_modules
+#          key: ${{ runner.os }}-server-node-${{ hashFiles('server/package-lock.json') }}
+#          restore-keys: |
+#            ${{ runner.os }}-server-node-
 
   # Job 2: Linting
   lint:
@@ -35,11 +51,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Restore cached dependencies
-        uses: actions/cache@v3
+      - name: Restore cached Node.js modules
+        uses: actions/cache@v4
         with:
-          path: server/node_modules
-          key: deps-${{ runner.os }}-node-${{ hashFiles('server/package-lock.json') }}
+            path: server/node_modules
+            key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Run ESLint
         working-directory: server
