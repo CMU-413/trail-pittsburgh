@@ -19,22 +19,40 @@ export class ParkRepository {
     }
 
 
+    // public async createPark(parkData: ParkData) {
+    //     return prisma.park.create({
+    //         data: {
+    //             name: parkData.name,
+    //             county: parkData.county!,
+    //             owner_id: parkData.owner_id || null
+    //         }
+    //     });
+    // }
     public async createPark(parkData: ParkData) {
-        return prisma.park.create({
-            data: {
-                name: parkData.name,
-                county: parkData.county!,
-                owner_id: parkData.owner_id || null
-            }
-        });
+        console.log('Creating park with data:', parkData);
+        try {
+            const result = await prisma.park.create({
+                data: {
+                    name: parkData.name,
+                    county: parkData.county!,
+                    owner_id: parkData.owner_id || null,
+                    // No need to include is_active as it has a default value
+                }
+            });
+            console.log('Park created successfully:', result);
+            return result;
+        } catch (error) {
+            console.error('Error creating park:', error);
+            throw error;
+        }
     }
 
-    public async updatePark(parkId: number, parkData: ParkData) {
+    public async updatePark(parkId: number, parkData: Partial<ParkData>) {
         try {
             const updateData: any = {};
             
             if (parkData.name !== undefined) {
-                updateData.park_name = parkData.name;
+                updateData.name = parkData.name;
             }
             
             if (parkData.county !== undefined) {
@@ -82,6 +100,22 @@ export class ParkRepository {
         } catch (error) {
             // Park id not found
             if (isParkNotFoundError(error)) { return false; }
+            throw error;
+        }
+    }
+
+    public async getTrailsByPark(parkId: number) {
+        try {
+            console.log('Repository: Getting trails for park ID:', parkId);
+            const trails = await prisma.trail.findMany({
+                where: {
+                    park_id: parkId,
+                }
+            });
+            console.log('Repository: Found trails:', trails);
+            return trails;
+        } catch (error) {
+            console.error('Repository: Error getting trails:', error);
             throw error;
         }
     }

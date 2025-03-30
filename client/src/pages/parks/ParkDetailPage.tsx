@@ -15,6 +15,7 @@ import { EmptyState } from '../../components/layout/EmptyState';
 import { TrailCard } from '../../components/trails/TrailCard';
 import { IssueList } from '../../components/issues/IssueList';
 import { mockApi } from '../../services/mockData';
+import { parkApi, trailApi } from '../../services/api';
 
 export const ParkDetailPage: React.FC = () => {
     const { parkId } = useParams<{ parkId: string }>();
@@ -38,7 +39,7 @@ export const ParkDetailPage: React.FC = () => {
                 const id = parseInt(parkId, 10);
                 
                 // Fetch park details
-                const parkData = await mockApi.getPark(id);
+                const parkData = await parkApi.getPark(id);
                 
                 if (!parkData) {
                     setError('Park not found');
@@ -49,8 +50,18 @@ export const ParkDetailPage: React.FC = () => {
                 setPark(parkData);
                 
                 // Fetch trails for this park
-                const trailsData = await mockApi.getTrailsByPark(id);
-                setTrails(trailsData);
+                // const trailsData = await mockApi.getTrailsByPark(id);
+                // setTrails(trailsData);
+                // Fetch trails for this park - use real API instead of mock
+                try {
+                    const trailsData = await trailApi.getTrailsByPark(id);
+                    setTrails(trailsData);
+                } catch (trailErr) {
+                    console.error('Error fetching trails:', trailErr);
+                    // Fallback to mock data if the real API fails
+                    const trailsData = await mockApi.getTrailsByPark(id);
+                    setTrails(trailsData);
+                }
                 
                 // Fetch issues for this park
                 const issuesData = await mockApi.getIssuesByPark(id);

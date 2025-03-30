@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { ParkService } from '@/services';
+import { prisma } from '@/prisma/prismaClient'; // Adjust the import path as needed
 
 export class ParkController {
     private readonly parkService: ParkService;
@@ -32,6 +33,7 @@ export class ParkController {
     }
 
     public async createPark(req: express.Request, res: express.Response) {
+        console.log('Create park request received:', req.body);
         const { name, county, owner_id, is_active } = req.body;
         
         // Validate required fields
@@ -85,5 +87,47 @@ export class ParkController {
 
         res.status(204).send();
     }
+
+    // public async getTrailsByPark(req: express.Request, res: express.Response) {
+    //     const parkId = Number(req.params.parkId);
+    //     const trails = await this.parkService.getTrailsByPark(parkId);
+    //     res.json(trails);
+    // }
+    // public async getTrailsByPark(req: express.Request, res: express.Response) {
+    //     try {
+    //       const parkId = Number(req.params.id);
+    //       console.log('Getting trails for park ID:', parkId);
+          
+    //       // Return an empty array for now, just to test
+    //       return res.json([]);
+    //     } catch (error) {
+    //       console.error('Error in getTrailsByPark:', error);
+    //       return res.status(500).json({ message: 'Server error fetching trails' });
+    //     }
+    // }
+    public async getTrailsByPark(req: express.Request, res: express.Response) {
+        try {
+          const parkId = Number(req.params.id);
+          
+          // Try a direct Prisma query
+          const trails = await prisma.trail.findMany({
+            where: {
+              park_id: parkId
+            }
+          });
+          
+          return res.json(trails);
+        } catch (error) {
+          console.error('Error in getTrailsByPark:', error);
+          
+          // Type checking for the error
+          let errorMessage = 'Server error fetching trails';
+          if (error instanceof Error) {
+            errorMessage = error.message;
+          }
+          
+          return res.status(500).json({ message: errorMessage });
+        }
+      }
 }
 

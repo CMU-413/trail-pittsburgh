@@ -1,5 +1,5 @@
 // src/services/api.ts
-import { Park } from '../types';
+import { Park, Trail } from '../types';
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
@@ -66,11 +66,14 @@ export const parkApi = {
 
 export const trailApi = {
   // Get trails by park ID
-  getTrailsByPark: async (parkId: number) => {
-    const response = await fetch(`${API_BASE_URL}/trails/park/${parkId}`);
-    return handleResponse(response);
-  },
-  
+  // getTrailsByPark: async (parkId: number) => {
+  //   const response = await fetch(`${API_BASE_URL}/parks/${parkId}/trails`);
+  //   return handleResponse(response);
+  // },
+    getTrailsByPark: async (parkId: number): Promise<Trail[]> => {
+      const response = await fetch(`${API_BASE_URL}/parks/${parkId}/trails`);
+      return handleResponse(response);
+    }
 };
 
 export const issueApi = {

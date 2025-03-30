@@ -7,7 +7,6 @@ import { Button } from '../../components/ui/Button';
 import { ParkCard } from '../../components/parks/ParkCard';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
-// import { mockApi } from '../../services/mockData';
 import { parkApi } from '../../services/api';
 
 
