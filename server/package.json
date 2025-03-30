@@ -13,7 +13,7 @@
   },
   "prisma": {
     "schema": "src/prisma/schema.prisma",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx src/prisma/seed.ts"
   },
   "jest": {
     "preset": "ts-jest",
