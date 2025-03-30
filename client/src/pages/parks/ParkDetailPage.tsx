@@ -14,8 +14,7 @@ import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { TrailCard } from '../../components/trails/TrailCard';
 import { IssueList } from '../../components/issues/IssueList';
-import { mockApi } from '../../services/mockData';
-import { parkApi, trailApi } from '../../services/api';
+import { parkApi, trailApi, issueApi } from '../../services/api';
 
 export const ParkDetailPage: React.FC = () => {
     const { parkId } = useParams<{ parkId: string }>();
@@ -61,7 +60,7 @@ export const ParkDetailPage: React.FC = () => {
                 }
                 
                 // Fetch issues for this park
-                const issuesData = await mockApi.getIssuesByPark(id);
+                const issuesData = await issueApi.getIssuesByPark(id);
                 // Filter to only show public issues or open issues
                 const filteredIssues = issuesData.filter((issue) => issue.is_public);
                 setIssues(filteredIssues);
