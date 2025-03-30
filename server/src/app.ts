@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 
 import { errorHandler } from '@/middlewares';
-import { issueRouter, parkRouter } from '@/routes';
+import { issueRouter, parkRouter, trailRouter } from '@/routes';
 
 const app = express();
 
@@ -17,6 +17,7 @@ app.use(express.json());
 
 app.use('/api/issues', issueRouter);
 app.use('/api/parks', parkRouter);
+app.use('/api/trails', trailRouter);
 
 // Health check route
 app.get('/healthz', (req: express.Request, res: express.Response) => {
