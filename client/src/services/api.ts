@@ -1,5 +1,5 @@
 // src/services/api.ts
-import { Park, Trail } from '../types';
+import { Park, Trail, Issue } from '../types';
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
@@ -121,13 +121,82 @@ export const trailApi = {
   },
 };
 
+// export const issueApi = {
+//   // Get issues by park ID
+//   getIssuesByPark: async (parkId: number) => {
+//     // Todo: will need to implement this endpoint on backend
+//     // Or filter issues by parkId on the client side
+//     const response = await fetch(`${API_BASE_URL}/issues?parkId=${parkId}`);
+//     return handleResponse(response);
+//   },
+  
+// };
+
 export const issueApi = {
-  // Get issues by park ID
-  getIssuesByPark: async (parkId: number) => {
-    // Todo: will need to implement this endpoint on backend
-    // Or filter issues by parkId on the client side
-    const response = await fetch(`${API_BASE_URL}/issues?parkId=${parkId}`);
+  // Get all issues
+  getAllIssues: async (): Promise<Issue[]> => {
+    const response = await fetch(`${API_BASE_URL}/issues`);
     return handleResponse(response);
   },
-  
+
+  // Get a specific issue
+  getIssue: async (issueId: number): Promise<Issue> => {
+    const response = await fetch(`${API_BASE_URL}/issues/${issueId}`);
+    return handleResponse(response);
+  },
+
+  // Get issues by park ID
+  getIssuesByPark: async (parkId: number): Promise<Issue[]> => {
+    const response = await fetch(`${API_BASE_URL}/issues/park/${parkId}`);
+    return handleResponse(response);
+  },
+
+  // Get issues by trail ID
+  getIssuesByTrail: async (trailId: number): Promise<Issue[]> => {
+    const response = await fetch(`${API_BASE_URL}/issues/trail/${trailId}`);
+    return handleResponse(response);
+  },
+
+  // Get issues by urgency level
+  getIssuesByUrgency: async (urgency: number): Promise<Issue[]> => {
+    const response = await fetch(`${API_BASE_URL}/issues/urgency/${urgency}`);
+    return handleResponse(response);
+  },
+
+  // Create a new issue
+  createIssue: async (issueData: Omit<Issue, 'issue_id'>): Promise<Issue> => {
+    const response = await fetch(`${API_BASE_URL}/issues`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(issueData),
+    });
+    return handleResponse(response);
+  },
+
+  // Update an issue's status
+  updateIssueStatus: async (issueId: number, status: string): Promise<Issue> => {
+    const response = await fetch(`${API_BASE_URL}/issues/${issueId}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
+    });
+    return handleResponse(response);
+  },
+
+  // Delete an issue
+  deleteIssue: async (issueId: number): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/issues/${issueId}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.message || `Error: ${response.status} ${response.statusText}`;
+      throw new Error(errorMessage);
+    }
+  },
 };

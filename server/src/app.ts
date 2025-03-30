@@ -18,6 +18,7 @@ app.use(express.json());
 app.use('/api/issues', issueRouter);
 app.use('/api/parks', parkRouter);
 app.use('/api/trails', trailRouter);
+app.use('/api/issues', issueRouter);
 
 // Health check route
 app.get('/healthz', (req: express.Request, res: express.Response) => {
