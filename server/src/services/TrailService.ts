@@ -1,0 +1,39 @@
+import { TrailRepository } from '@/repositories';
+
+export class TrailService {
+
+    private readonly trailRepository: TrailRepository;
+
+    constructor(trailRepository: TrailRepository) {
+        this.trailRepository = trailRepository;
+    }
+
+    public async getTrail(trailId: number) {
+        return this.trailRepository.getTrail(trailId);
+    }
+
+    public async getAllTrails() {
+        return this.trailRepository.getAllTrails();
+    }
+
+    public async createTrail(
+        name: string,
+        parkId: number,
+        isActive: boolean = true,
+        isOpen: boolean = true
+    ) {
+        return this.trailRepository.createTrail(name, parkId, isActive, isOpen);
+    }
+
+    public async deleteTrail(trailId: number) {
+        return this.trailRepository.deleteTrail(trailId);
+    }
+
+    public async getTrailsByPark(parkId: number) {
+        return this.trailRepository.getTrailsByPark(parkId);
+    }
+
+    public async updateTrailStatus(trailId: number, isOpen: boolean) {
+        return this.trailRepository.updateTrailStatus(trailId, isOpen);
+    }
+}

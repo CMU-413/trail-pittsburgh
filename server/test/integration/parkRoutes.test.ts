@@ -7,10 +7,18 @@ const newPark = { name: 'Central Park', county: 'Test County' };
 
 describe('Park Routes', () => {
     beforeAll(async () => {
+        // Delete in correct order to handle foreign key constraints
+        await prisma.issue.deleteMany();
+        await prisma.trail.deleteMany();
+        await prisma.permission.deleteMany();
         await prisma.park.deleteMany();
     });
 
     afterEach(async () => {
+        // Delete in correct order to handle foreign key constraints
+        await prisma.issue.deleteMany();
+        await prisma.trail.deleteMany();
+        await prisma.permission.deleteMany();
         await prisma.park.deleteMany();
     });
 
@@ -19,7 +27,6 @@ describe('Park Routes', () => {
     });
 
     it('should create a new park', async () => {
-
         const response = await request(app)
             .post('/api/parks')
             .send(newPark);
@@ -27,11 +34,9 @@ describe('Park Routes', () => {
         expect(response.status).toBe(201);
         expect(response.body.data).toHaveProperty('park_id');
         expect(response.body.data.name).toEqual('Central Park');
-
     });
 
     it('should get all parks', async () => {
-
         const NUMBER_OF_PARKS = 5;
         for (let i = 0; i < NUMBER_OF_PARKS; i++) {
             await request(app)
@@ -49,7 +54,6 @@ describe('Park Routes', () => {
     });
 
     it('should get a park', async () => {
-
         const createResponse = await request(app)
             .post('/api/parks')
             .send(newPark);
@@ -66,12 +70,10 @@ describe('Park Routes', () => {
     });
 
     it('should delete a park', async () => {
-
         const createResponse = await request(app)
             .post('/api/parks')
             .send(newPark);
 
-        console.log(createResponse.body);
         const id: number = createResponse.body.data.park_id;
 
         const deleteResponse = await request(app)
@@ -86,5 +88,4 @@ describe('Park Routes', () => {
 
         expect(getResponse.status).toBe(404);
     });
-
 });

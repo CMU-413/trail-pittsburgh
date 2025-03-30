@@ -16,6 +16,8 @@ import { IssueResolutionForm } from '../../components/issues/IssueResolutionForm
 import { mockApi } from '../../services/mockData';
 import { format } from 'date-fns';
 import Location from '../../components/ui/Location';
+import { IssueTimer } from '../../components/issues/IssueTimer';
+import { ImageMetadataDisplay } from '../../components/ui/ImageMetadataDisplay';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -179,9 +181,17 @@ export const IssueDetailPage: React.FC = () => {
                                 <img
                                     src={issue.issue_image}
                                     alt="Issue"
-                                    className="w-full h-auto max-h-96 object-cover"
+                                    className="w-full h-auto max-h-96 object-contain"
                                 />
                             </div>
+
+                            {/* Only render the metadata component if there's metadata available */}
+                            {issue.imageMetadata && (
+                                <ImageMetadataDisplay
+                                    metadata={issue.imageMetadata}
+                                    className="mt-3"
+                                />
+                            )}
                         </div>
                     )}
 
@@ -307,6 +317,8 @@ export const IssueDetailPage: React.FC = () => {
                                     </span>
                                 </div>
                             </div>
+
+                            <IssueTimer issue={issue} />
 
                             <div>
                                 <p className="text-sm font-medium text-gray-500">Location</p>

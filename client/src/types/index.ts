@@ -16,6 +16,23 @@ export type Trail = {
 
 export type IssueStatus = 'open' | 'in_progress' | 'resolved';
 
+export interface ImageMetadata {
+    DateTimeOriginal?: string;
+    Make?: string;
+    Model?: string;
+    latitude?: number;
+    longitude?: number;
+    Orientation?: number;
+    ExposureTime?: number;
+    FNumber?: number;
+    ISO?: number;
+    LensModel?: string;
+    Software?: string;
+    GPSLatitude?: number;
+    GPSLongitude?: number;
+    [key: string]: string | number | boolean | undefined; // For any other properties
+}
+
 export type Issue = {
     issue_id: number;
     park_id: number;
@@ -28,6 +45,7 @@ export type Issue = {
     issue_type: string;
     urgency: number; // 1-5 scale
     issue_image?: string;
+    imageMetadata?: ImageMetadata;
     lon?: number;
     lat?: number;
     notify_reporter: boolean;
@@ -62,4 +80,5 @@ export type IssueResolutionUpdate = {
     resolve_notes?: string;
     resolved_at: string;
     resolved_by: number; // user_id
+    resolve_imageMetadata?: ImageMetadata;
 };
