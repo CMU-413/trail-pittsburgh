@@ -65,26 +65,60 @@ export const parkApi = {
 };
 
 export const trailApi = {
-  // Get trails by park ID
-  // getTrailsByPark: async (parkId: number) => {
-  //   const response = await fetch(`${API_BASE_URL}/parks/${parkId}/trails`);
-  //   return handleResponse(response);
-  // },
-    getTrailsByPark: async (parkId: number): Promise<Trail[]> => {
-      const response = await fetch(`${API_BASE_URL}/parks/${parkId}/trails`);
-      return handleResponse(response);
-    },
+  // Get all trails
+  getAllTrails: async (): Promise<Trail[]> => {
+    const response = await fetch(`${API_BASE_URL}/trails`);
+    return handleResponse(response);
+  },
 
-    createTrail: async (trailData: Omit<Trail, 'trail_id'>): Promise<Trail> => {
-      const response = await fetch(`${API_BASE_URL}/trails`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(trailData),
-      });
-      return handleResponse(response);
-    },
+  // Get a specific trail
+  getTrail: async (trailId: number): Promise<Trail> => {
+    const response = await fetch(`${API_BASE_URL}/trails/${trailId}`);
+    return handleResponse(response);
+  },
+  
+  // Get trails by park ID
+  getTrailsByPark: async (parkId: number): Promise<Trail[]> => {
+    const response = await fetch(`${API_BASE_URL}/parks/${parkId}/trails`);
+    return handleResponse(response);
+  },
+
+  // Create a new trail
+  createTrail: async (trailData: Omit<Trail, 'trail_id'>): Promise<Trail> => {
+    const response = await fetch(`${API_BASE_URL}/trails`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(trailData),
+    });
+    return handleResponse(response);
+  },
+
+  // Update a trail
+  updateTrail: async (trailId: number, isOpen: boolean): Promise<Trail> => {
+    const response = await fetch(`${API_BASE_URL}/trails/${trailId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ is_open: isOpen }),
+    });
+    return handleResponse(response);
+  },
+
+  // Delete a trail
+  deleteTrail: async (trailId: number): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/trails/${trailId}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.message || `Error: ${response.status} ${response.statusText}`;
+      throw new Error(errorMessage);
+    }
+  },
 };
 
 export const issueApi = {
