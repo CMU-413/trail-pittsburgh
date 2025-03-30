@@ -8,7 +8,6 @@ describe('UserService', () => {
     let userRepositoryMock: jest.Mocked<UserRepository>;
 
     beforeEach(() => {
-        // eslint-disable-next-line
         userRepositoryMock = new UserRepository() as jest.Mocked<UserRepository>;
         userService = new UserService(userRepositoryMock);
     });

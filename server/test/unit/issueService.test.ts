@@ -8,7 +8,6 @@ describe('IssueService', () => {
     let issueRepositoryMock: jest.Mocked<IssueRepository>;
 
     beforeEach(() => {
-        // eslint-disable-next-line
         issueRepositoryMock = new IssueRepository() as jest.Mocked<IssueRepository>;
         issueService = new IssueService(issueRepositoryMock);
     });
