@@ -96,13 +96,14 @@ export const trailApi = {
   },
 
   // Update a trail
-  updateTrail: async (trailId: number, isOpen: boolean): Promise<Trail> => {
-    const response = await fetch(`${API_BASE_URL}/trails/${trailId}`, {
+  // Update this function in your api.ts file
+  updateTrail: async (trailData: Trail): Promise<Trail> => {
+    const response = await fetch(`${API_BASE_URL}/trails/${trailData.trail_id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ is_open: isOpen }),
+      body: JSON.stringify({ is_open: trailData.is_open }),
     });
     return handleResponse(response);
   },
