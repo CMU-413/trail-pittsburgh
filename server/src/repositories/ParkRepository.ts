@@ -4,28 +4,26 @@ import { prisma } from '@/prisma/prismaClient';
 
 export class ParkRepository {
     public async getPark(parkId: number) {
-        return prisma.parks.findUnique({
+        return prisma.park.findUnique({
             where: {
                 park_id: parkId,
             }
         });
     }
 
-    public async createPark(parkName: string) {
-        return prisma.parks.create({
-            data: {
-                park_name: parkName,
-            }
+    public async createPark(newParkData : Prisma.ParkCreateInput) {
+        return prisma.park.create({
+            data: newParkData
         });
     }
 
     public async getAllParks() {
-        return prisma.parks.findMany();
+        return prisma.park.findMany();
     }
 
     public async setParkStatus(parkId: number, isActive: boolean) {
         try {
-            return await prisma.parks.update({
+            return await prisma.park.update({
                 where: { park_id: parkId },
                 data: { is_active: isActive }
             });
@@ -37,7 +35,7 @@ export class ParkRepository {
 
     public async deletePark(parkId: number) {
         try {
-            await prisma.parks.delete({ where: { park_id: parkId } });
+            await prisma.park.delete({ where: { park_id: parkId } });
             return true;
         } catch (error) {
             // Park id not found
