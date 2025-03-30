@@ -1,12 +1,13 @@
 import express from 'express';
 
-import { errorHandler } from '@/middlewares';
+import { errorHandler, morganMiddleware } from '@/middlewares';
 import { issueRouter, parkRouter } from '@/routes';
 
 const app = express();
 
 // Middleware
 app.use(express.json());
+app.use(morganMiddleware);
 
 app.use('/api/issues', issueRouter);
 app.use('/api/parks', parkRouter);
