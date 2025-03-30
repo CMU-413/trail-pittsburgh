@@ -35,7 +35,7 @@ export class ParkRepository {
                 data: {
                     name: parkData.name,
                     county: parkData.county!,
-                    owner_id: parkData.owner_id || null,
+                    // owner_id: parkData.owner_id || null,
                     // No need to include is_active as it has a default value
                 }
             });
@@ -75,6 +75,12 @@ export class ParkRepository {
             if (isParkNotFoundError(error)) { return null; }
             throw error;
         }
+
+    // public async createPark(newParkData : Prisma.ParkCreateInput) {
+    //     return prisma.park.create({
+    //         data: newParkData
+    //     });
+
     }
 
     public async getAllParks() {

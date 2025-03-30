@@ -3,54 +3,208 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-    
-    const park1 = await prisma.park.create({
-        data: {
-            name: 'Grand Canyon National Park', 
-            county: 'Coconino',
-            is_active: true
-        }
-    });
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Issue", "Park", "Trail", "User", "Permission", "Notification", "Anonymous_user" RESTART IDENTITY CASCADE;`);
 
-    const park2 = await prisma.park.create({
-        data: {
-            name: 'Yellowstone National Park',
-            county: 'Teton',
-            is_active:true
-        }
-    });
-
-    await prisma.trail.createMany({
+    // Create Users
+    // eslint-disable-next-line
+    const users = await prisma.user.createMany({
         data: [
-            {
-                park_id: park1.park_id, 
-                name: 'Great Allegheny Passage',
-                is_active: true, 
-                is_open: true
+            { 
+                username: 'john_doe', 
+                email: 'john@example.com',
+                is_admin: false,
+                is_hubspot_user: false,
+                profile_image_key: 'default.jpg',
+                is_active: true
             },
-            {
-                park_id: park1.park_id,
-                name: 'Three Rivers Heritage Trail',
-                is_active: true,
-                is_open: false
+            { 
+                username: 'jane_smith', 
+                email: 'jane@example.com',
+                is_admin: true,
+                is_hubspot_user: false,
+                profile_image_key: 'default.jpg',
+                is_active: true
             },
-            {
-                park_id: park2.park_id,
-                name: 'Vicky\'s Wonderland',
-                is_active: true,
-                is_open: false
+            { 
+                username: 'mike_wilson', 
+                email: 'mike@example.com',
+                is_admin: false,
+                is_hubspot_user: false,
+                profile_image_key: 'default.jpg',
+                is_active: true
+            },
+            { 
+                username: 'sarah_jones', 
+                email: 'sarah@example.com',
+                is_admin: false,
+                is_hubspot_user: false,
+                profile_image_key: 'default.jpg',
+                is_active: true
+            },
+            { 
+                username: 'david_brown', 
+                email: 'david@example.com',
+                is_admin: false,
+                is_hubspot_user: false,
+                profile_image_key: 'default.jpg',
+                is_active: true
             }
-           
         ]
     });
-    // eslint-disable-next-line no-console
-    console.log('Database seeding completed');
+
+    // Create Parks
+    // eslint-disable-next-line
+    const parks = await prisma.park.createMany({
+        data: [
+            { 
+                name: 'Point State Park', 
+                county: 'Allegheny',
+                is_active: true 
+            },
+            { 
+                name: 'Schenley Park', 
+                county: 'Allegheny',
+                is_active: true 
+            },
+            { 
+                name: 'Frick Park', 
+                county: 'Allegheny',
+                is_active: true 
+            },
+            { 
+                name: 'Highland Park', 
+                county: 'Allegheny',
+                is_active: true 
+            },
+            { 
+                name: 'Riverview Park', 
+                county: 'Allegheny',
+                is_active: true 
+            }
+        ]
+    });
+
+    // Fetch created parks
+    const parkRecords = await prisma.park.findMany();
+
+    // Create Trails
+    // eslint-disable-next-line
+    const trails = await prisma.trail.createMany({
+        data: [
+            { 
+                name: 'Great Allegheny Passage', 
+                park_id: parkRecords[0].park_id,
+                is_active: true,
+                is_open: true
+            },
+            { 
+                name: 'Three Rivers Heritage Trail', 
+                park_id: parkRecords[1].park_id,
+                is_active: true,
+                is_open: true
+            },
+            { 
+                name: 'Frick Park Trails', 
+                park_id: parkRecords[2].park_id,
+                is_active: true,
+                is_open: true
+            },
+            { 
+                name: 'Schenley Park Trails', 
+                park_id: parkRecords[3].park_id,
+                is_active: true,
+                is_open: true
+            },
+            { 
+                name: 'Highland Park Trails', 
+                park_id: parkRecords[4].park_id,
+                is_active: true,
+                is_open: true
+            }
+        ]
+    });
+
+    // Fetch created trails
+    const trailRecords = await prisma.trail.findMany();
+
+    // Create Issues
+    // eslint-disable-next-line
+    const issues = await prisma.issue.createMany({
+        data: [
+            {
+                park_id: parkRecords[0].park_id,
+                trail_id: trailRecords[0].trail_id,
+                issue_type: 'Flooding',
+                urgency: 4,
+                description: 'Heavy rainfall caused water pooling on the trail.',
+                is_public: true,
+                status: 'Open',
+                notify_reporter: true
+            },
+            {
+                park_id: parkRecords[1].park_id,
+                trail_id: trailRecords[1].trail_id,
+                issue_type: 'Tree Obstruction',
+                urgency: 3,
+                description: 'A fallen tree is blocking the path near mile marker 5.',
+                is_public: true,
+                status: 'Open',
+                notify_reporter: true
+            },
+            {
+                park_id: parkRecords[2].park_id,
+                trail_id: trailRecords[2].trail_id,
+                issue_type: 'Erosion',
+                urgency: 5,
+                description: 'Severe erosion has made the path unsafe for bikers.',
+                is_public: true,
+                status: 'Open',
+                notify_reporter: true
+            }
+        ]
+    });
+
+    // Create Permissions
+    // eslint-disable-next-line
+    const permissions = await prisma.permission.createMany({
+        data: [
+            {
+                user_id: 2, // jane_smith (admin)
+                resource_type: 'Park',
+                resource_id: parkRecords[0].park_id,
+                permission_type: 'Admin',
+                is_active: true
+            },
+            {
+                user_id: 1, // john_doe
+                resource_type: 'Park',
+                resource_id: parkRecords[1].park_id,
+                permission_type: 'View',
+                is_active: true
+            }
+        ]
+    });
+
+    // Create Notifications
+    // eslint-disable-next-line
+    const notifications = await prisma.notification.createMany({
+        data: [
+            {
+                recipient_id: 1,
+                content: 'Your issue has been reported successfully.'
+            },
+            {
+                recipient_id: 2,
+                content: 'New issue reported in your assigned park.'
+            }
+        ]
+    });
 }
 
-main() 
+main()
     .catch((e) => {
-        // eslint-disable-next-line no-console
-        console.error(e);
+        // eslint-disable-next-line
+        console.error('Fatal error:', e);
         process.exit(1);
     })
     .finally(async () => {

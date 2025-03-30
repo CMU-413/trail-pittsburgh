@@ -1,54 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `Anonymous_users` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Issues` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Notifications` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Parks` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Permissions` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Trails` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Users` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE "Issues" DROP CONSTRAINT "Issues_park_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "Issues" DROP CONSTRAINT "Issues_trail_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "Notifications" DROP CONSTRAINT "Notifications_recipient_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "Permissions" DROP CONSTRAINT "Permissions_resource_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "Permissions" DROP CONSTRAINT "Permissions_user_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "Trails" DROP CONSTRAINT "Trails_park_id_fkey";
-
--- DropTable
-DROP TABLE "Anonymous_users";
-
--- DropTable
-DROP TABLE "Issues";
-
--- DropTable
-DROP TABLE "Notifications";
-
--- DropTable
-DROP TABLE "Parks";
-
--- DropTable
-DROP TABLE "Permissions";
-
--- DropTable
-DROP TABLE "Trails";
-
--- DropTable
-DROP TABLE "Users";
-
 -- CreateTable
 CREATE TABLE "Trail" (
     "trail_id" SERIAL NOT NULL,
@@ -75,16 +24,6 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "Park" (
-    "park_id" SERIAL NOT NULL,
-    "name" VARCHAR(150) NOT NULL,
-    "county" VARCHAR(150) NOT NULL,
-    "is_active" BOOLEAN NOT NULL DEFAULT true,
-
-    CONSTRAINT "Parks_pkey" PRIMARY KEY ("park_id")
-);
-
--- CreateTable
 CREATE TABLE "Permission" (
     "permission_id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
@@ -95,6 +34,16 @@ CREATE TABLE "Permission" (
     "is_active" BOOLEAN NOT NULL,
 
     CONSTRAINT "Permission_pkey" PRIMARY KEY ("permission_id")
+);
+
+-- CreateTable
+CREATE TABLE "Park" (
+    "park_id" SERIAL NOT NULL,
+    "name" VARCHAR(150) NOT NULL,
+    "county" VARCHAR(150) NOT NULL,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "Parks_pkey" PRIMARY KEY ("park_id")
 );
 
 -- CreateTable

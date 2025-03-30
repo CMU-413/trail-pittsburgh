@@ -6,6 +6,13 @@ jest.mock('@/repositories/ParkRepository');
 describe('ParkService', () => {
     let parkService: ParkService;
     let parkRepositoryMock: jest.Mocked<ParkRepository>;
+    const mockPark = {
+        park_id: 1,
+        name: 'Test Park',
+        county: 'Test County',
+        is_active: true,
+        created_at: new Date()
+    };
 
     beforeEach(() => {
         parkRepositoryMock =
@@ -14,27 +21,18 @@ describe('ParkService', () => {
     });
 
     test('should create a new park', async () => {
-        const mockPark = {
-            park_id: 1,
-            park_name: 'Test Park',
-            is_active: true,
-            created_at: new Date()
-        };
         parkRepositoryMock.createPark.mockResolvedValue(mockPark);
 
-        const result = await parkService.createPark('Test Park');
+        const newParkInput = { name: 'Test Park', county: 'Test County' };
+        const result = await parkService.createPark(newParkInput);
 
-        expect(parkRepositoryMock.createPark).toHaveBeenCalledWith('Test Park');
+        expect(parkRepositoryMock.createPark)
+            .toHaveBeenCalledWith(newParkInput);
         expect(result).toEqual(mockPark);
     });
 
     test('should get a park by ID', async () => {
-        const mockPark = {
-            park_id: 1,
-            park_name: 'Test Park',
-            is_active: true,
-            created_at: new Date()
-        };
+        
         parkRepositoryMock.getPark.mockResolvedValue(mockPark);
 
         const result = await parkService.getPark(1);

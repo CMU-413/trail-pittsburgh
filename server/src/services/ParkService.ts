@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client';
+
 import { ParkRepository } from '@/repositories';
 
 interface ParkData {
@@ -22,9 +24,14 @@ export class ParkService {
         return this.parkRepository.getAllParks();
     }
 
+
     public async createPark(parkData: ParkData) {
         return this.parkRepository.createPark(parkData);
     }
+
+    // public async createPark(newPark: Prisma.ParkCreateInput) {
+    //     return this.parkRepository.createPark(newPark);
+    // }
 
     // public async updatePark(
     //     parkId: number, { isActive }: { isActive: boolean }

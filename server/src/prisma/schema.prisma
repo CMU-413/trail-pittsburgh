@@ -34,18 +34,6 @@ model User {
   notifications Notification[]
 }
 
-model Park {
-  park_id   Int     @id(map: "Parks_pkey") @default(autoincrement())
-  name      String  @db.VarChar(150)
-  county    String  @db.VarChar(150)
-  owner_id  Int?
-  is_active Boolean @default(true)
-
-  trails      Trail[]
-  issues      Issue[]
-  permissions Permission[]
-}
-
 model Permission {
   permission_id   Int       @id @default(autoincrement())
   user_id         Int
@@ -58,6 +46,16 @@ model Permission {
   //Foreign Key in relation to Users
   user User @relation(fields: [user_id], references: [user_id])
   park Park @relation(fields: [resource_id], references: [park_id])
+}
+
+model Park {
+  park_id   Int     @id(map: "Parks_pkey") @default(autoincrement())
+  name      String  @db.VarChar(150)
+  county    String  @db.VarChar(150)
+  is_active Boolean @default(true)
+  trails      Trail[]
+  issues      Issue[]
+  permissions Permission[]
 }
 
 model Issue {
