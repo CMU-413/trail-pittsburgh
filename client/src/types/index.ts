@@ -40,7 +40,7 @@ export type Issue = {
     is_public: boolean;
     status: IssueStatus;
     description: string;
-    reported_at: string; // ISO date string
+    created_at: string; // ISO date string
     reporter_email?: string;
     issue_type: string;
     urgency: number; // 1-5 scale

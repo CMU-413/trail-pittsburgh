@@ -60,8 +60,14 @@ export class IssueController {
                 is_public,
                 status,
                 notify_reporter,
-                issue_image
+                issue_image,
+                reported_at,
+                reporter_email,
+                lon,
+                lat
             } = req.body;
+
+            console.log('Creating issue with reported_at:', reported_at);
 
             // Validate required fields
             if (!park_id || !trail_id || !description) {
@@ -77,7 +83,11 @@ export class IssueController {
                 is_public !== undefined ? Boolean(is_public) : true,
                 status || 'open',
                 notify_reporter !== undefined ? Boolean(notify_reporter) : true,
-                issue_image
+                issue_image,
+                reported_at,
+                // reporter_email,
+                // lon,
+                // lat
             );
 
             res.status(201).json(issue);

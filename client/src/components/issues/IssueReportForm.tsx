@@ -36,7 +36,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         urgency: 3,
         notify_reporter: false,
         reporter_email: '',
-        reported_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
         lon: undefined,
         lat: undefined,
         imageMetadata: undefined
@@ -291,7 +291,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 urgency: 3,
                 notify_reporter: false,
                 reporter_email: '',
-                reported_at: new Date().toISOString(),
+                created_at: new Date().toISOString(),
                 lon: undefined,
                 lat: undefined
             });

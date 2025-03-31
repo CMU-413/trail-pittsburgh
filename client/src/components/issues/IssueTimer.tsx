@@ -1,7 +1,11 @@
 // src/components/issues/IssueTimer.tsx
 import React, { useState, useEffect } from 'react';
 import { Issue } from '../../types';
-import { differenceInDays, differenceInHours, differenceInMinutes, differenceInSeconds, parseISO } from 'date-fns';
+import { differenceInDays } from 'date-fns/differenceInDays';
+import { differenceInHours } from 'date-fns/differenceInHours';
+import { differenceInMinutes } from 'date-fns/differenceInMinutes';
+import { differenceInSeconds } from 'date-fns/differenceInSeconds';
+import { parseISO } from 'date-fns/parseISO';
 
 interface IssueTimerProps {
     issue: Issue;
@@ -16,8 +20,21 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
     const safeParseISO = (dateString?: string): Date | null => {
         try {
             if (!dateString) return null;
-            const date = parseISO(dateString);
-            return isNaN(date.getTime()) ? null : date;
+            console.log('Attempting to parse date:', dateString);
+            let date = new Date(dateString);
+            if (!isNaN(date.getTime())) {
+                console.log('Successfully parsed with new Date()');
+                return date;
+            }
+        
+            date = parseISO(dateString);
+            if (!isNaN(date.getTime())) {
+                console.log('Successfully parsed with parseISO');
+                return date;
+            }
+            
+            console.log('Failed to parse date');
+            return null;
         } catch (error) {
             console.error('Error parsing date:', error, dateString);
             return null;
@@ -26,9 +43,11 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
 
     useEffect(() => {
         const updateTime = () => {
+            console.log('Reported date string:', issue.created_at);
+            console.log('Resolved date string:', issue.resolved_at);
             try {
                 // Safely parse reported date
-                const reportedDate = safeParseISO(issue.reported_at);
+                const reportedDate = safeParseISO(issue.created_at);
                 if (!reportedDate) {
                     setTimeDisplay('Unknown duration');
                     setStatusIndicator(isResolved ? 'Resolved' : 'Unknown');
@@ -122,7 +141,7 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
         
         if (!isResolved) {
             try {
-                const reportedDate = safeParseISO(issue.reported_at);
+                const reportedDate = safeParseISO(issue.created_at);
                 
                 if (reportedDate) {
                     const now = new Date();

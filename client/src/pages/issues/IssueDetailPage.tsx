@@ -179,7 +179,7 @@ export const IssueDetailPage: React.FC = () => {
                                     {issue.issue_type.charAt(0).toUpperCase() + issue.issue_type.slice(1)}
                                 </h3>
                                 <p className="text-sm text-gray-500">
-                                    Reported {formatDate(issue.reported_at)}
+                                    Reported {formatDate(issue.created_at)}
                                 </p>
                             </div>
                         </div>
