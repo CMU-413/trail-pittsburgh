@@ -71,7 +71,7 @@ export const IssueListPage: React.FC = () => {
             }
 
             result = result.filter((issue) => {
-                const issueDate = parseISO(issue.reported_at);
+                const issueDate = parseISO(issue.created_at);
                 return issueDate >= cutoffDate;
             });
         }
@@ -80,9 +80,9 @@ export const IssueListPage: React.FC = () => {
         result.sort((a, b) => {
             switch (sortBy) {
             case 'newest':
-                return new Date(b.reported_at).getTime() - new Date(a.reported_at).getTime();
+                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
             case 'oldest':
-                return new Date(a.reported_at).getTime() - new Date(b.reported_at).getTime();
+                return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
             case 'urgency-high':
                 return b.urgency - a.urgency;
             case 'urgency-low':
