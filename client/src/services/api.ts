@@ -121,16 +121,6 @@ export const trailApi = {
   },
 };
 
-// export const issueApi = {
-//   // Get issues by park ID
-//   getIssuesByPark: async (parkId: number) => {
-//     // Todo: will need to implement this endpoint on backend
-//     // Or filter issues by parkId on the client side
-//     const response = await fetch(`${API_BASE_URL}/issues?parkId=${parkId}`);
-//     return handleResponse(response);
-//   },
-  
-// };
 
 export const issueApi = {
   // Get all issues

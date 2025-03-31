@@ -8,9 +8,9 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
-import { mockApi } from '../../services/mockData';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { getIssueStatusDotColor } from '../../utils/issueStatusUtils';
+import { parkApi, trailApi, issueApi } from '../../services/api';
 
 export const DashboardPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -27,7 +27,7 @@ export const DashboardPage: React.FC = () => {
         const fetchData = async () => {
             try {
                 // Fetch issues
-                const issuesData = await mockApi.getIssues();
+                const issuesData = await issueApi.getAllIssues();
                 const filteredIssues = issuesData.filter((issue) => issue.is_public);
                 setIssues(filteredIssues.slice(0, 6)); // Show only the most recent 6 issues
 
@@ -37,14 +37,14 @@ export const DashboardPage: React.FC = () => {
                 setResolvedIssues(filteredIssues.filter((i) => i.status === 'resolved').length);
 
                 // Fetch parks and trails for display
-                const parksData = await mockApi.getParks();
+                const parksData = await parkApi.getParks();
                 const parksMap: Record<number, Park> = {};
                 parksData.forEach((park) => {
                     parksMap[park.park_id] = park;
                 });
                 setParks(parksMap);
 
-                const trailsData = await mockApi.getTrails();
+                const trailsData = await trailApi.getAllTrails();
                 const trailsMap: Record<number, Trail> = {};
                 trailsData.forEach((trail) => {
                     trailsMap[trail.trail_id] = trail;
@@ -67,7 +67,7 @@ export const DashboardPage: React.FC = () => {
 
     // Get the most recent issues
     const recentIssues = [...issues].sort(
-        (a, b) => new Date(b.reported_at).getTime() - new Date(a.reported_at).getTime()
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     ).slice(0, 5);
 
     return (
@@ -137,7 +137,7 @@ export const DashboardPage: React.FC = () => {
                                                 {issue.issue_type.charAt(0).toUpperCase() + issue.issue_type.slice(1)}
                                             </Link>
                                             <span className="text-sm text-gray-500 whitespace-nowrap ml-4">
-                                                {formatDistanceToNow(new Date(issue.reported_at), { addSuffix: true })}
+                                                {formatDistanceToNow(new Date(issue.created_at), { addSuffix: true })}
                                             </span>
                                         </div>
                                         <p className="text-sm text-gray-600 mt-1 line-clamp-2">{issue.description}</p>
