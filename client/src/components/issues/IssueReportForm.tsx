@@ -11,7 +11,6 @@ import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
 import { ImageUpload } from '../ui/ImageUpload';
 import Location from '../ui/Location';
-import { mockApi } from '../../services/mockData';
 import { 
     parkApi, trailApi 
 } from '../../services/api';
@@ -69,7 +68,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
                 // If we have a park ID, load its trails
                 if (formData.park_id) {
-                    const trailsData = await mockApi.getTrailsByPark(formData.park_id);
+                    const trailsData = await trailApi.getTrailsByPark(formData.park_id);
                     setTrails(trailsData.filter((trail) => trail.is_active));
                 }
             } catch (err) {
