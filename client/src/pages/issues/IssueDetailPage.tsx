@@ -18,6 +18,9 @@ import { format } from 'date-fns';
 import Location from '../../components/ui/Location';
 import { IssueTimer } from '../../components/issues/IssueTimer';
 import { ImageMetadataDisplay } from '../../components/ui/ImageMetadataDisplay';
+import { 
+    parkApi, trailApi, issueApi
+} from '../../services/api';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -38,6 +41,25 @@ export const IssueDetailPage: React.FC = () => {
         role: 'steward'
     };
 
+    const formatDate = (dateString: string, formatStr: string = 'PPP p') => {
+        try {
+            if (!dateString) {
+                return 'unknown time';
+            }
+            
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return 'unknown time';
+            }
+            
+            return format(date, formatStr);
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('Error formatting date:', err, dateString);
+            return 'unknown time';
+        }
+    };
+
     useEffect(() => {
         const fetchIssueData = async () => {
             if (!issueId) {
@@ -50,7 +72,7 @@ export const IssueDetailPage: React.FC = () => {
                 const id = parseInt(issueId, 10);
 
                 // Fetch issue details
-                const issueData = await mockApi.getIssue(id);
+                const issueData = await issueApi.getIssue(id);
 
                 if (!issueData) {
                     setError('Issue not found');
@@ -61,14 +83,16 @@ export const IssueDetailPage: React.FC = () => {
                 setIssue(issueData);
 
                 // Fetch related park
-                const parkData = await mockApi.getPark(issueData.park_id);
+                const parkData = await parkApi.getPark(issueData.park_id);
                 setPark(parkData || null);
 
                 // Fetch related trail
-                const trailData = await mockApi.getTrail(issueData.trail_id);
+                const trailData = await trailApi.getTrail(issueData.trail_id);
                 setTrail(trailData || null);
 
                 // Fetch resolution info if resolved
+                // we still need to use mock API since this endpoint hasn't been 
+                // implemented in the real API yet
                 if (issueData.status === 'resolved') {
                     const resolutions = await mockApi.getResolutionUpdatesByIssue(id);
                     if (resolutions.length > 0) {
@@ -162,7 +186,7 @@ export const IssueDetailPage: React.FC = () => {
                                     {issue.issue_type.charAt(0).toUpperCase() + issue.issue_type.slice(1)}
                                 </h3>
                                 <p className="text-sm text-gray-500">
-                                    Reported {format(new Date(issue.reported_at), 'PPP p')}
+                                    Reported {formatDate(issue.created_at)}
                                 </p>
                             </div>
                         </div>
@@ -245,7 +269,7 @@ export const IssueDetailPage: React.FC = () => {
                             <div className="flex justify-between mb-4">
                                 <h4 className="text-lg font-semibold text-gray-900">Resolution</h4>
                                 <span className="text-sm text-gray-500">
-                                    {format(new Date(resolution.resolved_at), 'PPP p')}
+                                    {formatDate(resolution.resolved_at)}
                                 </span>
                             </div>
 

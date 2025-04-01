@@ -25,8 +25,14 @@ export class IssueService {
         isPublic: boolean = true,
         status: string = 'Open',
         notifyReporter: boolean = true,
-        issueImage?: string
+        issueImage?: string,
+        reportedAt?: string,
+        // reporterEmail?: string,
+        // lon?: number,
+        // lat?: number
     ) {
+        console.log('IssueService: Creating issue with reported_at:', reportedAt);
+
         return this.issueRepository.createIssue(
             parkId,
             trailId,
@@ -36,7 +42,11 @@ export class IssueService {
             isPublic,
             status,
             notifyReporter,
-            issueImage
+            issueImage,
+            reportedAt,
+            // reporterEmail,
+            // lon,
+            // lat
         );
     }
 
