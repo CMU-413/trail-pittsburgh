@@ -1,26 +1,51 @@
-# Step 1: Use the official Node.js runtime image
-FROM node:lts-slim
+# Build stage
+FROM node:20-slim AS builder
 
-# Step 2: Set the working directory in the container
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Step 3: Copy the package.json and package-lock.json files to install dependencies
-COPY server/package*.json ./
+# Install OpenSSL for Prisma
+RUN apt-get update -y && apt-get install -y openssl
 
-# Step 4: Install dependencies
-RUN npm install
+# Copy package files
+COPY package*.json ./
+COPY src/prisma ./prisma/
 
-# Step 5: Copy the TypeScript source code (only if you plan to compile in the container)
-COPY server/src/ ./server/src/
+# Install dependencies
+RUN npm ci
 
-# Step 6: Compile TypeScript to JavaScript (you can also use a local build step for this instead)
-RUN npx tsc
+# Copy source code
+COPY . .
 
-# Step 7: Copy only the compiled JavaScript files (the `dist/` folder)
-COPY server/dist/ ./server/dist/
+# Generate Prisma client
+RUN npx prisma generate
 
-# Step 8: Expose the port your Express app will run on
+# Build TypeScript code
+RUN npm run build
+
+# Production stage
+FROM node:20-slim AS production
+
+WORKDIR /app
+
+# Install OpenSSL for Prisma
+RUN apt-get update -y && apt-get install -y openssl
+
+# Copy package files and install production dependencies only
+COPY package*.json ./
+COPY src/prisma ./prisma/
+
+RUN npm ci --only=production
+
+# Copy built files from builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# Expose the port your app runs on
 EXPOSE 8080
 
-# Step 9: Start the Express app (run the compiled JavaScript)
-CMD ["node", "server/dist/server.js"]
+# Start the application
+CMD ["node", "dist/server.js"] 
