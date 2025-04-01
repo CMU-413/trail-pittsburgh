@@ -89,9 +89,9 @@ export interface ParkInterface {
     county: string;
     owner_id: number;
     is_active: boolean;
-  }
+};
   
-  export interface TrailInterface {
+export interface TrailInterface {
     trail_id: number;
     park_id: number;
     name: string;
@@ -99,9 +99,9 @@ export interface ParkInterface {
     length: number;
     difficulty: 'easy' | 'moderate' | 'difficult';
     is_active: boolean;
-  }
+};
   
-  export interface IssueInterface {
+export interface IssueInterface {
     issue_id: number;
     trail_id: number;
     title: string;
@@ -111,4 +111,4 @@ export interface ParkInterface {
     reported_by: string;
     reported_at: string;
     is_public: boolean;
-  }
+}

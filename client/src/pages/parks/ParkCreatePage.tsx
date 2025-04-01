@@ -14,7 +14,6 @@ export const ParkCreatePage: React.FC = () => {
         try {
             const newPark = await parkApi.createPark(data);
             navigate(`/parks/${newPark.park_id}`);
-            console.log('ParkCreatePage: Navigating to park detail:', `/parks/${newPark.park_id}`);
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Error creating park:', err);

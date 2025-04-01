@@ -9,7 +9,6 @@ import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { parkApi } from '../../services/api';
 
-
 export const ParkListPage: React.FC = () => {
     const [parks, setParks] = useState<Park[]>([]);
     const [isLoading, setIsLoading] = useState(true);

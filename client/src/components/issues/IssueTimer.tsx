@@ -20,16 +20,13 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
     const safeParseISO = (dateString?: string): Date | null => {
         try {
             if (!dateString) return null;
-            console.log('Attempting to parse date:', dateString);
             let date = new Date(dateString);
             if (!isNaN(date.getTime())) {
-                console.log('Successfully parsed with new Date()');
                 return date;
             }
         
             date = parseISO(dateString);
             if (!isNaN(date.getTime())) {
-                console.log('Successfully parsed with parseISO');
                 return date;
             }
             
@@ -43,8 +40,6 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
 
     useEffect(() => {
         const updateTime = () => {
-            console.log('Reported date string:', issue.created_at);
-            console.log('Resolved date string:', issue.resolved_at);
             try {
                 // Safely parse reported date
                 const reportedDate = safeParseISO(issue.created_at);

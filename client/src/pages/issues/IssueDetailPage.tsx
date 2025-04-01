@@ -18,7 +18,9 @@ import { format } from 'date-fns';
 import Location from '../../components/ui/Location';
 import { IssueTimer } from '../../components/issues/IssueTimer';
 import { ImageMetadataDisplay } from '../../components/ui/ImageMetadataDisplay';
-import { parkApi, trailApi, issueApi } from '../../services/api';
+import { 
+    parkApi, trailApi, issueApi
+} from '../../services/api';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -41,7 +43,9 @@ export const IssueDetailPage: React.FC = () => {
 
     const formatDate = (dateString: string, formatStr: string = 'PPP p') => {
         try {
-            if (!dateString) return 'unknown time';
+            if (!dateString) {
+                return 'unknown time'
+            };
             
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'unknown time';

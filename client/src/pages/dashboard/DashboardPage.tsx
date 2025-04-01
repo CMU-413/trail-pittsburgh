@@ -10,7 +10,9 @@ import { PageHeader } from '../../components/layout/PageHeader';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { getIssueStatusDotColor } from '../../utils/issueStatusUtils';
-import { parkApi, trailApi, issueApi } from '../../services/api';
+import { 
+    parkApi, trailApi, issueApi
+} from '../../services/api';
 
 export const DashboardPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);

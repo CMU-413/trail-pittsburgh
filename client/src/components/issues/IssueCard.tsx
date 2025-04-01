@@ -24,10 +24,13 @@ export const IssueCard: React.FC<IssueCardProps> = ({
     // Format date for better display
     const getFormattedDate = () => {
         try {
-            if (!issue.created_at) return 'unknown time';
+            if (!issue.created_at) {
+                return 'unknown time';
+            }
             const reportedDate = new Date(issue.created_at);
-            if (isNaN(reportedDate.getTime())) return 'unknown time';
-            
+            if (isNaN(reportedDate.getTime())) {
+                return 'unknown time';
+            }
             return formatDistanceToNow(reportedDate, { addSuffix: true });
         } catch (error) {
             console.error('Error formatting date:', error, issue.created_at);

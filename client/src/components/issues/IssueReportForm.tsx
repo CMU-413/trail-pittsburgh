@@ -12,7 +12,9 @@ import { Alert } from '../ui/Alert';
 import { ImageUpload } from '../ui/ImageUpload';
 import Location from '../ui/Location';
 import { mockApi } from '../../services/mockData';
-import { parkApi, trailApi, issueApi } from '../../services/api';
+import { 
+    parkApi, trailApi 
+} from '../../services/api';
 
 
 interface IssueReportFormProps {

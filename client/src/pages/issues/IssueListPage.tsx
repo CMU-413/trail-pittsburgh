@@ -17,7 +17,9 @@ import { subDays } from 'date-fns/subDays';
 import { subMonths } from 'date-fns/subMonths';
 import { subYears } from 'date-fns/subYears';
 import { parseISO } from 'date-fns/parseISO';
-import { parkApi, trailApi, issueApi } from '../../services/api';
+import { 
+    parkApi, trailApi, issueApi
+} from '../../services/api';
 
 // Define filter and sort options
 type DateFilter = 'all' | 'week' | 'month' | '3months' | 'year';

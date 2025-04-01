@@ -13,8 +13,9 @@ import { Badge } from '../../components/ui/Badge';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { IssueList } from '../../components/issues/IssueList';
-import { parkApi, trailApi, issueApi } from '../../services/api';
-
+import {
+    parkApi, trailApi, issueApi
+} from '../../services/api';
 
 export const TrailDetailPage: React.FC = () => {
     const { parkId, trailId } = useParams<{ parkId: string; trailId: string }>();
