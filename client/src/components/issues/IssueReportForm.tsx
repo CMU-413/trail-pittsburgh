@@ -16,7 +16,6 @@ import {
     parkApi, trailApi 
 } from '../../services/api';
 
-
 interface IssueReportFormProps {
     onSubmit: (data: Omit<Issue, 'issue_id'> & { imageMetadata?: ImageMetadata }) => Promise<void>; // Fixed: replaced 'any' with 'ImageMetadata'
     initialParkId?: number;

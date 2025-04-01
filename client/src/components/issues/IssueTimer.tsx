@@ -19,7 +19,9 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
     // Safe date parsing function
     const safeParseISO = (dateString?: string): Date | null => {
         try {
-            if (!dateString) return null;
+            if (!dateString) {
+                return null;
+            }
             let date = new Date(dateString);
             if (!isNaN(date.getTime())) {
                 return date;
@@ -29,10 +31,10 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
             if (!isNaN(date.getTime())) {
                 return date;
             }
-            
-            console.log('Failed to parse date');
+
             return null;
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error parsing date:', error, dateString);
             return null;
         }
@@ -123,6 +125,7 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
                     setStatusIndicator('Resolved');
                 }
             } catch (error) {
+                // eslint-disable-next-line no-console
                 console.error('Error updating timer:', error);
                 setTimeDisplay('Error calculating duration');
                 setStatusIndicator(isResolved ? 'Resolved' : 'Unknown');
@@ -154,6 +157,7 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
                     }
                 }
             } catch (error) {
+                // eslint-disable-next-line no-console
                 console.error('Error setting timer interval:', error);
             }
         }

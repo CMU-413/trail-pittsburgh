@@ -55,10 +55,8 @@ export const ParkDetailPage: React.FC = () => {
                     const trailsData = await trailApi.getTrailsByPark(id);
                     setTrails(trailsData);
                 } catch (trailErr) {
+                    // eslint-disable-next-line no-console
                     console.error('Error fetching trails:', trailErr);
-                    // Fallback to mock data if the real API fails (took down)
-                    // const trailsData = await mockApi.getTrailsByPark(id);
-                    // setTrails(trailsData);
                 }
                 
                 // Fetch issues for this park

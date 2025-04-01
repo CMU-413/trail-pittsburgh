@@ -44,14 +44,17 @@ export const IssueDetailPage: React.FC = () => {
     const formatDate = (dateString: string, formatStr: string = 'PPP p') => {
         try {
             if (!dateString) {
-                return 'unknown time'
-            };
+                return 'unknown time';
+            }
             
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return 'unknown time';
+            if (isNaN(date.getTime())) {
+                return 'unknown time';
+            }
             
             return format(date, formatStr);
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error formatting date:', err, dateString);
             return 'unknown time';
         }

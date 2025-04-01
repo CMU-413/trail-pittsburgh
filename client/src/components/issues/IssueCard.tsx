@@ -33,6 +33,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
             }
             return formatDistanceToNow(reportedDate, { addSuffix: true });
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error formatting date:', error, issue.created_at);
             return 'unknown time';
         }
