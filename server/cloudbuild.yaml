@@ -1,0 +1,30 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/trail-pittsburgh-backend', '.']
+
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/trail-pittsburgh-backend']
+
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'trail-pittsburgh-backend'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/trail-pittsburgh-backend'
+      - '--region'
+      - 'us-east1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
+      - '--set-env-vars'
+      - 'DATABASE_URL=postgres://postgres:pass1234@localhost:5432/trail-pgh'
+
+images:
+  - 'gcr.io/$PROJECT_ID/trail-pittsburgh-backend' 
