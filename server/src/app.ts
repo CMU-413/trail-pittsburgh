@@ -1,20 +1,19 @@
 import express from 'express';
 import cors from 'cors';
-import { parkRouter, issueRouter } from '@/routes';
+
+import { errorHandler } from '@/middlewares';
+import { issueRouter, parkRouter, trailRouter } from '@/routes';
 
 const app = express();
 
-// Enable CORS for all routes
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
 
-// Parse JSON bodies
+// Middleware
 app.use(express.json());
-
-// Add request logging middleware
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
-    next();
-});
 
 // Root route
 app.get('/', (req: express.Request, res: express.Response) => {
@@ -24,7 +23,7 @@ app.get('/', (req: express.Request, res: express.Response) => {
 // Basic health check route - register this first
 app.get('/healthz', (req: express.Request, res: express.Response) => {
     console.log('Health check endpoint called');
-    res.status(200).json({ status: 'ok', check: true });
+    res.status(200).json({ status: 'ok' });
 });
 
 // Echo route with optional message parameter
@@ -36,6 +35,8 @@ app.get('/echo/:message?', (req: express.Request, res: express.Response) => {
 // Register API routes
 app.use('/api/parks', parkRouter);
 app.use('/api/issues', issueRouter);
+app.use('/api/trails', trailRouter);
+
 
 // 404 handler
 app.use((req: express.Request, res: express.Response) => {

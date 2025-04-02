@@ -11,7 +11,9 @@ import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
 import { ImageUpload } from '../ui/ImageUpload';
 import Location from '../ui/Location';
-import { mockApi } from '../../services/mockData';
+import { 
+    parkApi, trailApi 
+} from '../../services/api';
 
 interface IssueReportFormProps {
     onSubmit: (data: Omit<Issue, 'issue_id'> & { imageMetadata?: ImageMetadata }) => Promise<void>; // Fixed: replaced 'any' with 'ImageMetadata'
@@ -34,7 +36,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         urgency: 3,
         notify_reporter: false,
         reporter_email: '',
-        reported_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
         lon: undefined,
         lat: undefined,
         imageMetadata: undefined
@@ -61,12 +63,12 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     useEffect(() => {
         const fetchParks = async () => {
             try {
-                const parksData = await mockApi.getParks();
+                const parksData = await parkApi.getParks();
                 setParks(parksData.filter((park) => park.is_active));
 
                 // If we have a park ID, load its trails
                 if (formData.park_id) {
-                    const trailsData = await mockApi.getTrailsByPark(formData.park_id);
+                    const trailsData = await trailApi.getTrailsByPark(formData.park_id);
                     setTrails(trailsData.filter((trail) => trail.is_active));
                 }
             } catch (err) {
@@ -84,7 +86,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         const fetchTrails = async () => {
             if (formData.park_id) {
                 try {
-                    const trailsData = await mockApi.getTrailsByPark(formData.park_id);
+                    const trailsData = await trailApi.getTrailsByPark(formData.park_id);
                     setTrails(trailsData.filter((trail) => trail.is_active));
 
                     // If current trail doesn't belong to selected park, reset it
@@ -289,7 +291,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 urgency: 3,
                 notify_reporter: false,
                 reporter_email: '',
-                reported_at: new Date().toISOString(),
+                created_at: new Date().toISOString(),
                 lon: undefined,
                 lat: undefined
             });

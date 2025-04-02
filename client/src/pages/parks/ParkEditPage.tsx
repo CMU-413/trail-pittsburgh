@@ -7,7 +7,7 @@ import { ParkForm } from '../../components/parks/ParkForm';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { Button } from '../../components/ui/Button';
-import { mockApi } from '../../services/mockData';
+import { parkApi } from '../../services/api';
 
 export const ParkEditPage: React.FC = () => {
     const { parkId } = useParams<{ parkId: string }>();
@@ -27,7 +27,7 @@ export const ParkEditPage: React.FC = () => {
             
             try {
                 const id = parseInt(parkId, 10);
-                const parkData = await mockApi.getPark(id);
+                const parkData = await parkApi.getPark(id);
                 
                 if (!parkData) {
                     setError('Park not found');
@@ -52,7 +52,7 @@ export const ParkEditPage: React.FC = () => {
         if (!park) {return;}
         
         try {
-            const updatedPark = await mockApi.updatePark({
+            const updatedPark = await parkApi.updatePark({
                 ...data,
                 park_id: park.park_id
             });

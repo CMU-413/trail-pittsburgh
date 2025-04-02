@@ -7,7 +7,7 @@ import { IssueReportForm } from '../../components/issues/IssueReportForm';
 import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { mockApi } from '../../services/mockData';
+import { issueApi } from '../../services/api';
 
 export const IssueReportPage: React.FC = () => {
     const location = useLocation();
@@ -21,7 +21,7 @@ export const IssueReportPage: React.FC = () => {
 
     const handleSubmit = async (data: Omit<Issue, 'issue_id'>) => {
         try {
-            await mockApi.createIssue(data);
+            await issueApi.createIssue(data);
             // Set submission state to true to hide the form
             setIsSubmitted(true);
             // Scroll to top for better UX

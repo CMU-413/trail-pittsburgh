@@ -22,7 +22,9 @@ export class IssueRepository {
         isPublic: boolean = true,
         status: string = 'Open',
         notifyReporter: boolean = true,
-        issueImage?: string
+        issueImage?: string,
+        reportedAt?: string
+        // reporterEmail?: string,
     ) {
         return prisma.issue.create({
             data: {
@@ -34,7 +36,8 @@ export class IssueRepository {
                 is_public: isPublic,
                 status,
                 notify_reporter: notifyReporter,
-                issue_image: issueImage
+                issue_image: issueImage,
+                // reporter_email: reporterEmail, 
             },
             include: {
                 park: true,
@@ -93,11 +96,12 @@ export class IssueRepository {
     }
 
     public async updateIssueStatus(issueId: number, status: string) {
+        const normalizedStatus = status.toLowerCase();
         return prisma.issue.update({
             where: { issue_id: issueId },
             data: {
-                status,
-                resolved_at: status === 'Resolved' ? new Date() : null
+                status: normalizedStatus,
+                resolved_at: normalizedStatus === 'resolved' ? new Date() : null
             },
             include: {
                 park: true,
