@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-import { prisma } from '@/prisma/prismaClient';
+import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 
 export class TrailRepository {
     public async getTrail(trailId: number) {
@@ -72,9 +72,4 @@ export class TrailRepository {
             }
         });
     }
-}
-
-function isNotFoundError(error: unknown) {
-    return (error instanceof Prisma.PrismaClientKnownRequestError &&
-        (error.code === 'P2025' || error.code === 'P2016'));
 }
