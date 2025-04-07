@@ -24,8 +24,6 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-      - '--logging'
-      - 'CLOUD_LOGGING_ONLY'
 
 options:
   logging: CLOUD_LOGGING_ONLY
