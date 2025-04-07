@@ -9,7 +9,8 @@
     "lint:fix": "eslint --fix",
     "start": "node -r ./tsconfig-paths-bootstrap.js dist/server.js",
     "seed": "npx prisma db seed",
-    "test": "jest"
+    "test": "jest",
+    "deploy": "gcloud builds submit --config cloudbuild.yaml"
   },
   "prisma": {
     "schema": "src/prisma/schema.prisma",

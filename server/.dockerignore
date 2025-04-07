@@ -10,7 +10,6 @@ build
 
 # Environment variables
 .env
-.env.*
 !.env.example
 
 # Version control

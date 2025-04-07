@@ -17,14 +17,10 @@ steps:
       - '--image'
       - 'gcr.io/$PROJECT_ID/trail-pittsburgh-backend'
       - '--region'
-      - 'us-east1'
+      - 'us-central1'
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-      - '--port'
-      - '8080'
-      - '--set-env-vars'
-      - 'DATABASE_URL=postgres://postgres:pass1234@localhost:5432/trail-pgh'
 
 images:
   - 'gcr.io/$PROJECT_ID/trail-pittsburgh-backend' 
