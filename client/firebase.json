@@ -11,6 +11,21 @@
         "source": "**",
         "destination": "/index.html"
       }
-    ]
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      }
+    ],
+    "environment": {
+      "VITE_GOOGLE_CLIENT_ID": "519108808582-qc256gva6gr6sg5303cfjct871kiuv2h.apps.googleusercontent.com",
+      "VITE_API_URL": "https://trailpgh-server-519108808582.us-central1.run.app"
+    }
   }
 }

@@ -1,0 +1,33 @@
+name: Deploy React App to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main
+      - constantine/deployment
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          cd client
+          npm ci
+
+      - name: Build React App
+        run: |
+          cd client
+          npm run build
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: live
+          projectId: trailpgh-dev
