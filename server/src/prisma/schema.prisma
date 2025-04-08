@@ -69,7 +69,7 @@ model Issue {
   park_id         Int
   trail_id        Int
   is_public       Boolean
-  status          String    @db.VarChar(150)
+  status          IssueStatus
   description     String    @db.VarChar(150)
   created_at      DateTime? @default(now())
   issue_type      String    @db.VarChar(150)
