@@ -2,9 +2,8 @@ import { ParkRepository } from '@/repositories';
 
 interface ParkData {
     name: string;
-    county: string;
-    owner_id: number | null;
-    is_active: boolean;
+    county?: string;
+    is_active?: boolean;
 }
 
 export class ParkService {
@@ -31,7 +30,7 @@ export class ParkService {
         if (!existingPark) {
             return null;
         }
-    
+
         return this.parkRepository.updatePark(parkId, parkData);
     }
 
@@ -40,7 +39,7 @@ export class ParkService {
         if (!existingPark) {
             return false;
         }
-        
+
         return this.parkRepository.deletePark(parkId);
     }
 
