@@ -25,8 +25,8 @@ export class IssueService {
         isPublic: boolean = true,
         status: string = 'Open',
         notifyReporter: boolean = true,
-        issueImage?: string,
-        reportedAt?: string,
+        issueImage: string,
+        reportedAt: string,
         // reporterEmail?: string,
         // lon?: number,
         // lat?: number

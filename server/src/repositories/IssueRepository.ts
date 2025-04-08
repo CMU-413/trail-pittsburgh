@@ -22,9 +22,9 @@ export class IssueRepository {
         isPublic: boolean = true,
         status: string = 'Open',
         notifyReporter: boolean = true,
+        reporterEmail: string,
         issueImage?: string,
-        reportedAt?: string
-        // reporterEmail?: string,
+        // reportedAt?: string
     ) {
         return prisma.issue.create({
             data: {
@@ -37,7 +37,7 @@ export class IssueRepository {
                 status,
                 notify_reporter: notifyReporter,
                 issue_image: issueImage,
-                // reporter_email: reporterEmail, 
+                reporter_email: reporterEmail, 
             },
             include: {
                 park: true,

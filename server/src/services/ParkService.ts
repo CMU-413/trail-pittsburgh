@@ -1,5 +1,3 @@
-import { Prisma } from '@prisma/client';
-
 import { ParkRepository } from '@/repositories';
 
 interface ParkData {
@@ -24,7 +22,6 @@ export class ParkService {
         return this.parkRepository.getAllParks();
     }
 
-
     public async createPark(parkData: ParkData) {
         return this.parkRepository.createPark(parkData);
     }
@@ -32,12 +29,11 @@ export class ParkService {
     public async updatePark(parkId: number, parkData: Partial<ParkData>) {
         const existingPark = await this.parkRepository.getPark(parkId);
         if (!existingPark) {
-          return null;
+            return null;
         }
     
         return this.parkRepository.updatePark(parkId, parkData);
     }
-    
 
     public async deletePark(parkId: number) {
         const existingPark = await this.parkRepository.getPark(parkId);

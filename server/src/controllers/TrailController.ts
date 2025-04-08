@@ -1,4 +1,5 @@
 import express from 'express';
+
 import { TrailService } from '@/services';
 
 export class TrailController {

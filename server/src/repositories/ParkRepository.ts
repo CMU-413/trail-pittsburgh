@@ -1,5 +1,3 @@
-// import { Prisma } from '@prisma/client';
-import { Prisma, PrismaClient } from '@prisma/client';
 import { prisma } from '@/prisma/prismaClient';
 
 interface ParkData {
@@ -37,39 +35,15 @@ export class ParkRepository {
     }
 
     public async updatePark(parkId: number, parkData: Partial<ParkData>) {
-        try {
-            const updateData: any = {};
-            
-            if (parkData.name !== undefined) {
-                updateData.name = parkData.name;
-            }
-            
-            if (parkData.county !== undefined) {
-                updateData.county = parkData.county;
-            }
-            
-            if (parkData.owner_id !== undefined) {
-                updateData.owner_id = parkData.owner_id;
-            }
-            
-            if (parkData.is_active !== undefined) {
-                updateData.is_active = parkData.is_active;
-            }
-            
+        try {            
             return await prisma.park.update({
                 where: { park_id: parkId },
-                data: updateData
+                data: parkData
             });
         } catch (error) {
             if (isParkNotFoundError(error)) { return null; }
             throw error;
         }
-
-    // public async createPark(newParkData : Prisma.ParkCreateInput) {
-    //     return prisma.park.create({
-    //         data: newParkData
-    //     });
-
     }
 
     public async getAllParks() {

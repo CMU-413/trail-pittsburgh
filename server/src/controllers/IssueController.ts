@@ -62,9 +62,6 @@ export class IssueController {
                 notify_reporter,
                 issue_image,
                 reported_at,
-                reporter_email,
-                lon,
-                lat
             } = req.body;
 
             console.log('Creating issue with reported_at:', reported_at);

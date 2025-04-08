@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { ParkService } from '@/services';
 import { prisma } from '@/prisma/prismaClient'; // Adjust the import path as needed
+import { ParkService } from '@/services';
 
 export class ParkController {
     private readonly parkService: ParkService;
@@ -69,7 +69,6 @@ export class ParkController {
             is_active
         });
 
-
         if (!updatedPark) {
             return res.status(404).json({ message: 'Park not found.' });
         }
@@ -107,27 +106,27 @@ export class ParkController {
     // }
     public async getTrailsByPark(req: express.Request, res: express.Response) {
         try {
-          const parkId = Number(req.params.id);
+            const parkId = Number(req.params.id);
           
-          // Try a direct Prisma query
-          const trails = await prisma.trail.findMany({
-            where: {
-              park_id: parkId
-            }
-          });
+            // Try a direct Prisma query
+            const trails = await prisma.trail.findMany({
+                where: {
+                    park_id: parkId
+                }
+            });
           
-          return res.json(trails);
+            return res.json(trails);
         } catch (error) {
-          console.error('Error in getTrailsByPark:', error);
+            console.error('Error in getTrailsByPark:', error);
           
-          // Type checking for the error
-          let errorMessage = 'Server error fetching trails';
-          if (error instanceof Error) {
-            errorMessage = error.message;
-          }
+            // Type checking for the error
+            let errorMessage = 'Server error fetching trails';
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
           
-          return res.status(500).json({ message: errorMessage });
+            return res.status(500).json({ message: errorMessage });
         }
-      }
+    }
 }
 
