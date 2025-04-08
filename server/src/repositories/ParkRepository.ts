@@ -1,4 +1,5 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+
 import { prisma } from '@/prisma/prismaClient';
 
 interface ParkData {
@@ -38,16 +39,16 @@ export class ParkRepository {
         try {
             const updateData: Prisma.ParkUpdateInput = {};
 
-            if (parkData.name !== undefined) updateData.name = parkData.name;
-            if (parkData.county !== undefined) updateData.county = parkData.county;
-            if (parkData.is_active !== undefined) updateData.is_active = parkData.is_active;
+            if (parkData.name !== undefined) { updateData.name = parkData.name; }
+            if (parkData.county !== undefined) { updateData.county = parkData.county; }
+            if (parkData.is_active !== undefined) { updateData.is_active = parkData.is_active; }
 
             return await prisma.park.update({
                 where: { park_id: parkId },
                 data: updateData
             });
         } catch (error) {
-            if (isParkNotFoundError(error)) return null;
+            if (isParkNotFoundError(error)) { return null;}
             throw error;
         }
     }
@@ -63,7 +64,7 @@ export class ParkRepository {
                 data: { is_active: isActive }
             });
         } catch (error) {
-            if (isParkNotFoundError(error)) return null;
+            if (isParkNotFoundError(error)) { return null; }
             throw error;
         }
     }
@@ -73,7 +74,7 @@ export class ParkRepository {
             await prisma.park.delete({ where: { park_id: parkId } });
             return true;
         } catch (error) {
-            if (isParkNotFoundError(error)) return false;
+            if (isParkNotFoundError(error)) { return false; }
             throw error;
         }
     }
@@ -96,7 +97,7 @@ export class ParkRepository {
 }
 
 function isParkNotFoundError(error: unknown): boolean {
-    if (!error || typeof error !== 'object') return false;
+    if (!error || typeof error !== 'object') { return false; }
 
     const prismaError = error as { code?: string };
     return prismaError.code === 'P2025' || prismaError.code === 'P2016';

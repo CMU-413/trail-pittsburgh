@@ -10,6 +10,7 @@ async function main() {
     `);
 
     // Create Users
+    //eslint-disable-next-line
     const users = await prisma.user.createMany({
         data: [
             { 
@@ -56,6 +57,7 @@ async function main() {
     });
 
     // Create Parks
+    //eslint-disable-next-line
     const parks = await prisma.park.createMany({
         data: [
             { name: 'Point State Park', county: 'Allegheny' },
@@ -69,6 +71,7 @@ async function main() {
     const parkRecords = await prisma.park.findMany();
 
     // Create Trails
+    //eslint-disable-next-line
     const trails = await prisma.trail.createMany({
         data: [
             { name: 'Great Allegheny Passage', park_id: parkRecords[0].park_id, is_open: true },
@@ -82,6 +85,7 @@ async function main() {
     const trailRecords = await prisma.trail.findMany();
 
     // Create Issues
+    //eslint-disable-next-line
     const issues = await prisma.issue.createMany({
         data: [
             {
@@ -123,6 +127,7 @@ async function main() {
     const issueRecords = await prisma.issue.findMany();
 
     // Create Notifications
+    //eslint-disable-next-line
     const notifications = await prisma.notification.createMany({
         data: [
             {
