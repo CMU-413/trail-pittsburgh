@@ -58,6 +58,12 @@ model Park {
   permissions Permission[]
 }
 
+enum IssueStatus {
+  open
+  in_progress
+  resolved
+}
+
 model Issue {
   issue_id        Int       @id @default(autoincrement())
   park_id         Int
@@ -71,6 +77,7 @@ model Issue {
   issue_image     String?    @db.VarChar(150)
   notify_reporter Boolean
   resolved_at     DateTime? @default(now())
+  reporter_email  String    @db.VarChar(150)
 
   //Foreign Key in relation to Parks and Trails
   park  Park  @relation(fields: [park_id], references: [park_id])
@@ -81,13 +88,14 @@ model Notification {
   notification_id Int    @id @default(autoincrement())
   recipient_id    Int
   content         String @db.VarChar(150)
+  sent_at         DateTime? @default(now())
 
   //Foreign Key in relation to Users
   user User @relation(fields: [recipient_id], references: [user_id])
 }
 
-model Anonymous_user {
-  id     Int    @id @default(autoincrement())
-  email  String @unique
-  status String @db.VarChar(150)
-}
+// model Anonymous_user {
+//   id     Int    @id @default(autoincrement())
+//   email  String @unique
+//   status String @db.VarChar(150)
+// }
