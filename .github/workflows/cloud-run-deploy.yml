@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - main
+      - constantine/deployment
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: staging
 
     steps:
       - name: Checkout repo
@@ -21,7 +23,7 @@ jobs:
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: trailpgh-dev
+          project_id: ${{ secrets.PROJECT_ID }}
 
       - name: Trigger Cloud Build from /server directory
         run: |
