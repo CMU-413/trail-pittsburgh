@@ -31,7 +31,7 @@ import {
 export const App: React.FC = () => {
     // Get Google Client ID from environment variables
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    console.log('Testing deployment');
+
     return (
         <GoogleOAuthProvider clientId={clientId}>
             <AuthProvider>
