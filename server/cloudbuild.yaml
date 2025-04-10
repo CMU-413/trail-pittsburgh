@@ -24,9 +24,11 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
+      - '--add-cloudsql-instances=trailpgh-dev:us-central1:trail-pgh-db'
+      - '--set-env-vars=DATABASE_URL=$_DATABASE_URL'
 
 options:
   logging: CLOUD_LOGGING_ONLY
 
 images:
-  - 'gcr.io/$PROJECT_ID/trailpgh-server' 
+  - 'gcr.io/$PROJECT_ID/trailpgh-server'
