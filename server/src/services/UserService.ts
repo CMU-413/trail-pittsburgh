@@ -1,7 +1,15 @@
 import { UserRepository } from '@/repositories';
 
-export class UserService {
+interface UserData {
+    username?: string;
+    email?: string;
+    is_admin?: boolean;
+    permission?: string;
+    profile_image?: string;
+    is_active?: boolean;
+}
 
+export class UserService {
     private readonly userRepository: UserRepository;
 
     constructor(userRepository: UserRepository) {
@@ -20,16 +28,16 @@ export class UserService {
         username: string,
         email: string,
         isAdmin: boolean = false,
-        isHubspotUser: boolean = false,
-        profileImageKey: string = 'default.jpg',
+        permission: string = 'read',
+        profileImage: string = 'default.jpg',
         isActive: boolean = true
     ) {
         return this.userRepository.createUser(
             username,
             email,
             isAdmin,
-            isHubspotUser,
-            profileImageKey,
+            permission,
+            profileImage,
             isActive
         );
     }
@@ -38,17 +46,12 @@ export class UserService {
         return this.userRepository.deleteUser(userId);
     }
 
-    public async updateUser(
-        userId: number,
-        data: {
-            username?: string;
-            email?: string;
-            is_admin?: boolean;
-            is_hubspot_user?: boolean;
-            profile_image_key?: string;
-            is_active?: boolean;
+    public async updateUser(userId: number, data: UserData) {
+        const existingUser = await this.userRepository.getUser(userId);
+        if (!existingUser) {
+            return null;
         }
-    ) {
+
         return this.userRepository.updateUser(userId, data);
     }
 
@@ -59,5 +62,4 @@ export class UserService {
     public async getUserByUsername(username: string) {
         return this.userRepository.getUserByUsername(username);
     }
-
 }

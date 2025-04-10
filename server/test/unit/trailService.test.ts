@@ -100,7 +100,7 @@ describe('TrailService', () => {
     test('should create a new trail with default values', async () => {
         trailRepositoryMock.createTrail.mockResolvedValue(mockTrails[0]);
 
-        const trailInput = { name: 'Trail One', parkId: 1 };
+        const trailInput = { name: 'Trail One', park_id: 1 };
         const result = await trailService.createTrail(trailInput);
 
         expect(trailRepositoryMock.createTrail).toHaveBeenCalledWith('Trail One', 1, true, true);
@@ -110,7 +110,7 @@ describe('TrailService', () => {
     test('should create a new trail with custom values', async () => {
         trailRepositoryMock.createTrail.mockResolvedValue(mockTrails[2]);
 
-        const trailInput = { name: 'Trail Three', parkId: 1, isActive: false, isOpen: true };
+        const trailInput = { name: 'Trail Three', park_id: 1, is_active: false, is_open: true };
         const result = await trailService.createTrail(trailInput);
 
         expect(trailRepositoryMock.createTrail).toHaveBeenCalledWith('Trail Three', 1, false, true);

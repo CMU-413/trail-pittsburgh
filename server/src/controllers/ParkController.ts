@@ -24,7 +24,7 @@ export class ParkController {
             res.status(404).json({ message: 'Park not found.' });
         }
 
-        res.json(park);
+        return res.status(200).json({ data: park });
     }
 
     public async getAllParks(req: express.Request, res: express.Response) {
@@ -50,7 +50,7 @@ export class ParkController {
         };
         
         const park = await this.parkService.createPark(parkData);
-        res.status(201).json(park);
+        return res.status(201).json({ data: park });
     }
 
     public async updatePark(req: express.Request, res: express.Response) {
@@ -65,7 +65,6 @@ export class ParkController {
         const updatedPark = await this.parkService.updatePark(parkId, {
             name,
             county,
-            owner_id,
             is_active
         });
 

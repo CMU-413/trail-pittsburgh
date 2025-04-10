@@ -1,49 +1,61 @@
 import { Prisma } from '@prisma/client';
-
 import { prisma } from '@/prisma/prismaClient';
+
+interface UserUpdateData {
+    username?: string;
+    email?: string;
+    is_admin?: boolean;
+    permission?: string;
+    profile_image?: string;
+    is_active?: boolean;
+}
 
 export class UserRepository {
     public async getUser(userId: number) {
-        return prisma.user.findUnique({
-            where: { user_id: userId },
-            include: {
-                permissions: true,
-                notifications: true
-            }
-        });
+        try {
+            return await prisma.user.findUnique({
+                where: { user_id: userId }
+            });
+        } catch (error) {
+            console.error('Error getting user:', error);
+            throw error;
+        }
     }
 
     public async createUser(
         username: string,
         email: string,
         isAdmin: boolean = false,
-        isHubspotUser: boolean = false,
-        profileImageKey: string = 'default.jpg',
+        permission: string = 'read',
+        profileImage: string = 'default.jpg',
         isActive: boolean = true
     ) {
-        return prisma.user.create({
-            data: {
-                username,
-                email,
-                is_admin: isAdmin,
-                is_hubspot_user: isHubspotUser,
-                profile_image_key: profileImageKey,
-                is_active: isActive
-            },
-            include: {
-                permissions: true,
-                notifications: true
-            }
-        });
+        try {
+            const result = await prisma.user.create({
+                data: {
+                    username,
+                    email,
+                    is_admin: isAdmin,
+                    permission,
+                    profile_image: profileImage,
+                    is_active: isActive
+                }
+            });
+            console.log('User created successfully:', result);
+            return result;
+        } catch (error) {
+            console.error('Error creating user:', error);
+            throw error;
+        }
     }
 
     public async getAllUsers() {
-        return prisma.user.findMany({
-            include: {
-                permissions: true,
-                notifications: true
-            }
-        });
+        try {
+            return await prisma.user.findMany();
+        } catch (error) {
+            console.error('Error fetching all users:', error);
+            throw error;
+        }
     }
 
     public async deleteUser(userId: number) {
@@ -51,59 +63,51 @@ export class UserRepository {
             await prisma.user.delete({ where: { user_id: userId } });
             return true;
         } catch (error) {
-            if (isNotFoundError(error)) { return false; }
+            if (isNotFoundError(error)) return false;
+            console.error('Error deleting user:', error);
             throw error;
         }
     }
 
-    public async updateUser(
-        userId: number,
-        data: {
-            username?: string;
-            email?: string;
-            is_admin?: boolean;
-            is_hubspot_user?: boolean;
-            profile_image_key?: string;
-            is_active?: boolean;
-        }
-    ) {
+    public async updateUser(userId: number, data: UserUpdateData) {
         try {
             return await prisma.user.update({
                 where: { user_id: userId },
-                data: data,
-                include: {
-                    permissions: true,
-                    notifications: true
-                }
+                data
             });
         } catch (error) {
-            if (isNotFoundError(error)) { return null; }
+            if (isNotFoundError(error)) return null;
+            console.error('Error updating user:', error);
             throw error;
         }
     }
 
     public async getUserByEmail(email: string) {
-        return prisma.user.findUnique({
-            where: { email },
-            include: {
-                permissions: true,
-                notifications: true
-            }
-        });
+        try {
+            return await prisma.user.findUnique({
+                where: { email }
+            });
+        } catch (error) {
+            console.error('Error getting user by email:', error);
+            throw error;
+        }
     }
 
     public async getUserByUsername(username: string) {
-        return prisma.user.findUnique({
-            where: { username },
-            include: {
-                permissions: true,
-                notifications: true
-            }
-        });
+        try {
+            return await prisma.user.findUnique({
+                where: { username }
+            });
+        } catch (error) {
+            console.error('Error getting user by username:', error);
+            throw error;
+        }
     }
 }
 
-function isNotFoundError(error: unknown) {
-    return (error instanceof Prisma.PrismaClientKnownRequestError &&
-        (error.code === 'P2025' || error.code === 'P2016'));
+function isNotFoundError(error: unknown): boolean {
+    if (!error || typeof error !== 'object') return false;
+
+    const prismaError = error as { code?: string };
+    return prismaError.code === 'P2025' || prismaError.code === 'P2016';
 }
