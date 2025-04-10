@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+// import { Prisma } from '@prisma/client';
 
 import { prisma } from '@/prisma/prismaClient';
 
@@ -80,7 +80,9 @@ export class IssueRepository {
             await prisma.issue.delete({ where: { issue_id: issueId } });
             return true;
         } catch (error) {
-            if (isNotFoundError(error)) return false;
+            if (isNotFoundError(error)) {
+                return false;
+            }
             console.error('Error deleting issue:', error);
             throw error;
         }
@@ -146,7 +148,7 @@ export class IssueRepository {
                 }
             });
         } catch (error) {
-            if (isNotFoundError(error)) return null;
+            if (isNotFoundError(error)) {return null;}
             console.error('Error updating issue status:', error);
             throw error;
         }
@@ -154,7 +156,7 @@ export class IssueRepository {
 }
 
 function isNotFoundError(error: unknown): boolean {
-    if (!error || typeof error !== 'object') return false;
+    if (!error || typeof error !== 'object') {return false;}
 
     const prismaError = error as { code?: string };
     return prismaError.code === 'P2025' || prismaError.code === 'P2016';

@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+
 import { prisma } from '@/prisma/prismaClient';
 
 interface UserUpdateData {
@@ -63,7 +64,7 @@ export class UserRepository {
             await prisma.user.delete({ where: { user_id: userId } });
             return true;
         } catch (error) {
-            if (isNotFoundError(error)) return false;
+            if (isNotFoundError(error)) {return false;}
             console.error('Error deleting user:', error);
             throw error;
         }
@@ -76,7 +77,7 @@ export class UserRepository {
                 data
             });
         } catch (error) {
-            if (isNotFoundError(error)) return null;
+            if (isNotFoundError(error)) {return null;}
             console.error('Error updating user:', error);
             throw error;
         }
@@ -106,7 +107,7 @@ export class UserRepository {
 }
 
 function isNotFoundError(error: unknown): boolean {
-    if (!error || typeof error !== 'object') return false;
+    if (!error || typeof error !== 'object') {return false;}
 
     const prismaError = error as { code?: string };
     return prismaError.code === 'P2025' || prismaError.code === 'P2016';

@@ -56,7 +56,7 @@ export class ParkController {
     public async updatePark(req: express.Request, res: express.Response) {
         const parkId = Number(req.params.id);
 
-        const { name, county, owner_id: _, is_active } = req.body;
+        const { name, county, is_active } = req.body;
 
         if (!name || !county) {
             return res.status(400).json({ message: 'Name and county are required' });

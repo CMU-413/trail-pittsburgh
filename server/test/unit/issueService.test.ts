@@ -24,7 +24,7 @@ describe('IssueService', () => {
         resolved_at: null,
         issue_image: null,
         park: { park_id: 1, name: 'Test Park', county: 'Allegheny', is_active: true, created_at: new Date() },
-        trail: { trail_id: 1, park_id: 1, name: 'Test Trail', is_active: true, is_open: true, created_at: new Date()}
+        trail: { trail_id: 1, park_id: 1, name: 'Test Trail', is_active: true, is_open: true, created_at: new Date() }
     };
 
     beforeEach(() => {
