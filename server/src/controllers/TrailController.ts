@@ -106,4 +106,23 @@ export class TrailController {
             res.status(500).json({ message: 'Failed to delete trail' });
         }
     }
+
+    public async getTrailsByPark(req: express.Request, res: express.Response) {
+        try {
+            const parkId = Number(req.params.parkId);
+            const trails = await this.trailService.getTrailsByPark(parkId);
+
+            return res.json({ parkId, trails });
+        } catch (error) {
+            console.error('Error in getTrailsByPark:', error);
+
+            // Type checking for the error
+            let errorMessage = 'Server error fetching trails';
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            return res.status(500).json({ message: errorMessage });
+        }
+    }
 }

@@ -6,8 +6,6 @@ export const getParkSchema = z.object({
     })
 });
 
-export const getAllParksSchema = z.object({});
-
 export const createParkSchema = z.object({
     body: z.object({
         name: z.string(),

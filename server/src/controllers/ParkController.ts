@@ -55,15 +55,13 @@ export class ParkController {
 
     public async updatePark(req: express.Request, res: express.Response) {
         const parkId = Number(req.params.parkId);
-        const { isActive } = req.body;
-        const updatedPark =
-            await this.parkService.updatePark(parkId, { isActive });
-        const parkId = Number(req.params.id);
 
         const { name, county, is_active } = req.body;
 
+        // TODO fix
         if (!name || !county) {
-            return res.status(400).json({ message: 'Name and county are required' });
+            res.status(400).json({ message: 'Name and county are required' });
+            return;
         }
 
         const updatedPark = await this.parkService.updatePark(parkId, {

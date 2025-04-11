@@ -27,4 +27,7 @@ router.put('/:id', errorHandlerWrapper(trailController.updateTrail));
 // Delete a trail
 router.delete('/:id', errorHandlerWrapper(trailController.deleteTrail));
 
+// Get trails from park
+router.get('/by-park/:parkId', errorHandlerWrapper(trailController.getTrailsByPark));
+
 export { router as trailRouter };
