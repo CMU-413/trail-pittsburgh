@@ -25,4 +25,9 @@ router.post('/', validateRequest(createParkSchema), errorHandlerWrapper(parkCont
 router.put('/:parkId', validateRequest(updateParkSchema), errorHandlerWrapper(parkController.updatePark));
 router.delete('/:parkId', validateRequest(deleteParkSchema), errorHandlerWrapper(parkController.deletePark));
 
+router.get('/:id/trails', (req, res, next) => {
+    console.log('Route hit: GET /parks/:id/trails, params:', req.params);
+    next();
+}, errorHandlerWrapper(parkController.getTrailsByPark));
+
 export { router as parkRouter };

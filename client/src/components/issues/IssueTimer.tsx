@@ -16,97 +16,149 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
     const [statusIndicator, setStatusIndicator] = useState<string>('');
     const isResolved = issue.status === 'resolved';
 
-    useEffect(() => {
-        const updateTime = () => {
-            const reportedDate = parseISO(issue.reported_at);
-            const now = new Date();
-            const endDate = isResolved && issue.resolved_at
-                ? parseISO(issue.resolved_at)
-                : now;
-
-            // Calculate time units
-            const totalDays = differenceInDays(endDate, reportedDate);
-            const totalHours = differenceInHours(endDate, reportedDate);
-            const hours = totalHours % 24;
-            const totalMinutes = differenceInMinutes(endDate, reportedDate);
-            const minutes = totalMinutes % 60;
-            const totalSeconds = differenceInSeconds(endDate, reportedDate);
-            const seconds = totalSeconds % 60;
-
-            // Formatting logic with full unit names, showing only non-zero units
-            let display = '';
-
-            // Just now (less than a minute)
-            if (totalSeconds < 60) {
-                display = 'Just now';
-            } else {
-                const parts = [];
-
-                // Add days if at least 1
-                if (totalDays > 0) {
-                    parts.push(`${totalDays} ${totalDays === 1 ? 'day' : 'days'}`);
-                }
-
-                // Add hours if at least 1
-                if (hours > 0 || (totalDays === 0 && totalMinutes >= 60)) {
-                    const hoursToShow = totalDays === 0 ? totalHours : hours;
-                    parts.push(`${hoursToShow} ${hoursToShow === 1 ? 'hour' : 'hours'}`);
-                }
-
-                // Add minutes if at least 1 or if we have no days and no hours
-                if (minutes > 0 || (totalDays === 0 && totalHours === 0)) {
-                    parts.push(`${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`);
-                }
-
-                // Add seconds only for very short durations (< 10 minutes) and if seconds > 0
-                if (totalMinutes < 10 && seconds > 0 && totalHours === 0) {
-                    parts.push(`${seconds} ${seconds === 1 ? 'second' : 'seconds'}`);
-                }
-
-                display = parts.join(' ');
+    // Safe date parsing function
+    const safeParseISO = (dateString?: string): Date | null => {
+        try {
+            if (!dateString) {
+                return null;
+            }
+            let date = new Date(dateString);
+            if (!isNaN(date.getTime())) {
+                return date;
+            }
+        
+            date = parseISO(dateString);
+            if (!isNaN(date.getTime())) {
+                return date;
             }
 
-            setTimeDisplay(display);
+            return null;
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('Error parsing date:', error, dateString);
+            return null;
+        }
+    };
 
-            // Set status indicator based on time elapsed
-            if (!isResolved) {
-                if (totalDays >= 30) {
-                    setStatusIndicator('Critical');
-                } else if (totalDays >= 14) {
-                    setStatusIndicator('Urgent');
-                } else if (totalDays >= 7) {
-                    setStatusIndicator('Extended');
-                } else if (totalDays >= 3) {
-                    setStatusIndicator('Ongoing');
-                } else if (totalDays >= 1) {
-                    setStatusIndicator('Recent');
-                } else {
-                    setStatusIndicator('New');
+    useEffect(() => {
+        const updateTime = () => {
+            try {
+                // Safely parse reported date
+                const reportedDate = safeParseISO(issue.created_at);
+                if (!reportedDate) {
+                    setTimeDisplay('Unknown duration');
+                    setStatusIndicator(isResolved ? 'Resolved' : 'Unknown');
+                    return;
                 }
-            } else {
-                setStatusIndicator('Resolved');
+
+                const now = new Date();
+                
+                // Safely parse resolved date if applicable
+                let endDate: Date;
+                if (isResolved && issue.resolved_at) {
+                    const resolvedDate = safeParseISO(issue.resolved_at);
+                    endDate = resolvedDate || now;
+                } else {
+                    endDate = now;
+                }
+
+                // Calculate time units
+                const totalDays = differenceInDays(endDate, reportedDate);
+                const totalHours = differenceInHours(endDate, reportedDate);
+                const hours = totalHours % 24;
+                const totalMinutes = differenceInMinutes(endDate, reportedDate);
+                const minutes = totalMinutes % 60;
+                const totalSeconds = differenceInSeconds(endDate, reportedDate);
+                const seconds = totalSeconds % 60;
+
+                // Formatting logic with full unit names, showing only non-zero units
+                let display = '';
+
+                // Just now (less than a minute)
+                if (totalSeconds < 60) {
+                    display = 'Just now';
+                } else {
+                    const parts = [];
+
+                    // Add days if at least 1
+                    if (totalDays > 0) {
+                        parts.push(`${totalDays} ${totalDays === 1 ? 'day' : 'days'}`);
+                    }
+
+                    // Add hours if at least 1
+                    if (hours > 0 || (totalDays === 0 && totalMinutes >= 60)) {
+                        const hoursToShow = totalDays === 0 ? totalHours : hours;
+                        parts.push(`${hoursToShow} ${hoursToShow === 1 ? 'hour' : 'hours'}`);
+                    }
+
+                    // Add minutes if at least 1 or if we have no days and no hours
+                    if (minutes > 0 || (totalDays === 0 && totalHours === 0)) {
+                        parts.push(`${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`);
+                    }
+
+                    // Add seconds only for very short durations (< 10 minutes) and if seconds > 0
+                    if (totalMinutes < 10 && seconds > 0 && totalHours === 0) {
+                        parts.push(`${seconds} ${seconds === 1 ? 'second' : 'seconds'}`);
+                    }
+
+                    display = parts.join(' ');
+                }
+
+                setTimeDisplay(display);
+
+                // Set status indicator based on time elapsed
+                if (!isResolved) {
+                    if (totalDays >= 30) {
+                        setStatusIndicator('Critical');
+                    } else if (totalDays >= 14) {
+                        setStatusIndicator('Urgent');
+                    } else if (totalDays >= 7) {
+                        setStatusIndicator('Extended');
+                    } else if (totalDays >= 3) {
+                        setStatusIndicator('Ongoing');
+                    } else if (totalDays >= 1) {
+                        setStatusIndicator('Recent');
+                    } else {
+                        setStatusIndicator('New');
+                    }
+                } else {
+                    setStatusIndicator('Resolved');
+                }
+            } catch (error) {
+                // eslint-disable-next-line no-console
+                console.error('Error updating timer:', error);
+                setTimeDisplay('Error calculating duration');
+                setStatusIndicator(isResolved ? 'Resolved' : 'Unknown');
             }
         };
 
         updateTime();
 
-        // Update at appropriate intervals
+        // Only set up interval if we have valid dates
         let intervalId: ReturnType<typeof setInterval>;
+        
         if (!isResolved) {
-            // Update more frequently for newer issues
-            const reportedDate = parseISO(issue.reported_at);
-            const now = new Date();
-            const totalMinutes = differenceInMinutes(now, reportedDate);
+            try {
+                const reportedDate = safeParseISO(issue.created_at);
+                
+                if (reportedDate) {
+                    const now = new Date();
+                    const totalMinutes = differenceInMinutes(now, reportedDate);
 
-            if (totalMinutes < 60) {
-                // Update every second for issues less than an hour old
-                intervalId = setInterval(updateTime, 1000);
-            } else if (differenceInHours(now, reportedDate) < 24) {
-                // Update every minute for issues less than a day old
-                intervalId = setInterval(updateTime, 60000);
-            } else {
-                // Update every hour for older issues
-                intervalId = setInterval(updateTime, 3600000);
+                    if (totalMinutes < 60) {
+                        // Update every second for issues less than an hour old
+                        intervalId = setInterval(updateTime, 1000);
+                    } else if (differenceInHours(now, reportedDate) < 24) {
+                        // Update every minute for issues less than a day old
+                        intervalId = setInterval(updateTime, 60000);
+                    } else {
+                        // Update every hour for older issues
+                        intervalId = setInterval(updateTime, 3600000);
+                    }
+                }
+            } catch (error) {
+                // eslint-disable-next-line no-console
+                console.error('Error setting timer interval:', error);
             }
         }
 
@@ -130,6 +182,8 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
             return 'bg-yellow-50 text-yellow-700';
         case 'Recent':
             return 'bg-blue-50 text-blue-700';
+        case 'Unknown':
+            return 'bg-gray-50 text-gray-700';
         default: // New Issue
             return 'bg-green-50 text-green-700';
         }

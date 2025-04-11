@@ -13,7 +13,9 @@ import { Badge } from '../../components/ui/Badge';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { IssueList } from '../../components/issues/IssueList';
-import { mockApi } from '../../services/mockData';
+import {
+    parkApi, trailApi, issueApi
+} from '../../services/api';
 
 export const TrailDetailPage: React.FC = () => {
     const { parkId, trailId } = useParams<{ parkId: string; trailId: string }>();
@@ -38,7 +40,7 @@ export const TrailDetailPage: React.FC = () => {
                 const trailIdNum = parseInt(trailId, 10);
                 
                 // Fetch park details
-                const parkData = await mockApi.getPark(parkIdNum);
+                const parkData = await parkApi.getPark(parkIdNum);
                 
                 if (!parkData) {
                     setError('Park not found');
@@ -49,7 +51,7 @@ export const TrailDetailPage: React.FC = () => {
                 setPark(parkData);
                 
                 // Fetch trail details
-                const trailData = await mockApi.getTrail(trailIdNum);
+                const trailData = await trailApi.getTrail(trailIdNum);
                 
                 if (!trailData || trailData.park_id !== parkIdNum) {
                     setError('Trail not found in this park');
@@ -60,7 +62,7 @@ export const TrailDetailPage: React.FC = () => {
                 setTrail(trailData);
                 
                 // Fetch issues for this trail
-                const issuesData = await mockApi.getIssuesByTrail(trailIdNum);
+                const issuesData = await issueApi.getIssuesByTrail(trailIdNum);
                 // Filter to only show public issues
                 const filteredIssues = issuesData.filter((issue) => issue.is_public);
                 setIssues(filteredIssues);
@@ -80,7 +82,7 @@ export const TrailDetailPage: React.FC = () => {
         if (!trail) {return;}
         
         try {
-            const updatedTrail = await mockApi.updateTrail({
+            const updatedTrail = await trailApi.updateTrail({
                 ...trail,
                 is_open: !trail.is_open
             });

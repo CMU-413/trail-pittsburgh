@@ -14,7 +14,9 @@ import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { TrailCard } from '../../components/trails/TrailCard';
 import { IssueList } from '../../components/issues/IssueList';
-import { mockApi } from '../../services/mockData';
+import {
+    parkApi, trailApi, issueApi
+} from '../../services/api';
 
 export const ParkDetailPage: React.FC = () => {
     const { parkId } = useParams<{ parkId: string }>();
@@ -38,7 +40,7 @@ export const ParkDetailPage: React.FC = () => {
                 const id = parseInt(parkId, 10);
                 
                 // Fetch park details
-                const parkData = await mockApi.getPark(id);
+                const parkData = await parkApi.getPark(id);
                 
                 if (!parkData) {
                     setError('Park not found');
@@ -49,11 +51,16 @@ export const ParkDetailPage: React.FC = () => {
                 setPark(parkData);
                 
                 // Fetch trails for this park
-                const trailsData = await mockApi.getTrailsByPark(id);
-                setTrails(trailsData);
+                try {
+                    const trailsData = await trailApi.getTrailsByPark(id);
+                    setTrails(trailsData);
+                } catch (trailErr) {
+                    // eslint-disable-next-line no-console
+                    console.error('Error fetching trails:', trailErr);
+                }
                 
                 // Fetch issues for this park
-                const issuesData = await mockApi.getIssuesByPark(id);
+                const issuesData = await issueApi.getIssuesByPark(id);
                 // Filter to only show public issues or open issues
                 const filteredIssues = issuesData.filter((issue) => issue.is_public);
                 setIssues(filteredIssues);

@@ -1,13 +1,27 @@
 import { IssueRepository } from '@/repositories';
 
-export class IssueService {
+interface IssueData {
+    park_id: number;
+    trail_id: number;
+    issue_type: string;
+    urgency: number;
+    reporter_email: string;
+    description?: string;
+    is_public?: boolean;
+    status?: string;
+    notify_reporter?: boolean;
+    issue_image?: string;
+    longitude?: number;
+    latitude?: number;
+}
 
+export class IssueService {
     private readonly issueRepository: IssueRepository;
 
     constructor(issueRepository: IssueRepository) {
         this.issueRepository = issueRepository;
     }
-    
+
     public async getIssue(issueId: number) {
         return this.issueRepository.getIssue(issueId);
     }
@@ -16,28 +30,8 @@ export class IssueService {
         return this.issueRepository.getAllIssues();
     }
 
-    public async createIssue(
-        parkId: number,
-        trailId: number,
-        type: string,
-        urgency: number,
-        description: string,
-        isPublic: boolean = true,
-        status: string = 'Open',
-        notifyReporter: boolean = true,
-        issueImage?: string
-    ) {
-        return this.issueRepository.createIssue(
-            parkId,
-            trailId,
-            type,
-            urgency,
-            description,
-            isPublic,
-            status,
-            notifyReporter,
-            issueImage
-        );
+    public async createIssue(data: IssueData) {
+        return this.issueRepository.createIssue(data);
     }
 
     public async deleteIssue(issueId: number) {
@@ -59,5 +53,4 @@ export class IssueService {
     public async updateIssueStatus(issueId: number, status: string) {
         return this.issueRepository.updateIssueStatus(issueId, status);
     }
-
 }

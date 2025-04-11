@@ -24,6 +24,11 @@ Follow these steps to set up and run the Express server:
     npm run seed
     ```
 
+    If there is an issue with running the seed file, you may need to run: 
+    ```
+    npx prisma db push
+    ```
+
 4. **Start the development server:**
 
     ```sh
