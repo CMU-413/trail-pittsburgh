@@ -44,10 +44,12 @@ export class TrailRepository {
 
     public async deleteTrail(trailId: number) {
         try {
-            await prisma.trail.delete({ where: { trail_id: trailId } });
+            await prisma.trail.delete({
+                where: { trail_id: trailId }
+            });
             return true;
         } catch (error) {
-            if (isNotFoundError(error)) { return false; }
+            if (isNotFoundError(error)) {return false;}
             throw error;
         }
     }
@@ -75,6 +77,8 @@ export class TrailRepository {
 }
 
 function isNotFoundError(error: unknown) {
-    return (error instanceof Prisma.PrismaClientKnownRequestError &&
-        (error.code === 'P2025' || error.code === 'P2016'));
+    return (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        (error.code === 'P2025' || error.code === 'P2016')
+    );
 }

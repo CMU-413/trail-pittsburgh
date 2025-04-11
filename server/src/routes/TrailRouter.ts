@@ -1,5 +1,6 @@
 // src/routes/trail.routes.ts
 import express from 'express';
+
 import { TrailController } from '@/controllers';
 import { errorHandlerWrapper } from '@/middlewares';
 import { TrailRepository } from '@/repositories';

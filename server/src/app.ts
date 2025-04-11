@@ -1,8 +1,10 @@
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 
 import { errorHandler } from '@/middlewares';
-import { issueRouter, parkRouter, trailRouter } from '@/routes';
+import {
+    issueRouter, parkRouter, trailRouter 
+} from '@/routes';
 
 const app = express();
 
@@ -10,7 +12,7 @@ app.use(cors({
     origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
-  }));
+}));
 
 // Middleware
 app.use(express.json());

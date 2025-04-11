@@ -6,6 +6,7 @@ jest.mock('@/repositories/ParkRepository');
 describe('ParkService', () => {
     let parkService: ParkService;
     let parkRepositoryMock: jest.Mocked<ParkRepository>;
+
     const mockPark = {
         park_id: 1,
         name: 'Test Park',
@@ -15,8 +16,7 @@ describe('ParkService', () => {
     };
 
     beforeEach(() => {
-        parkRepositoryMock =
-            new ParkRepository() as jest.Mocked<ParkRepository>;
+        parkRepositoryMock = new ParkRepository() as jest.Mocked<ParkRepository>;
         parkService = new ParkService(parkRepositoryMock);
     });
 
@@ -26,13 +26,11 @@ describe('ParkService', () => {
         const newParkInput = { name: 'Test Park', county: 'Test County' };
         const result = await parkService.createPark(newParkInput);
 
-        expect(parkRepositoryMock.createPark)
-            .toHaveBeenCalledWith(newParkInput);
+        expect(parkRepositoryMock.createPark).toHaveBeenCalledWith(newParkInput);
         expect(result).toEqual(mockPark);
     });
 
     test('should get a park by ID', async () => {
-        
         parkRepositoryMock.getPark.mockResolvedValue(mockPark);
 
         const result = await parkService.getPark(1);
@@ -50,12 +48,66 @@ describe('ParkService', () => {
         expect(result).toBeNull();
     });
 
-    test('should delete a park', async () => {
+    test('should delete a park if it exists', async () => {
+        parkRepositoryMock.getPark.mockResolvedValue(mockPark);
         parkRepositoryMock.deletePark.mockResolvedValue(true);
 
         const result = await parkService.deletePark(1);
 
+        expect(parkRepositoryMock.getPark).toHaveBeenCalledWith(1);
         expect(parkRepositoryMock.deletePark).toHaveBeenCalledWith(1);
         expect(result).toBe(true);
+    });
+
+    test('should not delete a park if it does not exist', async () => {
+        parkRepositoryMock.getPark.mockResolvedValue(null);
+
+        const result = await parkService.deletePark(999);
+
+        expect(parkRepositoryMock.getPark).toHaveBeenCalledWith(999);
+        expect(result).toBe(false);
+    });
+
+    test('should update a park if it exists', async () => {
+        const updateData = { name: 'Updated Name' };
+        const updatedPark = { ...mockPark, name: 'Updated Name' };
+
+        parkRepositoryMock.getPark.mockResolvedValue(mockPark);
+        parkRepositoryMock.updatePark.mockResolvedValue(updatedPark);
+
+        const result = await parkService.updatePark(1, updateData);
+
+        expect(parkRepositoryMock.getPark).toHaveBeenCalledWith(1);
+        expect(parkRepositoryMock.updatePark).toHaveBeenCalledWith(1, updateData);
+        expect(result).toEqual(updatedPark);
+    });
+
+    test('should not update a park if it does not exist', async () => {
+        parkRepositoryMock.getPark.mockResolvedValue(null);
+
+        const result = await parkService.updatePark(999, { name: 'Does Not Exist' });
+
+        expect(parkRepositoryMock.getPark).toHaveBeenCalledWith(999);
+        expect(result).toBeNull();
+    });
+
+    test('should get all parks', async () => {
+        parkRepositoryMock.getAllParks.mockResolvedValue([mockPark]);
+
+        const result = await parkService.getAllParks();
+
+        expect(parkRepositoryMock.getAllParks).toHaveBeenCalled();
+        expect(result).toEqual([mockPark]);
+    });
+
+    test('should get trails by park ID', async () => {
+        const mockTrails = [{ trail_id: 1, name: 'Trail 1', park_id: 1, is_open: true, is_active: true, created_at: new Date() }];
+
+        parkRepositoryMock.getTrailsByPark.mockResolvedValue(mockTrails);
+
+        const result = await parkService.getTrailsByPark(1);
+
+        expect(parkRepositoryMock.getTrailsByPark).toHaveBeenCalledWith(1);
+        expect(result).toEqual(mockTrails);
     });
 });

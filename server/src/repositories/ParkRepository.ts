@@ -1,11 +1,10 @@
-// import { Prisma } from '@prisma/client';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+
 import { prisma } from '@/prisma/prismaClient';
 
 interface ParkData {
     name: string;
     county?: string;
-    owner_id?: number | null;
     is_active?: boolean;
 }
 
@@ -24,8 +23,8 @@ export class ParkRepository {
             const result = await prisma.park.create({
                 data: {
                     name: parkData.name,
-                    county: parkData.county!,
-                    // No need to include is_active as it has a default value
+                    county: parkData.county ?? '', // fallback if undefined
+                    is_active: parkData.is_active ?? true
                 }
             });
             console.log('Park created successfully:', result);
@@ -38,38 +37,20 @@ export class ParkRepository {
 
     public async updatePark(parkId: number, parkData: Partial<ParkData>) {
         try {
-            const updateData: any = {};
-            
-            if (parkData.name !== undefined) {
-                updateData.name = parkData.name;
-            }
-            
-            if (parkData.county !== undefined) {
-                updateData.county = parkData.county;
-            }
-            
-            if (parkData.owner_id !== undefined) {
-                updateData.owner_id = parkData.owner_id;
-            }
-            
-            if (parkData.is_active !== undefined) {
-                updateData.is_active = parkData.is_active;
-            }
-            
+            const updateData: Prisma.ParkUpdateInput = {};
+
+            if (parkData.name !== undefined) { updateData.name = parkData.name; }
+            if (parkData.county !== undefined) { updateData.county = parkData.county; }
+            if (parkData.is_active !== undefined) { updateData.is_active = parkData.is_active; }
+
             return await prisma.park.update({
                 where: { park_id: parkId },
                 data: updateData
             });
         } catch (error) {
-            if (isParkNotFoundError(error)) { return null; }
+            if (isParkNotFoundError(error)) { return null;}
             throw error;
         }
-
-    // public async createPark(newParkData : Prisma.ParkCreateInput) {
-    //     return prisma.park.create({
-    //         data: newParkData
-    //     });
-
     }
 
     public async getAllParks() {
@@ -93,7 +74,6 @@ export class ParkRepository {
             await prisma.park.delete({ where: { park_id: parkId } });
             return true;
         } catch (error) {
-            // Park id not found
             if (isParkNotFoundError(error)) { return false; }
             throw error;
         }
@@ -117,14 +97,8 @@ export class ParkRepository {
 }
 
 function isParkNotFoundError(error: unknown): boolean {
-    if (!error || typeof error !== 'object') {
-        return false;
-    }
-    
+    if (!error || typeof error !== 'object') { return false; }
+
     const prismaError = error as { code?: string };
-    if (prismaError.code === 'P2025' || prismaError.code === 'P2016') {
-        return true;
-    }
-    
-    return false;
+    return prismaError.code === 'P2025' || prismaError.code === 'P2016';
 }

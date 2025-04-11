@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { ParkService } from '@/services';
 import { prisma } from '@/prisma/prismaClient'; // Adjust the import path as needed
+import { ParkService } from '@/services';
 
 export class ParkController {
     private readonly parkService: ParkService;
@@ -24,7 +24,7 @@ export class ParkController {
             res.status(404).json({ message: 'Park not found.' });
         }
 
-        res.json(park);
+        return res.status(200).json({ data: park });
     }
 
     public async getAllParks(req: express.Request, res: express.Response) {
@@ -50,13 +50,13 @@ export class ParkController {
         };
         
         const park = await this.parkService.createPark(parkData);
-        res.status(201).json(park);
+        return res.status(201).json({ data: park });
     }
 
     public async updatePark(req: express.Request, res: express.Response) {
         const parkId = Number(req.params.id);
 
-        const { name, county, owner_id, is_active } = req.body;
+        const { name, county, is_active } = req.body;
 
         if (!name || !county) {
             return res.status(400).json({ message: 'Name and county are required' });
@@ -65,10 +65,8 @@ export class ParkController {
         const updatedPark = await this.parkService.updatePark(parkId, {
             name,
             county,
-            owner_id,
             is_active
         });
-
 
         if (!updatedPark) {
             return res.status(404).json({ message: 'Park not found.' });
@@ -107,27 +105,27 @@ export class ParkController {
     // }
     public async getTrailsByPark(req: express.Request, res: express.Response) {
         try {
-          const parkId = Number(req.params.id);
+            const parkId = Number(req.params.id);
           
-          // Try a direct Prisma query
-          const trails = await prisma.trail.findMany({
-            where: {
-              park_id: parkId
-            }
-          });
+            // Try a direct Prisma query
+            const trails = await prisma.trail.findMany({
+                where: {
+                    park_id: parkId
+                }
+            });
           
-          return res.json(trails);
+            return res.json(trails);
         } catch (error) {
-          console.error('Error in getTrailsByPark:', error);
+            console.error('Error in getTrailsByPark:', error);
           
-          // Type checking for the error
-          let errorMessage = 'Server error fetching trails';
-          if (error instanceof Error) {
-            errorMessage = error.message;
-          }
+            // Type checking for the error
+            let errorMessage = 'Server error fetching trails';
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
           
-          return res.status(500).json({ message: errorMessage });
+            return res.status(500).json({ message: errorMessage });
         }
-      }
+    }
 }
 

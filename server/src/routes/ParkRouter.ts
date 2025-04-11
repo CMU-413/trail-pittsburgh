@@ -20,6 +20,6 @@ router.delete('/:id', errorHandlerWrapper(parkController.deletePark));
 router.get('/:id/trails', (req, res, next) => {
     console.log('Route hit: GET /parks/:id/trails, params:', req.params);
     next();
-  }, errorHandlerWrapper(parkController.getTrailsByPark));
+}, errorHandlerWrapper(parkController.getTrailsByPark));
 
 export { router as parkRouter };

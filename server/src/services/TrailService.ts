@@ -1,7 +1,13 @@
 import { TrailRepository } from '@/repositories';
 
-export class TrailService {
+interface TrailData {
+    name: string;
+    park_id: number;
+    is_active?: boolean;
+    is_open?: boolean;
+}
 
+export class TrailService {
     private readonly trailRepository: TrailRepository;
 
     constructor(trailRepository: TrailRepository) {
@@ -16,13 +22,15 @@ export class TrailService {
         return this.trailRepository.getAllTrails();
     }
 
-    public async createTrail(
-        name: string,
-        parkId: number,
-        isActive: boolean = true,
-        isOpen: boolean = true
-    ) {
-        return this.trailRepository.createTrail(name, parkId, isActive, isOpen);
+    public async createTrail(trailData: TrailData) {
+        const {
+            name,
+            park_id,
+            is_active = true,
+            is_open = true
+        } = trailData;
+
+        return this.trailRepository.createTrail(name, park_id, is_active, is_open);
     }
 
     public async deleteTrail(trailId: number) {

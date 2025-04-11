@@ -1,4 +1,5 @@
 import express from 'express';
+
 import { TrailService } from '@/services';
 
 export class TrailController {
@@ -54,7 +55,12 @@ export class TrailController {
             const isActive = is_active !== undefined ? Boolean(is_active) : true;
             const isOpen = is_open !== undefined ? Boolean(is_open) : true;
             
-            const trail = await this.trailService.createTrail(name, parkId, isActive, isOpen);
+            const trail = await this.trailService.createTrail({
+                name,
+                park_id: parkId,
+                is_active: isActive,
+                is_open: isOpen
+            });            
             res.status(201).json(trail);
         } catch (error) {
             console.error('Error creating trail:', error);
