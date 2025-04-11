@@ -9,7 +9,7 @@
     "lint:fix": "eslint --fix",
     "start": "tsx src/server.ts",
     "seed": "npx prisma db seed",
-    "test": "jest"
+    "test": "jest unit"
   },
   "prisma": {
     "schema": "src/prisma/schema.prisma",
