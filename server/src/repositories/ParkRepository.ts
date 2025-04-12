@@ -1,5 +1,3 @@
-import { Prisma } from '@prisma/client';
-
 import { prisma } from '@/prisma/prismaClient';
 
 interface ParkData {
@@ -37,15 +35,9 @@ export class ParkRepository {
 
     public async updatePark(parkId: number, parkData: Partial<ParkData>) {
         try {
-            const updateData: Prisma.ParkUpdateInput = {};
-
-            if (parkData.name !== undefined) { updateData.name = parkData.name; }
-            if (parkData.county !== undefined) { updateData.county = parkData.county; }
-            if (parkData.is_active !== undefined) { updateData.is_active = parkData.is_active; }
-
             return await prisma.park.update({
                 where: { park_id: parkId },
-                data: updateData
+                data: parkData
             });
         } catch (error) {
             if (isParkNotFoundError(error)) { return null;}

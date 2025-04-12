@@ -58,12 +58,6 @@ export class ParkController {
 
         const { name, county, is_active } = req.body;
 
-        // TODO fix
-        if (!name || !county) {
-            res.status(400).json({ message: 'Name and county are required' });
-            return;
-        }
-
         const updatedPark = await this.parkService.updatePark(parkId, {
             name,
             county,

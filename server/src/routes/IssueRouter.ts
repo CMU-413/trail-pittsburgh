@@ -26,6 +26,6 @@ router.get('/urgency/:urgency', validateRequest(getIssuesByUrgencySchema), error
 router.get('/:issueId', validateRequest(getIssueSchema), errorHandlerWrapper(issueController.getIssue));
 router.post('/', validateRequest(createIssueSchema), errorHandlerWrapper(issueController.createIssue));
 router.put('/:issueId/status', validateRequest(updateIssueStatusSchema), errorHandlerWrapper(issueController.updateIssueStatus));
-router.delete('/:id', validateRequest(deleteIssueSchema), errorHandlerWrapper(issueController.deleteIssue));
+router.delete('/:issueId', validateRequest(deleteIssueSchema), errorHandlerWrapper(issueController.deleteIssue));
 
 export { router as issueRouter };
