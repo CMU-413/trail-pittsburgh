@@ -40,7 +40,8 @@ describe('IssueService', () => {
             trail_id: 1,
             issue_type: 'Flooding',
             urgency: 3,
-            reporter_email: 'reporter@example.com'
+            reporter_email: 'reporter@example.com',
+            description: 'Trail is flooded',
         };
 
         const result = await issueService.createIssue(input);

@@ -43,7 +43,7 @@ export class IssueRepository {
                     is_public: data.is_public ?? true,
                     status: data.status ?? 'Open',
                     notify_reporter: data.notify_reporter ?? true,
-                    // reporter_email:
+                    reporter_email: data.reporter_email,
                     issue_image: data.issue_image,
                 },
                 include: {
