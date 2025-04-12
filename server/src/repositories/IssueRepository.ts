@@ -1,5 +1,3 @@
-// import { Prisma } from '@prisma/client';
-
 import { prisma } from '@/prisma/prismaClient';
 
 interface IssueCreateData {
@@ -8,7 +6,7 @@ interface IssueCreateData {
     issue_type: string;
     urgency: number;
     reporter_email: string;
-    description?: string;
+    description: string;
     is_public?: boolean;
     status?: string;
     notify_reporter?: boolean;
@@ -47,8 +45,6 @@ export class IssueRepository {
                     notify_reporter: data.notify_reporter ?? true,
                     reporter_email: data.reporter_email,
                     issue_image: data.issue_image,
-                    longitude: data.longitude,
-                    latitude: data.latitude
                 },
                 include: {
                     park: true,
@@ -62,17 +58,12 @@ export class IssueRepository {
     }
 
     public async getAllIssues() {
-        try {
-            return await prisma.issue.findMany({
-                include: {
-                    park: true,
-                    trail: true
-                }
-            });
-        } catch (error) {
-            console.error('Error fetching all issues:', error);
-            throw error;
-        }
+        return prisma.issue.findMany({
+            include: {
+                park: true,
+                trail: true
+            }
+        });
     }
 
     public async deleteIssue(issueId: number) {
@@ -89,48 +80,33 @@ export class IssueRepository {
     }
 
     public async getIssuesByPark(parkId: number) {
-        try {
-            return await prisma.issue.findMany({
-                where: { park_id: parkId },
-                include: {
-                    park: true,
-                    trail: true
-                }
-            });
-        } catch (error) {
-            console.error('Error fetching issues by park:', error);
-            throw error;
-        }
+        return prisma.issue.findMany({
+            where: { park_id: parkId },
+            include: {
+                park: true,
+                trail: true
+            }
+        });
     }
 
     public async getIssuesByTrail(trailId: number) {
-        try {
-            return await prisma.issue.findMany({
-                where: { trail_id: trailId },
-                include: {
-                    park: true,
-                    trail: true
-                }
-            });
-        } catch (error) {
-            console.error('Error fetching issues by trail:', error);
-            throw error;
-        }
+        return prisma.issue.findMany({
+            where: { trail_id: trailId },
+            include: {
+                park: true,
+                trail: true
+            }
+        });
     }
 
     public async getIssuesByUrgency(urgencyLevel: number) {
-        try {
-            return await prisma.issue.findMany({
-                where: { urgency: urgencyLevel },
-                include: {
-                    park: true,
-                    trail: true
-                }
-            });
-        } catch (error) {
-            console.error('Error fetching issues by urgency:', error);
-            throw error;
-        }
+        return prisma.issue.findMany({
+            where: { urgency: urgencyLevel },
+            include: {
+                park: true,
+                trail: true
+            }
+        });
     }
 
     public async updateIssueStatus(issueId: number, status: string) {

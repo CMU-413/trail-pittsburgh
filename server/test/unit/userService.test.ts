@@ -15,7 +15,9 @@ describe('UserService', () => {
         permission: 'read',
         profile_image: 'default.jpg',
         is_active: true,
-        created_at: new Date()
+        created_at: new Date(),
+        is_hubspot_user: false,
+        profile_image_key: 'default.jpg',
     };
 
     beforeEach(() => {
