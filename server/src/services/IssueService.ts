@@ -6,7 +6,7 @@ interface IssueData {
     issue_type: string;
     urgency: number;
     reporter_email: string;
-    description?: string;
+    description: string;
     is_public?: boolean;
     status?: string;
     notify_reporter?: boolean;
