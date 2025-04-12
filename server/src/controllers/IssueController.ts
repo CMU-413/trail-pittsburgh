@@ -51,46 +51,11 @@ export class IssueController {
 
     public async createIssue(req: express.Request, res: express.Response) {
         try {
-            const {
-                park_id,
-                trail_id,
-                issue_type,
-                urgency,
-                description,
-                is_public,
-                status,
-                notify_reporter,
-                issue_image,
-                reporter_email,
-                longitude,
-                latitude
-            } = req.body;
-    
-            // Validate required fields
-            if (!park_id || !trail_id || !issue_type || !urgency || !reporter_email) {
-                return res.status(400).json({
-                    message: 'Park ID, Trail ID, issue_type, urgency, and reporter_email are required'
-                });
-            }
-    
-            const issue = await this.issueService.createIssue({
-                park_id: Number(park_id),
-                trail_id: Number(trail_id),
-                issue_type: String(issue_type),
-                urgency: Number(urgency),
-                reporter_email: String(reporter_email),
-                description: description || undefined,
-                is_public: is_public !== undefined ? Boolean(is_public) : true,
-                status: status || 'Open',
-                notify_reporter: notify_reporter !== undefined ? Boolean(notify_reporter) : true,
-                issue_image: issue_image || undefined,
-                longitude: longitude !== undefined ? Number(longitude) : undefined,
-                latitude: latitude !== undefined ? Number(latitude) : undefined
-            });
+
+            const issue = await this.issueService.createIssue(req.body);
     
             res.status(201).json(issue);
         } catch (error) {
-            console.error('Error creating issue:', error);
             res.status(500).json({ message: 'Failed to create issue' });
         }
     }
