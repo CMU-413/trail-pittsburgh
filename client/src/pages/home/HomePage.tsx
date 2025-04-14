@@ -66,7 +66,7 @@ export const HomePage: React.FC = () => {
                     </div>
 
                     <div className="mt-16 grid gap-8 md:grid-cols-3">
-                        <div className="relative p-6 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                        <div className="relative p-6 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl mb-8 md:mb-0">
                             <div className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 p-4 shadow-lg">
                                 <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -80,7 +80,7 @@ export const HomePage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="relative p-6 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                        <div className="relative p-6 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl mb-8 md:mb-0">
                             <div className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 p-4 shadow-lg">
                                 <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -95,7 +95,7 @@ export const HomePage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="relative p-6 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                        <div className="relative p-6 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl mb-8 md:mb-0">
                             <div className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 p-4 shadow-lg">
                                 <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
