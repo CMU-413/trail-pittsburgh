@@ -142,7 +142,7 @@ export const Header: React.FC = () => {
                                     >
                                         <div className="text-right hidden md:block">
                                             <p className="text-sm font-medium text-gray-700 truncate">{user?.name}</p>
-                                            <p className="text-xs text-gray-500 capitalize">{hasPermission ? 'Staff' : 'Public'}</p>
+                                            <p className="text-xs text-gray-500 capitalize">{hasPermission ? 'Steward' : 'Public'}</p>
                                         </div>
                                         <div className="relative flex-shrink-0">
                                             <img
@@ -255,7 +255,7 @@ export const Header: React.FC = () => {
                                 </div>
                                 <div className="ml-3">
                                     <div className="text-base font-medium text-gray-800">{user?.name}</div>
-                                    <div className="text-sm font-medium text-gray-500 capitalize">{hasPermission ? 'Staff' : 'Public'}</div>
+                                    <div className="text-sm font-medium text-gray-500 capitalize">{hasPermission ? 'Steward' : 'Public'}</div>
                                 </div>
                             </div>
                             <div className="mt-3 space-y-1">

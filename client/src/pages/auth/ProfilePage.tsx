@@ -86,7 +86,7 @@ export const ProfilePage: React.FC = () => {
                                 <p className="mt-1 flex items-center">
                                     {user.hd === ORGANIZATION_DOMAIN ? (
                                         <>
-                                            <span className="bg-green-100 text-green-800 font-medium py-1 px-2 rounded-md text-sm">Staff</span>
+                                            <span className="bg-green-100 text-green-800 font-medium py-1 px-2 rounded-md text-sm">Steward</span>
                                             <span className="ml-2 text-sm text-gray-600">Full access to all features</span>
                                         </>
                                     ) : (
