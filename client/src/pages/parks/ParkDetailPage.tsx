@@ -1,10 +1,10 @@
 // src/pages/parks/ParkDetailPage.tsx
 import React, { useState, useEffect } from 'react';
 import {
-    Link, useParams, useNavigate 
+    Link, useParams, useNavigate
 } from 'react-router-dom';
 import {
-    Park, Trail, Issue 
+    Park, Trail, Issue
 } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
@@ -27,7 +27,8 @@ export const ParkDetailPage: React.FC = () => {
     const [issues, setIssues] = useState<Issue[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
+    const [showInactiveTrails, setShowInactiveTrails] = useState(false);
+
     useEffect(() => {
         const fetchParkData = async () => {
             if (!parkId) {
@@ -72,14 +73,14 @@ export const ParkDetailPage: React.FC = () => {
                 setIsLoading(false);
             }
         };
-        
+
         fetchParkData();
     }, [parkId]);
-    
+
     if (isLoading) {
         return <LoadingSpinner />;
     }
-    
+
     if (error || !park) {
         return (
             <div>
@@ -96,13 +97,30 @@ export const ParkDetailPage: React.FC = () => {
             </div>
         );
     }
-    
+
+    // Filter active and inactive trails
+    const activeTrails = trails.filter((trail) => trail.is_active);
+    const inactiveTrails = trails.filter((trail) => !trail.is_active);
+
+    // Determine which trails to display
+    const displayTrails = showInactiveTrails ? trails : activeTrails;
+
+    // Sort trails: active trails first (sorted by name), then inactive trails (sorted by name)
+    const sortedTrails = [...displayTrails].sort((a, b) => {
+        // Active trails first
+        if (a.is_active && !b.is_active) {return -1;}
+        if (!a.is_active && b.is_active) {return 1;}
+
+        // Then sort by name
+        return a.name.localeCompare(b.name);
+    });
+
     // Count open issues
     const openIssuesCount = issues.filter((issue) => issue.status === 'open').length;
-    
+
     return (
         <div>
-            <PageHeader 
+            <PageHeader
                 title={park.name}
                 subtitle={`${park.county} County`}
                 action={
@@ -116,7 +134,7 @@ export const ParkDetailPage: React.FC = () => {
                     </div>
                 }
             />
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <Card className="lg:col-span-2">
                     <div className="flex justify-between mb-4">
@@ -127,7 +145,7 @@ export const ParkDetailPage: React.FC = () => {
                             <Badge variant="secondary">Inactive</Badge>
                         )}
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
                         <div>
                             <p className="text-sm font-medium text-gray-500">County</p>
@@ -139,13 +157,20 @@ export const ParkDetailPage: React.FC = () => {
                         </div>
                     </div>
                 </Card>
-                
+
                 <Card>
                     <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Stats</h3>
                     <div className="space-y-4">
                         <div>
-                            <p className="text-sm font-medium text-gray-500">Total Trails</p>
-                            <p className="mt-1 text-2xl font-semibold text-blue-600">{trails.length}</p>
+                            <p className="text-sm font-medium text-gray-500">Active Trails</p>
+                            <div className="flex items-end">
+                                <p className="text-2xl font-semibold text-blue-600">{activeTrails.length}</p>
+                                {inactiveTrails.length > 0 && (
+                                    <p className="text-xs text-gray-500 ml-2 mb-1">
+                                        (+{inactiveTrails.length} inactive)
+                                    </p>
+                                )}
+                            </div>
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-500">Open Issues</p>
@@ -154,16 +179,37 @@ export const ParkDetailPage: React.FC = () => {
                     </div>
                 </Card>
             </div>
-            
+
             <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-bold text-gray-900">Trails</h2>
-                    <Link to={`/parks/${park.park_id}/trails/create`} className="text-sm text-blue-600 hover:text-blue-500 font-medium">
-                        Add Trail
-                    </Link>
+                    <div className="flex items-center space-x-4">
+                        {inactiveTrails.length > 0 && (
+                            <span
+                                onClick={() => setShowInactiveTrails(!showInactiveTrails)}
+                                className="text-sm font-medium text-gray-600 hover:text-gray-800 cursor-pointer"
+                            >
+                                {showInactiveTrails ? 'Hide Inactive' : 'Show Inactive'}
+                            </span>
+                        )}
+                        <Link to={`/parks/${park.park_id}/trails/create`} className="text-sm text-blue-600 hover:text-blue-500 font-medium">
+                            Add Trail
+                        </Link>
+                    </div>
                 </div>
-                
-                {trails.length === 0 ? (
+
+                {inactiveTrails.length > 0 && showInactiveTrails && (
+                    <div className="mb-4 bg-yellow-50 border border-yellow-100 rounded-md p-3 flex items-center">
+                        <svg className="w-5 h-5 text-yellow-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-sm text-yellow-700">
+                            Showing all trails, including {inactiveTrails.length} inactive {inactiveTrails.length === 1 ? 'trail' : 'trails'}
+                        </p>
+                    </div>
+                )}
+
+                {sortedTrails.length === 0 ? (
                     <EmptyState
                         title="No trails found"
                         description="This park doesn't have any trails yet."
@@ -175,13 +221,13 @@ export const ParkDetailPage: React.FC = () => {
                     />
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {trails.map((trail) => (
+                        {sortedTrails.map((trail) => (
                             <TrailCard key={trail.trail_id} trail={trail} parkId={park.park_id} />
                         ))}
                     </div>
                 )}
             </div>
-            
+
             <div>
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-bold text-gray-900">Recent Issues</h2>
@@ -189,9 +235,9 @@ export const ParkDetailPage: React.FC = () => {
                         Report Issue
                     </Link>
                 </div>
-                
-                <IssueList 
-                    issues={issues.slice(0, 6)} 
+
+                <IssueList
+                    issues={issues.slice(0, 6)}
                     showLocation={false}
                     emptyStateMessage="No issues found for this park"
                 />
