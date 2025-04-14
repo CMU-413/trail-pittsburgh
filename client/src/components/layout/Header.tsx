@@ -44,7 +44,6 @@ export const Header: React.FC = () => {
     // Navigation links that are public
     const publicNavigation = [
         { name: 'Home', href: '/', current: location.pathname === '/' },
-        { name: 'Report Issue', href: '/issues/report', current: location.pathname === '/issues/report' },
     ];
 
     // Navigation links for authenticated users
@@ -54,8 +53,17 @@ export const Header: React.FC = () => {
         { name: 'Issues', href: '/issues', current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report' },
     ];
 
+    // Report Issue link (public)
+    const reportIssueLink = {
+        name: 'Report Issue',
+        href: '/issues/report',
+        current: location.pathname === '/issues/report'
+    };
+
     // Determine which navigation to use
-    const navigation = hasPermission ? [...publicNavigation, ...authNavigation] : publicNavigation;
+    const navigation = hasPermission
+        ? [...publicNavigation, ...authNavigation, reportIssueLink]
+        : [...publicNavigation, reportIssueLink];
 
     // Handle profile actions
     const handleLogout = () => {
