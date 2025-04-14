@@ -2,11 +2,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
+import trailVolunteers from '../../assets/trail-volunteers-maintenance.jpg';
 import { VOLUNTEER_LINK } from '../../constants/config';
 
 export const HomePage: React.FC = () => {
     return (
-        <div className="pt-16"> {/* Added padding-top to account for fixed header */}
+        <div className="pt-8 md:pt-16">
             {/* Hero Section */}
             <section className="overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
@@ -37,16 +38,10 @@ export const HomePage: React.FC = () => {
                                 <div className="relative block w-full bg-indigo-600 rounded-lg overflow-hidden">
                                     <img
                                         className="w-full object-cover h-64 md:h-80 opacity-80 mix-blend-overlay"
-                                        src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80"
-                                        alt="Beautiful trail in Pittsburgh"
+                                        src={trailVolunteers}
+                                        alt="Volunteers walking through a forest trail with tools, preparing for trail maintenance work."
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/40 to-indigo-800/40 mix-blend-multiply"></div>
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <svg className="h-20 w-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </div>
                                 </div>
                             </div>
 
