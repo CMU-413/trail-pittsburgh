@@ -151,10 +151,6 @@ export const ParkDetailPage: React.FC = () => {
                             <p className="text-sm font-medium text-gray-500">County</p>
                             <p className="mt-1 text-base text-gray-900">{park.county}</p>
                         </div>
-                        <div>
-                            <p className="text-sm font-medium text-gray-500">Owner ID</p>
-                            <p className="mt-1 text-base text-gray-900">{park.owner_id}</p>
-                        </div>
                     </div>
                 </Card>
 
