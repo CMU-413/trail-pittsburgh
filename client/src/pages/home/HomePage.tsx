@@ -116,63 +116,32 @@ export const HomePage: React.FC = () => {
             <section className="py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-800 rounded-2xl overflow-hidden shadow-xl">
-                        <div className="px-6 py-12 md:p-12 text-center sm:text-left md:grid md:grid-cols-2 md:gap-8 items-center">
-                            <div>
-                                <h2 className="text-3xl font-bold text-white">Join Our Volunteer Network</h2>
-                                <p className="mt-4 text-lg text-indigo-100">
-                                    Want to help maintain Pittsburgh's trails? Join our volunteer network and help keep our trail system in top shape.
-                                </p>
-                                <div className="mt-8">
-                                    <a href={VOLUNTEER_LINK} target="_blank" rel="noopener noreferrer">
-                                        <button className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-indigo-700 bg-white hover:bg-indigo-50 transition-all hover:-translate-y-0.5 cursor-pointer">
-                                            Become a Volunteer
-                                        </button>
-                                    </a>
-                                </div>
-
-                                <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-                                    <div className="p-4 rounded-lg bg-white/10 backdrop-blur-sm">
-                                        <div className="text-3xl font-bold text-white">15+</div>
-                                        <div className="text-sm text-indigo-200">Parks</div>
-                                    </div>
-                                    <div className="p-4 rounded-lg bg-white/10 backdrop-blur-sm">
-                                        <div className="text-3xl font-bold text-white">100+</div>
-                                        <div className="text-sm text-indigo-200">Miles of Trails</div>
-                                    </div>
-                                    <div className="p-4 rounded-lg bg-white/10 backdrop-blur-sm">
-                                        <div className="text-3xl font-bold text-white">500+</div>
-                                        <div className="text-sm text-indigo-200">Volunteers</div>
-                                    </div>
-                                </div>
+                        <div className="px-6 py-12 md:p-16 text-center md:text-left flex flex-col items-center md:items-start">
+                            <h2 className="text-3xl font-bold text-white">Join Our Volunteer Network</h2>
+                            <p className="mt-4 text-lg text-indigo-100 max-w-2xl">
+                                Want to help maintain Pittsburgh's trails? Join our volunteer network and help keep our trail system in top shape.
+                            </p>
+                            <div className="mt-8">
+                                <a href={VOLUNTEER_LINK} target="_blank" rel="noopener noreferrer">
+                                    <button className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-indigo-700 bg-white hover:bg-indigo-50 transition-all hover:-translate-y-0.5 cursor-pointer">
+                                        Become a Volunteer
+                                    </button>
+                                </a>
                             </div>
 
-                            <div className="hidden md:block mt-10 md:mt-0 relative">
-                                <div className="bg-white p-6 rounded-lg shadow-md">
-                                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Upcoming Volunteer Events</h3>
-                                    <ul className="space-y-4">
-                                        <li className="border-b pb-2">
-                                            <p className="font-medium">Trail Cleanup - Frick Park</p>
-                                            <p className="text-sm text-gray-500">March 15, 2025 • 9:00 AM</p>
-                                        </li>
-                                        <li className="border-b pb-2">
-                                            <p className="font-medium">Bridge Repair - Schenley Park</p>
-                                            <p className="text-sm text-gray-500">March 22, 2025 • 10:00 AM</p>
-                                        </li>
-                                        <li>
-                                            <p className="font-medium">Tree Planting - Highland Park</p>
-                                            <p className="text-sm text-gray-500">April 5, 2025 • 9:00 AM</p>
-                                        </li>
-                                    </ul>
-                                    <div className="mt-4 text-center">
-                                        <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                                            View all events &rarr;
-                                        </a>
-                                    </div>
+                            <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-3xl text-center">
+                                <div className="p-4 rounded-lg bg-white/10 backdrop-blur-sm">
+                                    <div className="text-3xl font-bold text-white">15+</div>
+                                    <div className="text-sm text-indigo-200">Parks</div>
                                 </div>
-
-                                {/* Decorative elements */}
-                                <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-yellow-400 rounded-full opacity-20 mix-blend-multiply blur-2xl"></div>
-                                <div className="absolute -left-8 -top-8 w-40 h-40 bg-blue-400 rounded-full opacity-20 mix-blend-multiply blur-2xl"></div>
+                                <div className="p-4 rounded-lg bg-white/10 backdrop-blur-sm">
+                                    <div className="text-3xl font-bold text-white">100+</div>
+                                    <div className="text-sm text-indigo-200">Miles of Trails</div>
+                                </div>
+                                <div className="p-4 rounded-lg bg-white/10 backdrop-blur-sm">
+                                    <div className="text-3xl font-bold text-white">500+</div>
+                                    <div className="text-sm text-indigo-200">Volunteers</div>
+                                </div>
                             </div>
                         </div>
                     </div>
