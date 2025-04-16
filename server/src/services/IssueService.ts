@@ -1,12 +1,11 @@
 import { v4 as uuid } from 'uuid';
 
-import { IssueRecord } from '../../types/issueTypes';
-
 import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
 import {
     CreateIssueInput
 } from '@/schemas/issueSchema';
+import { IssueRecord } from '@/types/issueTypes';
 
 export class IssueService {
     private readonly issueRepository: IssueRepository;
