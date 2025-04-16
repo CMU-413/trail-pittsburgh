@@ -44,12 +44,23 @@ export type Issue = {
     reporter_email?: string;
     issue_type: string;
     urgency: number; // 1-5 scale
-    issue_image?: string;
+    image?: SignedUrl;
     imageMetadata?: ImageMetadata;
     lon?: number;
     lat?: number;
     notify_reporter: boolean;
     resolved_at?: string; // ISO date string
+};
+
+export type SignedUrl = {
+    key: string;
+    url: string;
+    type: 'download' | 'upload';
+};
+
+export type IssueParams = Omit<Issue, 'resolved_at' | 'image' | 'issue_id'> & {
+    image?: File;
+    reporter_email?: string;
 };
 
 export type UserRole = 'owner' | 'steward' | 'volunteer';

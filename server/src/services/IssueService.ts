@@ -1,37 +1,68 @@
-import { IssueRepository } from '@/repositories';
+import { v4 as uuid } from 'uuid';
 
-interface IssueData {
-    park_id: number;
-    trail_id: number;
-    issue_type: string;
-    urgency: number;
-    reporter_email: string;
-    description: string;
-    is_public?: boolean;
-    status?: string;
-    notify_reporter?: boolean;
-    issue_image?: string;
-    longitude?: number;
-    latitude?: number;
-}
+import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
+import { IssueRepository } from '@/repositories';
+import {
+    CreateIssueInput
+} from '@/schemas/issueSchema';
+import { IssueRecord } from '@/types/issueTypes';
 
 export class IssueService {
     private readonly issueRepository: IssueRepository;
+    private readonly issueImageBucket: GCSBucket;
 
-    constructor(issueRepository: IssueRepository) {
+    constructor(issueRepository: IssueRepository, imagesBucket: GCSBucket) {
         this.issueRepository = issueRepository;
+        this.issueImageBucket = imagesBucket;
+    }
+
+    private async buildIssueWithUrl(issue: IssueRecord) {
+        const { issue_image, ...rest } = issue;
+        const image = issue_image ?
+            await this.issueImageBucket.getDownloadUrl(issue_image) :
+            undefined;
+        return {
+            image,
+            ...rest
+        };
     }
 
     public async getIssue(issueId: number) {
-        return this.issueRepository.getIssue(issueId);
+        const issue = await this.issueRepository.getIssue(issueId);
+        if (!issue) {
+            return null;
+        }
+
+        return this.buildIssueWithUrl(issue);
     }
 
     public async getAllIssues() {
         return this.issueRepository.getAllIssues();
     }
 
-    public async createIssue(data: IssueData) {
-        return this.issueRepository.createIssue(data);
+    public async createIssue(data: CreateIssueInput) {
+        const { image_type } = data;
+        let key: string | undefined;
+        let signedUrl: SignedUrl | undefined;
+
+        if (image_type) {
+            // Generate image key
+            const ext = image_type.split('/')[1];
+            key = `${uuid()}.${ext}`;
+
+            signedUrl = await this.issueImageBucket.getUploadUrl(key, image_type);
+        }
+
+        const newIssueInput = {
+            issueImageKey: key,
+            ...data
+        };
+
+        const issue = await this.issueRepository.createIssue(newIssueInput);
+        return {
+            issue,
+            signedUrl,
+        };
     }
 
     public async deleteIssue(issueId: number) {

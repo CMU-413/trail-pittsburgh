@@ -19,7 +19,7 @@ export class TrailController {
     public async getAllTrails(req: express.Request, res: express.Response) {
         try {
             const trails = await this.trailService.getAllTrails();
-            res.status(200).json(trails);
+            res.status(200).json({ trails });
         } catch (error) {
             res.status(500).json({ message: 'Failed to retrieve trails' });
         }
@@ -34,7 +34,7 @@ export class TrailController {
                 res.status(404).json({ message: 'Trail not found' });
                 return;
             }
-            res.json(trail);
+            res.json({ trail });
         } catch (error) {
             res.status(500).json({ message: 'Failed to retrieve trail' });
         }
@@ -51,7 +51,7 @@ export class TrailController {
                 is_open: isOpen
             });
 
-            res.status(201).json(trail);
+            res.status(201).json({ trail });
         } catch (error) {
             res.status(500).json({ message: 'Failed to create trail' });
         }
@@ -69,8 +69,9 @@ export class TrailController {
                 return;
             }
             
-            res.json(trail);
+            res.json({ trail });
         } catch (error) {
+            console.log(error);
             res.status(500).json({ message: 'Failed to update trail' });
         }
     }
