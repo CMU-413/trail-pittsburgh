@@ -1,19 +1,5 @@
 import { prisma } from '@/prisma/prismaClient';
-
-interface IssueCreateData {
-    park_id: number;
-    trail_id: number;
-    issue_type: string;
-    urgency: number;
-    reporter_email: string;
-    description: string;
-    is_public?: boolean;
-    status?: string;
-    notify_reporter?: boolean;
-    issue_image?: string;
-    longitude?: number;
-    latitude?: number;
-}
+import { CreateIssueDbInput } from '@/types/issueTypes';
 
 export class IssueRepository {
     public async getIssue(issueId: number) {
@@ -31,7 +17,7 @@ export class IssueRepository {
         }
     }
 
-    public async createIssue(data: IssueCreateData) {
+    public async createIssue(data: CreateIssueDbInput) {
         try {
             return await prisma.issue.create({
                 data: {
@@ -41,10 +27,10 @@ export class IssueRepository {
                     urgency: data.urgency,
                     description: data.description,
                     is_public: data.is_public ?? true,
-                    status: data.status ?? 'Open',
+                    status: data.status,
                     notify_reporter: data.notify_reporter ?? true,
                     reporter_email: data.reporter_email,
-                    issue_image: data.issue_image,
+                    issue_image: data.issueImageKey,
                 },
                 include: {
                     park: true,

@@ -2,26 +2,35 @@ import { GetSignedUrlConfig, Bucket } from '@google-cloud/storage';
 
 import { getStorage } from '@/config/storage';
 
-type SignedUrl = {
+export type SignedUrl = {
     key: string;
     url: string;
     type: 'download' | 'upload';
 }
 
 export class GCSBucket {
-    private readonly bucket: Bucket;
+    private bucket?: Bucket;
+    private readonly bucketName: string;
 
     // Expiration in seconds
-    private static readonly UPLOAD_BUCKET_TIMEOUT: number = 10;
+    private static readonly UPLOAD_BUCKET_TIMEOUT: number = 20;
     private static readonly DOWNLOAD_BUCKET_TIMEOUT: number = 5 * 60;
 
     public constructor(bucketName: string) {
-        const storage = getStorage();
-        this.bucket = storage.bucket(bucketName);
+        this.bucketName = bucketName;
+    }
+
+    private async getBucket() {
+        if (!this.bucket) {
+            const storage = getStorage();
+            this.bucket = storage.bucket(this.bucketName);
+        }
+        return this.bucket;
     }
 
     async getDownloadUrl(key: string): Promise<SignedUrl> {
-        const file = this.bucket.file(key);
+        const bucket =  await this.getBucket();
+        const file = bucket.file(key);
         const options: GetSignedUrlConfig = {
             version: 'v4',
             action: 'read',
@@ -38,7 +47,8 @@ export class GCSBucket {
     }
 
     async getUploadUrl(key: string, contentType: string): Promise<SignedUrl> {
-        const file = this.bucket.file(key);
+        const bucket =  await this.getBucket();
+        const file = bucket.file(key);
         const options: GetSignedUrlConfig = {
             version: 'v4',
             action: 'write',
