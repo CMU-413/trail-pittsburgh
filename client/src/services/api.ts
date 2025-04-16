@@ -1,5 +1,5 @@
 import {
-    Park, Trail, Issue
+    Park, Trail, Issue, IssueParams
 } from '../types';
 
 const API_BASE_URL = 'http://localhost:3000/api';
@@ -17,14 +17,15 @@ const handleResponse = async (response: Response) => {
 export const parkApi = {
     // Get all parks
     getParks: async (): Promise<Park[]> => {
-        const response = await fetch(`${API_BASE_URL}/parks`);
-        return handleResponse(response);
+        const response = await fetch(`${API_BASE_URL}/parks`).then(handleResponse);
+        return response.parks;
     },
 
     // Get a specific park by ID
     getPark: async (parkId: number): Promise<Park> => {
-        const response = await fetch(`${API_BASE_URL}/parks/${parkId}`);
-        return handleResponse(response);
+        const response = await fetch(`${API_BASE_URL}/parks/${parkId}`)
+            .then(handleResponse);
+        return response.park;
     },
 
     // Create a new park
@@ -35,8 +36,9 @@ export const parkApi = {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(parkData),
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.park;
     },
 
     // Update an existing park
@@ -47,8 +49,8 @@ export const parkApi = {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(parkData),
-        });
-        return handleResponse(response);
+        }).then(handleResponse);
+        return response.park;
     },
 
     // Delete a park
@@ -68,20 +70,23 @@ export const parkApi = {
 export const trailApi = {
     // Get all trails
     getAllTrails: async (): Promise<Trail[]> => {
-        const response = await fetch(`${API_BASE_URL}/trails`);
-        return handleResponse(response);
+        const response = await fetch(`${API_BASE_URL}/trails`)
+            .then(handleResponse);
+        return response.trails;
     },
 
     // Get a specific trail
     getTrail: async (trailId: number): Promise<Trail> => {
-        const response = await fetch(`${API_BASE_URL}/trails/${trailId}`);
-        return handleResponse(response);
+        const response = await fetch(`${API_BASE_URL}/trails/${trailId}`)
+            .then(handleResponse);
+        return response.trail;
     },
 
     // Get trails by park ID
     getTrailsByPark: async (parkId: number): Promise<Trail[]> => {
-        const response = await fetch(`${API_BASE_URL}/parks/${parkId}/trails`);
-        return handleResponse(response);
+        const response = await fetch(`${API_BASE_URL}/trails/park/${parkId}`)
+            .then(handleResponse);
+        return response.trails;
     },
 
     // Create a new trail
@@ -92,8 +97,9 @@ export const trailApi = {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(trailData),
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.trail;
     },
 
     // Update a trail
@@ -103,9 +109,9 @@ export const trailApi = {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ is_open: trailData.is_open }),
-        });
-        return handleResponse(response);
+            body: JSON.stringify({ isOpen: trailData.is_open }),
+        }).then(handleResponse);
+        return response.trail;
     },
 
     // Delete a trail
@@ -125,44 +131,66 @@ export const trailApi = {
 export const issueApi = {
     // Get all issues
     getAllIssues: async (): Promise<Issue[]> => {
-        const response = await fetch(`${API_BASE_URL}/issues`);
-        return handleResponse(response);
+        const response = await fetch(`${API_BASE_URL}/issues`)
+            .then(handleResponse);
+        return response.issues;
     },
 
     // Get a specific issue
     getIssue: async (issueId: number): Promise<Issue> => {
-        const response = await fetch(`${API_BASE_URL}/issues/${issueId}`);
-        return handleResponse(response);
+        const response = await fetch(`${API_BASE_URL}/issues/${issueId}`)
+            .then(handleResponse);
+        return response.issue;
     },
 
     // Get issues by park ID
     getIssuesByPark: async (parkId: number): Promise<Issue[]> => {
-        const response = await fetch(`${API_BASE_URL}/issues/park/${parkId}`);
-        return handleResponse(response);
+        const response = await fetch(`${API_BASE_URL}/issues/park/${parkId}`)
+            .then(handleResponse);
+        return response.issues;
     },
 
     // Get issues by trail ID
     getIssuesByTrail: async (trailId: number): Promise<Issue[]> => {
-        const response = await fetch(`${API_BASE_URL}/issues/trail/${trailId}`);
-        return handleResponse(response);
+        const response = await fetch(`${API_BASE_URL}/issues/trail/${trailId}`)
+            .then(handleResponse);
+        return response.issues;
     },
 
     // Get issues by urgency level
     getIssuesByUrgency: async (urgency: number): Promise<Issue[]> => {
-        const response = await fetch(`${API_BASE_URL}/issues/urgency/${urgency}`);
-        return handleResponse(response);
+        const response = await fetch(`${API_BASE_URL}/issues/urgency/${urgency}`)
+            .then(handleResponse);
+        return response.issues;
     },
 
     // Create a new issue
-    createIssue: async (issueData: Omit<Issue, 'issue_id'>): Promise<Issue> => {
+    createIssue: async (issueData: IssueParams): Promise<Issue> => {
+        const { image, ...payload } = issueData;
         const response = await fetch(`${API_BASE_URL}/issues`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(issueData),
-        });
-        return handleResponse(response);
+            body: JSON.stringify({
+                ...payload,
+                image_type: image?.fileExtension,
+            }),
+        })
+            .then(handleResponse);
+
+        const { issue, signedUrl } = response;
+
+        if (signedUrl && image) {
+            await fetch(signedUrl.url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': image.fileExtension,
+                },
+                body: image.file,
+            });
+        }
+        return issue;
     },
 
     // Update an issue's status
@@ -173,8 +201,9 @@ export const issueApi = {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ status }),
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.issue;
     },
 
     // Delete an issue

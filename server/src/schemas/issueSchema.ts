@@ -30,15 +30,17 @@ export const createIssueSchema = z.object({
         trail_id: z.number(),
         issue_type: z.string(),
         urgency: z.number(),
-        isPublic: z.boolean().default(true),
+        is_public: z.boolean().default(false),
         status: z.string().default('Open'),
 
-        reporter_email: z.string().optional(),
+        reporter_email: z.string(),
         notify_reporter: z.boolean().default(false),
         description: z.string().optional(),
-        issue_image: z.string().optional(),
+        image_type: z.enum(['image/jpeg', 'image/png', 'image/heic']).optional(),
     })
 });
+
+export type CreateIssueInput = z.output<typeof createIssueSchema>['body'];
 
 export const updateIssueStatusSchema = z.object({
     params: z.object({
