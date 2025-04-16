@@ -160,7 +160,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         }
 
         if (file) {
-            console.log(file);
             setFormData((prev) => {
                 const newData = {
                     ...prev,
