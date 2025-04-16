@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-    Issue, Park, Trail, ImageMetadata
+    Park, Trail, ImageMetadata, IssueParams
 } from '../../types';
 import { Input } from '../ui/Input';
 import { TextArea } from '../ui/TextArea';
@@ -16,7 +16,7 @@ import {
 } from '../../services/api';
 
 interface IssueReportFormProps {
-    onSubmit: (data: Omit<Issue, 'issue_id'> & { imageMetadata?: ImageMetadata }) => Promise<void>; // Fixed: replaced 'any' with 'ImageMetadata'
+    onSubmit: (data: IssueParams) => Promise<void>; // Fixed: replaced 'any' with 'ImageMetadata'
     initialParkId?: number;
     initialTrailId?: number;
 }
@@ -26,7 +26,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     initialParkId,
     initialTrailId
 }) => {
-    const [formData, setFormData] = useState<Partial<Issue> & { reporter_email?: string, imageMetadata?: ImageMetadata }>({
+    const [formData, setFormData] = useState<Partial<IssueParams>>({
         park_id: initialParkId || 0,
         trail_id: initialTrailId || 0,
         is_public: true,
@@ -42,6 +42,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         imageMetadata: undefined
     });
 
+    const [imgPreview, setImgPreview] = useState<string>();
     const [parks, setParks] = useState<Park[]>([]);
     const [trails, setTrails] = useState<Trail[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -153,13 +154,20 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     };
     
     const handleImageChange = (file: File | null, previewUrl: string | null, metadata?: ImageMetadata) => {
-        void file; // Added to suppress 'unused variable' warning
 
         if (previewUrl) {
+            setImgPreview(previewUrl);
+        }
+
+        if (file) {
+            console.log(file);
             setFormData((prev) => {
                 const newData = {
                     ...prev,
-                    issue_image: previewUrl,
+                    image: {
+                        file,
+                        fileExtension: 'image/jpeg'
+                    },
                     imageMetadata: metadata || {}
                 };
                 return newData;
@@ -167,7 +175,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         } else {
             setFormData((prev) => {
                 const newData = { ...prev };
-                delete newData.issue_image;
+                delete newData.image;
                 delete newData.imageMetadata;
                 return newData;
             });
@@ -275,7 +283,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             const dataToSubmit = {
                 ...formData,
                 reported_at: new Date().toISOString()
-            } as Omit<Issue, 'issue_id'> & { imageMetadata?: ImageMetadata };
+            } as IssueParams;
 
             await onSubmit(dataToSubmit);
             setSuccess(true);
@@ -487,7 +495,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                     <ImageUpload
                         label="Add a photo (optional)"
                         onChange={handleImageChange}
-                        existingImageUrl={formData.issue_image}
+                        existingImageUrl={imgPreview}
                         existingMetadata={formData.imageMetadata}
                         className="mt-4"
                         acceptedFormats="image/jpeg,image/png,image/gif,image/heic,image/heif"

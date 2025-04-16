@@ -198,12 +198,12 @@ export const IssueDetailPage: React.FC = () => {
                         <p className="text-gray-700 whitespace-pre-line">{issue.description}</p>
                     </div>
 
-                    {issue.issue_image && (
+                    {issue.image && (
                         <div className="mb-6">
                             <h4 className="text-sm font-medium text-gray-500 mb-2">Issue Image</h4>
                             <div className="rounded-lg overflow-hidden border border-gray-200">
                                 <img
-                                    src={issue.issue_image}
+                                    src={issue.image.url}
                                     alt="Issue"
                                     className="w-full h-auto max-h-96 object-contain"
                                 />
