@@ -174,7 +174,7 @@ export const issueApi = {
             },
             body: JSON.stringify({
                 ...payload,
-                image_type: image?.fileExtension,
+                image_type: image?.type,
             }),
         })
             .then(handleResponse);
@@ -185,9 +185,9 @@ export const issueApi = {
             await fetch(signedUrl.url, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': image.fileExtension,
+                    'Content-Type': image.type,
                 },
-                body: image.file,
+                body: image,
             });
         }
         return issue;

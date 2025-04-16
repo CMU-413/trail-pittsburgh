@@ -59,10 +59,7 @@ export type SignedUrl = {
 };
 
 export type IssueParams = Omit<Issue, 'resolved_at' | 'image' | 'issue_id'> & {
-    image?: {
-        fileExtension: string;
-        file: File;
-    };
+    image?: File;
     reporter_email?: string;
 };
 

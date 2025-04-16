@@ -164,10 +164,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             setFormData((prev) => {
                 const newData = {
                     ...prev,
-                    image: {
-                        file,
-                        fileExtension: 'image/jpeg'
-                    },
+                    image: file,
                     imageMetadata: metadata || {}
                 };
                 return newData;
