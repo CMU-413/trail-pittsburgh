@@ -11,9 +11,9 @@ export class IssueService {
     private readonly issueRepository: IssueRepository;
     private readonly issueImageBucket: GCSBucket;
 
-    constructor(issueRepository: IssueRepository) {
+    constructor(issueRepository: IssueRepository, imagesBucket: GCSBucket) {
         this.issueRepository = issueRepository;
-        this.issueImageBucket = new GCSBucket(process.env.TRAIL_IMAGE_BUCKET!);
+        this.issueImageBucket = imagesBucket;
     }
 
     private async buildIssueWithUrl(issue: IssueRecord) {

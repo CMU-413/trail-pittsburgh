@@ -1,11 +1,21 @@
+import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
+import { CreateIssueInput } from '@/schemas/issueSchema';
 import { IssueService } from '@/services';
 
 jest.mock('@/repositories/IssueRepository');
+jest.mock('@/lib/GCSBucket');
 
 describe('IssueService', () => {
     let issueService: IssueService;
     let issueRepositoryMock: jest.Mocked<IssueRepository>;
+    let issueImageBucketMock: jest.Mocked<GCSBucket>;
+
+    const uploadUrl: SignedUrl = {
+        url: 'test.jpg',
+        key: 'unique',
+        type: 'upload',
+    };
 
     const baseIssue = {
         issue_id: 1,
@@ -29,25 +39,31 @@ describe('IssueService', () => {
 
     beforeEach(() => {
         issueRepositoryMock = new IssueRepository() as jest.Mocked<IssueRepository>;
-        issueService = new IssueService(issueRepositoryMock);
+        issueImageBucketMock = new GCSBucket('') as jest.Mocked<GCSBucket>;
+        issueService = new IssueService(issueRepositoryMock, issueImageBucketMock);
     });
 
     test('should create a new issue with required fields', async () => {
         issueRepositoryMock.createIssue.mockResolvedValue(baseIssue);
+        issueImageBucketMock.getUploadUrl.mockResolvedValue(uploadUrl);
 
-        const input = {
+        const input: CreateIssueInput = {
             park_id: 1,
             trail_id: 1,
             issue_type: 'Flooding',
             urgency: 3,
             reporter_email: 'reporter@example.com',
             description: 'Trail is flooded',
+            is_public: true,
+            status: 'Open',
+            notify_reporter: true,
+            image_type: 'image/jpeg',
         };
 
         const result = await issueService.createIssue(input);
 
-        expect(issueRepositoryMock.createIssue).toHaveBeenCalledWith(input);
-        expect(result).toEqual(baseIssue);
+        expect(issueRepositoryMock.createIssue).toHaveBeenCalled();
+        expect(result).toEqual({ signedUrl:uploadUrl, issue: baseIssue });
     });
 
     test('should create a new issue with all optional fields', async () => {
@@ -56,7 +72,6 @@ describe('IssueService', () => {
             is_public: false,
             status: 'In Progress',
             notify_reporter: false,
-            issue_image: 'flooded-trail.jpg',
             longitude: -80.001,
             latitude: 40.441
         };
@@ -72,7 +87,6 @@ describe('IssueService', () => {
             is_public: false,
             status: 'In Progress',
             notify_reporter: false,
-            issue_image: 'flooded-trail.jpg',
             reporter_email: 'reporter@example.com',
             longitude: -80.001,
             latitude: 40.441
@@ -81,16 +95,20 @@ describe('IssueService', () => {
         const result = await issueService.createIssue(input);
 
         expect(issueRepositoryMock.createIssue).toHaveBeenCalledWith(input);
-        expect(result).toEqual(fullIssue);
+        expect(result).toEqual({ issue: fullIssue });
     });
 
     test('should get an issue by ID', async () => {
         issueRepositoryMock.getIssue.mockResolvedValue(baseIssue);
 
+        // Remove property from obj
+        const { issue_image, ...expectedData } = baseIssue;
+        void issue_image;
+
         const result = await issueService.getIssue(1);
 
         expect(issueRepositoryMock.getIssue).toHaveBeenCalledWith(1);
-        expect(result).toEqual(baseIssue);
+        expect(result).toEqual({ image: undefined, ...expectedData });
     });
 
     test('should return null if issue is not found', async () => {
