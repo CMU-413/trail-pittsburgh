@@ -42,6 +42,27 @@ export class UserService {
         );
     }
 
+    public async findOrCreateFromGoogle(userData: {
+        email: string;
+        name: string;
+        picture?: string;
+    }) {
+        let user = await this.getUserByEmail(userData.email);
+    
+        if (!user) {
+            user = await this.createUser(
+                userData.name,
+                userData.email,
+                false,
+                'View',
+                userData.picture || 'default.jpg',
+                true
+            );
+        }
+    
+        return user;
+    }
+
     public async deleteUser(userId: number) {
         return this.userRepository.deleteUser(userId);
     }

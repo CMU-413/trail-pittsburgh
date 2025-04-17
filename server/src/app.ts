@@ -1,33 +1,46 @@
 import cors from 'cors';
 import express from 'express';
+import dotenv from 'dotenv';
+dotenv.config();
 
 import { errorHandler } from '@/middlewares';
+import { authenticateToken } from '@/middlewares/auth';
+import { securityHeaders } from '@/middlewares/securityHeaders';
+import { limiter } from '@/middlewares/rateLimiter';
 import {
     authenticationRouter,
     issueRouter,
-    oauthRouter,
     parkRouter,
     trailRouter
 } from '@/routes';
 
 const app = express();
 
+// Security headers
+app.use(securityHeaders);
+
+// CORS configuration
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+    credentials: true,
+    maxAge: 86400 // Cache preflight requests for 24 hours
 }));
+
+// Rate limiting
+app.use('/api/', limiter);
 
 // Middleware
 app.use(express.json());
 
+// Public routes
 app.use('/api/auth', authenticationRouter);
-app.use('/api/oauth', oauthRouter);
-app.use('/api/issues', issueRouter);
-app.use('/api/parks', parkRouter);
-app.use('/api/trails', trailRouter);
-app.use('/api/issues', issueRouter);
+
+// Protected routes
+app.use('/api/issues', authenticateToken, issueRouter);
+app.use('/api/parks', authenticateToken, parkRouter);
+app.use('/api/trails', authenticateToken, trailRouter);
 
 // Health check route
 app.get('/healthz', (req: express.Request, res: express.Response) => {
