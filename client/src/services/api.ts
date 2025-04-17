@@ -195,14 +195,15 @@ export const issueApi = {
 
     // Update an issue's status
     updateIssueStatus: async (issueId: number, status: string): Promise<Issue> => {
+        console.log(`Calling API: ${API_BASE_URL}/issues/${issueId}/status`);
         const response = await fetch(`${API_BASE_URL}/issues/${issueId}/status`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ status }),
-        })
-            .then(handleResponse);
+        }).then(handleResponse);
+        console.log("and went thru.");
         return response.issue;
     },
 

@@ -105,7 +105,7 @@ export const IssueDetailPage: React.FC = () => {
             // No need to fetch resolution or resolved by user since we're simplifying
         } catch (err) {
             console.error('Error resolving issue:', err);
-            throw err;
+            alert('Failed to resolve the issue. Please try again.');
         }
     };
 

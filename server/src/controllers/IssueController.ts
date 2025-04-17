@@ -57,7 +57,7 @@ export class IssueController {
     
     public async updateIssueStatus(req: express.Request, res: express.Response) {
         try {
-            const issueId = Number(req.params.id);
+            const issueId = Number(req.params.issueId);
             const { status } = req.body;
 
             if (!status) {
@@ -71,6 +71,7 @@ export class IssueController {
             }
 
             res.json({ issue });
+            console.log("I went thru controller.");
         } catch (error) {
             console.error('Error updating issue status:', error);
             res.status(500).json({ message: 'Failed to update issue status' });
@@ -79,7 +80,7 @@ export class IssueController {
 
     public async deleteIssue(req: express.Request, res: express.Response) {
         try {
-            const issueId = Number(req.params.id);
+            const issueId = Number(req.params.issueId);
             const deleted = await this.issueService.deleteIssue(issueId);
 
             if (!deleted) {

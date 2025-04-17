@@ -82,6 +82,7 @@ export class IssueService {
     }
 
     public async updateIssueStatus(issueId: number, status: string) {
+        console.log("I went thru service.");
         return this.issueRepository.updateIssueStatus(issueId, status);
     }
 }

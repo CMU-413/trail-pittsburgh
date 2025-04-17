@@ -98,6 +98,7 @@ export class IssueRepository {
     public async updateIssueStatus(issueId: number, status: string) {
         try {
             const normalizedStatus = status.trim().toLowerCase();
+            console.log("I went thru repository.");
             return await prisma.issue.update({
                 where: { issue_id: issueId },
                 data: {
