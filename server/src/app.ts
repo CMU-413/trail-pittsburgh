@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -25,13 +26,16 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-    maxAge: 86400 // Cache preflight requests for 24 hours
+    maxAge: 86400
 }));
+
+// Parse cookies
+app.use(cookieParser());
 
 // Rate limiting
 app.use('/api/', limiter);
 
-// Middleware
+// Parse JSON
 app.use(express.json());
 
 // Public routes
@@ -42,7 +46,7 @@ app.use('/api/issues', authenticateToken, issueRouter);
 app.use('/api/parks', authenticateToken, parkRouter);
 app.use('/api/trails', authenticateToken, trailRouter);
 
-// Health check route
+// Health check
 app.get('/healthz', (req: express.Request, res: express.Response) => {
     res.status(200).json({ status: 'ok' });
 });

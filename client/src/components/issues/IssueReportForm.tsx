@@ -63,8 +63,11 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     useEffect(() => {
         const fetchParks = async () => {
             try {
-                const parksData = await parkApi.getParks();
+                const { data: parksData } = await parkApi.getParks();
+                console.log(parksData);
                 setParks(parksData.filter((park) => park.is_active));
+
+                console.log(formData.park_id);
 
                 // If we have a park ID, load its trails
                 if (formData.park_id) {

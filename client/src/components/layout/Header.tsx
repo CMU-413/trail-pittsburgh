@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Link, useLocation, useNavigate
 } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../providers/AuthProvider';
 import { APP_NAME } from '../../constants/config';
 
 export const Header: React.FC = () => {

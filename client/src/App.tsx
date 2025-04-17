@@ -6,7 +6,7 @@ import { Layout } from './components/layout/Layout';
 import { AuthProvider } from './providers/AuthProvider';
 import { ProtectedRoute, PublicRoute } from './components/auth/ProtectedRoute';
 import { jwtDecode } from 'jwt-decode';
-import { useAuth } from './hooks/useAuth';
+import { useAuth } from './providers/AuthProvider';
 
 // Auth pages
 // import { LoginPage } from './pages/auth/LoginPage';

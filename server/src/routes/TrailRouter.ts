@@ -25,8 +25,7 @@ const router = express.Router();
 router.get('/', errorHandlerWrapper(trailController.getAllTrails)); // Get all trails
 router.get('/:trailId', validateRequest(getTrailSchema), errorHandlerWrapper(trailController.getTrail)); // Get a specific trail
 router.get(
-    '/park/:parkId',
-    validateRequest(getTrailsFromParkSchema),
+    '/:parkId/trails',
     errorHandlerWrapper(trailController.getTrailsByPark)
 ); // Get trails from a park
 
