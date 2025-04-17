@@ -51,7 +51,6 @@ export const ParkListPage: React.FC = () => {
             </div>
         );
     }
-    
     if (parks.length === 0) {
         return (
             <div>

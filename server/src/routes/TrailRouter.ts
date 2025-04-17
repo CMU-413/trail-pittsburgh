@@ -3,6 +3,7 @@ import express from 'express';
 
 import { TrailController } from '@/controllers';
 import { errorHandlerWrapper } from '@/middlewares';
+import { authenticateToken } from '@/middlewares/auth';
 import { validateRequest } from '@/middlewares/validateRequest';
 import { TrailRepository } from '@/repositories';
 import {
@@ -20,22 +21,35 @@ const trailController = new TrailController(trailService);
 
 const router = express.Router();
 
-// Get all trails
-router.get('/', errorHandlerWrapper(trailController.getAllTrails));
+//Public Routes
+router.get('/', errorHandlerWrapper(trailController.getAllTrails)); // Get all trails
+router.get('/:trailId', validateRequest(getTrailSchema), errorHandlerWrapper(trailController.getTrail)); // Get a specific trail
+router.get(
+    '/park/:parkId', 
+    validateRequest(getTrailsFromParkSchema), 
+    errorHandlerWrapper(trailController.getTrailsByPark)
+); // Get trails from a park
 
-// Get a specific trail
-router.get('/:trailId', validateRequest(getTrailSchema), errorHandlerWrapper(trailController.getTrail));
+// Protected Routes
+router.post(
+    '/',
+    authenticateToken,
+    validateRequest(createTrailSchema),
+    errorHandlerWrapper(trailController.createTrail)
+); // Create a new trail
 
-// Create a new trail
-router.post('/', validateRequest(createTrailSchema), errorHandlerWrapper(trailController.createTrail));
+router.put(
+    '/:trailId',
+    authenticateToken,
+    validateRequest(updateTrailSchema),
+    errorHandlerWrapper(trailController.updateTrail)
+); // Update a trail
 
-// Update a trail
-router.put('/:trailId', validateRequest(updateTrailSchema), errorHandlerWrapper(trailController.updateTrail));
-
-// Delete a trail
-router.delete('/:trailId', validateRequest(deleteTrailSchema), errorHandlerWrapper(trailController.deleteTrail));
-
-// Get trails from park
-router.get('/park/:parkId', validateRequest(getTrailsFromParkSchema), errorHandlerWrapper(trailController.getTrailsByPark));
+router.delete(
+    '/:trailId',
+    authenticateToken,
+    validateRequest(deleteTrailSchema),
+    errorHandlerWrapper(trailController.deleteTrail)
+); // Delete a trail
 
 export { router as trailRouter };

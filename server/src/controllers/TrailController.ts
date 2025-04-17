@@ -93,13 +93,13 @@ export class TrailController {
     }
 
     public async getTrailsByPark(req: express.Request, res: express.Response) {
+        console.log('get trails by park');
         try {
             const parkId = Number(req.params.parkId);
             const trails = await this.trailService.getTrailsByPark(parkId);
 
-            return res.json({ parkId, trails });
+            return res.json(trails);
         } catch (error) {
-
             // Type checking for the error
             let errorMessage = 'Server error fetching trails';
             if (error instanceof Error) {
