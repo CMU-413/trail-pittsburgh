@@ -11,8 +11,10 @@ export const ParkCreatePage: React.FC = () => {
     const navigate = useNavigate();
     
     const handleSubmit = async (data: Omit<Park, 'park_id'>) => {
+        console.log(data);
         try {
             const newPark = await parkApi.createPark(data);
+            console.log(newPark);
             navigate(`/parks/${newPark.park_id}`);
         } catch (err) {
             // eslint-disable-next-line no-console

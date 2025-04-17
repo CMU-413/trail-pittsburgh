@@ -81,7 +81,7 @@ export const trailApi = {
     },
 
     getTrailsByPark: async (parkId: number): Promise<Trail[]> => {
-        const response = await fetch(`${API_BASE_URL}/trails/${parkId}/trails`, {
+        const response = await fetch(`${API_BASE_URL}/trails/park/${parkId}`, {
             credentials: 'include'
         }).then(handleResponse);
         return response.trails;
