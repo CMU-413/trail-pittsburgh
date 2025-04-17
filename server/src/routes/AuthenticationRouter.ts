@@ -58,6 +58,14 @@ router.get('/google/callback', async (req, res) => {
 
         const userData = await getUserData(tokens.access_token!);
 
+        // This can be changed in the future to allow multiple domains
+        const allowedDomain = process.env.ALLOWED_EMAIL_DOMAIN;
+        const userEmail = userData.email;
+        if (allowedDomain && !userEmail.endsWith(`@${allowedDomain}`)) {
+            console.warn(`Unauthorized domain attempt: ${userEmail}`);
+            return res.redirect(`${process.env.CLIENT_URL}/unauthorized`);
+        }
+
         const userService = new UserService(new UserRepository());
         const user = await userService.findOrCreateFromGoogle({
             email: userData.email,
