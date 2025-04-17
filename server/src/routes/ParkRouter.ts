@@ -3,6 +3,7 @@ import express from 'express';
 
 import { ParkController } from '@/controllers';
 import { errorHandlerWrapper } from '@/middlewares';
+import { authenticateToken } from '@/middlewares/auth';
 import { validateRequest } from '@/middlewares/validateRequest';
 import { ParkRepository } from '@/repositories';
 import {
@@ -12,7 +13,6 @@ import {
     updateParkSchema
 } from '@/schemas/parkSchema';
 import { ParkService } from '@/services';
-import { authenticateToken } from '@/middlewares/auth';
 
 const parkRepository = new ParkRepository();
 const parkService = new ParkService(parkRepository);

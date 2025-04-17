@@ -1,13 +1,13 @@
-import cors from 'cors';
-import express from 'express';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
+import express from 'express';
 
 import { errorHandler } from '@/middlewares';
 import { authenticateToken } from '@/middlewares/auth';
-import { securityHeaders } from '@/middlewares/securityHeaders';
 import { limiter } from '@/middlewares/rateLimiter';
+import { securityHeaders } from '@/middlewares/securityHeaders';
 import {
     authenticationRouter,
     issueRouter,

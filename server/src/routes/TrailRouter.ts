@@ -3,6 +3,7 @@ import express from 'express';
 
 import { TrailController } from '@/controllers';
 import { errorHandlerWrapper } from '@/middlewares';
+import { authenticateToken } from '@/middlewares/auth';
 import { validateRequest } from '@/middlewares/validateRequest';
 import { TrailRepository } from '@/repositories';
 import {
@@ -13,7 +14,6 @@ import {
     updateTrailSchema
 } from '@/schemas/trailSchema';
 import { TrailService } from '@/services';
-import { authenticateToken } from '@/middlewares/auth';
 
 const trailRepository = new TrailRepository();
 const trailService = new TrailService(trailRepository);
@@ -25,7 +25,8 @@ const router = express.Router();
 router.get('/', errorHandlerWrapper(trailController.getAllTrails)); // Get all trails
 router.get('/:trailId', validateRequest(getTrailSchema), errorHandlerWrapper(trailController.getTrail)); // Get a specific trail
 router.get(
-    '/:parkId/trails',
+    '/park/:parkId', 
+    validateRequest(getTrailsFromParkSchema), 
     errorHandlerWrapper(trailController.getTrailsByPark)
 ); // Get trails from a park
 

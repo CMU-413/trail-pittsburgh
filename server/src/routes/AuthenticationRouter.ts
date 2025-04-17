@@ -1,12 +1,13 @@
-import express from 'express';
 import dotenv from 'dotenv';
+dotenv.config();
+import express from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
-import { UserService } from '@/services/UserService';
-import { UserRepository } from '@/repositories';
-import { authenticateToken, AuthRequest } from '@/middlewares/auth';
 
-dotenv.config();
+import { authenticateToken, AuthRequest } from '@/middlewares/auth';
+import { UserRepository } from '@/repositories';
+import { UserService } from '@/services/UserService';
+
 const router = express.Router();
 
 const redirectUrl = 'http://localhost:3000/api/auth/google/callback';

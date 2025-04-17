@@ -4,6 +4,7 @@ import express from 'express';
 import { IssueController } from '@/controllers/';
 import { GCSBucket } from '@/lib/GCSBucket';
 import { errorHandlerWrapper } from '@/middlewares';
+import { authenticateToken } from '@/middlewares/auth';
 import { validateRequest } from '@/middlewares/validateRequest';
 import { IssueRepository } from '@/repositories';
 import {
@@ -16,7 +17,6 @@ import {
     updateIssueStatusSchema
 } from '@/schemas/issueSchema';
 import { IssueService } from '@/services/IssueService';
-import { authenticateToken } from '@/middlewares/auth';
 
 const issueRepository = new IssueRepository();
 const issueImageBucket = new GCSBucket(process.env.TRAIL_IMAGE_BUCKET!);

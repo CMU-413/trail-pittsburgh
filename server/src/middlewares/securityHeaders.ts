@@ -1,4 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import { 
+    Request, 
+    Response, 
+    NextFunction 
+} from 'express';
 
 export const securityHeaders = (req: Request, res: Response, next: NextFunction) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
