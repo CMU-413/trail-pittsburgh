@@ -3,20 +3,27 @@ import express from 'express';
 
 import { errorHandler } from '@/middlewares';
 import {
-    issueRouter, parkRouter, trailRouter 
+    authenticationRouter,
+    issueRouter,
+    oauthRouter,
+    parkRouter,
+    trailRouter
 } from '@/routes';
 
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
 
 // Middleware
 app.use(express.json());
 
+app.use('/api/auth', authenticationRouter);
+app.use('/api/oauth', oauthRouter);
 app.use('/api/issues', issueRouter);
 app.use('/api/parks', parkRouter);
 app.use('/api/trails', trailRouter);

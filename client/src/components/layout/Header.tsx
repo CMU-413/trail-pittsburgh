@@ -64,6 +64,28 @@ export const Header: React.FC = () => {
         navigate('/');
     };
 
+    async function auth() {
+        try {
+            const response = await fetch('http://127.0.0.1:3000/api/auth', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    redirectPath: window.location.pathname
+                }),
+                credentials: 'include'
+            });
+            const data = await response.json();
+            
+            if (data.url) {
+                window.location.href = data.url;
+            }
+        } catch (error) {
+            console.error('Authentication error:', error);
+        }
+    }
+
     return (
         <nav className={`fixed w-full z-10 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-white/80 backdrop-blur-md'
         }`}>
@@ -146,12 +168,12 @@ export const Header: React.FC = () => {
                                     </button>
                                 </div>
                             ) : (
-                                <Link
-                                    to="/login"
-                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD4602] hover:bg-[#a33e02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD4602]"
+                                <button
+                                onClick={auth}
+                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD4602] hover:bg-[#a33e02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD4602]"
                                 >
                                     Sign in
-                                </Link>
+                                </button>
                             )}
 
                             {/* Dropdown menu */}
@@ -274,15 +296,12 @@ export const Header: React.FC = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="pt-4 pb-3 border-t border-gray-200">
-                            <Link
-                                to="/login"
-                                className="block px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#BD4602]"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                Sign in
-                            </Link>
-                        </div>
+                        <button
+                        onClick={auth}
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD4602] hover:bg-[#a33e02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD4602]"
+                        >
+                            Sign in
+                        </button>
                     )}
                 </div>
             )}

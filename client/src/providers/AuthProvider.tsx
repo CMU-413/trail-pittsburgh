@@ -43,16 +43,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(false);
     }, []);
 
-    const login = (credentialResponse: CredentialResponse) => {
-        if (credentialResponse?.credential) {
+    const login = (credentialResponse: CredentialResponse | JwtPayload) => {
+        if ('credential' in credentialResponse && credentialResponse.credential) {
             try {
                 // Save the token
                 localStorage.setItem('auth_token', credentialResponse.credential);
 
                 // Decode the JWT token to get user info
                 const decodedUser = jwtDecode<GoogleUser>(credentialResponse.credential);
-                // eslint-disable-next-line no-console
-                console.log('Decoded user:', decodedUser);
                 setUser(decodedUser);
 
                 // Redirect based on domain
@@ -62,9 +60,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     navigate('/');
                 }
             } catch (error) {
-                // eslint-disable-next-line no-console
                 console.error('Failed to authenticate:', error);
                 localStorage.removeItem('auth_token');
+            }
+        } else if ('email' in credentialResponse) {
+            // Handle JwtPayload directly
+            const userData: GoogleUser = {
+                email: credentialResponse.email,
+                name: credentialResponse.name,
+                picture: credentialResponse.picture,
+                sub: credentialResponse.sub,
+                hd: credentialResponse.hd
+            };
+            setUser(userData);
+            if (userData.hd === ORGANIZATION_DOMAIN) {
+                navigate('/dashboard');
+            } else {
+                navigate('/');
             }
         }
     };
