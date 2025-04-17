@@ -2,6 +2,7 @@
 import express from 'express';
 
 import { IssueController } from '@/controllers/';
+import { GCSBucket } from '@/lib/GCSBucket';
 import { errorHandlerWrapper } from '@/middlewares';
 import { validateRequest } from '@/middlewares/validateRequest';
 import { IssueRepository } from '@/repositories';
@@ -18,7 +19,8 @@ import { IssueService } from '@/services/IssueService';
 import { authenticateToken } from '@/middlewares/auth';
 
 const issueRepository = new IssueRepository();
-const issueService = new IssueService(issueRepository);
+const issueImageBucket = new GCSBucket(process.env.TRAIL_IMAGE_BUCKET!);
+const issueService = new IssueService(issueRepository, issueImageBucket);
 const issueController = new IssueController(issueService);
 
 const router = express.Router();

@@ -11,20 +11,20 @@ export type Park = {
     county: string;
     is_active: boolean;
     created_at: string;
-  };
+};
   
-  export type Trail = {
+export type Trail = {
     trail_id: number;
     park_id: number;
     name: string;
     is_active: boolean;
     is_open: boolean;
     created_at: string;
-  };
+};
   
-  export type IssueStatus = 'open' | 'in_progress' | 'resolved'; // match backend usage (consider moving to Prisma enum)
+export type IssueStatus = 'open' | 'in_progress' | 'resolved'; // match backend usage (consider moving to Prisma enum)
   
-  export interface ImageMetadata {
+export interface ImageMetadata {
     DateTimeOriginal?: string;
     Make?: string;
     Model?: string;
@@ -39,9 +39,9 @@ export type Park = {
     GPSLatitude?: number;
     GPSLongitude?: number;
     [key: string]: string | number | boolean | undefined;
-  }
+}
   
-  export type Issue = {
+export type Issue = {
     issue_id: number;
     park_id: number;
     trail_id: number;
@@ -49,8 +49,8 @@ export type Park = {
     status: IssueStatus;
     description?: string;
     issue_type: string;
-    urgency: number; // 1–5 scale
-    issue_image?: string;
+    urgency: number; // 1-5 scale
+    image?: SignedUrl;
     imageMetadata?: ImageMetadata;
     longitude?: number;
     latitude?: number;
@@ -58,11 +58,22 @@ export type Park = {
     reporter_email: string;
     created_at: string;
     resolved_at?: string;
-  };
-  
-  export type UserRole = 'owner' | 'steward' | 'volunteer'; // frontend-defined role abstraction
-  
-  export type User = {
+};  
+
+export type SignedUrl = {
+    key: string;
+    url: string;
+    type: 'download' | 'upload';
+};
+
+export type IssueParams = Omit<Issue, 'resolved_at' | 'image' | 'issue_id'> & {
+    image?: File;
+    reporter_email?: string;
+};
+
+export type UserRole = 'owner' | 'steward' | 'volunteer';
+
+export type User = {
     user_id: number;
     username: string;
     email: string;
@@ -71,17 +82,17 @@ export type Park = {
     permission: string;
     is_active: boolean;
     created_at: string;
-  };
+};
   
-  export type StewardParkAssignment = {
+export type StewardParkAssignment = {
     assignment_id: number;
     user_id: number;
     park_id: number;
     assigned_date: string;
     is_active: boolean;
-  };
+};
   
-  export type IssueResolutionUpdate = {
+export type IssueResolutionUpdate = {
     res_id: number;
     issue_id: number;
     resolve_image?: string;
@@ -89,13 +100,13 @@ export type Park = {
     resolved_at: string;
     resolved_by: number;
     resolve_imageMetadata?: ImageMetadata;
-  };
+};
   
-  export type Notification = {
+export type Notification = {
     notification_id: number;
     issue_id: number;
     recipient_email: string;
     content: string;
     sent_at?: string;
     created_at: string;
-  };
+};

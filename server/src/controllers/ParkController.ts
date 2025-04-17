@@ -17,19 +17,19 @@ export class ParkController {
     }
 
     public async getPark(req: express.Request, res: express.Response) {
-        const parkId = Number(req.params.id);
+        const parkId = Number(req.params.parkId);
         const park = await this.parkService.getPark(parkId);
 
         if (!park) {
             res.status(404).json({ message: 'Park not found.' });
         }
 
-        return res.status(200).json({ data: park });
+        return res.status(200).json({ park });
     }
 
     public async getAllParks(req: express.Request, res: express.Response) {
         const parks = await this.parkService.getAllParks();
-        res.json({ data: parks });
+        res.json({ parks });
     }
 
     public async createPark(req: express.Request, res: express.Response) {
@@ -50,7 +50,7 @@ export class ParkController {
         };
 
         const park = await this.parkService.createPark(parkData);
-        return res.status(201).json({ data: park });
+        return res.status(201).json({ park });
     }
 
     public async updatePark(req: express.Request, res: express.Response) {
@@ -68,7 +68,7 @@ export class ParkController {
             return res.status(404).json({ message: 'Park not found.' });
         }
 
-        res.status(200).json({ data: updatedPark });
+        res.status(200).json({ park:updatedPark });
     }
 
     public async deletePark(req: express.Request, res: express.Response) {

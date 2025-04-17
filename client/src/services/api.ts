@@ -1,4 +1,6 @@
-import { Park, Trail, Issue } from '../types';
+import {
+    Park, Trail, Issue, IssueParams
+} from '../types';
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
@@ -15,15 +17,16 @@ export const parkApi = {
     getParks: async (): Promise<{ data: Park[] }> => {
         const response = await fetch(`${API_BASE_URL}/parks`, {
             credentials: 'include'
-        });
-        return handleResponse(response);
+        }).then(handleResponse);
+        return response.parks;
     },
 
     getPark: async (parkId: number): Promise<Park> => {
         const response = await fetch(`${API_BASE_URL}/parks/${parkId}`, {
             credentials: 'include'
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.park;
     },
 
     createPark: async (parkData: Omit<Park, 'park_id'>): Promise<Park> => {
@@ -32,8 +35,9 @@ export const parkApi = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(parkData),
             credentials: 'include'
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.park;
     },
 
     updatePark: async (parkData: Park): Promise<Park> => {
@@ -42,8 +46,8 @@ export const parkApi = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(parkData),
             credentials: 'include'
-        });
-        return handleResponse(response);
+        }).then(handleResponse);
+        return response.park;
     },
 
     deletePark: async (parkId: number): Promise<void> => {
@@ -63,22 +67,24 @@ export const trailApi = {
     getAllTrails: async (): Promise<Trail[]> => {
         const response = await fetch(`${API_BASE_URL}/trails`, {
             credentials: 'include'
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.trails;
     },
 
     getTrail: async (trailId: number): Promise<Trail> => {
         const response = await fetch(`${API_BASE_URL}/trails/${trailId}`, {
             credentials: 'include'
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.trail;
     },
 
     getTrailsByPark: async (parkId: number): Promise<Trail[]> => {
         const response = await fetch(`${API_BASE_URL}/trails/${parkId}/trails`, {
             credentials: 'include'
-        });
-        return handleResponse(response);
+        }).then(handleResponse);
+        return response.trails;
     },
 
     createTrail: async (trailData: Omit<Trail, 'trail_id'>): Promise<Trail> => {
@@ -87,18 +93,19 @@ export const trailApi = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(trailData),
             credentials: 'include'
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.trail;
     },
 
     updateTrail: async (trailData: Trail): Promise<Trail> => {
         const response = await fetch(`${API_BASE_URL}/trails/${trailData.trail_id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ is_open: trailData.is_open }),
+            body: JSON.stringify({ isOpen: trailData.is_open }),
             credentials: 'include'
-        });
-        return handleResponse(response);
+        }).then(handleResponse);
+        return response.trail;
     },
 
     deleteTrail: async (trailId: number): Promise<void> => {
@@ -118,46 +125,65 @@ export const issueApi = {
     getAllIssues: async (): Promise<Issue[]> => {
         const response = await fetch(`${API_BASE_URL}/issues`, {
             credentials: 'include'
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.issues;
     },
 
     getIssue: async (issueId: number): Promise<Issue> => {
         const response = await fetch(`${API_BASE_URL}/issues/${issueId}`, {
             credentials: 'include'
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.issue;
     },
 
     getIssuesByPark: async (parkId: number): Promise<Issue[]> => {
         const response = await fetch(`${API_BASE_URL}/issues/park/${parkId}`, {
             credentials: 'include'
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.issues;
     },
 
     getIssuesByTrail: async (trailId: number): Promise<Issue[]> => {
         const response = await fetch(`${API_BASE_URL}/issues/trail/${trailId}`, {
             credentials: 'include'
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.issues;
     },
 
     getIssuesByUrgency: async (urgency: number): Promise<Issue[]> => {
-        const response = await fetch(`${API_BASE_URL}/issues/urgency/${urgency}`, {
-            credentials: 'include'
-        });
+        const response = await fetch(`${API_BASE_URL}/issues/urgency/${urgency}`);
         return handleResponse(response);
     },
 
-    createIssue: async (issueData: Omit<Issue, 'issue_id'>): Promise<Issue> => {
+    createIssue: async (issueData: IssueParams): Promise<Issue> => {
+        const { image, ...payload } = issueData;
         const response = await fetch(`${API_BASE_URL}/issues`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(issueData),
+            body: JSON.stringify({
+                ...payload,
+                image_type: image?.type,
+            }),
             credentials: 'include'
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+
+        const { issue, signedUrl } = response;
+
+        if (signedUrl && image) {
+            await fetch(signedUrl.url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': image.type,
+                },
+                body: image,
+            });
+        }
+        return issue;
     },
 
     updateIssueStatus: async (issueId: number, status: string): Promise<Issue> => {
@@ -166,8 +192,9 @@ export const issueApi = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status }),
             credentials: 'include'
-        });
-        return handleResponse(response);
+        })
+            .then(handleResponse);
+        return response.issue;
     },
 
     deleteIssue: async (issueId: number): Promise<void> => {

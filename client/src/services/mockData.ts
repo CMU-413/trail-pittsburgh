@@ -141,7 +141,6 @@ export const issues: Issue[] = [
         created_at: '2025-02-15T09:30:00Z',
         issue_type: 'obstruction',
         urgency: 4,
-        issue_image: 'https://images.unsplash.com/photo-1589825541479-52ad2c3e31ae',
         lon: -79.9022,
         lat: 40.4374,
         notify_reporter: true
@@ -156,7 +155,6 @@ export const issues: Issue[] = [
         created_at: '2025-02-10T14:15:00Z',
         issue_type: 'erosion',
         urgency: 3,
-        issue_image: 'https://images.unsplash.com/photo-1542202229-7d93c33f5d07',
         lon: -79.9056,
         lat: 40.4351,
         notify_reporter: true
@@ -171,7 +169,6 @@ export const issues: Issue[] = [
         created_at: '2025-01-28T11:45:00Z',
         issue_type: 'signage',
         urgency: 2,
-        issue_image: 'https://images.unsplash.com/photo-1583407733101-dfe6bc124576',
         lon: -79.9470,
         lat: 40.4359,
         notify_reporter: false,
@@ -187,7 +184,6 @@ export const issues: Issue[] = [
         created_at: '2025-02-18T10:00:00Z',
         issue_type: 'obstruction',
         urgency: 3,
-        issue_image: 'https://images.unsplash.com/photo-1528736235302-52922df5c122',
         lon: -79.9498,
         lat: 40.4329,
         notify_reporter: true
@@ -202,7 +198,6 @@ export const issues: Issue[] = [
         created_at: '2025-02-12T08:30:00Z',
         issue_type: 'flooding',
         urgency: 5,
-        issue_image: 'https://images.unsplash.com/photo-1574200113687-a1168be12cd5',
         lon: -79.9130,
         lat: 40.4829,
         notify_reporter: true
@@ -217,7 +212,6 @@ export const issues: Issue[] = [
         created_at: '2025-01-25T13:10:00Z',
         issue_type: 'flooding',
         urgency: 2,
-        issue_image: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18',
         lon: -79.9140,
         lat: 40.4815,
         notify_reporter: false,
@@ -233,7 +227,6 @@ export const issues: Issue[] = [
         created_at: '2025-02-20T11:15:00Z',
         issue_type: 'signage',
         urgency: 3,
-        issue_image: 'https://images.unsplash.com/photo-1581638919428-b185de73277d',
         lon: -79.9030,
         lat: 40.4380,
         notify_reporter: true
@@ -248,7 +241,6 @@ export const issues: Issue[] = [
         created_at: '2025-02-16T09:45:00Z',
         issue_type: 'vegetation',
         urgency: 4,
-        issue_image: 'https://images.unsplash.com/photo-1610141160480-d64e0c63f5ea',
         lon: -79.9060,
         lat: 40.4355,
         notify_reporter: true
@@ -263,7 +255,6 @@ export const issues: Issue[] = [
         created_at: '2025-02-22T14:30:00Z',
         issue_type: 'trail_condition',
         urgency: 3,
-        issue_image: 'https://images.unsplash.com/photo-1593014432442-cf6f4e4fa861',
         lon: -79.9475,
         lat: 40.4365,
         notify_reporter: true
@@ -278,7 +269,6 @@ export const issues: Issue[] = [
         created_at: '2025-02-19T10:20:00Z',
         issue_type: 'drainage',
         urgency: 4,
-        issue_image: 'https://images.unsplash.com/photo-1602928298173-9d6b5eba5b22',
         lon: -79.9490,
         lat: 40.4335,
         notify_reporter: true
@@ -293,7 +283,6 @@ export const issues: Issue[] = [
         created_at: '2025-02-25T13:55:00Z',
         issue_type: 'infrastructure',
         urgency: 2,
-        issue_image: 'https://images.unsplash.com/photo-1581579186913-45ac24ed53d2',
         lon: -79.9135,
         lat: 40.4835,
         notify_reporter: true
@@ -308,7 +297,6 @@ export const issues: Issue[] = [
         created_at: '2025-02-23T16:10:00Z',
         issue_type: 'vegetation',
         urgency: 3,
-        issue_image: 'https://images.unsplash.com/photo-1594213124414-d83bfa22c05d',
         lon: -79.9510,
         lat: 40.4310,
         notify_reporter: true

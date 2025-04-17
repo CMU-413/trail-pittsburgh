@@ -6,10 +6,11 @@ export const validateRequest = (schema: AnyZodObject) =>
         req: express.Request, res: express.Response, next: express.NextFunction
     ) => {
         try {
-            await schema.parseAsync({
+            const resolvedReq = await schema.parseAsync({
                 body: req.body,
                 params: req.params,
             });
+            req.body = resolvedReq.body;
             next();
         } catch (error) {
             next(error);
