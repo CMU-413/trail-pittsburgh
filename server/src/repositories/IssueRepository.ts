@@ -25,7 +25,7 @@ export class IssueRepository {
                     trail_id: data.trail_id,
                     issue_type: data.issue_type,
                     urgency: data.urgency,
-                    description: data.description,
+                    description: data.description ?? "",
                     is_public: data.is_public ?? true,
                     status: data.status,
                     notify_reporter: data.notify_reporter ?? true,

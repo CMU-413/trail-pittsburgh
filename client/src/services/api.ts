@@ -1,5 +1,5 @@
 import {
-    Park, Trail, Issue, IssueParams
+    Park, Trail, Issue, IssueParams, IssueResolutionUpdate
 } from '../types';
 
 const API_BASE_URL = 'http://localhost:3000/api';
@@ -218,4 +218,26 @@ export const issueApi = {
             throw new Error(errorMessage);
         }
     },
+
+    getResolutionUpdatesByIssue: async (issueId: number): Promise<IssueResolutionUpdate[]> => {
+        const response = await fetch(`${API_BASE_URL}/issues/${issueId}/resolutions`)
+            .then(handleResponse);
+        return response.resolutions;
+    },
+
+    resolveIssue: async (issueId: number, userId: number, image?: string, notes?: string): Promise<{issue: Issue, resolution: IssueResolutionUpdate}> => {
+        const response = await fetch(`${API_BASE_URL}/issues/${issueId}/resolve`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                resolved_by: userId,
+                resolve_image: image,
+                notes: notes
+            }),
+        }).then(handleResponse);
+        
+        return response;
+    }
 };

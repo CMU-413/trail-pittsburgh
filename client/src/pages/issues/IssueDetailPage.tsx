@@ -12,8 +12,8 @@ import { Card } from '../../components/ui/Card';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { IssueStatusBadge } from '../../components/issues/IssueStatusBadge';
-import { IssueResolutionForm } from '../../components/issues/IssueResolutionForm';
-import { mockApi } from '../../services/mockData';
+// import { IssueResolutionForm } from '../../components/issues/IssueResolutionForm';
+// import { mockApi } from '../../services/mockData';
 import { format } from 'date-fns';
 import Location from '../../components/ui/Location';
 import { IssueTimer } from '../../components/issues/IssueTimer';
@@ -29,8 +29,8 @@ export const IssueDetailPage: React.FC = () => {
     const [issue, setIssue] = useState<Issue | null>(null);
     const [park, setPark] = useState<Park | null>(null);
     const [trail, setTrail] = useState<Trail | null>(null);
-    const [resolution, setResolution] = useState<IssueResolutionUpdate | null>(null);
-    const [resolvedBy, setResolvedBy] = useState<User | null>(null);
+    // const [resolution, setResolution] = useState<IssueResolutionUpdate | null>(null);
+    // const [resolvedBy, setResolvedBy] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -67,71 +67,43 @@ export const IssueDetailPage: React.FC = () => {
                 setIsLoading(false);
                 return;
             }
-
+    
             try {
                 const id = parseInt(issueId, 10);
-
-                // Fetch issue details
+    
                 const issueData = await issueApi.getIssue(id);
-
+    
                 if (!issueData) {
                     setError('Issue not found');
                     setIsLoading(false);
                     return;
                 }
-
+    
                 setIssue(issueData);
-
-                // Fetch related park
                 const parkData = await parkApi.getPark(issueData.park_id);
                 setPark(parkData || null);
-
-                // Fetch related trail
+    
                 const trailData = await trailApi.getTrail(issueData.trail_id);
                 setTrail(trailData || null);
-
-                // Fetch resolution info if resolved
-                // we still need to use mock API since this endpoint hasn't been 
-                // implemented in the real API yet
-                if (issueData.status === 'resolved') {
-                    const resolutions = await mockApi.getResolutionUpdatesByIssue(id);
-                    if (resolutions.length > 0) {
-                        const latestResolution = resolutions[resolutions.length - 1];
-                        setResolution(latestResolution);
-
-                        // Fetch user who resolved the issue
-                        const user = await mockApi.getUser(latestResolution.resolved_by);
-                        setResolvedBy(user || null);
-                    }
-                }
             } catch (err) {
-                // eslint-disable-next-line no-console
                 console.error('Error fetching issue details:', err);
                 setError('Failed to load issue details. Please try again later.');
             } finally {
                 setIsLoading(false);
             }
         };
-
+    
         fetchIssueData();
     }, [issueId]);
 
-    const handleResolveIssue = async (issueId: number, image?: string, notes?: string,) => {
+    const handleResolveIssue = async (issueId: number) => {
         try {
-            const { issue: updatedIssue, resolution: newResolution } = await mockApi.resolveIssue(
-                issueId,
-                currentUser.user_id,
-                image,
-                notes
-            );
-
+            // Simply update the status to 'resolved'
+            const updatedIssue = await issueApi.updateIssueStatus(issueId, 'resolved');
             setIssue(updatedIssue);
-            setResolution(newResolution);
-
-            const user = await mockApi.getUser(currentUser.user_id);
-            setResolvedBy(user || null);
+            
+            // No need to fetch resolution or resolved by user since we're simplifying
         } catch (err) {
-            // eslint-disable-next-line no-console
             console.error('Error resolving issue:', err);
             throw err;
         }
@@ -169,12 +141,12 @@ export const IssueDetailPage: React.FC = () => {
                     issue.status !== 'resolved' && canResolveIssue ? (
                         <Button
                             variant="success"
-                            onClick={() => document.getElementById('resolution-form')?.scrollIntoView({ behavior: 'smooth' })}
+                            onClick={() => handleResolveIssue(issue.issue_id)}
                         >
                             Resolve Issue
                         </Button>
-                    ) : null
-                }
+                        ) : null
+                    }
             />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -264,7 +236,7 @@ export const IssueDetailPage: React.FC = () => {
                         </div>
                     )}
 
-                    {resolution && (
+                    {/* {resolution && (
                         <div className="border-t border-gray-200 pt-6 mt-6">
                             <div className="flex justify-between mb-4">
                                 <h4 className="text-lg font-semibold text-gray-900">Resolution</h4>
@@ -311,6 +283,17 @@ export const IssueDetailPage: React.FC = () => {
                                     </div>
                                 </div>
                             )}
+                        </div>
+                    )} */}
+
+                    {issue.status === 'resolved' && issue.resolved_at && (
+                        <div className="border-t border-gray-200 pt-6 mt-6">
+                            <div className="flex justify-between mb-4">
+                                <h4 className="text-lg font-semibold text-gray-900">Resolution</h4>
+                                <span className="text-sm text-gray-500">
+                                    {formatDate(issue.resolved_at)}
+                                </span>
+                            </div>
                         </div>
                     )}
                 </Card>
@@ -401,12 +384,6 @@ export const IssueDetailPage: React.FC = () => {
                         </div>
                     </Card>
 
-                    {issue.status !== 'resolved' && canResolveIssue && (
-                        <IssueResolutionForm
-                            issue={issue}
-                            onResolve={handleResolveIssue}
-                        />
-                    )}
                 </div>
             </div>
         </div>
