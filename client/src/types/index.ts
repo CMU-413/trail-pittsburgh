@@ -52,8 +52,8 @@ export type Issue = {
     urgency: number; // 1-5 scale
     image?: SignedUrl;
     imageMetadata?: ImageMetadata;
-    longitude?: number;
-    latitude?: number;
+    lon?: number;
+    lat?: number;
     notify_reporter: boolean;
     reporter_email: string;
     created_at: string;

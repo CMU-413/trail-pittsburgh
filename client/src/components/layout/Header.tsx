@@ -155,14 +155,14 @@ export const Header: React.FC = () => {
                                         onClick={() => setIsProfileOpen(!isProfileOpen)}
                                     >
                                         <div className="text-right hidden md:block">
-                                            <p className="text-sm font-medium text-gray-700 truncate">{user?.name}</p>
+                                            <p className="text-sm font-medium text-gray-700 truncate">{user?.username}</p>
                                             <p className="text-xs text-gray-500 capitalize">{hasPermission ? 'Staff' : 'Public'}</p>
                                         </div>
                                         <div className="relative flex-shrink-0">
                                             <img
                                                 className="h-10 w-10 rounded-full object-cover ring-2 ring-white"
-                                                src={user?.picture || `https://placehold.co/600x400?text=${encodeURIComponent(user?.name || 'User Name')}`}
-                                                alt={user?.name || 'User profile'}
+                                                src={user?.profile_image || `https://ui-avatars.com/api/?background=random&color=fff&size=400?text=${encodeURIComponent(user?.username || 'User Name')}`}
+                                                alt={user?.username || 'User profile'}
                                             />
                                         </div>
                                     </button>
@@ -263,12 +263,12 @@ export const Header: React.FC = () => {
                                 <div className="flex-shrink-0 relative">
                                     <img
                                         className="h-10 w-10 rounded-full object-cover"
-                                        src={user?.picture || 'https://via.placeholder.com/150'}
-                                        alt={user?.name || 'User profile'}
+                                        src={user?.profile_image || `https://ui-avatars.com/api/?background=random&color=fff&size=400?text=${encodeURIComponent(user?.username || 'User Name')}`}
+                                        alt={user?.username || 'User profile'}
                                     />
                                 </div>
                                 <div className="ml-3">
-                                    <div className="text-base font-medium text-gray-800">{user?.name}</div>
+                                    <div className="text-base font-medium text-gray-800">{user?.username}</div>
                                     <div className="text-sm font-medium text-gray-500 capitalize">{hasPermission ? 'Staff' : 'Public'}</div>
                                 </div>
                             </div>

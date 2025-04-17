@@ -41,7 +41,7 @@ export const DashboardPage: React.FC = () => {
                 // Fetch parks and trails for display
                 const parksData = await parkApi.getParks();
                 const parksMap: Record<number, Park> = {};
-                parksData.forEach((park) => {
+                parksData.data.forEach((park: Park) => {
                     parksMap[park.park_id] = park;
                 });
                 setParks(parksMap);

@@ -1,16 +1,15 @@
 // src/App.tsx
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
-    Routes, Route, useLocation, useNavigate 
+    Routes, Route
 } from 'react-router-dom';
-import { CredentialResponse, GoogleOAuthProvider } from '@react-oauth/google';
+
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Layout } from './components/layout/Layout';
-import { AuthProvider, useAuth } from './providers/AuthProvider';
+import { AuthProvider } from './providers/AuthProvider';
 import { ProtectedRoute, PublicRoute } from './components/auth/ProtectedRoute';
-import { jwtDecode } from 'jwt-decode';
 
 // Auth pages
-// import { LoginPage } from './pages/auth/LoginPage';
 import { UnauthorizedPage } from './pages/auth/UnauthorizedPage';
 import { ProfilePage } from './pages/auth/ProfilePage';
 import { SettingsPage } from './pages/auth/SettingsPage';
@@ -32,39 +31,12 @@ import {
 } from './pages';
 
 const AppContent: React.FC = () => {
-    const location = useLocation();
-    const navigate = useNavigate();
-    const { login } = useAuth();
-
-    useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const token = params.get('token');
-        
-        if (token) {
-            // Store token
-            localStorage.setItem('auth_token', token);
-            
-            // Remove token from URL
-            const cleanUrl = location.pathname;
-            navigate(cleanUrl, { replace: true });
-            
-            // Update auth context
-            const userData = jwtDecode<{
-                email: string;
-                name: string;
-                picture: string;
-            }>(token) as CredentialResponse;
-            login(userData);
-        }
-    }, [location, navigate, login]);
-
     return (
         <Routes>
             <Route path="/" element={<Layout />}>
                 {/* Public Routes - accessible to everyone */}
                 <Route element={<PublicRoute />}>
                     <Route index element={<HomePage />} />
-                    {/* <Route path="login" element={<LoginPage />} /> */}
                     <Route path="unauthorized" element={<UnauthorizedPage />} />
                     <Route path="issues/report" element={<IssueReportPage />} />
                 </Route>
@@ -115,7 +87,6 @@ const AppContent: React.FC = () => {
 };
 
 export const App: React.FC = () => {
-    // Get Google Client ID from environment variables
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
     return (

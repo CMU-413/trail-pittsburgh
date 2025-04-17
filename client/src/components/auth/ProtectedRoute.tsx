@@ -13,11 +13,11 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     requirePermission = true
 }) => {
-    const { isAuthenticated, hasPermission, isLoading } = useAuth();
+    const { isAuthenticated, hasPermission, loading } = useAuth();
     const location = useLocation();
 
     // Show loading spinner while authentication state is being determined
-    if (isLoading) {
+    if (loading) {
         return <LoadingSpinner message="Checking authentication..." />;
     }
 

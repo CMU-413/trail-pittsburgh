@@ -1,133 +1,8 @@
 import { 
-    Park, 
-    Trail, 
     Issue, 
-    User, 
     StewardParkAssignment,
     IssueResolutionUpdate
 } from '../types';
-
-// Mock Users
-export const users: User[] = [
-    {
-        user_id: 1,
-        name: 'John Smith',
-        is_hubspot_user: true,
-        picture: 'https://randomuser.me/api/portraits/men/1.jpg',
-        email: 'john.smith@example.com',
-        created_at: '2024-01-15T08:30:00Z',
-        is_active: true,
-        role: 'steward'
-    },
-    {
-        user_id: 2,
-        name: 'Jane Doe',
-        is_hubspot_user: true,
-        picture: 'https://randomuser.me/api/portraits/women/2.jpg',
-        email: 'jane.doe@example.com',
-        created_at: '2024-01-20T10:15:00Z',
-        is_active: true,
-        role: 'owner'
-    },
-    {
-        user_id: 3,
-        name: 'Mike Johnson',
-        is_hubspot_user: false,
-        picture: 'https://randomuser.me/api/portraits/men/3.jpg',
-        email: 'mike.johnson@example.com',
-        created_at: '2024-02-05T14:45:00Z',
-        is_active: true,
-        role: 'volunteer'
-    },
-    {
-        user_id: 4,
-        name: 'Sarah Williams',
-        is_hubspot_user: false,
-        picture: 'https://randomuser.me/api/portraits/women/4.jpg',
-        email: 'sarah.williams@example.com',
-        created_at: '2024-02-10T11:20:00Z',
-        is_active: true,
-        role: 'steward'
-    }
-];
-
-// Mock Parks
-export const parks: Park[] = [
-    {
-        park_id: 1,
-        owner_id: 2,
-        name: 'Frick Park',
-        county: 'Allegheny',
-        is_active: true
-    },
-    {
-        park_id: 2,
-        owner_id: 2,
-        name: 'Schenley Park',
-        county: 'Allegheny',
-        is_active: true
-    },
-    {
-        park_id: 3,
-        owner_id: 2,
-        name: 'Highland Park',
-        county: 'Allegheny',
-        is_active: true
-    },
-    {
-        park_id: 4,
-        owner_id: 2,
-        name: 'Riverview Park',
-        county: 'Allegheny',
-        is_active: false
-    }
-];
-
-// Mock Trails
-export const trails: Trail[] = [
-    {
-        trail_id: 1,
-        park_id: 1,
-        name: 'Frick Park Loop',
-        is_active: true,
-        is_open: true
-    },
-    {
-        trail_id: 2,
-        park_id: 1,
-        name: 'Nine Mile Run Trail',
-        is_active: true,
-        is_open: true
-    },
-    {
-        trail_id: 3,
-        park_id: 2,
-        name: 'Schenley Park Loop',
-        is_active: true,
-        is_open: true
-    },
-    {
-        trail_id: 4,
-        park_id: 2,
-        name: 'Panther Hollow Trail',
-        is_active: true,
-        is_open: false
-    },
-    {
-        trail_id: 5,
-        park_id: 3,
-        name: 'Highland Park Reservoir Loop',
-        is_active: true,
-        is_open: true
-    },
-    {
-        trail_id: 6,
-        park_id: 4,
-        name: 'Riverview Park Loop',
-        is_active: true,
-        is_open: true
-    }
-];
 
 // Mock Issues
 export const issues: Issue[] = [
@@ -138,12 +13,13 @@ export const issues: Issue[] = [
         is_public: true,
         status: 'open',
         description: 'Large tree down blocking the main trail',
-        created_at: '2025-02-15T09:30:00Z',
         issue_type: 'obstruction',
         urgency: 4,
         lon: -79.9022,
         lat: 40.4374,
-        notify_reporter: true
+        notify_reporter: true,
+        reporter_email: 'john.smith@example.com',
+        created_at: '2025-02-15T09:30:00Z',
     },
     {
         issue_id: 2,
@@ -157,7 +33,8 @@ export const issues: Issue[] = [
         urgency: 3,
         lon: -79.9056,
         lat: 40.4351,
-        notify_reporter: true
+        notify_reporter: true,
+        reporter_email: 'jane.doe@example.com'
     },
     {
         issue_id: 3,
@@ -172,6 +49,7 @@ export const issues: Issue[] = [
         lon: -79.9470,
         lat: 40.4359,
         notify_reporter: false,
+        reporter_email: 'bob.johnson@example.com',
         resolved_at: '2025-02-05T15:20:00Z'
     },
     {
@@ -186,7 +64,8 @@ export const issues: Issue[] = [
         urgency: 3,
         lon: -79.9498,
         lat: 40.4329,
-        notify_reporter: true
+        notify_reporter: true,
+        reporter_email: 'alice.wilson@example.com'
     },
     {
         issue_id: 5,
@@ -200,7 +79,8 @@ export const issues: Issue[] = [
         urgency: 5,
         lon: -79.9130,
         lat: 40.4829,
-        notify_reporter: true
+        notify_reporter: true,
+        reporter_email: 'charlie.brown@example.com'
     },
     {
         issue_id: 6,
@@ -215,6 +95,7 @@ export const issues: Issue[] = [
         lon: -79.9140,
         lat: 40.4815,
         notify_reporter: false,
+        reporter_email: 'david.miller@example.com',
         resolved_at: '2025-01-27T09:45:00Z'
     },
     {
@@ -229,7 +110,8 @@ export const issues: Issue[] = [
         urgency: 3,
         lon: -79.9030,
         lat: 40.4380,
-        notify_reporter: true
+        notify_reporter: true,
+        reporter_email: 'emma.davis@example.com'
     },
     {
         issue_id: 8,
@@ -243,7 +125,8 @@ export const issues: Issue[] = [
         urgency: 4,
         lon: -79.9060,
         lat: 40.4355,
-        notify_reporter: true
+        notify_reporter: true,
+        reporter_email: 'frank.wilson@example.com'
     },
     {
         issue_id: 9,
@@ -257,7 +140,8 @@ export const issues: Issue[] = [
         urgency: 3,
         lon: -79.9475,
         lat: 40.4365,
-        notify_reporter: true
+        notify_reporter: true,
+        reporter_email: 'grace.lee@example.com'
     },
     {
         issue_id: 10,
@@ -271,7 +155,8 @@ export const issues: Issue[] = [
         urgency: 4,
         lon: -79.9490,
         lat: 40.4335,
-        notify_reporter: true
+        notify_reporter: true,
+        reporter_email: 'henry.moore@example.com'
     },
     {
         issue_id: 11,
@@ -285,7 +170,8 @@ export const issues: Issue[] = [
         urgency: 2,
         lon: -79.9135,
         lat: 40.4835,
-        notify_reporter: true
+        notify_reporter: true,
+        reporter_email: 'isabel.taylor@example.com'
     },
     {
         issue_id: 12,
@@ -299,7 +185,8 @@ export const issues: Issue[] = [
         urgency: 3,
         lon: -79.9510,
         lat: 40.4310,
-        notify_reporter: true
+        notify_reporter: true,
+        reporter_email: 'jack.anderson@example.com'
     }
 ];
 
@@ -348,42 +235,6 @@ export const issueResolutions: IssueResolutionUpdate[] = [
 
 // Mock API services
 export const mockApi = {
-    // Parks
-    getParks: () => Promise.resolve([...parks]),
-    getPark: (id: number) => Promise.resolve(parks.find((park) => park.park_id === id)),
-    createPark: (park: Omit<Park, 'park_id'>) => {
-        const newPark = { ...park, park_id: parks.length + 1 };
-        parks.push(newPark);
-        return Promise.resolve(newPark);
-    },
-    updatePark: (park: Park) => {
-        const index = parks.findIndex((p) => p.park_id === park.park_id);
-        if (index !== -1) {
-            parks[index] = park;
-            return Promise.resolve(park);
-        }
-        return Promise.reject(new Error('Park not found'));
-    },
-    
-    // Trails
-    getTrails: () => Promise.resolve([...trails]),
-    getTrailsByPark: (parkId: number) => 
-        Promise.resolve(trails.filter((trail) => trail.park_id === parkId)),
-    getTrail: (id: number) => Promise.resolve(trails.find((trail) => trail.trail_id === id)),
-    createTrail: (trail: Omit<Trail, 'trail_id'>) => {
-        const newTrail = { ...trail, trail_id: trails.length + 1 };
-        trails.push(newTrail);
-        return Promise.resolve(newTrail);
-    },
-    updateTrail: (trail: Trail) => {
-        const index = trails.findIndex((t) => t.trail_id === trail.trail_id);
-        if (index !== -1) {
-            trails[index] = trail;
-            return Promise.resolve(trail);
-        }
-        return Promise.reject(new Error('Trail not found'));
-    },
-    
     // Issues
     getIssues: () => Promise.resolve([...issues]),
     getIssuesByPark: (parkId: number) => 
@@ -431,10 +282,16 @@ export const mockApi = {
     },
     
     // Users
-    getUsers: () => Promise.resolve([...users]),
-    getUsersByRole: (role: string) => 
-        Promise.resolve(users.filter((user) => user.role === role)),
-    getUser: (id: number) => Promise.resolve(users.find((user) => user.user_id === id)),
+    getUser: (id: number) => Promise.resolve({
+        user_id: id,
+        username: `user${id}`,
+        email: `user${id}@example.com`,
+        profile_image: `https://example.com/avatar${id}.jpg`,
+        is_admin: false,
+        permission: 'steward',
+        is_active: true,
+        created_at: new Date().toISOString()
+    }),
     
     // Steward Assignments
     getStewardAssignments: () => Promise.resolve([...stewardAssignments]),
