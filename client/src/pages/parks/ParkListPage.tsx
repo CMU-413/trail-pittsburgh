@@ -18,7 +18,7 @@ export const ParkListPage: React.FC = () => {
         const fetchParks = async () => {
             try {
                 const response = await parkApi.getParks();
-                setParks(response.data);
+                setParks(response);
             } catch (err) {
                 // eslint-disable-next-line no-console
                 console.error('Error fetching parks:', err);
@@ -51,7 +51,7 @@ export const ParkListPage: React.FC = () => {
             </div>
         );
     }
-    
+    console.log(parks);
     if (parks.length === 0) {
         return (
             <div>

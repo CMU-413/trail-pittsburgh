@@ -103,7 +103,7 @@ export const IssueListPage: React.FC = () => {
                 // Fetch parks for lookup and filtering
                 const parksData = await parkApi.getParks();
                 const parksMap: Record<number, Park> = {};
-                parksData.data.forEach((park: Park) => {
+                parksData.forEach((park: Park) => {
                     parksMap[park.park_id] = park;
                 });
                 setParks(parksMap);

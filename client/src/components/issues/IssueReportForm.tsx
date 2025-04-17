@@ -64,8 +64,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     useEffect(() => {
         const fetchParks = async () => {
             try {
-                const { data: parksData } = await parkApi.getParks();
-                console.log(parksData);
+                const parksData = await parkApi.getParks();
                 setParks(parksData.filter((park) => park.is_active));
 
                 console.log(formData.park_id);
