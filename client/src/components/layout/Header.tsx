@@ -169,8 +169,8 @@ export const Header: React.FC = () => {
                                 </div>
                             ) : (
                                 <button
-                                onClick={auth}
-                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD4602] hover:bg-[#a33e02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD4602]"
+                                    onClick={auth}
+                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD4602] hover:bg-[#a33e02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD4602]"
                                 >
                                     Sign in
                                 </button>
@@ -297,8 +297,8 @@ export const Header: React.FC = () => {
                         </div>
                     ) : (
                         <button
-                        onClick={auth}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD4602] hover:bg-[#a33e02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD4602]"
+                            onClick={auth}
+                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD4602] hover:bg-[#a33e02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD4602]"
                         >
                             Sign in
                         </button>

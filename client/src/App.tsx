@@ -1,12 +1,13 @@
 // src/App.tsx
 import React, { useEffect } from 'react';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import {
+    Routes, Route, useLocation, useNavigate 
+} from 'react-router-dom';
 import { CredentialResponse, GoogleOAuthProvider } from '@react-oauth/google';
 import { Layout } from './components/layout/Layout';
-import { AuthProvider } from './providers/AuthProvider';
+import { AuthProvider, useAuth } from './providers/AuthProvider';
 import { ProtectedRoute, PublicRoute } from './components/auth/ProtectedRoute';
 import { jwtDecode } from 'jwt-decode';
-import { useAuth } from './providers/AuthProvider';
 
 // Auth pages
 // import { LoginPage } from './pages/auth/LoginPage';
