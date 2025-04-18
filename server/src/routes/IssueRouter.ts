@@ -1,4 +1,3 @@
-// src/routes/issue.routes.ts
 import express from 'express';
 
 import { IssueController } from '@/controllers/';

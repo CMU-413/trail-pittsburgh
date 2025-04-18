@@ -11,19 +11,21 @@ export interface AuthRequest extends Request {
 }
 
 // Middleware to verify JWT from HTTP-only cookie
-export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction): void => {
-    const token = req.cookies?.token;
-
+export function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) {
+    const token = req.cookies.token;
+  
     if (!token) {
-        res.status(401).json({ error: 'Access token required' });
-        return;
+        req.user = null;
+        return next();
     }
-
+  
     try {
-        const user = jwt.verify(token, process.env.JWT_SECRET!);
-        req.user = user;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+        // eslint-disable-next-line
+        req.user = decoded as any;
         next();
-    } catch (error) {
-        res.status(403).json({ error: 'Invalid or expired token' });
+    } catch (err) {
+        req.user = null;
+        next();
     }
-};
+}
