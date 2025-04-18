@@ -1,24 +1,17 @@
-// src/services/AuthService.ts
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 
 import { UserService } from './UserService';
 
-import { UserRepository } from '@/repositories';
 import { getGoogleUserData } from '@/utils/googleAuth';
 
 export class AuthService {
     private oAuth2Client: OAuth2Client;
     private userService: UserService;
 
-    constructor() {
-        this.oAuth2Client = new OAuth2Client(
-            process.env.GOOGLE_CLIENT_ID,
-            process.env.GOOGLE_CLIENT_SECRET,
-            `${process.env.SERVER_URL}/api/auth/google/callback`
-        );
-
-        this.userService = new UserService(new UserRepository());
+    constructor(userService: UserService, oAuth2Client: OAuth2Client) {
+        this.oAuth2Client = oAuth2Client;
+        this.userService = userService;
     }
 
     generateAuthUrl(redirectPath: string = '/') {
