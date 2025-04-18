@@ -10,7 +10,7 @@ import { UserService } from '@/services/UserService';
 
 const router = express.Router();
 
-const redirectUrl = 'http://localhost:3000/api/auth/google/callback';
+const redirectUrl = process.env.SERVER_URL + '/api/auth/google/callback';
 
 const oAuth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
