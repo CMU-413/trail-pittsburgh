@@ -21,7 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch(import.meta.env.VITE_API_URL + '/api/auth/me', {
+        fetch(`${import.meta.env.VITE_API_URL  }/api/auth/me`, {
             credentials: 'include'
         })
             .then((res) => res.ok ? res.json() : null)
@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const login = async () => {
-        const res = await fetch(import.meta.env.VITE_API_URL + '/api/auth', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL  }/api/auth`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const logout = async () => {
-        await fetch(import.meta.env.VITE_API_URL + '/api/auth/logout', {
+        await fetch(`${import.meta.env.VITE_API_URL  }/api/auth/logout`, {
             method: 'POST',
             credentials: 'include'
         });
