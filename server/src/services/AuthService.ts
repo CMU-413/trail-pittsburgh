@@ -1,9 +1,11 @@
 // src/services/AuthService.ts
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
-import { getGoogleUserData } from '@/utils/googleAuth';
+
 import { UserService } from './UserService';
+
 import { UserRepository } from '@/repositories';
+import { getGoogleUserData } from '@/utils/googleAuth';
 
 export class AuthService {
     private oAuth2Client: OAuth2Client;

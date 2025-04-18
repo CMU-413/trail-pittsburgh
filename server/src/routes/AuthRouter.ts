@@ -2,12 +2,11 @@
 import express from 'express';
 
 import {
-  startGoogleOAuth,
-  handleGoogleCallback,
-  logout,
-  getCurrentUser
+    startGoogleOAuth,
+    handleGoogleCallback,
+    logout,
+    getCurrentUser
 } from '@/controllers/AuthController';
-
 import { errorHandlerWrapper } from '@/middlewares';
 import { authenticateToken } from '@/middlewares/auth';
 import { validateRequest } from '@/middlewares/validateRequest';
@@ -17,9 +16,9 @@ const router = express.Router();
 
 // Step 1: Begin Google OAuth
 router.post(
-  '/',
-  validateRequest(startOAuthSchema),
-  errorHandlerWrapper(startGoogleOAuth)
+    '/',
+    validateRequest(startOAuthSchema),
+    errorHandlerWrapper(startGoogleOAuth)
 );
 
 // Step 2: Handle Google OAuth callback

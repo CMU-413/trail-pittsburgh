@@ -1,5 +1,6 @@
 // src/controllers/AuthController.ts
 import { Request, Response } from 'express';
+
 import { AuthService } from '@/services/AuthService';
 
 const authService = new AuthService();
@@ -14,6 +15,7 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
     const { code, state } = req.query;
 
     try {
+        // eslint-disable-next-line
         const { token, user } = await authService.handleGoogleCallback(code as string);
 
         res.cookie('token', token, {
@@ -41,7 +43,13 @@ export const logout = (req: Request, res: Response) => {
 };
 
 export const getCurrentUser = (req: Request, res: Response) => {
+    // eslint-disable-next-line
     const user = (req as any).user;
+  
+    if (!user) {
+        return res.status(200).json({ user: null });
+    }
+  
     res.status(200).json({
         user: {
             id: user.id,

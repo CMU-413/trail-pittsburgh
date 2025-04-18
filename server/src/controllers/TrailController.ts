@@ -97,7 +97,7 @@ export class TrailController {
             const parkId = Number(req.params.parkId);
             const trails = await this.trailService.getTrailsByPark(parkId);
 
-            return res.json({ trails});
+            return res.json({ trails });
         } catch (error) {
             // Type checking for the error
             let errorMessage = 'Server error fetching trails';
