@@ -22,7 +22,7 @@ app.use(securityHeaders);
 
 // CORS configuration
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: 'https://trail-pgh-issue-tracker.web.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -42,9 +42,9 @@ app.use(express.json());
 app.use('/api/auth', authenticationRouter);
 
 // Protected routes
-app.use('/api/issues', authenticateToken, issueRouter);
-app.use('/api/parks', authenticateToken, parkRouter);
-app.use('/api/trails', authenticateToken, trailRouter);
+app.use('/api/issues', issueRouter);
+app.use('/api/parks', parkRouter);
+app.use('/api/trails', trailRouter);
 
 // Health check
 app.get('/healthz', (req: express.Request, res: express.Response) => {
