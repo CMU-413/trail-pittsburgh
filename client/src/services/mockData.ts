@@ -7,186 +7,186 @@ import {
 // Mock Issues
 export const issues: Issue[] = [
     {
-        issue_id: 1,
-        park_id: 1,
-        trail_id: 1,
-        is_public: true,
+        issueId: 1,
+        parkId: 1,
+        trailId: 1,
+        isPublic: true,
         status: 'open',
         description: 'Large tree down blocking the main trail',
-        issue_type: 'obstruction',
+        issueType: 'obstruction',
         urgency: 4,
         lon: -79.9022,
         lat: 40.4374,
-        notify_reporter: true,
-        reporter_email: 'john.smith@example.com',
-        created_at: '2025-02-15T09:30:00Z',
+        notifyReporter: true,
+        reporterEmail: 'john.smith@example.com',
+        createdAt: '2025-02-15T09:30:00Z',
     },
     {
-        issue_id: 2,
-        park_id: 1,
-        trail_id: 2,
-        is_public: true,
+        issueId: 2,
+        parkId: 1,
+        trailId: 2,
+        isPublic: true,
         status: 'in_progress',
         description: 'Trail erosion after recent rainfall',
-        created_at: '2025-02-10T14:15:00Z',
-        issue_type: 'erosion',
+        createdAt: '2025-02-10T14:15:00Z',
+        issueType: 'erosion',
         urgency: 3,
         lon: -79.9056,
         lat: 40.4351,
-        notify_reporter: true,
-        reporter_email: 'jane.doe@example.com'
+        notifyReporter: true,
+        reporterEmail: 'jane.doe@example.com'
     },
     {
-        issue_id: 3,
-        park_id: 2,
-        trail_id: 3,
-        is_public: true,
+        issueId: 3,
+        parkId: 2,
+        trailId: 3,
+        isPublic: true,
         status: 'resolved',
         description: 'Damaged signage at trail intersection',
-        created_at: '2025-01-28T11:45:00Z',
-        issue_type: 'signage',
+        createdAt: '2025-01-28T11:45:00Z',
+        issueType: 'signage',
         urgency: 2,
         lon: -79.9470,
         lat: 40.4359,
-        notify_reporter: false,
-        reporter_email: 'bob.johnson@example.com',
-        resolved_at: '2025-02-05T15:20:00Z'
+        notifyReporter: false,
+        reporterEmail: 'bob.johnson@example.com',
+        resolvedAt: '2025-02-05T15:20:00Z'
     },
     {
-        issue_id: 4,
-        park_id: 2,
-        trail_id: 4,
-        is_public: false,
+        issueId: 4,
+        parkId: 2,
+        trailId: 4,
+        isPublic: false,
         status: 'open',
         description: 'Several branches down after storm',
-        created_at: '2025-02-18T10:00:00Z',
-        issue_type: 'obstruction',
+        createdAt: '2025-02-18T10:00:00Z',
+        issueType: 'obstruction',
         urgency: 3,
         lon: -79.9498,
         lat: 40.4329,
-        notify_reporter: true,
-        reporter_email: 'alice.wilson@example.com'
+        notifyReporter: true,
+        reporterEmail: 'alice.wilson@example.com'
     },
     {
-        issue_id: 5,
-        park_id: 3,
-        trail_id: 5,
-        is_public: true,
+        issueId: 5,
+        parkId: 3,
+        trailId: 5,
+        isPublic: true,
         status: 'in_progress',
         description: 'Flooding near the reservoir',
-        created_at: '2025-02-12T08:30:00Z',
-        issue_type: 'flooding',
+        createdAt: '2025-02-12T08:30:00Z',
+        issueType: 'flooding',
         urgency: 5,
         lon: -79.9130,
         lat: 40.4829,
-        notify_reporter: true,
-        reporter_email: 'charlie.brown@example.com'
+        notifyReporter: true,
+        reporterEmail: 'charlie.brown@example.com'
     },
     {
-        issue_id: 6,
-        park_id: 3,
-        trail_id: 5,
-        is_public: true,
+        issueId: 6,
+        parkId: 3,
+        trailId: 5,
+        isPublic: true,
         status: 'resolved',
         description: 'Flooding near the reservoir',
-        created_at: '2025-01-25T13:10:00Z',
-        issue_type: 'flooding',
+        createdAt: '2025-01-25T13:10:00Z',
+        issueType: 'flooding',
         urgency: 2,
         lon: -79.9140,
         lat: 40.4815,
-        notify_reporter: false,
-        reporter_email: 'david.miller@example.com',
-        resolved_at: '2025-01-27T09:45:00Z'
+        notifyReporter: false,
+        reporterEmail: 'david.miller@example.com',
+        resolvedAt: '2025-01-27T09:45:00Z'
     },
     {
-        issue_id: 7,
-        park_id: 1,
-        trail_id: 1,
-        is_public: true,
+        issueId: 7,
+        parkId: 1,
+        trailId: 1,
+        isPublic: true,
         status: 'open',
         description: 'Damaged trail markers causing navigation confusion',
-        created_at: '2025-02-20T11:15:00Z',
-        issue_type: 'signage',
+        createdAt: '2025-02-20T11:15:00Z',
+        issueType: 'signage',
         urgency: 3,
         lon: -79.9030,
         lat: 40.4380,
-        notify_reporter: true,
-        reporter_email: 'emma.davis@example.com'
+        notifyReporter: true,
+        reporterEmail: 'emma.davis@example.com'
     },
     {
-        issue_id: 8,
-        park_id: 1,
-        trail_id: 2,
-        is_public: true,
+        issueId: 8,
+        parkId: 1,
+        trailId: 2,
+        isPublic: true,
         status: 'in_progress',
         description: 'Invasive plant species spreading along trail edges',
-        created_at: '2025-02-16T09:45:00Z',
-        issue_type: 'vegetation',
+        createdAt: '2025-02-16T09:45:00Z',
+        issueType: 'vegetation',
         urgency: 4,
         lon: -79.9060,
         lat: 40.4355,
-        notify_reporter: true,
-        reporter_email: 'frank.wilson@example.com'
+        notifyReporter: true,
+        reporterEmail: 'frank.wilson@example.com'
     },
     {
-        issue_id: 9,
-        park_id: 2,
-        trail_id: 3,
-        is_public: true,
+        issueId: 9,
+        parkId: 2,
+        trailId: 3,
+        isPublic: true,
         status: 'open',
         description: 'Loose gravel making trail surface unstable',
-        created_at: '2025-02-22T14:30:00Z',
-        issue_type: 'trail_condition',
+        createdAt: '2025-02-22T14:30:00Z',
+        issueType: 'trail_condition',
         urgency: 3,
         lon: -79.9475,
         lat: 40.4365,
-        notify_reporter: true,
-        reporter_email: 'grace.lee@example.com'
+        notifyReporter: true,
+        reporterEmail: 'grace.lee@example.com'
     },
     {
-        issue_id: 10,
-        park_id: 2,
-        trail_id: 4,
-        is_public: false,
+        issueId: 10,
+        parkId: 2,
+        trailId: 4,
+        isPublic: false,
         status: 'in_progress',
         description: 'Water drainage problem causing muddy sections',
-        created_at: '2025-02-19T10:20:00Z',
-        issue_type: 'drainage',
+        createdAt: '2025-02-19T10:20:00Z',
+        issueType: 'drainage',
         urgency: 4,
         lon: -79.9490,
         lat: 40.4335,
-        notify_reporter: true,
-        reporter_email: 'henry.moore@example.com'
+        notifyReporter: true,
+        reporterEmail: 'henry.moore@example.com'
     },
     {
-        issue_id: 11,
-        park_id: 3,
-        trail_id: 5,
-        is_public: true,
+        issueId: 11,
+        parkId: 3,
+        trailId: 5,
+        isPublic: true,
         status: 'open',
         description: 'Broken bench along the trail',
-        created_at: '2025-02-25T13:55:00Z',
-        issue_type: 'infrastructure',
+        createdAt: '2025-02-25T13:55:00Z',
+        issueType: 'infrastructure',
         urgency: 2,
         lon: -79.9135,
         lat: 40.4835,
-        notify_reporter: true,
-        reporter_email: 'isabel.taylor@example.com'
+        notifyReporter: true,
+        reporterEmail: 'isabel.taylor@example.com'
     },
     {
-        issue_id: 12,
-        park_id: 4,
-        trail_id: 6,
-        is_public: true,
+        issueId: 12,
+        parkId: 4,
+        trailId: 6,
+        isPublic: true,
         status: 'open',
         description: 'Overgrown vegetation blocking trail visibility',
-        created_at: '2025-02-23T16:10:00Z',
-        issue_type: 'vegetation',
+        createdAt: '2025-02-23T16:10:00Z',
+        issueType: 'vegetation',
         urgency: 3,
         lon: -79.9510,
         lat: 40.4310,
-        notify_reporter: true,
-        reporter_email: 'jack.anderson@example.com'
+        notifyReporter: true,
+        reporterEmail: 'jack.anderson@example.com'
     }
 ];
 
@@ -194,24 +194,24 @@ export const issues: Issue[] = [
 export const stewardAssignments: StewardParkAssignment[] = [
     {
         assignment_id: 1,
-        user_id: 1, // John Smith
-        park_id: 1, // Frick Park
+        userId: 1, // John Smith
+        parkId: 1, // Frick Park
         assigned_date: '2024-01-15T08:30:00Z',
-        is_active: true
+        isActive: true
     },
     {
         assignment_id: 2,
-        user_id: 4, // Sarah Williams
-        park_id: 2, // Schenley Park
+        userId: 4, // Sarah Williams
+        parkId: 2, // Schenley Park
         assigned_date: '2024-02-10T11:20:00Z',
-        is_active: true
+        isActive: true
     },
     {
         assignment_id: 3,
-        user_id: 1, // John Smith
-        park_id: 3, // Highland Park
+        userId: 1, // John Smith
+        parkId: 3, // Highland Park
         assigned_date: '2024-01-20T14:45:00Z',
-        is_active: true
+        isActive: true
     }
 ];
 
@@ -219,16 +219,16 @@ export const stewardAssignments: StewardParkAssignment[] = [
 export const issueResolutions: IssueResolutionUpdate[] = [
     {
         res_id: 1,
-        issue_id: 3,
+        issueId: 3,
         resolve_image: 'https://images.unsplash.com/photo-1581622558663-b789e2a2574d',
-        resolved_at: '2025-02-05T15:20:00Z',
+        resolvedAt: '2025-02-05T15:20:00Z',
         resolved_by: 4 // Sarah Williams
     },
     {
         res_id: 2,
-        issue_id: 6,
+        issueId: 6,
         resolve_image: 'https://images.unsplash.com/photo-1532509774891-141d37f25ae9',
-        resolved_at: '2025-01-27T09:45:00Z',
+        resolvedAt: '2025-01-27T09:45:00Z',
         resolved_by: 1 // John Smith
     }
 ];
@@ -238,17 +238,17 @@ export const mockApi = {
     // Issues
     getIssues: () => Promise.resolve([...issues]),
     getIssuesByPark: (parkId: number) => 
-        Promise.resolve(issues.filter((issue) => issue.park_id === parkId)),
+        Promise.resolve(issues.filter((issue) => issue.parkId === parkId)),
     getIssuesByTrail: (trailId: number) => 
-        Promise.resolve(issues.filter((issue) => issue.trail_id === trailId)),
-    getIssue: (id: number) => Promise.resolve(issues.find((issue) => issue.issue_id === id)),
-    createIssue: (issue: Omit<Issue, 'issue_id'>) => {
-        const newIssue = { ...issue, issue_id: issues.length + 1 };
+        Promise.resolve(issues.filter((issue) => issue.trailId === trailId)),
+    getIssue: (id: number) => Promise.resolve(issues.find((issue) => issue.issueId === id)),
+    createIssue: (issue: Omit<Issue, 'issueId'>) => {
+        const newIssue = { ...issue, issueId: issues.length + 1 };
         issues.push(newIssue);
         return Promise.resolve(newIssue);
     },
     updateIssue: (issue: Issue) => {
-        const index = issues.findIndex((i) => i.issue_id === issue.issue_id);
+        const index = issues.findIndex((i) => i.issueId === issue.issueId);
         if (index !== -1) {
             issues[index] = issue;
             return Promise.resolve(issue);
@@ -256,7 +256,7 @@ export const mockApi = {
         return Promise.reject(new Error('Issue not found'));
     },
     resolveIssue: (issueId: number, userId: number, resolveImage?: string, resolvenotes?: string) => {
-        const issue = issues.find((i) => i.issue_id === issueId);
+        const issue = issues.find((i) => i.issueId === issueId);
         if (!issue) {
             return Promise.reject(new Error('Issue not found'));
         }
@@ -265,15 +265,15 @@ export const mockApi = {
         
         // Update the issue
         issue.status = 'resolved';
-        issue.resolved_at = resolvedAt;
+        issue.resolvedAt = resolvedAt;
         
         // Create a resolution record
         const resolution: IssueResolutionUpdate = {
             res_id: issueResolutions.length + 1,
-            issue_id: issueId,
+            issueId: issueId,
             resolve_image: resolveImage,
             resolve_notes: resolvenotes,
-            resolved_at: resolvedAt,
+            resolvedAt: resolvedAt,
             resolved_by: userId
         };
         
@@ -283,25 +283,25 @@ export const mockApi = {
     
     // Users
     getUser: (id: number) => Promise.resolve({
-        user_id: id,
+        userId: id,
         username: `user${id}`,
         email: `user${id}@example.com`,
-        profile_image: `https://example.com/avatar${id}.jpg`,
-        is_admin: false,
+        profileImage: `https://example.com/avatar${id}.jpg`,
+        isAdmin: false,
         permission: 'steward',
-        is_active: true,
-        created_at: new Date().toISOString()
+        isActive: true,
+        createdAt: new Date().toISOString()
     }),
     
     // Steward Assignments
     getStewardAssignments: () => Promise.resolve([...stewardAssignments]),
     getStewardAssignmentsByPark: (parkId: number) => 
-        Promise.resolve(stewardAssignments.filter((a) => a.park_id === parkId)),
+        Promise.resolve(stewardAssignments.filter((a) => a.parkId === parkId)),
     getStewardAssignmentsBySteward: (userId: number) => 
-        Promise.resolve(stewardAssignments.filter((a) => a.user_id === userId)),
+        Promise.resolve(stewardAssignments.filter((a) => a.userId === userId)),
     
     // Resolution Updates
     getResolutionUpdates: () => Promise.resolve([...issueResolutions]),
     getResolutionUpdatesByIssue: (issueId: number) => 
-        Promise.resolve(issueResolutions.filter((r) => r.issue_id === issueId))
+        Promise.resolve(issueResolutions.filter((r) => r.issueId === issueId))
 };

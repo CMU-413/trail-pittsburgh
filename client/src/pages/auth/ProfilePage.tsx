@@ -32,7 +32,7 @@ export const ProfilePage: React.FC = () => {
                         <div className="flex flex-col items-center py-6">
                             <div className="relative mb-4">
                                 <img
-                                    src={user.profile_image}
+                                    src={user.profileImage}
                                     alt={user.username}
                                     className="h-32 w-32 rounded-full object-cover border-4 border-white shadow-md"
                                 />

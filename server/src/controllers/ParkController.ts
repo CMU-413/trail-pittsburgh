@@ -34,7 +34,7 @@ export class ParkController {
 
     public async createPark(req: express.Request, res: express.Response) {
         console.log('Create park request received:', req.body);
-        const { name, county, owner_id, is_active } = req.body;
+        const { name, county, ownerId, isActive } = req.body;
 
         // Validate required fields
         if (!name || !county) {
@@ -45,8 +45,8 @@ export class ParkController {
         const parkData = {
             name,
             county,
-            owner_id: owner_id || null,
-            is_active: is_active !== undefined ? is_active : true
+            ownerId: ownerId || null,
+            isActive: isActive !== undefined ? isActive : true
         };
 
         const park = await this.parkService.createPark(parkData);
@@ -56,12 +56,12 @@ export class ParkController {
     public async updatePark(req: express.Request, res: express.Response) {
         const parkId = Number(req.params.parkId);
 
-        const { name, county, is_active } = req.body;
+        const { name, county, isActive } = req.body;
 
         const updatedPark = await this.parkService.updatePark(parkId, {
             name,
             county,
-            is_active
+            isActive
         });
 
         if (!updatedPark) {

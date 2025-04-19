@@ -53,7 +53,7 @@ export const TrailDetailPage: React.FC = () => {
                 // Fetch trail details
                 const trailData = await trailApi.getTrail(trailIdNum);
                 
-                if (!trailData || trailData.park_id !== parkIdNum) {
+                if (!trailData || trailData.parkId !== parkIdNum) {
                     setError('Trail not found in this park');
                     setIsLoading(false);
                     return;
@@ -64,7 +64,7 @@ export const TrailDetailPage: React.FC = () => {
                 // Fetch issues for this trail
                 const issuesData = await issueApi.getIssuesByTrail(trailIdNum);
                 // Filter to only show public issues
-                const filteredIssues = issuesData.filter((issue) => issue.is_public);
+                const filteredIssues = issuesData.filter((issue) => issue.isPublic);
                 setIssues(filteredIssues);
             } catch (err) {
                 // eslint-disable-next-line no-console
@@ -84,7 +84,7 @@ export const TrailDetailPage: React.FC = () => {
         try {
             const updatedTrail = await trailApi.updateTrail({
                 ...trail,
-                is_open: !trail.is_open
+                isOpen: !trail.isOpen
             });
             
             setTrail(updatedTrail);
@@ -126,15 +126,15 @@ export const TrailDetailPage: React.FC = () => {
                 action={
                     <div className="flex space-x-3">
                         <Button 
-                            variant={trail.is_open ? 'warning' : 'success'}
+                            variant={trail.isOpen ? 'warning' : 'success'}
                             onClick={handleToggleTrailStatus}
                         >
-                            {trail.is_open ? 'Mark as Closed' : 'Mark as Open'}
+                            {trail.isOpen ? 'Mark as Closed' : 'Mark as Open'}
                         </Button>
-                        <Link to={`/parks/${park.park_id}/trails/${trail.trail_id}/edit`}>
+                        <Link to={`/parks/${park.parkId}/trails/${trail.trailId}/edit`}>
                             <Button variant="secondary">Edit Trail</Button>
                         </Link>
-                        <Link to={`/issues/report?parkId=${park.park_id}&trailId=${trail.trail_id}`}>
+                        <Link to={`/issues/report?parkId=${park.parkId}&trailId=${trail.trailId}`}>
                             <Button variant="primary">Report Issue</Button>
                         </Link>
                     </div>
@@ -146,12 +146,12 @@ export const TrailDetailPage: React.FC = () => {
                     <div className="flex justify-between mb-4">
                         <h3 className="text-xl font-bold text-gray-900">Trail Information</h3>
                         <div className="flex space-x-2">
-                            {trail.is_active ? (
+                            {trail.isActive ? (
                                 <Badge variant="success">Active</Badge>
                             ) : (
                                 <Badge variant="secondary">Inactive</Badge>
                             )}
-                            {trail.is_open ? (
+                            {trail.isOpen ? (
                                 <Badge variant="info">Open</Badge>
                             ) : (
                                 <Badge variant="warning">Closed</Badge>
@@ -162,7 +162,7 @@ export const TrailDetailPage: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
                         <div>
                             <p className="text-sm font-medium text-gray-500">Park</p>
-                            <Link to={`/parks/${park.park_id}`} className="mt-1 text-base text-blue-600 hover:text-blue-500">
+                            <Link to={`/parks/${park.parkId}`} className="mt-1 text-base text-blue-600 hover:text-blue-500">
                                 {park.name}
                             </Link>
                         </div>
@@ -191,7 +191,7 @@ export const TrailDetailPage: React.FC = () => {
             <div>
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-bold text-gray-900">Trail Issues</h2>
-                    <Link to={`/issues/report?parkId=${park.park_id}&trailId=${trail.trail_id}`} className="text-sm text-blue-600 hover:text-blue-500 font-medium">
+                    <Link to={`/issues/report?parkId=${park.parkId}&trailId=${trail.trailId}`} className="text-sm text-blue-600 hover:text-blue-500 font-medium">
                         Report Issue
                     </Link>
                 </div>

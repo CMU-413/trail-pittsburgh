@@ -10,12 +10,10 @@ import { parkApi } from '../../services/api';
 export const ParkCreatePage: React.FC = () => {
     const navigate = useNavigate();
     
-    const handleSubmit = async (data: Omit<Park, 'park_id'>) => {
-        console.log(data);
+    const handleSubmit = async (data: Omit<Park, 'parkId'>) => {
         try {
             const newPark = await parkApi.createPark(data);
-            console.log(newPark);
-            navigate(`/parks/${newPark.park_id}`);
+            navigate(`/parks/${newPark.parkId}`);
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Error creating park:', err);

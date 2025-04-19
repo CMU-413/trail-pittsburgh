@@ -3,7 +3,7 @@ import { ParkRepository } from '@/repositories';
 interface ParkData {
     name: string;
     county?: string;
-    is_active?: boolean;
+    isActive?: boolean;
 }
 
 export class ParkService {

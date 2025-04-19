@@ -8,11 +8,11 @@ describe('ParkService', () => {
     let parkRepositoryMock: jest.Mocked<ParkRepository>;
 
     const mockPark = {
-        park_id: 1,
+        parkId: 1,
         name: 'Test Park',
         county: 'Test County',
-        is_active: true,
-        created_at: new Date()
+        isActive: true,
+        createdAt: new Date()
     };
 
     beforeEach(() => {
@@ -101,7 +101,7 @@ describe('ParkService', () => {
     });
 
     test('should get trails by park ID', async () => {
-        const mockTrails = [{ trail_id: 1, name: 'Trail 1', park_id: 1, is_open: true, is_active: true, created_at: new Date() }];
+        const mockTrails = [{ trailId: 1, name: 'Trail 1', parkId: 1, isOpen: true, isActive: true, createdAt: new Date() }];
 
         parkRepositoryMock.getTrailsByPark.mockResolvedValue(mockTrails);
 

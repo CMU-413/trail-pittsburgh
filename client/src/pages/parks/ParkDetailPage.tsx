@@ -62,7 +62,7 @@ export const ParkDetailPage: React.FC = () => {
                 // Fetch issues for this park
                 const issuesData = await issueApi.getIssuesByPark(id);
                 // Filter to only show public issues or open issues
-                const filteredIssues = issuesData.filter((issue) => issue.is_public);
+                const filteredIssues = issuesData.filter((issue) => issue.isPublic);
                 setIssues(filteredIssues);
             } catch (err) {
                 // eslint-disable-next-line no-console
@@ -107,10 +107,10 @@ export const ParkDetailPage: React.FC = () => {
                 subtitle={`${park.county} County`}
                 action={
                     <div className="flex space-x-3">
-                        <Link to={`/parks/${park.park_id}/edit`}>
+                        <Link to={`/parks/${park.parkId}/edit`}>
                             <Button variant="secondary">Edit Park</Button>
                         </Link>
-                        <Link to={`/parks/${park.park_id}/trails/create`}>
+                        <Link to={`/parks/${park.parkId}/trails/create`}>
                             <Button variant="primary">Add Trail</Button>
                         </Link>
                     </div>
@@ -121,7 +121,7 @@ export const ParkDetailPage: React.FC = () => {
                 <Card className="lg:col-span-2">
                     <div className="flex justify-between mb-4">
                         <h3 className="text-xl font-bold text-gray-900">Park Information</h3>
-                        {park.is_active ? (
+                        {park.isActive ? (
                             <Badge variant="success">Active</Badge>
                         ) : (
                             <Badge variant="secondary">Inactive</Badge>
@@ -135,7 +135,7 @@ export const ParkDetailPage: React.FC = () => {
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-500">Owner ID</p>
-                            <p className="mt-1 text-base text-gray-900">{park.owner_id}</p>
+                            <p className="mt-1 text-base text-gray-900">{park.ownerId}</p>
                         </div>
                     </div>
                 </Card>
@@ -158,7 +158,7 @@ export const ParkDetailPage: React.FC = () => {
             <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-bold text-gray-900">Trails</h2>
-                    <Link to={`/parks/${park.park_id}/trails/create`} className="text-sm text-blue-600 hover:text-blue-500 font-medium">
+                    <Link to={`/parks/${park.parkId}/trails/create`} className="text-sm text-blue-600 hover:text-blue-500 font-medium">
                         Add Trail
                     </Link>
                 </div>
@@ -168,7 +168,7 @@ export const ParkDetailPage: React.FC = () => {
                         title="No trails found"
                         description="This park doesn't have any trails yet."
                         action={
-                            <Link to={`/parks/${park.park_id}/trails/create`}>
+                            <Link to={`/parks/${park.parkId}/trails/create`}>
                                 <Button variant="primary">Add First Trail</Button>
                             </Link>
                         }
@@ -176,7 +176,7 @@ export const ParkDetailPage: React.FC = () => {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {trails.map((trail) => (
-                            <TrailCard key={trail.trail_id} trail={trail} parkId={park.park_id} />
+                            <TrailCard key={trail.trailId} trail={trail} parkId={park.parkId} />
                         ))}
                     </div>
                 )}
@@ -185,7 +185,7 @@ export const ParkDetailPage: React.FC = () => {
             <div>
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-bold text-gray-900">Recent Issues</h2>
-                    <Link to={`/issues/report?parkId=${park.park_id}`} className="text-sm text-blue-600 hover:text-blue-500 font-medium">
+                    <Link to={`/issues/report?parkId=${park.parkId}`} className="text-sm text-blue-600 hover:text-blue-500 font-medium">
                         Report Issue
                     </Link>
                 </div>
@@ -198,7 +198,7 @@ export const ParkDetailPage: React.FC = () => {
                 
                 {issues.length > 6 && (
                     <div className="mt-6 text-center">
-                        <Link to={`/issues?parkId=${park.park_id}`}>
+                        <Link to={`/issues?parkId=${park.parkId}`}>
                             <Button variant="secondary">View All Issues</Button>
                         </Link>
                     </div>

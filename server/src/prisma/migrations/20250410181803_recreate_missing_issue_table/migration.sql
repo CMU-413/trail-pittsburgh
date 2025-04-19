@@ -1,69 +1,69 @@
 -- CreateTable
 CREATE TABLE "Park" (
-    "park_id" SERIAL NOT NULL,
+    "parkId" SERIAL NOT NULL,
     "name" VARCHAR(150) NOT NULL,
     "county" VARCHAR(150) NOT NULL,
-    "is_active" BOOLEAN NOT NULL DEFAULT true,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Parks_pkey" PRIMARY KEY ("park_id")
+    CONSTRAINT "Parks_pkey" PRIMARY KEY ("parkId")
 );
 
 -- CreateTable
 CREATE TABLE "Trail" (
-    "trail_id" SERIAL NOT NULL,
-    "park_id" INTEGER NOT NULL,
+    "trailId" SERIAL NOT NULL,
+    "parkId" INTEGER NOT NULL,
     "name" VARCHAR(150) NOT NULL,
-    "is_active" BOOLEAN NOT NULL DEFAULT true,
-    "is_open" BOOLEAN NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "isOpen" BOOLEAN NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Trail_pkey" PRIMARY KEY ("trail_id")
+    CONSTRAINT "Trail_pkey" PRIMARY KEY ("trailId")
 );
 
 -- CreateTable
 CREATE TABLE "Issue" (
-    "issue_id" SERIAL NOT NULL,
-    "park_id" INTEGER NOT NULL,
-    "trail_id" INTEGER NOT NULL,
-    "is_public" BOOLEAN NOT NULL,
+    "issueId" SERIAL NOT NULL,
+    "parkId" INTEGER NOT NULL,
+    "trailId" INTEGER NOT NULL,
+    "isPublic" BOOLEAN NOT NULL,
     "status" TEXT NOT NULL,
     "description" VARCHAR(150),
-    "issue_type" VARCHAR(150) NOT NULL,
+    "issueType" VARCHAR(150) NOT NULL,
     "urgency" INTEGER NOT NULL,
-    "issue_image" VARCHAR(150),
-    "notify_reporter" BOOLEAN NOT NULL,
-    "reporter_email" VARCHAR(150) NOT NULL,
+    "issueImage" VARCHAR(150),
+    "notifyReporter" BOOLEAN NOT NULL,
+    "reporterEmail" VARCHAR(150) NOT NULL,
     "longitude" DOUBLE PRECISION,
     "latitude" DOUBLE PRECISION,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "resolved_at" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "resolvedAt" TIMESTAMP(3),
 
-    CONSTRAINT "Issue_pkey" PRIMARY KEY ("issue_id")
+    CONSTRAINT "Issue_pkey" PRIMARY KEY ("issueId")
 );
 
 -- CreateTable
 CREATE TABLE "User" (
-    "user_id" SERIAL NOT NULL,
+    "userId" SERIAL NOT NULL,
     "username" VARCHAR(100) NOT NULL,
-    "is_admin" BOOLEAN NOT NULL,
+    "isAdmin" BOOLEAN NOT NULL,
     "permission" TEXT NOT NULL,
-    "profile_image" VARCHAR NOT NULL,
+    "profileImage" VARCHAR NOT NULL,
     "email" VARCHAR(100) NOT NULL,
-    "is_active" BOOLEAN NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "isActive" BOOLEAN NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("user_id")
+    CONSTRAINT "User_pkey" PRIMARY KEY ("userId")
 );
 
 -- CreateTable
 CREATE TABLE "Notification" (
     "notification_id" SERIAL NOT NULL,
-    "issue_id" INTEGER NOT NULL,
-    "recipient_email" TEXT NOT NULL,
+    "issueId" INTEGER NOT NULL,
+    "recipientEmail" TEXT NOT NULL,
     "content" VARCHAR(150) NOT NULL,
-    "sent_at" TIMESTAMP(3),
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "sentAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("notification_id")
 );
@@ -75,13 +75,13 @@ CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- AddForeignKey
-ALTER TABLE "Trail" ADD CONSTRAINT "Trail_park_id_fkey" FOREIGN KEY ("park_id") REFERENCES "Park"("park_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Trail" ADD CONSTRAINT "Trail_parkId_fkey" FOREIGN KEY ("parkId") REFERENCES "Park"("parkId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Issue" ADD CONSTRAINT "Issue_park_id_fkey" FOREIGN KEY ("park_id") REFERENCES "Park"("park_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Issue" ADD CONSTRAINT "Issue_parkId_fkey" FOREIGN KEY ("parkId") REFERENCES "Park"("parkId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Issue" ADD CONSTRAINT "Issue_trail_id_fkey" FOREIGN KEY ("trail_id") REFERENCES "Trail"("trail_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Issue" ADD CONSTRAINT "Issue_trailId_fkey" FOREIGN KEY ("trailId") REFERENCES "Trail"("trailId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Notification" ADD CONSTRAINT "Notification_issue_id_fkey" FOREIGN KEY ("issue_id") REFERENCES "Issue"("issue_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_issueId_fkey" FOREIGN KEY ("issueId") REFERENCES "Issue"("issueId") ON DELETE RESTRICT ON UPDATE CASCADE;

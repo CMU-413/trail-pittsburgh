@@ -3,10 +3,10 @@ import { UserRepository } from '@/repositories';
 interface UserData {
     username?: string;
     email?: string;
-    is_admin?: boolean;
+    isAdmin?: boolean;
     permission?: string;
-    profile_image?: string;
-    is_active?: boolean;
+    profileImage?: string;
+    isActive?: boolean;
 }
 
 export class UserService {
