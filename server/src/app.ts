@@ -5,7 +5,6 @@ dotenv.config();
 import express from 'express';
 
 import { errorHandler } from '@/middlewares';
-import { authenticateToken } from '@/middlewares/auth';
 import { limiter } from '@/middlewares/rateLimiter';
 import { securityHeaders } from '@/middlewares/securityHeaders';
 import {
