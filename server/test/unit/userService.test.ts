@@ -7,24 +7,25 @@ describe('UserService', () => {
     let userService: UserService;
     let userRepositoryMock: jest.Mocked<UserRepository>;
 
+    const mockUser = {
+        user_id: 1,
+        username: 'test_user',
+        email: 'test@example.com',
+        is_admin: false,
+        permission: 'read',
+        profile_image: 'default.jpg',
+        is_active: true,
+        created_at: new Date(),
+        is_hubspot_user: false,
+        profile_image_key: 'default.jpg',
+    };
+
     beforeEach(() => {
         userRepositoryMock = new UserRepository() as jest.Mocked<UserRepository>;
         userService = new UserService(userRepositoryMock);
     });
 
     test('should create a new user with default values', async () => {
-        const mockUser = {
-            user_id: 1,
-            username: 'test_user',
-            email: 'test@example.com',
-            is_admin: false,
-            is_hubspot_user: false,
-            profile_image_key: 'default.jpg',
-            is_active: true,
-            created_at: new Date(),
-            permissions: [],
-            notifications: []
-        };
         userRepositoryMock.createUser.mockResolvedValue(mockUser);
 
         const result = await userService.createUser('test_user', 'test@example.com');
@@ -33,7 +34,7 @@ describe('UserService', () => {
             'test_user',
             'test@example.com',
             false,
-            false,
+            'read',
             'default.jpg',
             true
         );
@@ -41,25 +42,21 @@ describe('UserService', () => {
     });
 
     test('should create a new user with custom values', async () => {
-        const mockUser = {
-            user_id: 1,
-            username: 'test_user',
-            email: 'test@example.com',
+        const customUser = {
+            ...mockUser,
             is_admin: true,
-            is_hubspot_user: true,
-            profile_image_key: 'custom.jpg',
-            is_active: false,
-            created_at: new Date(),
-            permissions: [],
-            notifications: []
+            permission: 'write',
+            profile_image: 'custom.jpg',
+            is_active: false
         };
-        userRepositoryMock.createUser.mockResolvedValue(mockUser);
+
+        userRepositoryMock.createUser.mockResolvedValue(customUser);
 
         const result = await userService.createUser(
             'test_user',
             'test@example.com',
             true,
-            true,
+            'write',
             'custom.jpg',
             false
         );
@@ -68,26 +65,14 @@ describe('UserService', () => {
             'test_user',
             'test@example.com',
             true,
-            true,
+            'write',
             'custom.jpg',
             false
         );
-        expect(result).toEqual(mockUser);
+        expect(result).toEqual(customUser);
     });
 
     test('should get a user by ID', async () => {
-        const mockUser = {
-            user_id: 1,
-            username: 'test_user',
-            email: 'test@example.com',
-            is_admin: false,
-            is_hubspot_user: false,
-            profile_image_key: 'default.jpg',
-            is_active: true,
-            created_at: new Date(),
-            permissions: [],
-            notifications: []
-        };
         userRepositoryMock.getUser.mockResolvedValue(mockUser);
 
         const result = await userService.getUser(1);
@@ -113,44 +98,31 @@ describe('UserService', () => {
         expect(userRepositoryMock.deleteUser).toHaveBeenCalledWith(1);
         expect(result).toBe(true);
     });
-    
-    test('should update user', async () => {
-        const mockUser = {
-            user_id: 1,
-            username: 'updateduser',
-            email: 'test@example.com',
-            is_admin: false,
-            is_hubspot_user: false,
-            profile_image_key: 'default.jpg',
-            is_active: true,
-            created_at: new Date(),
-            permissions: [],
-            notifications: []
-        };
-        const updateData = {
-            username: 'updateduser',
-            is_active: false
-        };
-        userRepositoryMock.updateUser.mockResolvedValue(mockUser);
+
+    test('should update user if they exist', async () => {
+        const updateData = { username: 'updated_user', is_active: false };
+        const updatedUser = { ...mockUser, ...updateData };
+
+        userRepositoryMock.getUser.mockResolvedValue(mockUser);
+        userRepositoryMock.updateUser.mockResolvedValue(updatedUser);
 
         const result = await userService.updateUser(1, updateData);
+
+        expect(userRepositoryMock.getUser).toHaveBeenCalledWith(1);
         expect(userRepositoryMock.updateUser).toHaveBeenCalledWith(1, updateData);
-        expect(result).toEqual(mockUser);
+        expect(result).toEqual(updatedUser);
+    });
+
+    test('should not update user if not found', async () => {
+        userRepositoryMock.getUser.mockResolvedValue(null);
+
+        const result = await userService.updateUser(999, { username: 'ghost' });
+
+        expect(userRepositoryMock.getUser).toHaveBeenCalledWith(999);
+        expect(result).toBeNull();
     });
 
     test('should get user by email', async () => {
-        const mockUser = {
-            user_id: 1,
-            username: 'test_user',
-            email: 'test@example.com',
-            is_admin: false,
-            is_hubspot_user: false,
-            profile_image_key: 'default.jpg',
-            is_active: true,
-            created_at: new Date(),
-            permissions: [],
-            notifications: []
-        };
         userRepositoryMock.getUserByEmail.mockResolvedValue(mockUser);
 
         const result = await userService.getUserByEmail('test@example.com');
@@ -160,18 +132,6 @@ describe('UserService', () => {
     });
 
     test('should get user by username', async () => {
-        const mockUser = {
-            user_id: 1,
-            username: 'test_user',
-            email: 'test@example.com',
-            is_admin: false,
-            is_hubspot_user: false,
-            profile_image_key: 'default.jpg',
-            is_active: true,
-            created_at: new Date(),
-            permissions: [],
-            notifications: []
-        };
         userRepositoryMock.getUserByUsername.mockResolvedValue(mockUser);
 
         const result = await userService.getUserByUsername('test_user');

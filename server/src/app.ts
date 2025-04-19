@@ -1,52 +1,56 @@
-import express from 'express';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import dotenv from 'dotenv';
+dotenv.config();
+import express from 'express';
 
 import { errorHandler } from '@/middlewares';
-import { issueRouter, parkRouter, trailRouter } from '@/routes';
+import { authenticateToken } from '@/middlewares/auth';
+import { limiter } from '@/middlewares/rateLimiter';
+import { securityHeaders } from '@/middlewares/securityHeaders';
+import {
+    authenticationRouter,
+    issueRouter,
+    parkRouter,
+    trailRouter
+} from '@/routes';
 
 const app = express();
 
-app.use(cors({
-    origin: ['http://localhost:5173', 'https://trailpgh-dev.web.app'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-  }));
+// Security headers
+app.use(securityHeaders);
 
-// Middleware
+// CORS configuration
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    maxAge: 86400
+}));
+
+// Parse cookies
+app.use(cookieParser());
+
+// Rate limiting
+app.use('/api/', limiter);
+
+// Parse JSON
 app.use(express.json());
 
-// Root route
-app.get('/', (req: express.Request, res: express.Response) => {
-    res.status(200).json({ message: 'Trail Pittsburgh API' });
-});
+// Public routes
+app.use('/api/auth', authenticationRouter);
 
-// Basic health check route - register this first
+// Protected routes
+app.use('/api/issues', authenticateToken, issueRouter);
+app.use('/api/parks', authenticateToken, parkRouter);
+app.use('/api/trails', authenticateToken, trailRouter);
+
+// Health check
 app.get('/healthz', (req: express.Request, res: express.Response) => {
-    console.log('Health check endpoint called');
     res.status(200).json({ status: 'ok' });
 });
 
-// Echo route with optional message parameter
-app.get('/echo/:message?', (req: express.Request, res: express.Response) => {
-    const message = req.params.message || 'No message provided';
-    res.status(200).json({ message, status: 'ok', check: true });
-});
-
-// Register API routes
-app.use('/api/parks', parkRouter);
-app.use('/api/issues', issueRouter);
-app.use('/api/trails', trailRouter);
-
-
-// 404 handler
-app.use((req: express.Request, res: express.Response) => {
-    res.status(404).json({ error: 'Not Found' });
-});
-
-// Error handler
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Internal Server Error' });
-});
+app.use(errorHandler);
 
 export { app };

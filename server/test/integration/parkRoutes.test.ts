@@ -8,17 +8,17 @@ const newPark = { name: 'Central Park', county: 'Test County' };
 describe('Park Routes', () => {
     beforeAll(async () => {
         // Delete in correct order to handle foreign key constraints
+        await prisma.notification.deleteMany();
         await prisma.issue.deleteMany();
         await prisma.trail.deleteMany();
-        await prisma.permission.deleteMany();
         await prisma.park.deleteMany();
     });
 
     afterEach(async () => {
         // Delete in correct order to handle foreign key constraints
+        await prisma.notification.deleteMany();
         await prisma.issue.deleteMany();
         await prisma.trail.deleteMany();
-        await prisma.permission.deleteMany();
         await prisma.park.deleteMany();
     });
 
@@ -49,8 +49,11 @@ describe('Park Routes', () => {
             .send();
 
         expect(response.status).toBe(200);
-        expect(response.body.data).toHaveLength(NUMBER_OF_PARKS);
-        expect(response.body.data[0]).toHaveProperty('park_id');
+        expect(response.body).toHaveLength(NUMBER_OF_PARKS);
+        console.log('FULL RESPONSE BODY:', response.body);
+        // expect(response.body.data[0]).toHaveProperty('park_id');
+        expect(response.body[0]).toHaveProperty('park_id');
+        
     });
 
     it('should get a park', async () => {

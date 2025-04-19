@@ -19,20 +19,16 @@ export class IssueController {
         this.getIssuesByUrgency = this.getIssuesByUrgency.bind(this);
     }
 
-    // public async getIssue(req: express.Request, res: express.Response) {
-    //     const issue = await this.issueService.getIssue(Number(req.params.id));
-    //     res.json({ success: true, issue });
-    // }
     public async getIssue(req: express.Request, res: express.Response) {
         try {
-            const issueId = Number(req.params.id);
+            const issueId = Number(req.params.issueId);
             const issue = await this.issueService.getIssue(issueId);
             
             if (!issue) {
                 return res.status(404).json({ message: 'Issue not found' });
             }
             
-            res.json(issue);
+            res.json({ issue });
         } catch (error) {
             console.error('Error fetching issue:', error);
             res.status(500).json({ message: 'Failed to retrieve issue' });
@@ -42,7 +38,7 @@ export class IssueController {
     public async getAllIssues(req: express.Request, res: express.Response) {
         try {
             const issues = await this.issueService.getAllIssues();
-            res.json(issues);
+            res.json({ issues });
         } catch (error) {
             console.error('Error fetching all issues:', error);
             res.status(500).json({ message: 'Failed to retrieve issues' });
@@ -51,52 +47,14 @@ export class IssueController {
 
     public async createIssue(req: express.Request, res: express.Response) {
         try {
-            const {
-                park_id,
-                trail_id,
-                issue_type,
-                urgency,
-                description,
-                is_public,
-                status,
-                notify_reporter,
-                issue_image,
-                reported_at,
-                reporter_email,
-                lon,
-                lat
-            } = req.body;
-
-            console.log('Creating issue with reported_at:', reported_at);
-
-            // Validate required fields
-            if (!park_id || !trail_id || !description) {
-                return res.status(400).json({ message: 'Park ID, Trail ID, and description are required' });
-            }
-
-            const issue = await this.issueService.createIssue(
-                Number(park_id),
-                Number(trail_id),
-                issue_type || 'general',
-                Number(urgency) || 1,
-                description,
-                is_public !== undefined ? Boolean(is_public) : true,
-                status || 'open',
-                notify_reporter !== undefined ? Boolean(notify_reporter) : true,
-                issue_image,
-                reported_at,
-                // reporter_email,
-                // lon,
-                // lat
-            );
-
-            res.status(201).json(issue);
+            const { issue, signedUrl } = await this.issueService.createIssue(req.body);
+    
+            res.status(201).json({ issue, signedUrl });
         } catch (error) {
-            console.error('Error creating issue:', error);
             res.status(500).json({ message: 'Failed to create issue' });
         }
     }
-
+    
     public async updateIssueStatus(req: express.Request, res: express.Response) {
         try {
             const issueId = Number(req.params.id);
@@ -112,7 +70,7 @@ export class IssueController {
                 return res.status(404).json({ message: 'Issue not found' });
             }
 
-            res.json(issue);
+            res.json({ issue });
         } catch (error) {
             console.error('Error updating issue status:', error);
             res.status(500).json({ message: 'Failed to update issue status' });
@@ -139,7 +97,7 @@ export class IssueController {
         try {
             const parkId = Number(req.params.parkId);
             const issues = await this.issueService.getIssuesByPark(parkId);
-            res.json(issues);
+            res.json({ issues });
         } catch (error) {
             console.error('Error fetching issues by park:', error);
             res.status(500).json({ message: 'Failed to retrieve issues for this park' });
@@ -150,7 +108,7 @@ export class IssueController {
         try {
             const trailId = Number(req.params.trailId);
             const issues = await this.issueService.getIssuesByTrail(trailId);
-            res.json(issues);
+            res.json({ issues });
         } catch (error) {
             console.error('Error fetching issues by trail:', error);
             res.status(500).json({ message: 'Failed to retrieve issues for this trail' });
@@ -161,7 +119,7 @@ export class IssueController {
         try {
             const urgency = Number(req.params.urgency);
             const issues = await this.issueService.getIssuesByUrgency(urgency);
-            res.json(issues);
+            res.json({ issues });
         } catch (error) {
             console.error('Error fetching issues by urgency:', error);
             res.status(500).json({ message: 'Failed to retrieve issues by urgency' });

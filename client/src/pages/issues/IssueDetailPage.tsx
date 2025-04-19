@@ -38,7 +38,8 @@ export const IssueDetailPage: React.FC = () => {
     const currentUser = {
         user_id: 1,
         name: 'John Smith',
-        role: 'steward'
+        role: 'steward',
+        permission: 'steward'
     };
 
     const formatDate = (dateString: string, formatStr: string = 'PPP p') => {
@@ -137,7 +138,7 @@ export const IssueDetailPage: React.FC = () => {
         }
     };
 
-    const canResolveIssue = currentUser.role === 'steward' || currentUser.role === 'owner';
+    const canResolveIssue = currentUser.permission === 'steward' || currentUser.permission === 'owner';
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -198,12 +199,12 @@ export const IssueDetailPage: React.FC = () => {
                         <p className="text-gray-700 whitespace-pre-line">{issue.description}</p>
                     </div>
 
-                    {issue.issue_image && (
+                    {issue.image && (
                         <div className="mb-6">
                             <h4 className="text-sm font-medium text-gray-500 mb-2">Issue Image</h4>
                             <div className="rounded-lg overflow-hidden border border-gray-200">
                                 <img
-                                    src={issue.issue_image}
+                                    src={issue.image.url}
                                     alt="Issue"
                                     className="w-full h-auto max-h-96 object-contain"
                                 />
@@ -276,24 +277,24 @@ export const IssueDetailPage: React.FC = () => {
                             {resolvedBy && (
                                 <div className="flex items-center mb-4">
                                     <div className="flex-shrink-0 mr-3">
-                                        {resolvedBy.picture ? (
+                                        {resolvedBy.profile_image ? (
                                             <img
-                                                src={resolvedBy.picture}
-                                                alt={resolvedBy.name}
+                                                src={resolvedBy.profile_image}
+                                                alt={resolvedBy.username}
                                                 className="h-8 w-8 rounded-full"
                                             />
                                         ) : (
                                             <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-800 font-medium">
-                                                {resolvedBy.name.charAt(0)}
+                                                {resolvedBy.username.charAt(0)}
                                             </div>
                                         )}
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-900">
-                                            Resolved by {resolvedBy.name}
+                                            Resolved by {resolvedBy.username}
                                         </p>
                                         <p className="text-xs text-gray-500">
-                                            {resolvedBy.role && resolvedBy.role.charAt(0).toUpperCase() + resolvedBy.role.slice(1)}
+                                            {resolvedBy.permission && resolvedBy.permission.charAt(0).toUpperCase() + resolvedBy.permission.slice(1)}
                                         </p>
                                     </div>
                                 </div>

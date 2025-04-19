@@ -1,5 +1,3 @@
-import { Prisma } from '@prisma/client';
-
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 
 export class TrailRepository {
@@ -44,7 +42,9 @@ export class TrailRepository {
 
     public async deleteTrail(trailId: number) {
         try {
-            await prisma.trail.delete({ where: { trail_id: trailId } });
+            await prisma.trail.delete({
+                where: { trail_id: trailId }
+            });
             return true;
         } catch (error) {
             if (isNotFoundError(error)) { return false; }

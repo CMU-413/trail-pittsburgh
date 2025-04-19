@@ -1,49 +1,46 @@
-import { Prisma } from '@prisma/client';
-
-import { isNotFoundError, prisma } from '@/prisma/prismaClient';
+import { prisma } from '@/prisma/prismaClient';
+import { CreateIssueDbInput } from '@/types/issueTypes';
 
 export class IssueRepository {
     public async getIssue(issueId: number) {
-        return prisma.issue.findUnique({
-            where: { issue_id: issueId },
-            include: {
-                park: true,
-                trail: true
-            }
-        });
+        try {
+            return await prisma.issue.findUnique({
+                where: { issue_id: issueId },
+                include: {
+                    park: true,
+                    trail: true
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching issue:', error);
+            throw error;
+        }
     }
 
-    public async createIssue(
-        parkId: number,
-        trailId: number,
-        type: string,
-        urgency: number,
-        description: string,
-        isPublic: boolean = true,
-        status: string = 'Open',
-        notifyReporter: boolean = true,
-        issueImage?: string,
-        reportedAt?: string
-        // reporterEmail?: string,
-    ) {
-        return prisma.issue.create({
-            data: {
-                park_id: parkId,
-                trail_id: trailId,
-                issue_type: type,
-                urgency,
-                description,
-                is_public: isPublic,
-                status,
-                notify_reporter: notifyReporter,
-                issue_image: issueImage,
-                // reporter_email: reporterEmail, 
-            },
-            include: {
-                park: true,
-                trail: true
-            }
-        });
+    public async createIssue(data: CreateIssueDbInput) {
+        try {
+            return await prisma.issue.create({
+                data: {
+                    park_id: data.park_id,
+                    trail_id: data.trail_id,
+                    issue_type: data.issue_type,
+                    urgency: data.urgency,
+                    description: data.description,
+                    is_public: data.is_public ?? true,
+                    status: data.status,
+                    notify_reporter: data.notify_reporter ?? true,
+                    reporter_email: data.reporter_email,
+                    issue_image: data.issueImageKey,
+                },
+                include: {
+                    park: true,
+                    trail: true
+                }
+            });
+        } catch (error) {
+            console.error('Error creating issue:', error);
+            throw error;
+        }
     }
 
     public async getAllIssues() {
@@ -60,7 +57,10 @@ export class IssueRepository {
             await prisma.issue.delete({ where: { issue_id: issueId } });
             return true;
         } catch (error) {
-            if (isNotFoundError(error)) { return false; }
+            if (isNotFoundError(error)) {
+                return false;
+            }
+            console.error('Error deleting issue:', error);
             throw error;
         }
     }
@@ -96,17 +96,30 @@ export class IssueRepository {
     }
 
     public async updateIssueStatus(issueId: number, status: string) {
-        const normalizedStatus = status.toLowerCase();
-        return prisma.issue.update({
-            where: { issue_id: issueId },
-            data: {
-                status: normalizedStatus,
-                resolved_at: normalizedStatus === 'resolved' ? new Date() : null
-            },
-            include: {
-                park: true,
-                trail: true
-            }
-        });
+        try {
+            const normalizedStatus = status.trim().toLowerCase();
+            return await prisma.issue.update({
+                where: { issue_id: issueId },
+                data: {
+                    status: normalizedStatus,
+                    resolved_at: normalizedStatus === 'resolved' ? new Date() : null
+                },
+                include: {
+                    park: true,
+                    trail: true
+                }
+            });
+        } catch (error) {
+            if (isNotFoundError(error)) {return null;}
+            console.error('Error updating issue status:', error);
+            throw error;
+        }
     }
+}
+
+function isNotFoundError(error: unknown): boolean {
+    if (!error || typeof error !== 'object') {return false;}
+
+    const prismaError = error as { code?: string };
+    return prismaError.code === 'P2025' || prismaError.code === 'P2016';
 }
