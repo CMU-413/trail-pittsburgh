@@ -28,6 +28,7 @@
       "/dist/"
     ]
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",

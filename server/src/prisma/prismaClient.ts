@@ -15,5 +15,4 @@ function isNotFoundError(error: unknown): boolean {
     return false;
 }
 
-
 export { prisma, isNotFoundError };
