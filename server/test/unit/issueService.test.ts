@@ -57,7 +57,7 @@ describe('IssueService', () => {
             isPublic: true,
             status: 'Open',
             notifyReporter: true,
-            image_type: 'image/jpeg',
+            imageType: 'image/jpeg',
         };
 
         const result = await issueService.createIssue(input);
