@@ -2,12 +2,12 @@ steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
     dir: 'server'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/trailpgh-server', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/trail-pgh-server', '.']
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     dir: 'server'
-    args: ['push', 'gcr.io/$PROJECT_ID/trailpgh-server']
+    args: ['push', 'gcr.io/$PROJECT_ID/trail-pgh-server']
 
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -16,19 +16,19 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'trailpgh-server'
+      - 'trail-pgh-server'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/trailpgh-server'
+      - 'gcr.io/$PROJECT_ID/trail-pgh-server'
       - '--region'
       - 'us-central1'
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-      - '--add-cloudsql-instances=trailpgh-dev:us-central1:trail-pgh-db'
+      - '--add-cloudsql-instances=trail-pgh-issue-tracker:us-central1:trail-pgh-prod'
       - '--set-env-vars=DATABASE_URL=$_DATABASE_URL'
 
 options:
   logging: CLOUD_LOGGING_ONLY
 
 images:
-  - 'gcr.io/$PROJECT_ID/trailpgh-server'
+  - 'gcr.io/$PROJECT_ID/trail-pgh-server'
