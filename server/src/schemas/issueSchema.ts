@@ -53,3 +53,16 @@ export const deleteIssueSchema = z.object({
         issueId: z.coerce.number(),
     })
 });
+
+export const resolveIssueSchema = {
+    params: z.object({
+      issueId: z.string().refine((val) => !isNaN(Number(val)), {
+        message: 'Issue ID must be a number',
+      }),
+    }),
+    body: z.object({
+      resolved_by: z.number(),
+      resolution_notes: z.string().optional(),
+      image_type: z.string().optional(), // For uploaded images
+    }),
+};
