@@ -17,9 +17,9 @@ export class IssueService {
     }
 
     private async buildIssueWithUrl(issue: IssueRecord) {
-        const { issue_image, ...rest } = issue;
-        const image = issue_image ?
-            await this.issueImageBucket.getDownloadUrl(issue_image) :
+        const { issueImage, ...rest } = issue;
+        const image = issueImage ?
+            await this.issueImageBucket.getDownloadUrl(issueImage) :
             undefined;
         return {
             image,
@@ -41,16 +41,16 @@ export class IssueService {
     }
 
     public async createIssue(data: CreateIssueInput) {
-        const { image_type } = data;
+        const { imageType } = data;
         let key: string | undefined;
         let signedUrl: SignedUrl | undefined;
 
-        if (image_type) {
+        if (imageType) {
             // Generate image key
-            const ext = image_type.split('/')[1];
+            const ext = imageType.split('/')[1];
             key = `${uuid()}.${ext}`;
 
-            signedUrl = await this.issueImageBucket.getUploadUrl(key, image_type);
+            signedUrl = await this.issueImageBucket.getUploadUrl(key, imageType);
         }
 
         const newIssueInput = {

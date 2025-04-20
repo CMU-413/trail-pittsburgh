@@ -77,7 +77,7 @@ export const SettingsPage: React.FC = () => {
                     <Card title="Account" className="w-full flex flex-col">
                         <div className="flex items-center mb-6">
                             <img
-                                src={user.profile_image}
+                                src={user.profileImage}
                                 alt={user.username}
                                 className="h-16 w-16 rounded-full object-cover border-2 border-white shadow-sm mr-4"
                             />

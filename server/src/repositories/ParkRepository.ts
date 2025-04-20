@@ -3,14 +3,14 @@ import { prisma } from '@/prisma/prismaClient';
 interface ParkData {
     name: string;
     county?: string;
-    is_active?: boolean;
+    isActive?: boolean;
 }
 
 export class ParkRepository {
     public async getPark(parkId: number) {
         return prisma.park.findUnique({
             where: {
-                park_id: parkId,
+                parkId: parkId,
             }
         });
     }
@@ -22,7 +22,7 @@ export class ParkRepository {
                 data: {
                     name: parkData.name,
                     county: parkData.county ?? '', // fallback if undefined
-                    is_active: parkData.is_active ?? true
+                    isActive: parkData.isActive ?? true
                 }
             });
             console.log('Park created successfully:', result);
@@ -36,7 +36,7 @@ export class ParkRepository {
     public async updatePark(parkId: number, parkData: Partial<ParkData>) {
         try {
             return await prisma.park.update({
-                where: { park_id: parkId },
+                where: { parkId: parkId },
                 data: parkData
             });
         } catch (error) {
@@ -52,8 +52,8 @@ export class ParkRepository {
     public async setParkStatus(parkId: number, isActive: boolean) {
         try {
             return await prisma.park.update({
-                where: { park_id: parkId },
-                data: { is_active: isActive }
+                where: { parkId: parkId },
+                data: { isActive: isActive }
             });
         } catch (error) {
             if (isParkNotFoundError(error)) { return null; }
@@ -63,7 +63,7 @@ export class ParkRepository {
 
     public async deletePark(parkId: number) {
         try {
-            await prisma.park.delete({ where: { park_id: parkId } });
+            await prisma.park.delete({ where: { parkId: parkId } });
             return true;
         } catch (error) {
             if (isParkNotFoundError(error)) { return false; }
@@ -76,7 +76,7 @@ export class ParkRepository {
             console.log('Repository: Getting trails for park ID:', parkId);
             const trails = await prisma.trail.findMany({
                 where: {
-                    park_id: parkId,
+                    parkId: parkId,
                 }
             });
             console.log('Repository: Found trails:', trails);

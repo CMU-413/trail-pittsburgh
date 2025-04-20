@@ -27,16 +27,16 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     initialTrailId
 }) => {
     const [formData, setFormData] = useState<Partial<IssueParams>>({
-        park_id: initialParkId || 0,
-        trail_id: initialTrailId || 0,
-        is_public: true,
+        parkId: initialParkId || 0,
+        trailId: initialTrailId || 0,
+        isPublic: true,
         status: 'open',
         description: '',
-        issue_type: '',
+        issueType: '',
         urgency: 3,
-        notify_reporter: false,
-        reporter_email: '',
-        created_at: new Date().toISOString(),
+        notifyReporter: false,
+        reporterEmail: '',
+        createdAt: new Date().toISOString(),
         lon: undefined,
         lat: undefined,
         imageMetadata: undefined
@@ -65,12 +65,12 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         const fetchParks = async () => {
             try {
                 const parksData = await parkApi.getParks();
-                setParks(parksData.filter((park) => park.is_active));
+                setParks(parksData.filter((park) => park.isActive));
 
                 // If we have a park ID, load its trails
-                if (formData.park_id) {
-                    const trailsData = await trailApi.getTrailsByPark(formData.park_id);
-                    setTrails(trailsData.filter((trail) => trail.is_active));
+                if (formData.parkId) {
+                    const trailsData = await trailApi.getTrailsByPark(formData.parkId);
+                    setTrails(trailsData.filter((trail) => trail.isActive));
                 }
             } catch (err) {
                 // eslint-disable-next-line no-console
@@ -80,21 +80,21 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         };
 
         fetchParks();
-    }, [formData.park_id]);
+    }, [formData.parkId]);
 
     // When park changes, update trails
     useEffect(() => {
         const fetchTrails = async () => {
-            if (formData.park_id) {
+            if (formData.parkId) {
                 try {
-                    const trailsData = await trailApi.getTrailsByPark(formData.park_id);
-                    setTrails(trailsData.filter((trail) => trail.is_active));
+                    const trailsData = await trailApi.getTrailsByPark(formData.parkId);
+                    setTrails(trailsData.filter((trail) => trail.isActive));
 
                     // If current trail doesn't belong to selected park, reset it
-                    if (formData.trail_id) {
-                        const trailExists = trailsData.some((t) => t.trail_id === formData.trail_id);
+                    if (formData.trailId) {
+                        const trailExists = trailsData.some((t) => t.trailId === formData.trailId);
                         if (!trailExists) {
-                            setFormData((prev) => ({ ...prev, trail_id: 0 }));
+                            setFormData((prev) => ({ ...prev, trailId: 0 }));
                         }
                     }
                 } catch (err) {
@@ -104,12 +104,12 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 }
             } else {
                 setTrails([]);
-                setFormData((prev) => ({ ...prev, trail_id: 0 }));
+                setFormData((prev) => ({ ...prev, trailId: 0 }));
             }
         };
 
         fetchTrails();
-    }, [formData.park_id, formData.trail_id]);
+    }, [formData.parkId, formData.trailId]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -119,8 +119,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             const checked = (e.target as HTMLInputElement).checked;
             setFormData((prev) => ({ ...prev, [name]: checked }));
 
-            // Clear email error when notify_reporter is unchecked
-            if (name === 'notify_reporter' && !checked) {
+            // Clear email error when notifyReporter is unchecked
+            if (name === 'notifyReporter' && !checked) {
                 setEmailError(null);
             }
 
@@ -134,7 +134,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         }
 
         // For email field, validate it
-        if (name === 'reporter_email') {
+        if (name === 'reporterEmail') {
             setEmailError(null);
         }
 
@@ -146,7 +146,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     };
 
     const handleIssueTypeSelect = (type: string) => {
-        setFormData((prev) => ({ ...prev, issue_type: type }));
+        setFormData((prev) => ({ ...prev, issueType: type }));
     };
 
     const handleUrgencySelect = (level: number) => {
@@ -246,15 +246,15 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
         try {
             // Make sure all required fields are present
-            if (!formData.park_id) {
+            if (!formData.parkId) {
                 throw new Error('Please select a park.');
             }
 
-            if (!formData.trail_id) {
+            if (!formData.trailId) {
                 throw new Error('Please select a trail.');
             }
 
-            if (!formData.issue_type) {
+            if (!formData.issueType) {
                 throw new Error('Please select an issue type.');
             }
 
@@ -263,13 +263,13 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             }
 
             // Check email if notification is enabled
-            if (formData.notify_reporter) {
-                if (!formData.reporter_email || formData.reporter_email.trim() === '') {
+            if (formData.notifyReporter) {
+                if (!formData.reporterEmail || formData.reporterEmail.trim() === '') {
                     setEmailError('Please provide your email to receive notifications.');
                     throw new Error('Please provide your email to receive notifications.');
                 }
 
-                if (!validateEmail(formData.reporter_email)) {
+                if (!validateEmail(formData.reporterEmail)) {
                     setEmailError('Please enter a valid email address.');
                     throw new Error('Please enter a valid email address.');
                 }
@@ -286,16 +286,16 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
             // Reset form
             setFormData({
-                park_id: 0,
-                trail_id: 0,
-                is_public: true,
+                parkId: 0,
+                trailId: 0,
+                isPublic: true,
                 status: 'open',
                 description: '',
-                issue_type: '',
+                issueType: '',
                 urgency: 3,
-                notify_reporter: false,
-                reporter_email: '',
-                created_at: new Date().toISOString(),
+                notifyReporter: false,
+                reporterEmail: '',
+                createdAt: new Date().toISOString(),
                 lon: undefined,
                 lat: undefined
             });
@@ -368,10 +368,10 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         label="Which park is the issue in?"
                         options={[
                             { value: '', label: 'Select a park' },
-                            ...parks.map((park) => ({ value: park.park_id.toString(), label: park.name }))
+                            ...parks.map((park) => ({ value: park.parkId.toString(), label: park.name }))
                         ]}
-                        value={formData.park_id?.toString() || ''}
-                        onChange={handleSelectChange('park_id')}
+                        value={formData.parkId?.toString() || ''}
+                        onChange={handleSelectChange('parkId')}
                         required
                         fullWidth
                         helperText="Select the park where you found the issue"
@@ -380,14 +380,14 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                     <Select
                         label="Which trail is affected?"
                         options={[
-                            { value: '', label: formData.park_id ? 'Select a trail' : 'Select a park first' },
-                            ...trails.map((trail) => ({ value: trail.trail_id.toString(), label: trail.name }))
+                            { value: '', label: formData.parkId ? 'Select a trail' : 'Select a park first' },
+                            ...trails.map((trail) => ({ value: trail.trailId.toString(), label: trail.name }))
                         ]}
-                        value={formData.trail_id?.toString() || ''}
-                        onChange={handleSelectChange('trail_id')}
+                        value={formData.trailId?.toString() || ''}
+                        onChange={handleSelectChange('trailId')}
                         required
                         fullWidth
-                        disabled={!formData.park_id}
+                        disabled={!formData.parkId}
                         helperText="Select the specific trail with the issue"
                     />
                 </div>
@@ -409,13 +409,13 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                                     onClick={() => handleIssueTypeSelect(type.value)}
                                     className={`
                                         flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
-                                        ${formData.issue_type === type.value
+                                        ${formData.issueType === type.value
                                     ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
                                     : 'border-gray-200'
                                 }
                                     `}
                                 >
-                                    <div className={`p-2 rounded-full mr-3 ${formData.issue_type === type.value ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
+                                    <div className={`p-2 rounded-full mr-3 ${formData.issueType === type.value ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
                                         {getIssueTypeIcon(type.value)}
                                     </div>
                                     <span className="font-medium text-sm">{type.label}</span>
@@ -513,26 +513,26 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 <div className="space-y-4">
                     <div className="flex items-center">
                         <input
-                            id="notify_reporter"
-                            name="notify_reporter"
+                            id="notifyReporter"
+                            name="notifyReporter"
                             type="checkbox"
-                            checked={formData.notify_reporter}
+                            checked={formData.notifyReporter}
                             onChange={handleChange}
                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         />
-                        <label htmlFor="notify_reporter" className="ml-3 block text-sm text-gray-700">
+                        <label htmlFor="notifyReporter" className="ml-3 block text-sm text-gray-700">
                             Notify me when this issue is resolved
                         </label>
                     </div>
 
-                    {/* Email input field that appears when notify_reporter is checked */}
-                    {formData.notify_reporter && (
+                    {/* Email input field that appears when notifyReporter is checked */}
+                    {formData.notifyReporter && (
                         <div className="pl-7 mt-3">
                             <Input
                                 label="Email Address"
-                                name="reporter_email"
+                                name="reporterEmail"
                                 type="email"
-                                value={formData.reporter_email || ''}
+                                value={formData.reporterEmail || ''}
                                 onChange={handleChange}
                                 placeholder="your.email@example.com"
                                 error={emailError || undefined}

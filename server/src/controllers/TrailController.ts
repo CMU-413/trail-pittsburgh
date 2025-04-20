@@ -41,14 +41,15 @@ export class TrailController {
     }
 
     public async createTrail(req: express.Request, res: express.Response) {
+        console.log('createTrail', req.body);
         try {
             const { name, parkId, isActive, isOpen } = req.body;
 
             const trail = await this.trailService.createTrail({
                 name,
-                park_id: parkId,
-                is_active: isActive,
-                is_open: isOpen
+                parkId: parkId,
+                isActive: isActive,
+                isOpen: isOpen
             });
 
             res.status(201).json({ trail });
