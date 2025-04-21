@@ -57,19 +57,20 @@ export class IssueController {
     
     public async updateIssueStatus(req: express.Request, res: express.Response) {
         try {
-            const issueId = Number(req.params.id);
-            const { status } = req.body;
-
-            if (!status) {
-                return res.status(400).json({ message: 'Status is required' });
-            }
-
+            const issueId = Number(req.params.issueId);
+            
+            const status = req.body;
+            
+            console.log(`Updating issue ${issueId} with status: ${status}`);
+    
             const issue = await this.issueService.updateIssueStatus(issueId, status);
-
+    
             if (!issue) {
+                console.log(`Issue not found with ID: ${issueId}`);
                 return res.status(404).json({ message: 'Issue not found' });
             }
-
+    
+            console.log('Issue status updated successfully');
             res.json({ issue });
         } catch (error) {
             console.error('Error updating issue status:', error);

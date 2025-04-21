@@ -187,14 +187,44 @@ export const issueApi = {
     },
 
     updateIssueStatus: async (issueId: number, status: string): Promise<Issue> => {
-        const response = await fetch(`${API_BASE_URL}/issues/${issueId}/status`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status }),
-            credentials: 'include'
-        })
-            .then(handleResponse);
-        return response.issue;
+        console.log(`Updating issue ${issueId} status to '${status}'`);
+        
+        // Create the request body with status
+        const requestBody = JSON.stringify({ status });
+        console.log('Request body:', requestBody);
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/issues/${issueId}/status`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json',
+                },
+                body: requestBody,
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                let errorMessage = `Error: ${response.status} ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData.message) {
+                        errorMessage = errorData.message;
+                    }
+                } catch (_) {
+                }
+                
+                console.error('API error:', errorMessage);
+                throw new Error(errorMessage);
+            }
+            
+            const data = await response.json();
+            console.log('Response data:', data);
+            
+            return data.issue;
+        } catch (error) {
+            console.error('Exception in updateIssueStatus:', error);
+            throw error;
+        }
     },
 
     deleteIssue: async (issueId: number): Promise<void> => {
