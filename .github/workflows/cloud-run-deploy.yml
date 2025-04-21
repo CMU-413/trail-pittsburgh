@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - constantine/deployment
 
 jobs:
   deploy:
@@ -27,5 +26,4 @@ jobs:
 
       - name: Trigger Cloud Build from /server directory
         run: |
-          gcloud builds submit --config server/cloudbuild.yaml . \
-          --substitutions=_DATABASE_URL="${{ secrets.DATABASE_URL }}",_CLIENT_URL="${{ vars.CLIENT_URL }}"
+          gcloud builds submit --config server/cloudbuild.yaml

@@ -25,7 +25,6 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--add-cloudsql-instances=trail-pgh-issue-tracker:us-central1:trail-pgh-prod'
-      - '--set-env-vars=DATABASE_URL=$_DATABASE_URL,CLIENT_URL=$_CLIENT_URL'
 
 options:
   logging: CLOUD_LOGGING_ONLY
