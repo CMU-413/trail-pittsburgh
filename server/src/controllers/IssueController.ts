@@ -59,7 +59,7 @@ export class IssueController {
         try {
             const issueId = Number(req.params.issueId);
             
-            const status = req.body;
+            const status = req.body && req.body.status ? req.body.status : 'resolved';
             
             console.log(`Updating issue ${issueId} with status: ${status}`);
     
