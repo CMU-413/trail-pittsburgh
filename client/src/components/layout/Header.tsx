@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Link, useLocation, useNavigate
 } from 'react-router-dom';
-import { useAuth } from '../../providers/AuthProvider';
+import { useAuth } from '../../providers/useAuth';
 import { APP_NAME } from '../../constants/config';
 
 export const Header: React.FC = () => {
@@ -90,6 +90,7 @@ export const Header: React.FC = () => {
                 window.location.href = data.url;
             }
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Authentication error:', error);
         }
     }

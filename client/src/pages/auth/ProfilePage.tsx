@@ -1,7 +1,7 @@
 // src/pages/auth/ProfilePage.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../providers/AuthProvider';
+import { useAuth } from '../../providers/useAuth';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';

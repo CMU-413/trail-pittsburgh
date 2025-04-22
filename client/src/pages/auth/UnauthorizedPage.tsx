@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
-import { useAuth } from '../../providers/AuthProvider';
+import { useAuth } from '../../providers/useAuth';
 import { ORGANIZATION_DOMAIN, APP_NAME } from '../../constants/config';
 
 export const UnauthorizedPage: React.FC = () => {

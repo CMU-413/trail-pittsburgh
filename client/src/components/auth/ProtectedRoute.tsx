@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import {
     Navigate, Outlet, useLocation
 } from 'react-router-dom';
-import { useAuth } from '../../providers/AuthProvider';
+import { useAuth } from '../../providers/useAuth';
 import { LoadingSpinner } from '../layout/LoadingSpinner';
 
 interface ProtectedRouteProps {
@@ -16,18 +16,19 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const { isAuthenticated, hasPermission, loading, login } = useAuth();
     const location = useLocation();
 
+    useEffect(() => {
+        if (!isAuthenticated && !loading) {
+            login();
+        }
+    }, [isAuthenticated, loading, login]);
+
     // Show loading spinner while authentication state is being determined
     if (loading) {
         return <LoadingSpinner message="Checking authentication..." />;
     }
 
-    // If not authenticated, trigger login directly
+    // If not authenticated, show loading spinner while redirecting
     if (!isAuthenticated) {
-        // We need to use useEffect because login() triggers navigation
-        useEffect(() => {
-            login();
-        }, [login]);
-        
         return <LoadingSpinner message="Redirecting to login..." />;
     }
 

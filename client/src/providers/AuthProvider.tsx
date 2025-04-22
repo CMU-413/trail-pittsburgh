@@ -1,19 +1,12 @@
 import React, {
-    createContext, useEffect, useState, useContext 
+    createContext, useEffect, useState
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '../types';
-
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  login: () => void;
-  logout: () => void;
-  isAuthenticated: boolean;
-  hasPermission: boolean;
-}
+import { AuthContextType } from './types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export { AuthContext };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -43,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } else {
                 setUser(null);
             }
-        } catch (error) {
+        } catch {
             setUser(null);
         } finally {
             setLoading(false);
@@ -64,7 +57,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 window.location.href = data.url;
             }
         } catch (error) {
-            console.error("Login failed", error);
+            // eslint-disable-next-line no-console
+            console.error('Login failed', error);
         }
     };
 
@@ -78,7 +72,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(null);
             navigate('/');
         } catch (error) {
-            console.error("Logout failed", error);
+            // eslint-disable-next-line no-console
+            console.error('Logout failed', error);
         }
     };
 
@@ -90,10 +85,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             {children}
         </AuthContext.Provider>
     );
-};
-
-export const useAuth = (): AuthContextType => {
-    const context = useContext(AuthContext);
-    if (!context) {throw new Error('useAuth must be used within an AuthProvider');}
-    return context;
 };
