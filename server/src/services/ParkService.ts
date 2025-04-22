@@ -1,10 +1,5 @@
 import { ParkRepository } from '@/repositories';
-
-interface ParkData {
-    name: string;
-    county?: string;
-    isActive?: boolean;
-}
+import { ParkData } from '@/utils/types';
 
 export class ParkService {
     private readonly parkRepository: ParkRepository;

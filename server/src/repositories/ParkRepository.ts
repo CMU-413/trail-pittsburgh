@@ -1,10 +1,5 @@
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
-
-interface ParkData {
-    name: string;
-    county?: string;
-    isActive?: boolean;
-}
+import { ParkData } from '@/utils/types';
 
 export class ParkRepository {
     public async getPark(parkId: number) {
@@ -16,7 +11,6 @@ export class ParkRepository {
     }
 
     public async createPark(parkData: ParkData) {
-        console.log('Creating park with data:', parkData);
         try {
             const result = await prisma.park.create({
                 data: {
@@ -25,7 +19,6 @@ export class ParkRepository {
                     isActive: parkData.isActive ?? true
                 }
             });
-            console.log('Park created successfully:', result);
             return result;
         } catch (error) {
             console.error('Error creating park:', error);
@@ -74,13 +67,11 @@ export class ParkRepository {
 
     public async getTrailsByPark(parkId: number) {
         try {
-            console.log('Repository: Getting trails for park ID:', parkId);
             const trails = await prisma.trail.findMany({
                 where: {
                     parkId: parkId,
                 }
             });
-            console.log('Repository: Found trails:', trails);
             return trails;
         } catch (error) {
             console.error('Repository: Error getting trails:', error);

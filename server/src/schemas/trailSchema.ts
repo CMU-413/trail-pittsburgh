@@ -20,7 +20,9 @@ export const updateTrailSchema = z.object({
         trailId: z.coerce.number(),
     }),
     body: z.object({
-        isOpen: z.boolean(),
+        name: z.string().optional(),
+        isOpen: z.boolean().optional(),
+        isActive: z.boolean().optional(),
     })
 });
 

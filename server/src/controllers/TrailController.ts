@@ -1,7 +1,6 @@
 import express from 'express';
 
 import { TrailService } from '@/services';
-import { logger } from '@/utils/logger';
 
 export class TrailController {
     private readonly trailService: TrailService;
@@ -57,7 +56,6 @@ export class TrailController {
 
             res.status(201).json({ trail });
         } catch (error) {
-            logger.error(`Error creating trail`, error);
             res.status(500).json({ message: 'Failed to create trail' });
         }
     }
@@ -67,15 +65,21 @@ export class TrailController {
 
         try {
             const { isOpen } = req.body;
+        try {
+            const trailId = Number(req.params.trailId);
+            const { name, isOpen, isActive } = req.body;
 
-            const trail = await this.trailService.updateTrailStatus(trailId, isOpen);
+            const updatedTrail = await this.trailService.updateTrail(trailId, {
+                name,
+                isOpen,
+                isActive
+            });
             
-            if (!trail) {
-                res.status(404).json({ message: 'Trail not found' });
-                return;
+            if (!updatedTrail) {
+                return res.status(404).json({ message: 'Trail not found.' });
             }
             
-            res.json({ trail });
+            res.status(200).json({ trail:updatedTrail });
         } catch (error) {
             logger.error(`Error updating trail ${trailId}`, error);
             res.status(500).json({ message: 'Failed to update trail' });
