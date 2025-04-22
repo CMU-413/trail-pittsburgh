@@ -13,7 +13,25 @@ const newTrail = {
 };
 
 describe('Trail Routes', () => {
+
+    // This runs after each test file
+    afterAll(async () => {
+        // Rollback the transaction for the test file
+        await prisma.$executeRaw`ROLLBACK`;
+    });
+
+    // This runs after all test files
+    afterAll(async () => {
+        // Clean up any remaining data and disconnect
+        await prisma.notification.deleteMany();
+        await prisma.issue.deleteMany();
+        await prisma.trail.deleteMany();
+        await prisma.park.deleteMany();
+        await prisma.$disconnect();
+    }); 
     beforeAll(async () => {
+        await prisma.$executeRaw`BEGIN`;
+        
         // Create a test park for the trails
         testPark = await prisma.park.create({
             data: {

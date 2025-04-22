@@ -6,7 +6,9 @@ import { prisma } from '../../src/prisma/prismaClient';
 const newPark = { name: 'Central Park', county: 'Test County' };
 
 describe('Park Routes', () => {
+    
     beforeAll(async () => {
+        await prisma.$executeRaw`BEGIN`;
         // Delete in correct order to handle foreign key constraints
         await prisma.notification.deleteMany();
         await prisma.issue.deleteMany();
@@ -23,6 +25,7 @@ describe('Park Routes', () => {
     });
 
     afterAll(async () => {
+        await prisma.$executeRaw`ROLLBACK`;
         await prisma.$disconnect();
     });
 
