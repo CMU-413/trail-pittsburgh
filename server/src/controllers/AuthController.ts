@@ -24,18 +24,17 @@ export class AuthController {
         const { code, state } = req.query;
 
         try {
-            // eslint-disable-next-line
-            const { token, user } = await this.authService.handleGoogleCallback(code as string);
+            const { token } = await this.authService.handleGoogleCallback(code as string);
 
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
+                sameSite: 'none',
                 maxAge: 24 * 60 * 60 * 1000
             });
 
             const redirectTarget = typeof state === 'string' ? state : '/';
-            res.redirect(`${process.env.CLIENT_URL}${redirectTarget}`);
+            res.redirect(`${process.env.CLIENT_URL}/${redirectTarget}`);
         } catch (err) {
             console.error('OAuth callback error:', err);
             res.redirect(`${process.env.CLIENT_URL}/unauthorized`);

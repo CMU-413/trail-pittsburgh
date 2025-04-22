@@ -1,6 +1,4 @@
-// import { Prisma } from '@prisma/client';
-
-import { prisma } from '@/prisma/prismaClient';
+import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 
 interface UserUpdateData {
     username?: string;
@@ -104,11 +102,4 @@ export class UserRepository {
             throw error;
         }
     }
-}
-
-function isNotFoundError(error: unknown): boolean {
-    if (!error || typeof error !== 'object') {return false;}
-
-    const prismaError = error as { code?: string };
-    return prismaError.code === 'P2025' || prismaError.code === 'P2016';
 }
