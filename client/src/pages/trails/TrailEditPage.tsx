@@ -61,6 +61,9 @@ export const TrailEditPage: React.FC = () => {
         if (!trail || !parkId) {return;}
         
         try {
+            console.log('handleSubmit', data);
+            console.log(data.isActive);
+            console.log(data.isOpen);
             const updatedTrail = await trailApi.updateTrail({
                 ...data,
                 trailId: trail.trailId,

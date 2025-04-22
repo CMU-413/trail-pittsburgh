@@ -15,7 +15,9 @@ export class TrailService {
     }
 
     public async getTrail(trailId: number) {
-        return this.trailRepository.getTrail(trailId);
+        const res = await this.trailRepository.getTrail(trailId);
+        console.log('Service Trail', res);
+        return res;
     }
 
     public async getAllTrails() {
@@ -42,7 +44,7 @@ export class TrailService {
         return this.trailRepository.getTrailsByPark(parkId);
     }
 
-    public async updateTrailStatus(trailId: number, isOpen: boolean) {
-        return this.trailRepository.updateTrailStatus(trailId, isOpen);
+    public async updateTrailStatus(trailId: number, isOpen: boolean, isActive: boolean) {
+        return this.trailRepository.updateTrailStatus(trailId, isOpen, isActive);
     }
 }

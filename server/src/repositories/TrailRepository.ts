@@ -64,10 +64,10 @@ export class TrailRepository {
         });
     }
 
-    public async updateTrailStatus(trailId: number, isOpen: boolean) {
+    public async updateTrailStatus(trailId: number, isOpen: boolean, isActive: boolean) {
         return prisma.trail.update({
             where: { trailId: trailId },
-            data: { isOpen: isOpen },
+            data: { isOpen: isOpen, isActive: isActive },
             include: {
                 park: true,
                 issues: true

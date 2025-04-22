@@ -99,10 +99,11 @@ export const trailApi = {
     },
 
     updateTrail: async (trailData: Trail): Promise<Trail> => {
+        console.log(JSON.stringify({ isOpen: trailData.isOpen, isActive: trailData.isActive }));
         const response = await fetch(`${API_BASE_URL}/trails/${trailData.trailId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ isOpen: trailData.isOpen }),
+            body: JSON.stringify({ isOpen: trailData.isOpen, isActive: trailData.isActive }),
             credentials: 'include'
         }).then(handleResponse);
         return response.trail;
