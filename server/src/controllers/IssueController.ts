@@ -9,7 +9,6 @@ export class IssueController {
 
     constructor(issueService: IssueService) {
         this.issueService = issueService;
-
         this.getIssue = this.getIssue.bind(this);
         this.getAllIssues = this.getAllIssues.bind(this);
         this.createIssue = this.createIssue.bind(this);
@@ -64,14 +63,13 @@ export class IssueController {
 
         try {
             const { status } = req.body;
-
             const issue = await this.issueService.updateIssueStatus(issueId, status);
-
+    
             if (!issue) {
                 res.status(404).json({ message: 'Issue not found' });
                 return;
             }
-
+    
             res.json({ issue });
         } catch (error) {
             logger.error(`Error updating issue ${issueId}`, error);

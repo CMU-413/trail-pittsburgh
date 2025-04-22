@@ -1,5 +1,3 @@
-
-// src/pages/parks/ParkCreatePage.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Park } from '../../types';

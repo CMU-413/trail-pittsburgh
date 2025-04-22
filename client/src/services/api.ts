@@ -187,14 +187,43 @@ export const issueApi = {
     },
 
     updateIssueStatus: async (issueId: number, status: string): Promise<Issue> => {
-        const response = await fetch(`${API_BASE_URL}/issues/${issueId}/status`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status }),
-            credentials: 'include'
-        })
-            .then(handleResponse);
-        return response.issue;
+        // Create the request body with status
+        const requestBody = JSON.stringify({ status });
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/issues/${issueId}/status`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json',
+                },
+                body: requestBody,
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                let errorMessage = `Error: ${response.status} ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData.message) {
+                        errorMessage = errorData.message;
+                    }
+                } catch (error) {
+                    console.debug('Operation failed but can be ignored:', error);
+                }
+
+                // eslint-disable-next-line no-console
+                console.error('API error:', errorMessage);
+                throw new Error(errorMessage);
+            }
+            
+            const data = await response.json();
+            
+            return data.issue;
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('Exception in updateIssueStatus:', error);
+            throw error;
+        }
     },
 
     deleteIssue: async (issueId: number): Promise<void> => {
