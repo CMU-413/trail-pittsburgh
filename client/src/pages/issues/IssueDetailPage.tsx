@@ -102,7 +102,11 @@ export const IssueDetailPage: React.FC = () => {
 
                         // Fetch user who resolved the issue
                         const user = await mockApi.getUser(latestResolution.resolved_by);
-                        setResolvedBy(user || null);
+                        // Map user data to include id property
+                        setResolvedBy(user ? {
+                            id: user.userId?.toString() || '',
+                            ...user
+                        } : null);
                     }
                 }
             } catch (err) {
@@ -130,7 +134,11 @@ export const IssueDetailPage: React.FC = () => {
             setResolution(newResolution);
 
             const user = await mockApi.getUser(currentUser.userId);
-            setResolvedBy(user || null);
+            // Map user data to include id property
+            setResolvedBy(user ? {
+                id: user.userId?.toString() || '',
+                ...user
+            } : null);
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Error resolving issue:', err);
@@ -285,7 +293,7 @@ export const IssueDetailPage: React.FC = () => {
                                             />
                                         ) : (
                                             <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-800 font-medium">
-                                                {resolvedBy.username.charAt(0)}
+                                                {resolvedBy.username?.charAt(0) || '?'}
                                             </div>
                                         )}
                                     </div>
