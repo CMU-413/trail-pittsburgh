@@ -21,7 +21,7 @@ app.use(securityHeaders);
 
 // CORS configuration
 app.use(cors({
-    origin: 'https://trail-pgh-issue-tracker.web.app',
+    origin: process.env.CLIENT_URL,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
