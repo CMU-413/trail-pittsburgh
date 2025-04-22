@@ -84,7 +84,7 @@ export const TrailDetailPage: React.FC = () => {
         try {
             const updatedTrail = await trailApi.updateTrail({
                 ...trail,
-                isOpen: !trail.isOpen
+                isOpen: !trail.isOpen,
             });
             
             setTrail(updatedTrail);
