@@ -9,7 +9,7 @@ export class TrailService {
     }
 
     public async getTrail(trailId: number) {
-        return await this.trailRepository.getTrail(trailId);
+        return this.trailRepository.getTrail(trailId);
     }
 
     public async getAllTrails() {
