@@ -11,7 +11,7 @@ interface UserData {
 
 export class UserService {
     private readonly userRepository: UserRepository;
-    private readonly DEFAULT_PROFILE_IMAGE = 'https://via.placeholder.com/150';
+    private readonly DEFAULT_PROFILE_IMAGE = 'default.jpg';
 
     constructor(userRepository: UserRepository) {
         this.userRepository = userRepository;
