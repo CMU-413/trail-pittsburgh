@@ -32,9 +32,12 @@ export const ProfilePage: React.FC = () => {
                         <div className="flex flex-col items-center py-6">
                             <div className="relative mb-4">
                                 <img
-                                    src={user.picture}
-                                    alt={user.name}
+                                    src={user.picture || `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user.name || 'User')}`}
+                                    alt={user.name || 'User profile'}
                                     className="h-32 w-32 rounded-full object-cover border-4 border-white shadow-md"
+                                    onError={(e) => {
+                                        e.currentTarget.src = `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user.name || 'User')}`;
+                                    }}
                                 />
                             </div>
                             <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>

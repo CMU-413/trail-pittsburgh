@@ -171,6 +171,9 @@ export const Header: React.FC = () => {
                                                 className="h-10 w-10 rounded-full object-cover ring-2 ring-white"
                                                 src={user?.picture || `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user?.name || 'User')}`}
                                                 alt={user?.name || 'User profile'}
+                                                onError={(e) => {
+                                                    e.currentTarget.src = `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user?.name || 'User')}`;
+                                                }}
                                             />
                                         </div>
                                     </button>
@@ -273,6 +276,9 @@ export const Header: React.FC = () => {
                                         className="h-10 w-10 rounded-full object-cover"
                                         src={user?.picture || `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user?.name || 'User')}`}
                                         alt={user?.name || 'User profile'}
+                                        onError={(e) => {
+                                            e.currentTarget.src = `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user?.name || 'User')}`;
+                                        }}
                                     />
                                 </div>
                                 <div className="ml-3">

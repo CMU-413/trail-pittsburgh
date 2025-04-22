@@ -32,12 +32,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 credentials: 'include'
             });
             
+            if (!res.ok) {
+                setUser(null);
+                return;
+            }
+            
             const data = await res.json();
             if (data?.user) {
                 setUser(data.user);
+            } else {
+                setUser(null);
             }
         } catch (error) {
-            // Silently handle errors
+            setUser(null);
         } finally {
             setLoading(false);
         }

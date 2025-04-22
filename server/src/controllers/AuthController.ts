@@ -60,12 +60,21 @@ export class AuthController {
             return res.status(200).json({ user: null });
         }
 
+        // Process the picture URL if it exists
+        let pictureUrl = user.picture;
+        
+        // Check if it's a Google image and proxy it if needed
+        if (pictureUrl && pictureUrl.includes('googleusercontent.com')) {
+            // Use proxy to avoid CORS issues with Google images
+            pictureUrl = `${process.env.SERVER_URL}/api/auth/profile-image-proxy?url=${encodeURIComponent(pictureUrl)}`;
+        }
+
         res.status(200).json({
             user: {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                picture: user.picture
+                picture: pictureUrl
             }
         });
     }
