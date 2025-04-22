@@ -13,7 +13,7 @@ import {
 } from '../../types/leaflet';
 
 interface LocationProps {
-    onLocationSelected?: (lat: number, lon: number) => void;
+    onLocationSelected?: (latitude: number, longitude: number) => void;
     initialLat?: number;
     initialLon?: number;
     readOnly?: boolean;
@@ -29,8 +29,8 @@ const Location: React.FC<LocationProps> = ({
     className = '',
     variant = 'card' // Default to card appearance
 }) => {
-    const [lat, setLat] = useState<number | null>(initialLat || null);
-    const [lon, setLon] = useState<number | null>(initialLon || null);
+    const [latitude, setLat] = useState<number | null>(initialLat || null);
+    const [longitude, setLon] = useState<number | null>(initialLon || null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
@@ -58,10 +58,10 @@ const Location: React.FC<LocationProps> = ({
         if (!readOnly) {
             marker.current.on('dragend', (e: LeafletMarkerDragEvent) => {
                 const newPos = e.target.getLatLng();
-                setLat(newPos.lat);
+                setLat(newPos.latitude);
                 setLon(newPos.lng);
                 if (onLocationSelected) {
-                    onLocationSelected(newPos.lat, newPos.lng);
+                    onLocationSelected(newPos.latitude, newPos.lng);
                 }
             });
         }
@@ -84,17 +84,17 @@ const Location: React.FC<LocationProps> = ({
 
     // Initialize map when Leaflet is loaded and coordinates are available
     const initializeMap = useCallback(() => {
-        if ((!lat || !lon) && !(readOnly && initialLat && initialLon)) { return; }
+        if ((!latitude || !longitude) && !(readOnly && initialLat && initialLon)) { return; }
         if (!mapRef.current || leafletMap.current) { return; }
 
         // Use initialLat/Lon if in readOnly mode and we don't have lat/lon yet
-        const latitude = lat || (readOnly ? initialLat : null);
-        const longitude = lon || (readOnly ? initialLon : null);
+        const latitudeDisplay = latitude || (readOnly ? initialLat : null);
+        const longitudeDisplay = longitude || (readOnly ? initialLon : null);
 
-        if (!latitude || !longitude) { return; }
+        if (!latitudeDisplay || !longitudeDisplay) { return; }
 
         // Create the map
-        leafletMap.current = window.L.map(mapRef.current).setView([latitude, longitude], 16);
+        leafletMap.current = window.L.map(mapRef.current).setView([latitudeDisplay, longitudeDisplay], 16);
 
         // Add base map underneath
         window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -105,7 +105,7 @@ const Location: React.FC<LocationProps> = ({
         // Click handler for the map (only if not readOnly)
         if (!readOnly) {
             leafletMap.current.on('click', (e: LeafletMouseEvent) => {
-                const { lat: newLat, lng: newLon } = e.latlng;
+                const { latitude: newLat, lng: newLon } = e.latlng;
                 updateMarker(newLat, newLon);
                 setLat(newLat);
                 setLon(newLon);
@@ -116,14 +116,14 @@ const Location: React.FC<LocationProps> = ({
         }
 
         // Add initial marker
-        updateMarker(latitude, longitude, locationAccuracy);
-    }, [lat, lon, readOnly, initialLat, initialLon, locationAccuracy, onLocationSelected, updateMarker]);
+        updateMarker(latitudeDisplay, longitudeDisplay, locationAccuracy);
+    }, [latitude, longitude, readOnly, initialLat, initialLon, locationAccuracy, onLocationSelected, updateMarker]);
 
     // Load Leaflet scripts when location is shared or when in readOnly mode with initial coordinates
     useEffect(() => {
         // Initialize map immediately if we have coordinates and in readOnly mode
         // or if coordinates were obtained from user location sharing
-        if ((!lat || !lon) && !(readOnly && initialLat && initialLon)) { return; }
+        if ((!latitude || !longitude) && !(readOnly && initialLat && initialLon)) { return; }
 
         if (typeof window.L === 'undefined') {
             const loadLeaflet = async () => {
@@ -149,19 +149,19 @@ const Location: React.FC<LocationProps> = ({
         } else {
             initializeMap();
         }
-    }, [lat, lon, readOnly, initialLat, initialLon, initializeMap]);
+    }, [latitude, longitude, readOnly, initialLat, initialLon, initializeMap]);
 
-    // Update marker position when lat/lon changes
+    // Update marker position when latitude/longitude changes
     useEffect(() => {
         if (!leafletMap.current) { return; }
 
-        const latitude = lat || (readOnly ? initialLat : null);
-        const longitude = lon || (readOnly ? initialLon : null);
+        const latitudeDisplay = latitude || (readOnly ? initialLat : null);
+        const longitudeDisplay = longitude || (readOnly ? initialLon : null);
 
-        if (latitude && longitude) {
-            updateMarker(latitude, longitude, locationAccuracy);
+        if (latitudeDisplay && longitudeDisplay) {
+            updateMarker(latitudeDisplay, longitudeDisplay, locationAccuracy);
         }
-    }, [lat, lon, locationAccuracy, readOnly, initialLat, initialLon, updateMarker]);
+    }, [latitude, longitude, locationAccuracy, readOnly, initialLat, initialLon, updateMarker]);
 
     // Clean up map on unmount
     useEffect(() => {
@@ -219,11 +219,11 @@ const Location: React.FC<LocationProps> = ({
 
     // Set latitude and longitude from initial values if in readOnly mode
     useEffect(() => {
-        if (readOnly && initialLat && initialLon && !lat && !lon) {
+        if (readOnly && initialLat && initialLon && !latitude && !longitude) {
             setLat(initialLat);
             setLon(initialLon);
         }
-    }, [readOnly, initialLat, initialLon, lat, lon]);
+    }, [readOnly, initialLat, initialLon, latitude, longitude]);
 
     // Prepare content based on state and props
     const contentJSX = (
@@ -245,7 +245,7 @@ const Location: React.FC<LocationProps> = ({
                                 isLoading={loading}
                                 className="self-start mt-2 mb-2 px-4"
                             >
-                                {lat && lon ? 'Update My Location' : 'Share My Location'}
+                                {latitude && longitude ? 'Update My Location' : 'Share My Location'}
                             </Button>
                         </div>
 
@@ -259,7 +259,7 @@ const Location: React.FC<LocationProps> = ({
             )}
 
             {/* Only show map after coordinates are shared or if in readOnly mode with coords */}
-            {((lat && lon) || (readOnly && initialLat && initialLon)) && (
+            {((latitude && longitude) || (readOnly && initialLat && initialLon)) && (
                 <>
                     {/* Map container */}
                     <div className="rounded-lg overflow-hidden border border-gray-300 shadow-md">
@@ -278,7 +278,7 @@ const Location: React.FC<LocationProps> = ({
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                             <p className="text-sm text-gray-700 break-words">
-                                Coordinates: <span className="font-medium">{(lat || initialLat)?.toFixed(6)}, {(lon || initialLon)?.toFixed(6)}</span>
+                                Coordinates: <span className="font-medium">{(latitude || initialLat)?.toFixed(6)}, {(longitude || initialLon)?.toFixed(6)}</span>
                             </p>
                         </div>
                         {locationAccuracy && (
@@ -296,7 +296,7 @@ const Location: React.FC<LocationProps> = ({
                 </>
             )}
 
-            {!readOnly && !lat && !lon && !loading && !error && (
+            {!readOnly && !latitude && !longitude && !loading && !error && (
                 <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600">
                     Click "Share My Location" to mark the location of the trail issue on the map.
                 </div>
