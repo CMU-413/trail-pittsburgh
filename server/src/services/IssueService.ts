@@ -16,7 +16,7 @@ export class IssueService {
         this.issueImageBucket = imagesBucket;
     }
 
-    private async buildIssueWithUrl(issue: IssueRecord) {
+    private async buildIssueWithImage(issue: IssueRecord) {
         const { issueImage, ...rest } = issue;
         const image = issueImage ?
             await this.issueImageBucket.getDownloadUrl(issueImage) :
@@ -33,7 +33,7 @@ export class IssueService {
             return null;
         }
 
-        return this.buildIssueWithUrl(issue);
+        return this.buildIssueWithImage(issue);
     }
 
     public async getAllIssues() {
@@ -82,6 +82,12 @@ export class IssueService {
     }
 
     public async updateIssueStatus(issueId: number, status: string) {
-        return this.issueRepository.updateIssueStatus(issueId, status);
+        const issue = await this.issueRepository.updateIssueStatus(issueId, status);
+
+        if (!issue) {
+            return null;
+        }
+
+        return this.buildIssueWithImage(issue);
     }
 }
