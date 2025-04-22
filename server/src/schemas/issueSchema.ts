@@ -44,6 +44,9 @@ export type CreateIssueInput = z.output<typeof createIssueSchema>['body'];
 export const updateIssueStatusSchema = z.object({
     params: z.object({
         issueId: z.coerce.number(),
+    }), 
+    body: z.object({
+        status: z.string()
     })
 });
 

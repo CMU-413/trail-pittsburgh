@@ -55,6 +55,7 @@ export class IssueController {
     
             res.status(201).json({ issue, signedUrl });
         } catch (error) {
+            console.error('Create Issue Error:', error);
             res.status(500).json({ message: 'Failed to create issue' });
         }
     }
