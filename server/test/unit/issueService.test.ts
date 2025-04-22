@@ -101,14 +101,10 @@ describe('IssueService', () => {
     test('should get an issue by ID', async () => {
         issueRepositoryMock.getIssue.mockResolvedValue(baseIssue);
 
-        // Remove property from obj
-        const { issueImage, ...expectedData } = baseIssue;
-        void issueImage;
-
         const result = await issueService.getIssue(1);
 
         expect(issueRepositoryMock.getIssue).toHaveBeenCalledWith(1);
-        expect(result).toEqual({ image: undefined, ...expectedData });
+        expect(result).toEqual(baseIssue);
     });
 
     test('should return null if issue is not found', async () => {
