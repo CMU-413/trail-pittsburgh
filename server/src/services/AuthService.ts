@@ -40,6 +40,10 @@ export class AuthService {
             picture: userData.picture
         });
 
+        if (!user) {
+            throw new Error('Failed to create or find user');
+        }
+
         const token = jwt.sign(
             { 
                 id: user.userId, 
