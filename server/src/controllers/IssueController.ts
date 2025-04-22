@@ -27,7 +27,8 @@ export class IssueController {
             const issue = await this.issueService.getIssue(issueId);
             
             if (!issue) {
-                return res.status(404).json({ message: 'Issue not found' });
+                res.status(404).json({ message: 'Issue not found' });
+                return;
             }
 
             res.json({ issue });
@@ -67,7 +68,8 @@ export class IssueController {
             const issue = await this.issueService.updateIssueStatus(issueId, status);
 
             if (!issue) {
-                return res.status(404).json({ message: 'Issue not found' });
+                res.status(404).json({ message: 'Issue not found' });
+                return;
             }
 
             res.json({ issue });
@@ -84,7 +86,8 @@ export class IssueController {
             const deleted = await this.issueService.deleteIssue(issueId);
 
             if (!deleted) {
-                return res.status(404).json({ message: 'Issue not found' });
+                res.status(404).json({ message: 'Issue not found' });
+                return;
             }
 
             res.status(204).send();

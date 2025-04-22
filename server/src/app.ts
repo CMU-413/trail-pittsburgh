@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 
-import { errorHandler, morganMiddleware } from '@/middlewares';
+import { morganMiddleware } from '@/middlewares';
 import { limiter } from '@/middlewares/rateLimiter';
 import { securityHeaders } from '@/middlewares/securityHeaders';
 import {
@@ -50,7 +50,5 @@ app.use('/api/trails', trailRouter);
 app.get('/healthz', (req: express.Request, res: express.Response) => {
     res.status(200).json({ status: 'ok' });
 });
-
-app.use(errorHandler);
 
 export { app };

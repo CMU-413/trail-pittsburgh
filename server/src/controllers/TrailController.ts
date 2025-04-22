@@ -106,7 +106,7 @@ export class TrailController {
         try {
             const trails = await this.trailService.getTrailsByPark(parkId);
 
-            return res.json({ trails });
+            res.json({ trails });
         } catch (error) {
             logger.error(`Error fetching trails by park ${parkId}`, error);
             // Type checking for the error
@@ -115,7 +115,7 @@ export class TrailController {
                 errorMessage = error.message;
             }
 
-            return res.status(500).json({ message: errorMessage });
+            res.status(500).json({ message: errorMessage });
         }
     }
 }

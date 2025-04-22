@@ -27,7 +27,7 @@ export class ParkController {
                 res.status(404).json({ message: 'Park not found.' });
             }
 
-            return res.status(200).json({ park });
+            res.status(200).json({ park });
         } catch (error) {
             logger.error(`Error fetching park ${parkId}`, error);
             res.status(500).json({ message: 'Failed to retrieve park' });
@@ -50,7 +50,8 @@ export class ParkController {
 
             // Validate required fields
             if (!name || !county) {
-                return res.status(400).json({ message: 'Name and county are required' });
+                res.status(400).json({ message: 'Name and county are required' });
+                return;
             }
 
             // Create park with all required properties
@@ -62,7 +63,8 @@ export class ParkController {
             };
 
             const park = await this.parkService.createPark(parkData);
-            return res.status(201).json({ park });
+            res.status(201).json({ park });
+            
         } catch (error) {
             logger.error(`Error creating park ${req.params.parkId}`, error);
             res.status(500).json({ message: 'Failed to create park' });
@@ -82,7 +84,8 @@ export class ParkController {
             });
 
             if (!updatedPark) {
-                return res.status(404).json({ message: 'Park not found.' });
+                res.status(404).json({ message: 'Park not found.' });
+                return;
             }
 
             res.status(200).json({ park:updatedPark });
@@ -99,7 +102,8 @@ export class ParkController {
             const deleted = await this.parkService.deletePark(parkId);
 
             if (!deleted) {
-                return res.status(404).json({ message: 'Park not found.' });
+                res.status(404).json({ message: 'Park not found.' });
+                return;
             }
 
             res.status(204).send();

@@ -62,7 +62,8 @@ export class AuthController {
         const user = (req as any).user;
 
         if (!user) {
-            return res.status(200).json({ user: null });
+            res.status(200).json({ user: null });
+            return;
         }
 
         // Process the picture URL if it exists
