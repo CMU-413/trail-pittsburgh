@@ -4,7 +4,6 @@ import { Park } from '../../types';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
-import { ImageUpload } from '../ui/ImageUpload';
 
 interface ParkFormProps {
     initialData?: Partial<Park>;
@@ -34,13 +33,6 @@ export const ParkForm: React.FC<ParkFormProps> = ({
             ...formData,
             [name]: type === 'checkbox' ? checked : value
         });
-    };
-
-    const handleImageChange = (file: File | null, previewUrl: string | null) => {
-        // This would be used to store the image file and preview
-        // For now, we're just defining the function for the ImageUpload component
-        // eslint-disable-next-line no-console
-        console.log({ file, previewUrl });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -102,12 +94,6 @@ export const ParkForm: React.FC<ParkFormProps> = ({
                         fullWidth
                     />
                 </div>
-
-                <ImageUpload
-                    label="Park Image (Optional)"
-                    onChange={handleImageChange}
-                    className="mb-6"
-                />
 
                 <div className="flex items-center">
                     <input

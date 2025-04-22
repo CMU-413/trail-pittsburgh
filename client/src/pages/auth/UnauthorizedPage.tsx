@@ -26,7 +26,7 @@ export const UnauthorizedPage: React.FC = () => {
                             this area. Access is restricted to @{ORGANIZATION_DOMAIN} accounts only.
                         </>
                     ) : (
-                        `Access to this area is restricted to ${APP_NAME} staff only.`
+                        `Access to this area is restricted to ${APP_NAME} steward only.`
                     )}
                 </p>
 

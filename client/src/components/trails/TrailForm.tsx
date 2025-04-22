@@ -4,8 +4,6 @@ import { Trail } from '../../types';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
-import { ImageUpload } from '../ui/ImageUpload';
-import { TextArea } from '../ui/TextArea';
 
 interface TrailFormProps {
     parkId: number;
@@ -28,7 +26,6 @@ export const TrailForm: React.FC<TrailFormProps> = ({
         ...initialData
     });
 
-    const [description, setDescription] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -49,11 +46,6 @@ export const TrailForm: React.FC<TrailFormProps> = ({
         }
     };
 
-    // The handleImageChange function is needed for the ImageUpload component
-    const handleImageChange = () => {
-        // Empty function - image handling would be implemented in a real app
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -63,8 +55,6 @@ export const TrailForm: React.FC<TrailFormProps> = ({
             if (!formData.name || formData.name.trim() === '') {
                 throw new Error('Trail name is required');
             }
-
-            // We would later upload the image to a server here and get back a URL to store with the trail data
 
             await onSubmit(formData as Omit<Trail, 'trailId'>);
         } catch (err) {
@@ -99,21 +89,6 @@ export const TrailForm: React.FC<TrailFormProps> = ({
                         onChange={handleChange}
                         required
                         fullWidth
-                    />
-
-                    <TextArea
-                        label="Trail Description (Optional)"
-                        name="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        rows={4}
-                        placeholder="Describe the trail, its difficulty level, estimated completion time, etc."
-                        fullWidth
-                    />
-
-                    <ImageUpload
-                        label="Trail Image (Optional)"
-                        onChange={handleImageChange}
                     />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

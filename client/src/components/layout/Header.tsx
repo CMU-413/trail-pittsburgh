@@ -44,7 +44,6 @@ export const Header: React.FC = () => {
     // Navigation links that are public
     const publicNavigation = [
         { name: 'Home', href: '/', current: location.pathname === '/' },
-        { name: 'Report Issue', href: '/issues/report', current: location.pathname === '/issues/report' },
     ];
 
     // Navigation links for authenticated users
@@ -54,8 +53,17 @@ export const Header: React.FC = () => {
         { name: 'Issues', href: '/issues', current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report' },
     ];
 
+    // Report Issue link (public)
+    const reportIssueLink = {
+        name: 'Report Issue',
+        href: '/issues/report',
+        current: location.pathname === '/issues/report'
+    };
+
     // Determine which navigation to use
-    const navigation = hasPermission ? [...publicNavigation, ...authNavigation] : publicNavigation;
+    const navigation = hasPermission
+        ? [...publicNavigation, ...authNavigation, reportIssueLink]
+        : [...publicNavigation, reportIssueLink];
 
     // Handle profile actions
     const handleLogout = () => {
@@ -156,7 +164,7 @@ export const Header: React.FC = () => {
                                     >
                                         <div className="text-right hidden md:block">
                                             <p className="text-sm font-medium text-gray-700 truncate">{user?.username}</p>
-                                            <p className="text-xs text-gray-500 capitalize">{hasPermission ? 'Staff' : 'Public'}</p>
+                                            <p className="text-xs text-gray-500 capitalize">{hasPermission ? 'Steward' : 'Public'}</p>
                                         </div>
                                         <div className="relative flex-shrink-0">
                                             <img
@@ -269,7 +277,7 @@ export const Header: React.FC = () => {
                                 </div>
                                 <div className="ml-3">
                                     <div className="text-base font-medium text-gray-800">{user?.username}</div>
-                                    <div className="text-sm font-medium text-gray-500 capitalize">{hasPermission ? 'Staff' : 'Public'}</div>
+                                    <div className="text-sm font-medium text-gray-500 capitalize">{hasPermission ? 'Steward' : 'Public'}</div>
                                 </div>
                             </div>
                             <div className="mt-3 space-y-1">
