@@ -210,15 +210,15 @@ export const IssueDetailPage: React.FC = () => {
                         </div>
                     )}
 
-                    {issue.lon && issue.lat && (
+                    {issue.longitude && issue.latitude && (
                         <div className="mb-6">
                             <h4 className="text-sm font-medium text-gray-500 mb-2">Location</h4>
 
                             {/* Location component can be kept or removed based on preference */}
                             <div className="mt-4">
                                 <Location
-                                    initialLat={issue.lat}
-                                    initialLon={issue.lon}
+                                    initialLat={issue.latitude}
+                                    initialLon={issue.longitude}
                                     readOnly={true}
                                     variant="plain"
                                 />
@@ -230,7 +230,7 @@ export const IssueDetailPage: React.FC = () => {
                                 <Button
                                     size="sm"
                                     onClick={() => {
-                                        navigator.clipboard.writeText(`${issue.lat}, ${issue.lon}`);
+                                        navigator.clipboard.writeText(`${issue.latitude}, ${issue.longitude}`);
                                     }}
                                 >
                                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -241,7 +241,7 @@ export const IssueDetailPage: React.FC = () => {
 
                                 {/* Open in Google Maps */}
                                 <a
-                                    href={`https://www.google.com/maps/search/?api=1&query=${issue.lat},${issue.lon}`}
+                                    href={`https://www.google.com/maps/search/?api=1&query=${issue.latitude},${issue.longitude}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"

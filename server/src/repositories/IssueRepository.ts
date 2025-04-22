@@ -28,6 +28,8 @@ export class IssueRepository {
                     description: data.description,
                     isPublic: data.isPublic ?? true,
                     status: data.status,
+                    latitude: data.latitude,
+                    longitude: data.longitude,
                     notifyReporter: data.notifyReporter ?? true,
                     reporterEmail: data.reporterEmail,
                     issueImage: data.issueImageKey,

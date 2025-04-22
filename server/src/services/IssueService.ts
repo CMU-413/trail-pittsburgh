@@ -17,13 +17,17 @@ export class IssueService {
     }
 
     private async buildIssueWithImage(issue: IssueRecord) {
-        const { issueImage, ...rest } = issue;
-        const image = issueImage ?
-            await this.issueImageBucket.getDownloadUrl(issueImage) :
-            undefined;
+        const { issueImage } = issue;
+
+        if (!issueImage) {
+            return issue;
+        }
+
+        const image = await this.issueImageBucket.getDownloadUrl(issueImage);
+
         return {
             image,
-            ...rest
+            ...issue
         };
     }
 
