@@ -103,7 +103,7 @@ describe('TrailService', () => {
         const trailInput = { name: 'Trail One', parkId: 1 };
         const result = await trailService.createTrail(trailInput);
 
-        expect(trailRepositoryMock.createTrail).toHaveBeenCalledWith('Trail One', 1, true, true);
+        expect(trailRepositoryMock.createTrail).toHaveBeenCalledWith({"name": "Trail One", "parkId": 1});
         expect(result).toEqual(mockTrails[0]);
     });
 
@@ -113,7 +113,12 @@ describe('TrailService', () => {
         const trailInput = { name: 'Trail Three', parkId: 1, isActive: false, isOpen: true };
         const result = await trailService.createTrail(trailInput);
 
-        expect(trailRepositoryMock.createTrail).toHaveBeenCalledWith('Trail Three', 1, false, true);
+        expect(trailRepositoryMock.createTrail).toHaveBeenCalledWith({
+            isActive: false,
+            isOpen: true,
+            name: 'Trail Three',
+            parkId: 1
+        });
         expect(result).toEqual(mockTrails[2]);
     });
 
@@ -163,12 +168,21 @@ describe('TrailService', () => {
     });
 
     test('should update trail status', async () => {
+        trailRepositoryMock.getTrail.mockResolvedValue(mockTrails[0]);
+        
         const updatedTrail = { ...mockTrails[0], isOpen: false };
-        trailRepositoryMock.updateTrailStatus.mockResolvedValue(updatedTrail);
+        trailRepositoryMock.updateTrail.mockResolvedValue(updatedTrail);
 
-        const result = await trailService.updateTrailStatus(1, false);
+        const trailUpdateData = {
+            isActive: false,
+            isOpen: true,
+            name: 'Trail Three',
+        };
+        
+        const result = await trailService.updateTrail(1, trailUpdateData);
 
-        expect(trailRepositoryMock.updateTrailStatus).toHaveBeenCalledWith(1, false);
+        expect(trailRepositoryMock.getTrail).toHaveBeenCalledWith(1);
+        expect(trailRepositoryMock.updateTrail).toHaveBeenCalledWith(1, trailUpdateData);
         expect(result).toEqual(updatedTrail);
     });
 });

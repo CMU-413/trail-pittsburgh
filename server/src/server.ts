@@ -2,7 +2,7 @@ import { app } from './app';
 
 const port = process.env.PORT || 3000;
 
-async function startServer() {
+function startServer() {
     try {
         app.listen(port, () => {
             // eslint-disable-next-line no-console

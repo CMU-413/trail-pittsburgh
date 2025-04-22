@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { TrailService } from '@/services';
+import { logger } from '@/utils/logger';
 
 export class TrailController {
     private readonly trailService: TrailService;
@@ -21,13 +22,15 @@ export class TrailController {
             const trails = await this.trailService.getAllTrails();
             res.status(200).json({ trails });
         } catch (error) {
+            logger.error(`Error fetching all trails`, error);
             res.status(500).json({ message: 'Failed to retrieve trails' });
         }
     }
 
     public async getTrail(req: express.Request, res: express.Response) {
+        const trailId = Number(req.params.trailId);
+
         try {
-            const trailId = Number(req.params.trailId);
             const trail = await this.trailService.getTrail(trailId);
             
             if (!trail) {
@@ -36,12 +39,12 @@ export class TrailController {
             }
             res.json({ trail });
         } catch (error) {
+            logger.error(`Error fetching trail ${trailId}`, error);
             res.status(500).json({ message: 'Failed to retrieve trail' });
         }
     }
 
     public async createTrail(req: express.Request, res: express.Response) {
-        console.log('createTrail', req.body);
         try {
             const { name, parkId, isActive, isOpen } = req.body;
 
@@ -59,27 +62,33 @@ export class TrailController {
     }
 
     public async updateTrail(req: express.Request, res: express.Response) {
-        try {
-            const trailId = Number(req.params.trailId);
-            const { isOpen } = req.body;
+        const trailId = Number(req.params.trailId);
 
-            const trail = await this.trailService.updateTrailStatus(trailId, isOpen);
+        try {
+            const { name, isOpen, isActive } = req.body;
+
+            const updatedTrail = await this.trailService.updateTrail(trailId, {
+                name,
+                isOpen,
+                isActive
+            });
             
-            if (!trail) {
-                res.status(404).json({ message: 'Trail not found' });
+            if (!updatedTrail) {
+                res.status(404).json({ message: 'Trail not found.' });
                 return;
             }
             
-            res.json({ trail });
+            res.status(200).json({ trail:updatedTrail });
         } catch (error) {
-            console.log(error);
+            logger.error(`Error updating trail ${trailId}`, error);
             res.status(500).json({ message: 'Failed to update trail' });
         }
     }
 
     public async deleteTrail(req: express.Request, res: express.Response) {
+        const trailId = Number(req.params.trailId);
+
         try {
-            const trailId = Number(req.params.trailId);
             const deleted = await this.trailService.deleteTrail(trailId);
             
             if (!deleted) {
@@ -89,24 +98,27 @@ export class TrailController {
             
             res.status(204).send();
         } catch (error) {
+            logger.error(`Error deleting trail ${trailId}`, error);
             res.status(500).json({ message: 'Failed to delete trail' });
         }
     }
 
     public async getTrailsByPark(req: express.Request, res: express.Response) {
+        const parkId = Number(req.params.parkId);
+
         try {
-            const parkId = Number(req.params.parkId);
             const trails = await this.trailService.getTrailsByPark(parkId);
 
-            return res.json({ trails });
+            res.json({ trails });
         } catch (error) {
+            logger.error(`Error fetching trails by park ${parkId}`, error);
             // Type checking for the error
             let errorMessage = 'Server error fetching trails';
             if (error instanceof Error) {
                 errorMessage = error.message;
             }
 
-            return res.status(500).json({ message: errorMessage });
+            res.status(500).json({ message: errorMessage });
         }
     }
 }
