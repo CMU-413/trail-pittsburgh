@@ -37,8 +37,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         notifyReporter: false,
         reporterEmail: '',
         createdAt: new Date().toISOString(),
-        lon: undefined,
-        lat: undefined,
+        longitude: undefined,
+        latitude: undefined,
         imageMetadata: undefined
     });
 
@@ -179,11 +179,11 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     };
 
     // Handle location selection
-    const handleLocationSelected = (lat: number, lon: number) => {
+    const handleLocationSelected = (latitude: number, longitude: number) => {
         setFormData((prev) => ({
             ...prev,
-            lat,
-            lon
+            latitude,
+            longitude
         }));
         setLocationProvided(true);
     };
@@ -296,8 +296,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 notifyReporter: false,
                 reporterEmail: '',
                 createdAt: new Date().toISOString(),
-                lon: undefined,
-                lat: undefined
+                longitude: undefined,
+                latitude: undefined
             });
             setLocationProvided(false);
 
@@ -502,8 +502,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             {/* Location Picker Section */}
             <Location
                 onLocationSelected={handleLocationSelected}
-                initialLat={formData.lat}
-                initialLon={formData.lon}
+                initialLat={formData.latitude}
+                initialLon={formData.longitude}
             />
             {locationProvided}
 
