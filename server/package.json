@@ -10,7 +10,9 @@
     "lint:fix": "eslint --fix",
     "start": "node -r ./tsconfig-paths-bootstrap.js dist/server.js",
     "seed": "npx prisma db seed",
-    "test": "jest unit",
+    "test": "jest",
+    "test:unit": "jest unit",
+    "test:integration": "jest integration",
     "deploy": "gcloud builds submit --config cloudbuild.yaml"
   },
   "prisma": {
@@ -66,7 +68,7 @@
     "nodemon": "^3.1.9",
     "prisma": "^6.4.1",
     "supertest": "^7.0.0",
-    "ts-jest": "^29.2.6",
+    "ts-jest": "^29.3.2",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
