@@ -75,7 +75,6 @@ describe('Issue API End-to-End', () => {
             .set('Authorization', 'Bearer TEST_TOKEN') //attempt to bypass auth
             .send(payload);
         
-        console.log(res.body);
         expect(res.status).toBe(201);
         expect(res.body.issue).toMatchObject({
             parkId: payload.parkId,
@@ -93,7 +92,6 @@ describe('Issue API End-to-End', () => {
         const res = await request(app).get(`/api/issues/${createdIssueId}`);
         expect(res.status).toBe(200);
         expect(res.body.issue.issueId).toBe(createdIssueId);
-        console.log('Testing GET for createdIssueId:', createdIssueId);
         expect(createdIssueId).toBeDefined();
     });
 
