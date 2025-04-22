@@ -33,7 +33,6 @@ export class ParkController {
     }
 
     public async createPark(req: express.Request, res: express.Response) {
-        console.log('Create park request received:', req.body);
         const { name, county, ownerId, isActive } = req.body;
 
         // Validate required fields

@@ -41,7 +41,6 @@ export class TrailController {
     }
 
     public async createTrail(req: express.Request, res: express.Response) {
-        console.log('createTrail', req.body);
         try {
             const { name, parkId, isActive, isOpen } = req.body;
 
@@ -60,20 +59,20 @@ export class TrailController {
 
     public async updateTrail(req: express.Request, res: express.Response) {
         try {
-            console.log('updateTrail', req.body);
-            console.log('req.params', req.params);
-            
             const trailId = Number(req.params.trailId);
-            const { isOpen, isActive } = req.body;
+            const { name, isOpen, isActive } = req.body;
 
-            const trail = await this.trailService.updateTrailStatus(trailId, isOpen, isActive);
+            const updatedTrail = await this.trailService.updateTrail(trailId, { 
+                name,
+                isOpen,
+                isActive
+            });
             
-            if (!trail) {
-                res.status(404).json({ message: 'Trail not found' });
-                return;
+            if (!updatedTrail) {
+                return res.status(404).json({ message: 'Trail not found.' });
             }
             
-            res.json({ trail });
+            res.status(200).json({ trail:updatedTrail });
         } catch (error) {
             console.log(error);
             res.status(500).json({ message: 'Failed to update trail' });

@@ -1,11 +1,5 @@
 import { TrailRepository } from '@/repositories';
-
-interface TrailData {
-    name: string;
-    parkId: number;
-    isActive?: boolean;
-    isOpen?: boolean;
-}
+import { TrailData } from '@/utils/types';
 
 export class TrailService {
     private readonly trailRepository: TrailRepository;
@@ -15,9 +9,7 @@ export class TrailService {
     }
 
     public async getTrail(trailId: number) {
-        const res = await this.trailRepository.getTrail(trailId);
-        console.log('Service Trail', res);
-        return res;
+        return await this.trailRepository.getTrail(trailId);
     }
 
     public async getAllTrails() {
@@ -25,26 +17,23 @@ export class TrailService {
     }
 
     public async createTrail(trailData: TrailData) {
-        console.log('Service TrailData', trailData);
-        const {
-            name,
-            parkId,
-            isActive = true,
-            isOpen = true
-        } = trailData;
-
-        return this.trailRepository.createTrail(name, parkId, isActive, isOpen);
+        return this.trailRepository.createTrail(trailData);
     }
 
     public async deleteTrail(trailId: number) {
         return this.trailRepository.deleteTrail(trailId);
     }
 
-    public async getTrailsByPark(parkId: number) {
-        return this.trailRepository.getTrailsByPark(parkId);
+    public async updateTrail(trailId: number, trailData: Partial<TrailData>) {
+        const existingTrail = await this.trailRepository.getTrail(trailId);
+        if (!existingTrail) {
+            return null;
+        }
+
+        return this.trailRepository.updateTrail(trailId, trailData);
     }
 
-    public async updateTrailStatus(trailId: number, isOpen: boolean, isActive: boolean) {
-        return this.trailRepository.updateTrailStatus(trailId, isOpen, isActive);
+    public async getTrailsByPark(parkId: number) {
+        return this.trailRepository.getTrailsByPark(parkId);
     }
 }

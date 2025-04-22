@@ -1,4 +1,5 @@
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
+import { TrailData } from '@/utils/types';
 
 export class TrailRepository {
     public async getTrail(trailId: number) {
@@ -11,24 +12,21 @@ export class TrailRepository {
         });
     }
 
-    public async createTrail(
-        name: string,
-        parkId: number,
-        isActive: boolean = true,
-        isOpen: boolean = true
-    ) {
-        return prisma.trail.create({
-            data: {
-                name,
-                parkId: parkId,
-                isActive: isActive,
-                isOpen: isOpen
-            },
-            include: {
-                park: true,
-                issues: true
-            }
-        });
+    public async createTrail(trailData: TrailData) {
+        try {
+            const result = await prisma.trail.create({
+                data: {
+                    name: trailData.name,
+                    parkId: trailData.parkId,
+                    isActive: trailData.isActive ?? true,
+                    isOpen: trailData.isOpen ?? true
+                }
+            });
+            return result;
+        } catch (error) {
+            console.error('Error creating trail:', error);
+            throw error;
+        }
     }
 
     public async getAllTrails() {
@@ -62,14 +60,15 @@ export class TrailRepository {
         });
     }
 
-    public async updateTrailStatus(trailId: number, isOpen: boolean, isActive: boolean) {
-        return prisma.trail.update({
-            where: { trailId: trailId },
-            data: { isOpen: isOpen, isActive: isActive },
-            include: {
-                park: true,
-                issues: true
-            }
-        });
+    public async updateTrail(trailId: number, trailData: Partial<TrailData>) {
+        try {
+            return await prisma.trail.update({
+                where: { trailId: trailId },
+                data: trailData
+            });
+        } catch (error) {
+            if (isNotFoundError(error)) { return null; }
+            throw error;
+        }
     }
 }

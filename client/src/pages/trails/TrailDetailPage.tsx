@@ -82,9 +82,6 @@ export const TrailDetailPage: React.FC = () => {
         if (!trail) {return;}
         
         try {
-            console.log('handleToggleTrailStatus', trail);
-            console.log('trail.isOpen', trail.isOpen);
-            console.log('trail.isActive', trail.isActive);
             const updatedTrail = await trailApi.updateTrail({
                 ...trail,
                 isOpen: !trail.isOpen,
