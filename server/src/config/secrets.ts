@@ -24,6 +24,7 @@ export async function getServiceAccountKey() {
 
         return JSON.parse(version.payload.data.toString());
     } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Error accessing secret:', error);
         throw error;
     }

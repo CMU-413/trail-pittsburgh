@@ -37,6 +37,7 @@ export class AuthController {
             const redirectTarget = typeof state === 'string' ? state : '/';
             res.redirect(`${process.env.CLIENT_URL}${redirectTarget}`);
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('OAuth callback error:', err);
             res.redirect(`${process.env.CLIENT_URL}/unauthorized`);
         }

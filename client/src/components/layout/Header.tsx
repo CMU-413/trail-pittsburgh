@@ -82,6 +82,7 @@ export const Header: React.FC = () => {
                 window.location.href = data.url;
             }
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Authentication error:', error);
         }
     }

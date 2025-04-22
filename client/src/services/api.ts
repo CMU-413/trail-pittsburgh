@@ -187,11 +187,8 @@ export const issueApi = {
     },
 
     updateIssueStatus: async (issueId: number, status: string): Promise<Issue> => {
-        console.log(`Updating issue ${issueId} status to '${status}'`);
-        
         // Create the request body with status
         const requestBody = JSON.stringify({ status });
-        console.log('Request body:', requestBody);
         
         try {
             const response = await fetch(`${API_BASE_URL}/issues/${issueId}/status`, {
@@ -212,16 +209,17 @@ export const issueApi = {
                     }
                 } catch (_) {
                 }
-                
+
+                // eslint-disable-next-line no-console
                 console.error('API error:', errorMessage);
                 throw new Error(errorMessage);
             }
             
             const data = await response.json();
-            console.log('Response data:', data);
             
             return data.issue;
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Exception in updateIssueStatus:', error);
             throw error;
         }

@@ -30,6 +30,7 @@ export class IssueController {
             
             res.json({ issue });
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error fetching issue:', error);
             res.status(500).json({ message: 'Failed to retrieve issue' });
         }
@@ -40,6 +41,7 @@ export class IssueController {
             const issues = await this.issueService.getAllIssues();
             res.json({ issues });
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error fetching all issues:', error);
             res.status(500).json({ message: 'Failed to retrieve issues' });
         }
@@ -60,19 +62,16 @@ export class IssueController {
             const issueId = Number(req.params.issueId);
             
             const status = req.body && req.body.status ? req.body.status : 'resolved';
-            
-            console.log(`Updating issue ${issueId} with status: ${status}`);
-    
+                
             const issue = await this.issueService.updateIssueStatus(issueId, status);
     
             if (!issue) {
-                console.log(`Issue not found with ID: ${issueId}`);
                 return res.status(404).json({ message: 'Issue not found' });
             }
     
-            console.log('Issue status updated successfully');
             res.json({ issue });
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error updating issue status:', error);
             res.status(500).json({ message: 'Failed to update issue status' });
         }
@@ -89,6 +88,7 @@ export class IssueController {
 
             res.status(204).send();
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error deleting issue:', error);
             res.status(500).json({ message: 'Failed to delete issue' });
         }
@@ -100,6 +100,7 @@ export class IssueController {
             const issues = await this.issueService.getIssuesByPark(parkId);
             res.json({ issues });
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error fetching issues by park:', error);
             res.status(500).json({ message: 'Failed to retrieve issues for this park' });
         }
@@ -111,6 +112,7 @@ export class IssueController {
             const issues = await this.issueService.getIssuesByTrail(trailId);
             res.json({ issues });
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error fetching issues by trail:', error);
             res.status(500).json({ message: 'Failed to retrieve issues for this trail' });
         }
@@ -122,6 +124,7 @@ export class IssueController {
             const issues = await this.issueService.getIssuesByUrgency(urgency);
             res.json({ issues });
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error fetching issues by urgency:', error);
             res.status(500).json({ message: 'Failed to retrieve issues by urgency' });
         }

@@ -1,7 +1,11 @@
 // src/pages/issues/IssueDetailPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Issue, Park, Trail } from '../../types';
+import { 
+    Link, useParams, useNavigate
+} from 'react-router-dom';
+import { 
+    Issue, Park, Trail
+} from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -12,7 +16,9 @@ import { format } from 'date-fns';
 import Location from '../../components/ui/Location';
 import { IssueTimer } from '../../components/issues/IssueTimer';
 import { ImageMetadataDisplay } from '../../components/ui/ImageMetadataDisplay';
-import { parkApi, trailApi, issueApi } from '../../services/api';
+import { 
+    parkApi, trailApi, issueApi
+} from '../../services/api';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -94,16 +100,21 @@ export const IssueDetailPage: React.FC = () => {
     }, [issueId]);
 
     const handleResolveIssue = async () => {
-        if (!issue || !issueId) return;
-    
+        if (!issue || !issueId) {
+            return;
+        }
+
         try {
             setIsResolving(true);
             const id = parseInt(issueId, 10);
+
             const updatedIssue = await issueApi.updateIssueStatus(id, 'resolved');
+            
             if (updatedIssue) {
                 setIssue(updatedIssue);
             }
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error resolving issue:', err);
         } finally {
             setIsResolving(false);
@@ -163,11 +174,6 @@ export const IssueDetailPage: React.FC = () => {
                                 <p className="text-sm text-gray-500">
                                     Reported {formatDate(issue.created_at)}
                                 </p>
-                                {issue.resolved_at && (
-                                    <p className="text-sm text-green-600">
-                                        Resolved {formatDate(issue.resolved_at)}
-                                    </p>
-                                )}
                                 {issue.resolved_at && (
                                     <p className="text-sm text-green-600">
                                         Resolved {formatDate(issue.resolved_at)}
