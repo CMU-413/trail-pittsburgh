@@ -1,10 +1,10 @@
 // src/pages/issues/IssueDetailPage.tsx
 import React, { useState, useEffect } from 'react';
-import {
-    Link, useParams, useNavigate 
+import { 
+    Link, useParams, useNavigate
 } from 'react-router-dom';
-import {
-    Issue, Park, Trail, User, IssueResolutionUpdate 
+import { 
+    Issue, Park, Trail
 } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
@@ -12,8 +12,6 @@ import { Card } from '../../components/ui/Card';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { IssueStatusBadge } from '../../components/issues/IssueStatusBadge';
-import { IssueResolutionForm } from '../../components/issues/IssueResolutionForm';
-import { mockApi } from '../../services/mockData';
 import { format } from 'date-fns';
 import Location from '../../components/ui/Location';
 import { IssueTimer } from '../../components/issues/IssueTimer';
@@ -29,9 +27,8 @@ export const IssueDetailPage: React.FC = () => {
     const [issue, setIssue] = useState<Issue | null>(null);
     const [park, setPark] = useState<Park | null>(null);
     const [trail, setTrail] = useState<Trail | null>(null);
-    const [resolution, setResolution] = useState<IssueResolutionUpdate | null>(null);
-    const [resolvedBy, setResolvedBy] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isResolving, setIsResolving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Mock current user - in a real app, this would come from auth context
@@ -90,25 +87,6 @@ export const IssueDetailPage: React.FC = () => {
                 // Fetch related trail
                 const trailData = await trailApi.getTrail(issueData.trailId);
                 setTrail(trailData || null);
-
-                // Fetch resolution info if resolved
-                // we still need to use mock API since this endpoint hasn't been 
-                // implemented in the real API yet
-                if (issueData.status === 'resolved') {
-                    const resolutions = await mockApi.getResolutionUpdatesByIssue(id);
-                    if (resolutions.length > 0) {
-                        const latestResolution = resolutions[resolutions.length - 1];
-                        setResolution(latestResolution);
-
-                        // Fetch user who resolved the issue
-                        const user = await mockApi.getUser(latestResolution.resolved_by);
-                        // Map user data to include id property
-                        setResolvedBy(user ? {
-                            id: user.userId?.toString() || '',
-                            ...user
-                        } : null);
-                    }
-                }
             } catch (err) {
                 // eslint-disable-next-line no-console
                 console.error('Error fetching issue details:', err);
@@ -121,28 +99,25 @@ export const IssueDetailPage: React.FC = () => {
         fetchIssueData();
     }, [issueId]);
 
-    const handleResolveIssue = async (issueId: number, image?: string, notes?: string,) => {
+    const handleResolveIssue = async () => {
+        if (!issue || !issueId) {
+            return;
+        }
+
         try {
-            const { issue: updatedIssue, resolution: newResolution } = await mockApi.resolveIssue(
-                issueId,
-                currentUser.userId,
-                image,
-                notes
-            );
+            setIsResolving(true);
+            const id = parseInt(issueId, 10);
 
-            setIssue(updatedIssue);
-            setResolution(newResolution);
-
-            const user = await mockApi.getUser(currentUser.userId);
-            // Map user data to include id property
-            setResolvedBy(user ? {
-                id: user.userId?.toString() || '',
-                ...user
-            } : null);
+            const updatedIssue = await issueApi.updateIssueStatus(id, 'resolved');
+            
+            if (updatedIssue) {
+                setIssue(updatedIssue);
+            }
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Error resolving issue:', err);
-            throw err;
+        } finally {
+            setIsResolving(false);
         }
     };
 
@@ -178,9 +153,11 @@ export const IssueDetailPage: React.FC = () => {
                     issue.status !== 'resolved' && canResolveIssue ? (
                         <Button
                             variant="success"
-                            onClick={() => document.getElementById('resolution-form')?.scrollIntoView({ behavior: 'smooth' })}
+                            onClick={handleResolveIssue}
+                            isLoading={isResolving}
+                            disabled={isResolving}
                         >
-                            Resolve Issue
+                            {isResolving ? 'Resolving...' : 'Resolve Issue'}
                         </Button>
                     ) : null
                 }
@@ -197,6 +174,11 @@ export const IssueDetailPage: React.FC = () => {
                                 <p className="text-sm text-gray-500">
                                     Reported {formatDate(issue.createdAt)}
                                 </p>
+                                {issue.resolvedAt && (
+                                    <p className="text-sm text-green-600">
+                                        Resolved {formatDate(issue.resolvedAt)}
+                                    </p>
+                                )}
                             </div>
                         </div>
                         <IssueStatusBadge status={issue.status} />
@@ -272,56 +254,6 @@ export const IssueDetailPage: React.FC = () => {
                             </div>
                         </div>
                     )}
-
-                    {resolution && (
-                        <div className="border-t border-gray-200 pt-6 mt-6">
-                            <div className="flex justify-between mb-4">
-                                <h4 className="text-lg font-semibold text-gray-900">Resolution</h4>
-                                <span className="text-sm text-gray-500">
-                                    {formatDate(resolution.resolvedAt)}
-                                </span>
-                            </div>
-
-                            {resolvedBy && (
-                                <div className="flex items-center mb-4">
-                                    <div className="flex-shrink-0 mr-3">
-                                        {resolvedBy.profileImage ? (
-                                            <img
-                                                src={resolvedBy.profileImage}
-                                                alt={resolvedBy.username}
-                                                className="h-8 w-8 rounded-full"
-                                            />
-                                        ) : (
-                                            <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-800 font-medium">
-                                                {resolvedBy.username?.charAt(0) || '?'}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-900">
-                                            Resolved by {resolvedBy.username}
-                                        </p>
-                                        <p className="text-xs text-gray-500">
-                                            {resolvedBy.permission && resolvedBy.permission.charAt(0).toUpperCase() + resolvedBy.permission.slice(1)}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {resolution.resolve_image && (
-                                <div className="mb-4">
-                                    <h5 className="text-sm font-medium text-gray-500 mb-2">Resolution Image</h5>
-                                    <div className="rounded-lg overflow-hidden border border-gray-200">
-                                        <img
-                                            src={resolution.resolve_image}
-                                            alt="Resolution"
-                                            className="w-full h-auto max-h-96 object-cover"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
                 </Card>
 
                 <div className="space-y-6">
@@ -351,7 +283,7 @@ export const IssueDetailPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <IssueTimer issue={issue} />
+                            {issue.status !== 'resolved' && <IssueTimer issue={issue} />}
 
                             <div>
                                 <p className="text-sm font-medium text-gray-500">Location</p>
@@ -409,13 +341,6 @@ export const IssueDetailPage: React.FC = () => {
                             </div>
                         </div>
                     </Card>
-
-                    {issue.status !== 'resolved' && canResolveIssue && (
-                        <IssueResolutionForm
-                            issue={issue}
-                            onResolve={handleResolveIssue}
-                        />
-                    )}
                 </div>
             </div>
         </div>
