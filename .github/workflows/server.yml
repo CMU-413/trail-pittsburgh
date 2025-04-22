@@ -88,4 +88,4 @@ jobs:
       # Run tests
       - name: Run Tests
         working-directory: server
-        run: npm test:unit
+        run: npm run test:unit
