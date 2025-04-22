@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import { AuthService } from '@/services/AuthService';
+import { logger } from '@/utils/logger';
 
 export class AuthController {
     private readonly authService: AuthService;
@@ -15,9 +16,14 @@ export class AuthController {
     }
 
     public startGoogleOAuth(req: Request, res: Response) {
-        const redirectPath = req.body.redirectPath || '/';
-        const url = this.authService.generateAuthUrl(redirectPath);
-        res.json({ url });
+        try {
+            const redirectPath = req.body.redirectPath || '/';
+            const url = this.authService.generateAuthUrl(redirectPath);
+            res.json({ url });
+        } catch (error) {
+            logger.error(`Error beginning googleOAuth`, error);
+            res.status(500).send({ message: 'Failed to login' });
+        }
     }
 
     public async handleGoogleCallback(req: Request, res: Response) {
@@ -35,8 +41,8 @@ export class AuthController {
 
             const redirectTarget = typeof state === 'string' ? state : '/';
             res.redirect(`${process.env.CLIENT_URL}/${redirectTarget}`);
-        } catch (err) {
-            console.error('OAuth callback error:', err);
+        } catch (error) {
+            logger.error(`Error with OAuth callback`, error);
             res.redirect(`${process.env.CLIENT_URL}/unauthorized`);
         }
     }

@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { IssueService } from '@/services/IssueService';
+import { logger } from '@/utils/logger';
 
 export class IssueController {
 
@@ -20,17 +21,18 @@ export class IssueController {
     }
 
     public async getIssue(req: express.Request, res: express.Response) {
+        const issueId = Number(req.params.issueId);
+
         try {
-            const issueId = Number(req.params.issueId);
             const issue = await this.issueService.getIssue(issueId);
             
             if (!issue) {
                 return res.status(404).json({ message: 'Issue not found' });
             }
-            
+
             res.json({ issue });
         } catch (error) {
-            console.error('Error fetching issue:', error);
+            logger.error(`Error fetching issue ${issueId}`, error);
             res.status(500).json({ message: 'Failed to retrieve issue' });
         }
     }
@@ -40,7 +42,7 @@ export class IssueController {
             const issues = await this.issueService.getAllIssues();
             res.json({ issues });
         } catch (error) {
-            console.error('Error fetching all issues:', error);
+            logger.error(`Error fetching all issues`, error);
             res.status(500).json({ message: 'Failed to retrieve issues' });
         }
     }
@@ -51,18 +53,16 @@ export class IssueController {
     
             res.status(201).json({ issue, signedUrl });
         } catch (error) {
+            logger.error(`Error creating issue`, error);
             res.status(500).json({ message: 'Failed to create issue' });
         }
     }
     
     public async updateIssueStatus(req: express.Request, res: express.Response) {
-        try {
-            const issueId = Number(req.params.id);
-            const { status } = req.body;
+        const issueId = Number(req.params.issueId);
 
-            if (!status) {
-                return res.status(400).json({ message: 'Status is required' });
-            }
+        try {
+            const { status } = req.body;
 
             const issue = await this.issueService.updateIssueStatus(issueId, status);
 
@@ -72,14 +72,15 @@ export class IssueController {
 
             res.json({ issue });
         } catch (error) {
-            console.error('Error updating issue status:', error);
+            logger.error(`Error updating issue ${issueId}`, error);
             res.status(500).json({ message: 'Failed to update issue status' });
         }
     }
 
     public async deleteIssue(req: express.Request, res: express.Response) {
+        const issueId = Number(req.params.issueId);
+
         try {
-            const issueId = Number(req.params.id);
             const deleted = await this.issueService.deleteIssue(issueId);
 
             if (!deleted) {
@@ -88,7 +89,7 @@ export class IssueController {
 
             res.status(204).send();
         } catch (error) {
-            console.error('Error deleting issue:', error);
+            logger.error(`Error deleting issue ${issueId}`, error);
             res.status(500).json({ message: 'Failed to delete issue' });
         }
     }
@@ -99,7 +100,7 @@ export class IssueController {
             const issues = await this.issueService.getIssuesByPark(parkId);
             res.json({ issues });
         } catch (error) {
-            console.error('Error fetching issues by park:', error);
+            logger.error(`Error getting issues by park ${req.params.parkId}:`, error);
             res.status(500).json({ message: 'Failed to retrieve issues for this park' });
         }
     }
@@ -110,7 +111,7 @@ export class IssueController {
             const issues = await this.issueService.getIssuesByTrail(trailId);
             res.json({ issues });
         } catch (error) {
-            console.error('Error fetching issues by trail:', error);
+            logger.error(`Error getting issues by trail ${req.params.trailId}`, error);
             res.status(500).json({ message: 'Failed to retrieve issues for this trail' });
         }
     }
@@ -121,7 +122,7 @@ export class IssueController {
             const issues = await this.issueService.getIssuesByUrgency(urgency);
             res.json({ issues });
         } catch (error) {
-            console.error('Error fetching issues by urgency:', error);
+            logger.error(`Error getting issues by urgency ${req.params.urgency}:`, error);
             res.status(500).json({ message: 'Failed to retrieve issues by urgency' });
         }
     }
