@@ -44,7 +44,6 @@ export const Header: React.FC = () => {
     // Navigation links that are public
     const publicNavigation = [
         { name: 'Home', href: '/', current: location.pathname === '/' },
-        { name: 'Report Issue', href: '/issues/report', current: location.pathname === '/issues/report' },
     ];
 
     // Navigation links for authenticated users
@@ -54,8 +53,17 @@ export const Header: React.FC = () => {
         { name: 'Issues', href: '/issues', current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report' },
     ];
 
+    // Report Issue link (public)
+    const reportIssueLink = {
+        name: 'Report Issue',
+        href: '/issues/report',
+        current: location.pathname === '/issues/report'
+    };
+
     // Determine which navigation to use
-    const navigation = hasPermission ? [...publicNavigation, ...authNavigation] : publicNavigation;
+    const navigation = hasPermission
+        ? [...publicNavigation, ...authNavigation, reportIssueLink]
+        : [...publicNavigation, reportIssueLink];
 
     // Handle profile actions
     const handleLogout = () => {
@@ -66,7 +74,7 @@ export const Header: React.FC = () => {
 
     async function auth() {
         try {
-            const response = await fetch('http://127.0.0.1:3000/api/auth', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -156,14 +164,17 @@ export const Header: React.FC = () => {
                                         onClick={() => setIsProfileOpen(!isProfileOpen)}
                                     >
                                         <div className="text-right hidden md:block">
-                                            <p className="text-sm font-medium text-gray-700 truncate">{user?.username}</p>
-                                            <p className="text-xs text-gray-500 capitalize">{hasPermission ? 'Staff' : 'Public'}</p>
+                                            <p className="text-sm font-medium text-gray-700 truncate">{user?.name}</p>
+                                            <p className="text-xs text-gray-500 capitalize">{hasPermission ? 'Steward' : 'Public'}</p>
                                         </div>
                                         <div className="relative flex-shrink-0">
                                             <img
                                                 className="h-10 w-10 rounded-full object-cover ring-2 ring-white"
-                                                src={user?.profile_image || `https://ui-avatars.com/api/?background=random&color=fff&size=400?text=${encodeURIComponent(user?.username || 'User Name')}`}
-                                                alt={user?.username || 'User profile'}
+                                                src={user?.picture || `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user?.name || 'User')}`}
+                                                alt={user?.name || 'User profile'}
+                                                onError={(e) => {
+                                                    e.currentTarget.src = `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user?.name || 'User')}`;
+                                                }}
                                             />
                                         </div>
                                     </button>
@@ -264,13 +275,16 @@ export const Header: React.FC = () => {
                                 <div className="flex-shrink-0 relative">
                                     <img
                                         className="h-10 w-10 rounded-full object-cover"
-                                        src={user?.profile_image || `https://ui-avatars.com/api/?background=random&color=fff&size=400?text=${encodeURIComponent(user?.username || 'User Name')}`}
-                                        alt={user?.username || 'User profile'}
+                                        src={user?.picture || `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user?.name || 'User')}`}
+                                        alt={user?.name || 'User profile'}
+                                        onError={(e) => {
+                                            e.currentTarget.src = `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user?.name || 'User')}`;
+                                        }}
                                     />
                                 </div>
                                 <div className="ml-3">
-                                    <div className="text-base font-medium text-gray-800">{user?.username}</div>
-                                    <div className="text-sm font-medium text-gray-500 capitalize">{hasPermission ? 'Staff' : 'Public'}</div>
+                                    <div className="text-base font-medium text-gray-800">{user?.name}</div>
+                                    <div className="text-sm font-medium text-gray-500 capitalize">{hasPermission ? 'Steward' : 'Public'}</div>
                                 </div>
                             </div>
                             <div className="mt-3 space-y-1">

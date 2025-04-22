@@ -32,12 +32,15 @@ export const ProfilePage: React.FC = () => {
                         <div className="flex flex-col items-center py-6">
                             <div className="relative mb-4">
                                 <img
-                                    src={user.profile_image}
-                                    alt={user.username}
+                                    src={user.picture || `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user.name || 'User')}`}
+                                    alt={user.name || 'User profile'}
                                     className="h-32 w-32 rounded-full object-cover border-4 border-white shadow-md"
+                                    onError={(e) => {
+                                        e.currentTarget.src = `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user.name || 'User')}`;
+                                    }}
                                 />
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900">{user.username}</h2>
+                            <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
                             <p className="text-sm text-gray-500 mb-4">{user.email}</p>
 
                             {user.permission && (
@@ -65,7 +68,7 @@ export const ProfilePage: React.FC = () => {
                         <div className="space-y-4">
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">Name</h3>
-                                <p className="mt-1 text-base text-gray-900">{user.username}</p>
+                                <p className="mt-1 text-base text-gray-900">{user.name}</p>
                             </div>
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">Email</h3>
@@ -85,7 +88,7 @@ export const ProfilePage: React.FC = () => {
                                 <p className="mt-1 flex items-center">
                                     {user.permission === 'owner' ? (
                                         <>
-                                            <span className="bg-green-100 text-green-800 font-medium py-1 px-2 rounded-md text-sm">Staff</span>
+                                            <span className="bg-green-100 text-green-800 font-medium py-1 px-2 rounded-md text-sm">Steward</span>
                                             <span className="ml-2 text-sm text-gray-600">Full access to all features</span>
                                         </>
                                     ) : (

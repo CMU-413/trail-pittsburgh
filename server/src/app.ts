@@ -5,7 +5,6 @@ dotenv.config();
 import express from 'express';
 
 import { errorHandler } from '@/middlewares';
-import { authenticateToken } from '@/middlewares/auth';
 import { limiter } from '@/middlewares/rateLimiter';
 import { securityHeaders } from '@/middlewares/securityHeaders';
 import {
@@ -42,9 +41,9 @@ app.use(express.json());
 app.use('/api/auth', authenticationRouter);
 
 // Protected routes
-app.use('/api/issues', authenticateToken, issueRouter);
-app.use('/api/parks', authenticateToken, parkRouter);
-app.use('/api/trails', authenticateToken, trailRouter);
+app.use('/api/issues', issueRouter);
+app.use('/api/parks', parkRouter);
+app.use('/api/trails', trailRouter);
 
 // Health check
 app.get('/healthz', (req: express.Request, res: express.Response) => {

@@ -3,7 +3,7 @@ import { AuthContextType } from '../types/auth';
 
 export const AuthContext = createContext<AuthContextType>({
     user: null,
-    isLoading: true,
+    loading: true,
     isAuthenticated: false,
     hasPermission: false,
     login: () => { },

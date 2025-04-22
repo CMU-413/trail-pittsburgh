@@ -54,7 +54,7 @@ export const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
         setError(null);
 
         try {
-            await onResolve(issue.issue_id, notes, imagePreview || undefined);
+            await onResolve(issue.issueId, notes, imagePreview || undefined);
             setIsSuccess(true);
             setIsConfirming(false);
         } catch (err) {

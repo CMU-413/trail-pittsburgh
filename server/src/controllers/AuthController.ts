@@ -24,18 +24,17 @@ export class AuthController {
         const { code, state } = req.query;
 
         try {
-            // eslint-disable-next-line
-            const { token, user } = await this.authService.handleGoogleCallback(code as string);
+            const { token } = await this.authService.handleGoogleCallback(code as string);
 
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
+                sameSite: 'none',
                 maxAge: 24 * 60 * 60 * 1000
             });
 
             const redirectTarget = typeof state === 'string' ? state : '/';
-            res.redirect(`${process.env.CLIENT_URL}${redirectTarget}`);
+            res.redirect(`${process.env.CLIENT_URL}/${redirectTarget}`);
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('OAuth callback error:', err);
@@ -61,10 +60,21 @@ export class AuthController {
             return res.status(200).json({ user: null });
         }
 
+        // Process the picture URL if it exists
+        let pictureUrl = user.picture;
+        
+        // Check if it's a Google image and proxy it if needed
+        if (pictureUrl && pictureUrl.includes('googleusercontent.com')) {
+            // Use proxy to avoid CORS issues with Google images
+            pictureUrl = `${process.env.SERVER_URL}/api/auth/profile-image-proxy?url=${encodeURIComponent(pictureUrl)}`;
+        }
+
         res.status(200).json({
             user: {
                 id: user.id,
-                email: user.email
+                email: user.email,
+                name: user.name,
+                picture: pictureUrl
             }
         });
     }

@@ -16,42 +16,42 @@ async function main() {
             { 
                 username: 'john_doe', 
                 email: 'john@example.com',
-                is_admin: false,
+                isAdmin: false,
                 permission: 'View',
-                profile_image: 'default.jpg',
-                is_active: true
+                profileImage: 'default.jpg',
+                isActive: true
             },
             { 
                 username: 'jane_smith', 
                 email: 'jane@example.com',
-                is_admin: true,
+                isAdmin: true,
                 permission: 'Admin',
-                profile_image: 'default.jpg',
-                is_active: true
+                profileImage: 'default.jpg',
+                isActive: true
             },
             { 
                 username: 'mike_wilson', 
                 email: 'mike@example.com',
-                is_admin: false,
+                isAdmin: false,
                 permission: 'View',
-                profile_image: 'default.jpg',
-                is_active: true
+                profileImage: 'default.jpg',
+                isActive: true
             },
             { 
                 username: 'sarah_jones', 
                 email: 'sarah@example.com',
-                is_admin: false,
+                isAdmin: false,
                 permission: 'View',
-                profile_image: 'default.jpg',
-                is_active: true
+                profileImage: 'default.jpg',
+                isActive: true
             },
             { 
                 username: 'david_brown', 
                 email: 'david@example.com',
-                is_admin: false,
+                isAdmin: false,
                 permission: 'View',
-                profile_image: 'default.jpg',
-                is_active: true
+                profileImage: 'default.jpg',
+                isActive: true
             }
         ]
     });
@@ -74,11 +74,11 @@ async function main() {
     //eslint-disable-next-line
     const trails = await prisma.trail.createMany({
         data: [
-            { name: 'Great Allegheny Passage', park_id: parkRecords[0].park_id, is_open: true },
-            { name: 'Three Rivers Heritage Trail', park_id: parkRecords[1].park_id, is_open: true },
-            { name: 'Frick Park Trails', park_id: parkRecords[2].park_id, is_open: true },
-            { name: 'Schenley Park Trails', park_id: parkRecords[3].park_id, is_open: true },
-            { name: 'Highland Park Trails', park_id: parkRecords[4].park_id, is_open: true }
+            { name: 'Great Allegheny Passage', parkId: parkRecords[0].parkId, isOpen: true },
+            { name: 'Three Rivers Heritage Trail', parkId: parkRecords[1].parkId, isOpen: true },
+            { name: 'Frick Park Trails', parkId: parkRecords[2].parkId, isOpen: true },
+            { name: 'Schenley Park Trails', parkId: parkRecords[3].parkId, isOpen: true },
+            { name: 'Highland Park Trails', parkId: parkRecords[4].parkId, isOpen: true }
         ]
     });
 
@@ -89,37 +89,37 @@ async function main() {
     const issues = await prisma.issue.createMany({
         data: [
             {
-                park_id: parkRecords[0].park_id,
-                trail_id: trailRecords[0].trail_id,
-                issue_type: 'Flooding',
+                parkId: parkRecords[0].parkId,
+                trailId: trailRecords[0].trailId,
+                issueType: 'Flooding',
                 urgency: 4,
                 description: 'Heavy rainfall caused water pooling on the trail.',
-                is_public: true,
+                isPublic: true,
                 status: 'Open',
-                notify_reporter: true,
-                reporter_email: 'john@example.com'
+                notifyReporter: true,
+                reporterEmail: 'john@example.com'
             },
             {
-                park_id: parkRecords[1].park_id,
-                trail_id: trailRecords[1].trail_id,
-                issue_type: 'Tree Obstruction',
+                parkId: parkRecords[1].parkId,
+                trailId: trailRecords[1].trailId,
+                issueType: 'Tree Obstruction',
                 urgency: 3,
                 description: 'A fallen tree is blocking the path near mile marker 5.',
-                is_public: true,
+                isPublic: true,
                 status: 'Open',
-                notify_reporter: true,
-                reporter_email: 'jane@example.com'
+                notifyReporter: true,
+                reporterEmail: 'jane@example.com'
             },
             {
-                park_id: parkRecords[2].park_id,
-                trail_id: trailRecords[2].trail_id,
-                issue_type: 'Erosion',
+                parkId: parkRecords[2].parkId,
+                trailId: trailRecords[2].trailId,
+                issueType: 'Erosion',
                 urgency: 5,
                 description: 'Severe erosion has made the path unsafe for bikers.',
-                is_public: true,
+                isPublic: true,
                 status: 'Open',
-                notify_reporter: true,
-                reporter_email: 'mike@example.com'
+                notifyReporter: true,
+                reporterEmail: 'mike@example.com'
             }
         ]
     });
@@ -131,13 +131,13 @@ async function main() {
     const notifications = await prisma.notification.createMany({
         data: [
             {
-                issue_id: issueRecords[0].issue_id,
-                recipient_email: 'john@example.com',
+                issueId: issueRecords[0].issueId,
+                recipientEmail: 'john@example.com',
                 content: 'Your issue has been reported successfully.'
             },
             {
-                issue_id: issueRecords[1].issue_id,
-                recipient_email: 'jane@example.com',
+                issueId: issueRecords[1].issueId,
+                recipientEmail: 'jane@example.com',
                 content: 'New issue reported in your assigned park.'
             }
         ]

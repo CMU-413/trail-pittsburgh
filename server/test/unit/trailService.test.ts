@@ -19,78 +19,78 @@ describe('TrailService', () => {
         trailService = new TrailService(trailRepositoryMock);
 
         mockPark = {
-            park_id: 1,
+            parkId: 1,
             name: 'Test Park',
             county: 'Allegheny',
-            is_active: true,
-            created_at: new Date()
+            isActive: true,
+            createdAt: new Date()
         };
 
         mockIssues = [
             {
-                issue_id: 101,
-                park_id: 1,
-                trail_id: 1,
-                is_public: true,
+                issueId: 101,
+                parkId: 1,
+                trailId: 1,
+                isPublic: true,
                 status: 'Open',
                 description: 'First issue',
-                issue_type: 'Erosion',
+                issueType: 'Erosion',
                 urgency: 3,
-                issue_image: null,
-                notify_reporter: true,
-                reporter_email: 'user1@example.com',
+                issueImage: null,
+                notifyReporter: true,
+                reporterEmail: 'user1@example.com',
                 longitude: null,
                 latitude: null,
-                created_at: new Date(),
-                resolved_at: null
+                createdAt: new Date(),
+                resolvedAt: null
             },
             {
-                issue_id: 102,
-                park_id: 1,
-                trail_id: 1,
-                is_public: true,
+                issueId: 102,
+                parkId: 1,
+                trailId: 1,
+                isPublic: true,
                 status: 'Open',
                 description: 'Second issue',
-                issue_type: 'Flooding',
+                issueType: 'Flooding',
                 urgency: 4,
-                issue_image: null,
-                notify_reporter: true,
-                reporter_email: 'user2@example.com',
+                issueImage: null,
+                notifyReporter: true,
+                reporterEmail: 'user2@example.com',
                 longitude: null,
                 latitude: null,
-                created_at: new Date(),
-                resolved_at: null
+                createdAt: new Date(),
+                resolvedAt: null
             }
         ];
 
         mockTrails = [
             {
-                trail_id: 1,
-                park_id: 1,
+                trailId: 1,
+                parkId: 1,
                 name: 'Trail One',
-                is_active: true,
-                is_open: true,
-                created_at: new Date(),
+                isActive: true,
+                isOpen: true,
+                createdAt: new Date(),
                 park: mockPark,
                 issues: mockIssues
             },
             {
-                trail_id: 2,
-                park_id: 1,
+                trailId: 2,
+                parkId: 1,
                 name: 'Trail Two',
-                is_active: true,
-                is_open: false,
-                created_at: new Date(),
+                isActive: true,
+                isOpen: false,
+                createdAt: new Date(),
                 park: mockPark,
                 issues: mockIssues
             },
             {
-                trail_id: 3,
-                park_id: 1,
+                trailId: 3,
+                parkId: 1,
                 name: 'Trail Three',
-                is_active: false,
-                is_open: true,
-                created_at: new Date(),
+                isActive: false,
+                isOpen: true,
+                createdAt: new Date(),
                 park: mockPark,
                 issues: mockIssues
             }
@@ -100,20 +100,25 @@ describe('TrailService', () => {
     test('should create a new trail with default values', async () => {
         trailRepositoryMock.createTrail.mockResolvedValue(mockTrails[0]);
 
-        const trailInput = { name: 'Trail One', park_id: 1 };
+        const trailInput = { name: 'Trail One', parkId: 1 };
         const result = await trailService.createTrail(trailInput);
 
-        expect(trailRepositoryMock.createTrail).toHaveBeenCalledWith('Trail One', 1, true, true);
+        expect(trailRepositoryMock.createTrail).toHaveBeenCalledWith({"name": "Trail One", "parkId": 1});
         expect(result).toEqual(mockTrails[0]);
     });
 
     test('should create a new trail with custom values', async () => {
         trailRepositoryMock.createTrail.mockResolvedValue(mockTrails[2]);
 
-        const trailInput = { name: 'Trail Three', park_id: 1, is_active: false, is_open: true };
+        const trailInput = { name: 'Trail Three', parkId: 1, isActive: false, isOpen: true };
         const result = await trailService.createTrail(trailInput);
 
-        expect(trailRepositoryMock.createTrail).toHaveBeenCalledWith('Trail Three', 1, false, true);
+        expect(trailRepositoryMock.createTrail).toHaveBeenCalledWith({
+            isActive: false,
+            isOpen: true,
+            name: 'Trail Three',
+            parkId: 1
+        });
         expect(result).toEqual(mockTrails[2]);
     });
 
@@ -163,12 +168,21 @@ describe('TrailService', () => {
     });
 
     test('should update trail status', async () => {
-        const updatedTrail = { ...mockTrails[0], is_open: false };
-        trailRepositoryMock.updateTrailStatus.mockResolvedValue(updatedTrail);
+        trailRepositoryMock.getTrail.mockResolvedValue(mockTrails[0]);
+        
+        const updatedTrail = { ...mockTrails[0], isOpen: false };
+        trailRepositoryMock.updateTrail.mockResolvedValue(updatedTrail);
 
-        const result = await trailService.updateTrailStatus(1, false);
+        const trailUpdateData = {
+            isActive: false,
+            isOpen: true,
+            name: 'Trail Three',
+        };
+        
+        const result = await trailService.updateTrail(1, trailUpdateData);
 
-        expect(trailRepositoryMock.updateTrailStatus).toHaveBeenCalledWith(1, false);
+        expect(trailRepositoryMock.getTrail).toHaveBeenCalledWith(1);
+        expect(trailRepositoryMock.updateTrail).toHaveBeenCalledWith(1, trailUpdateData);
         expect(result).toEqual(updatedTrail);
     });
 });

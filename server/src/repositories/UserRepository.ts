@@ -1,21 +1,19 @@
-// import { Prisma } from '@prisma/client';
-
-import { prisma } from '@/prisma/prismaClient';
+import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 
 interface UserUpdateData {
     username?: string;
     email?: string;
-    is_admin?: boolean;
+    isAdmin?: boolean;
     permission?: string;
-    profile_image?: string;
-    is_active?: boolean;
+    profileImage?: string;
+    isActive?: boolean;
 }
 
 export class UserRepository {
     public async getUser(userId: number) {
         try {
             return await prisma.user.findUnique({
-                where: { user_id: userId }
+                where: { userId: userId }
             });
         } catch (error) {
             console.error('Error getting user:', error);
@@ -36,10 +34,10 @@ export class UserRepository {
                 data: {
                     username,
                     email,
-                    is_admin: isAdmin,
+                    isAdmin: isAdmin,
                     permission,
-                    profile_image: profileImage,
-                    is_active: isActive
+                    profileImage: profileImage,
+                    isActive: isActive
                 }
             });
             console.log('User created successfully:', result);
@@ -61,7 +59,7 @@ export class UserRepository {
 
     public async deleteUser(userId: number) {
         try {
-            await prisma.user.delete({ where: { user_id: userId } });
+            await prisma.user.delete({ where: { userId: userId } });
             return true;
         } catch (error) {
             if (isNotFoundError(error)) {return false;}
@@ -73,7 +71,7 @@ export class UserRepository {
     public async updateUser(userId: number, data: UserUpdateData) {
         try {
             return await prisma.user.update({
-                where: { user_id: userId },
+                where: { userId: userId },
                 data
             });
         } catch (error) {
@@ -104,11 +102,4 @@ export class UserRepository {
             throw error;
         }
     }
-}
-
-function isNotFoundError(error: unknown): boolean {
-    if (!error || typeof error !== 'object') {return false;}
-
-    const prismaError = error as { code?: string };
-    return prismaError.code === 'P2025' || prismaError.code === 'P2016';
 }

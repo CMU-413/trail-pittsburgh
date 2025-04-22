@@ -48,16 +48,16 @@ export const ParkEditPage: React.FC = () => {
         fetchPark();
     }, [parkId]);
     
-    const handleSubmit = async (data: Omit<Park, 'park_id'>) => {
+    const handleSubmit = async (data: Omit<Park, 'parkId'>) => {
         if (!park) {return;}
         
         try {
             const updatedPark = await parkApi.updatePark({
                 ...data,
-                park_id: park.park_id
+                parkId: park.parkId
             });
             
-            navigate(`/parks/${updatedPark.park_id}`);
+            navigate(`/parks/${updatedPark.parkId}`);
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Error updating park:', err);

@@ -5,7 +5,7 @@ export class IssueRepository {
     public async getIssue(issueId: number) {
         try {
             return await prisma.issue.findUnique({
-                where: { issue_id: issueId },
+                where: { issueId: issueId },
                 include: {
                     park: true,
                     trail: true
@@ -21,16 +21,16 @@ export class IssueRepository {
         try {
             return await prisma.issue.create({
                 data: {
-                    park_id: data.park_id,
-                    trail_id: data.trail_id,
-                    issue_type: data.issue_type,
+                    parkId: data.parkId,
+                    trailId: data.trailId,
+                    issueType: data.issueType,
                     urgency: data.urgency,
                     description: data.description,
-                    is_public: data.is_public ?? true,
+                    isPublic: data.isPublic ?? true,
                     status: data.status,
-                    notify_reporter: data.notify_reporter ?? true,
-                    reporter_email: data.reporter_email,
-                    issue_image: data.issueImageKey,
+                    notifyReporter: data.notifyReporter ?? true,
+                    reporterEmail: data.reporterEmail,
+                    issueImage: data.issueImageKey,
                 },
                 include: {
                     park: true,
@@ -54,7 +54,7 @@ export class IssueRepository {
 
     public async deleteIssue(issueId: number) {
         try {
-            await prisma.issue.delete({ where: { issue_id: issueId } });
+            await prisma.issue.delete({ where: { issueId: issueId } });
             return true;
         } catch (error) {
             if (isNotFoundError(error)) {
@@ -67,7 +67,7 @@ export class IssueRepository {
 
     public async getIssuesByPark(parkId: number) {
         return prisma.issue.findMany({
-            where: { park_id: parkId },
+            where: { parkId: parkId },
             include: {
                 park: true,
                 trail: true
@@ -77,7 +77,7 @@ export class IssueRepository {
 
     public async getIssuesByTrail(trailId: number) {
         return prisma.issue.findMany({
-            where: { trail_id: trailId },
+            where: { trailId: trailId },
             include: {
                 park: true,
                 trail: true
@@ -99,10 +99,10 @@ export class IssueRepository {
         try {
             const normalizedStatus = status.trim().toLowerCase();
             return await prisma.issue.update({
-                where: { issue_id: issueId },
+                where: { issueId: issueId },
                 data: {
                     status: normalizedStatus,
-                    resolved_at: normalizedStatus === 'resolved' ? new Date() : null
+                    resolvedAt: normalizedStatus === 'resolved' ? new Date() : null
                 },
                 include: {
                     park: true,

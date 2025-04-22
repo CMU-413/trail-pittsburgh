@@ -1,11 +1,10 @@
-import { Prisma } from '@prisma/client';
-
-import { prisma } from '@/prisma/prismaClient';
+import { isNotFoundError, prisma } from '@/prisma/prismaClient';
+import { TrailData } from '@/utils/types';
 
 export class TrailRepository {
     public async getTrail(trailId: number) {
         return prisma.trail.findUnique({
-            where: { trail_id: trailId },
+            where: { trailId: trailId },
             include: {
                 park: true,
                 issues: true
@@ -13,24 +12,21 @@ export class TrailRepository {
         });
     }
 
-    public async createTrail(
-        name: string,
-        parkId: number,
-        isActive: boolean = true,
-        isOpen: boolean = true
-    ) {
-        return prisma.trail.create({
-            data: {
-                name,
-                park_id: parkId,
-                is_active: isActive,
-                is_open: isOpen
-            },
-            include: {
-                park: true,
-                issues: true
-            }
-        });
+    public async createTrail(trailData: TrailData) {
+        try {
+            const result = await prisma.trail.create({
+                data: {
+                    name: trailData.name,
+                    parkId: trailData.parkId,
+                    isActive: trailData.isActive ?? true,
+                    isOpen: trailData.isOpen ?? true
+                }
+            });
+            return result;
+        } catch (error) {
+            console.error('Error creating trail:', error);
+            throw error;
+        }
     }
 
     public async getAllTrails() {
@@ -45,18 +41,18 @@ export class TrailRepository {
     public async deleteTrail(trailId: number) {
         try {
             await prisma.trail.delete({
-                where: { trail_id: trailId }
+                where: { trailId: trailId }
             });
             return true;
         } catch (error) {
-            if (isNotFoundError(error)) {return false;}
+            if (isNotFoundError(error)) { return false; }
             throw error;
         }
     }
 
     public async getTrailsByPark(parkId: number) {
         return prisma.trail.findMany({
-            where: { park_id: parkId },
+            where: { parkId: parkId },
             include: {
                 park: true,
                 issues: true
@@ -64,21 +60,15 @@ export class TrailRepository {
         });
     }
 
-    public async updateTrailStatus(trailId: number, isOpen: boolean) {
-        return prisma.trail.update({
-            where: { trail_id: trailId },
-            data: { is_open: isOpen },
-            include: {
-                park: true,
-                issues: true
-            }
-        });
+    public async updateTrail(trailId: number, trailData: Partial<TrailData>) {
+        try {
+            return await prisma.trail.update({
+                where: { trailId: trailId },
+                data: trailData
+            });
+        } catch (error) {
+            if (isNotFoundError(error)) { return null; }
+            throw error;
+        }
     }
-}
-
-function isNotFoundError(error: unknown) {
-    return (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        (error.code === 'P2025' || error.code === 'P2016')
-    );
 }

@@ -77,12 +77,15 @@ export const SettingsPage: React.FC = () => {
                     <Card title="Account" className="w-full flex flex-col">
                         <div className="flex items-center mb-6">
                             <img
-                                src={user.profile_image}
-                                alt={user.username}
+                                src={user.picture || `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user.name || 'User')}`}
+                                alt={user.name || 'User profile'}
                                 className="h-16 w-16 rounded-full object-cover border-2 border-white shadow-sm mr-4"
+                                onError={(e) => {
+                                    e.currentTarget.src = `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user.name || 'User')}`;
+                                }}
                             />
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900">{user.username}</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
                                 <p className="text-sm text-gray-500">{user.email}</p>
                             </div>
                         </div>

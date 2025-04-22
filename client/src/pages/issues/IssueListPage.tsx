@@ -73,7 +73,7 @@ export const IssueListPage: React.FC = () => {
             }
 
             result = result.filter((issue) => {
-                const issueDate = parseISO(issue.created_at);
+                const issueDate = parseISO(issue.createdAt);
                 return issueDate >= cutoffDate;
             });
         }
@@ -82,9 +82,9 @@ export const IssueListPage: React.FC = () => {
         result.sort((a, b) => {
             switch (sortBy) {
             case 'newest':
-                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
             case 'oldest':
-                return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
             case 'urgency-high':
                 return b.urgency - a.urgency;
             case 'urgency-low':
@@ -104,7 +104,7 @@ export const IssueListPage: React.FC = () => {
                 const parksData = await parkApi.getParks();
                 const parksMap: Record<number, Park> = {};
                 parksData.forEach((park: Park) => {
-                    parksMap[park.park_id] = park;
+                    parksMap[park.parkId] = park;
                 });
                 setParks(parksMap);
 
@@ -112,7 +112,7 @@ export const IssueListPage: React.FC = () => {
                 const trailsData = await trailApi.getAllTrails();
                 const trailsMap: Record<number, Trail> = {};
                 trailsData.forEach((trail) => {
-                    trailsMap[trail.trail_id] = trail;
+                    trailsMap[trail.trailId] = trail;
                 });
                 setTrails(trailsMap);
 
@@ -131,7 +131,7 @@ export const IssueListPage: React.FC = () => {
                 }
 
                 // Filter by public status (for non-admins)
-                issuesData = issuesData.filter((issue) => issue.is_public);
+                issuesData = issuesData.filter((issue) => issue.isPublic);
 
                 // Apply status filter if selected
                 if (selectedStatus !== 'all') {
@@ -181,7 +181,7 @@ export const IssueListPage: React.FC = () => {
 
     // Filter trails based on selected park
     const filteredTrails = Object.values(trails).filter(
-        (trail) => !selectedParkId || trail.park_id === selectedParkId
+        (trail) => !selectedParkId || trail.parkId === selectedParkId
     );
 
     if (isLoading) {
@@ -212,7 +212,7 @@ export const IssueListPage: React.FC = () => {
                                 { value: '', label: 'All Parks' },
                                 ...Object.values(parks)
                                     .sort((a, b) => a.name.localeCompare(b.name))
-                                    .map((park) => ({ value: park.park_id.toString(), label: park.name }))
+                                    .map((park) => ({ value: park.parkId.toString(), label: park.name }))
                             ]}
                             value={selectedParkId?.toString() || ''}
                             onChange={handleParkChange}
@@ -225,7 +225,7 @@ export const IssueListPage: React.FC = () => {
                                 { value: '', label: selectedParkId ? 'All Trails in Selected Park' : 'All Trails' },
                                 ...filteredTrails
                                     .sort((a, b) => a.name.localeCompare(b.name))
-                                    .map((trail) => ({ value: trail.trail_id.toString(), label: trail.name }))
+                                    .map((trail) => ({ value: trail.trailId.toString(), label: trail.name }))
                             ]}
                             value={selectedTrailId?.toString() || ''}
                             onChange={handleTrailChange}

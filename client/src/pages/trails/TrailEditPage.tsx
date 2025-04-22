@@ -38,7 +38,7 @@ export const TrailEditPage: React.FC = () => {
                     return;
                 }
                 
-                if (trailData.park_id !== parkIdNum) {
+                if (trailData.parkId !== parkIdNum) {
                     setError('Trail does not belong to this park');
                     setIsLoading(false);
                     return;
@@ -57,17 +57,17 @@ export const TrailEditPage: React.FC = () => {
         fetchTrail();
     }, [parkId, trailId]);
     
-    const handleSubmit = async (data: Omit<Trail, 'trail_id'>) => {
+    const handleSubmit = async (data: Omit<Trail, 'trailId'>) => {
         if (!trail || !parkId) {return;}
         
         try {
             const updatedTrail = await trailApi.updateTrail({
                 ...data,
-                trail_id: trail.trail_id,
-                park_id: parseInt(parkId, 10)
+                trailId: trail.trailId,
+                parkId: parseInt(parkId, 10)
             });
             
-            navigate(`/parks/${parkId}/trails/${updatedTrail.trail_id}`);
+            navigate(`/parks/${parkId}/trails/${updatedTrail.trailId}`);
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Error updating trail:', err);
