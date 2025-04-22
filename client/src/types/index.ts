@@ -74,14 +74,17 @@ export type IssueParams = Omit<Issue, 'resolvedAt' | 'image' | 'issueId'> & {
 export type UserRole = 'owner' | 'steward' | 'volunteer';
 
 export type User = {
-    userId: number;
-    username: string;
+    id: string;
     email: string;
-    profileImage: string;
-    isAdmin: boolean;
-    permission: string;
-    isActive: boolean;
-    createdAt: string;
+    name?: string;
+    picture?: string;
+    permission?: string;
+    profileImage?: string;
+    username?: string;
+    userId?: number;
+    isAdmin?: boolean;
+    isActive?: boolean;
+    createdAt?: string;
 };
   
 export type StewardParkAssignment = {
