@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { TrailService } from '@/services';
+import { logger } from '@/utils/logger';
 
 export class TrailController {
     private readonly trailService: TrailService;
@@ -64,9 +65,6 @@ export class TrailController {
         const trailId = Number(req.params.trailId);
 
         try {
-            const { isOpen } = req.body;
-        try {
-            const trailId = Number(req.params.trailId);
             const { name, isOpen, isActive } = req.body;
 
             const updatedTrail = await this.trailService.updateTrail(trailId, {
@@ -76,7 +74,8 @@ export class TrailController {
             });
             
             if (!updatedTrail) {
-                return res.status(404).json({ message: 'Trail not found.' });
+                res.status(404).json({ message: 'Trail not found.' });
+                return;
             }
             
             res.status(200).json({ trail:updatedTrail });
