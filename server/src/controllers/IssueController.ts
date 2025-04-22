@@ -3,7 +3,6 @@ import express from 'express';
 import { createIssueSchema } from '@/schemas/issueSchema';
 import { IssueService } from '@/services/IssueService';
 
-
 export class IssueController {
 
     private readonly issueService: IssueService;
