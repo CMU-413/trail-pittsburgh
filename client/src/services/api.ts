@@ -166,7 +166,7 @@ export const issueApi = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 ...payload,
-                image_type: image?.type,
+                imageType: image?.type,
             }),
             credentials: 'include'
         })

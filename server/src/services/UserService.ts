@@ -11,6 +11,7 @@ interface UserData {
 
 export class UserService {
     private readonly userRepository: UserRepository;
+    private readonly DEFAULT_PROFILE_IMAGE = 'default.jpg';
 
     constructor(userRepository: UserRepository) {
         this.userRepository = userRepository;
@@ -29,7 +30,7 @@ export class UserService {
         email: string,
         isAdmin: boolean = false,
         permission: string = 'read',
-        profileImage: string = 'default.jpg',
+        profileImage: string = this.DEFAULT_PROFILE_IMAGE,
         isActive: boolean = true
     ) {
         return this.userRepository.createUser(
@@ -49,15 +50,26 @@ export class UserService {
     }) {
         let user = await this.getUserByEmail(userData.email);
     
+        // Use picture URL if provided
+        const profileImage = userData.picture || this.DEFAULT_PROFILE_IMAGE;
+        
         if (!user) {
+            // Create new user
             user = await this.createUser(
                 userData.name,
                 userData.email,
                 false,
                 'View',
-                userData.picture || 'default.jpg',
+                profileImage,
                 true
             );
+        } else if (userData.picture && user.profileImage !== profileImage) {
+            // Update existing user's profile image if needed
+            await this.updateUser(user.userId, {
+                profileImage
+            });
+            // Refresh user data
+            user = await this.getUserByEmail(userData.email);
         }
     
         return user;
