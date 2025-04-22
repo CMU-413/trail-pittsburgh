@@ -4,7 +4,6 @@ import { Park } from '../../types';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
-import { ImageUpload } from '../ui/ImageUpload';
 
 interface ParkFormProps {
     initialData?: Partial<Park>;
@@ -36,13 +35,6 @@ export const ParkForm: React.FC<ParkFormProps> = ({
         });
     };
 
-    const handleImageChange = (file: File | null, previewUrl: string | null) => {
-        // This would be used to store the image file and preview
-        // For now, we're just defining the function for the ImageUpload component
-        // eslint-disable-next-line no-console
-        console.log({ file, previewUrl });
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -57,7 +49,6 @@ export const ParkForm: React.FC<ParkFormProps> = ({
                 throw new Error('County is required');
             }
 
-            //  We would later upload the image to a server here and get back a URL to store with the park
             await onSubmit(formData as Omit<Park, 'park_id'>);
         } catch (err) {
             if (err instanceof Error) {
@@ -102,12 +93,6 @@ export const ParkForm: React.FC<ParkFormProps> = ({
                         fullWidth
                     />
                 </div>
-
-                <ImageUpload
-                    label="Park Image (Optional)"
-                    onChange={handleImageChange}
-                    className="mb-6"
-                />
 
                 <div className="flex items-center">
                     <input
