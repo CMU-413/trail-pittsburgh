@@ -207,7 +207,8 @@ export const issueApi = {
                     if (errorData.message) {
                         errorMessage = errorData.message;
                     }
-                } catch (_) {
+                } catch (error) {
+                    console.debug('Operation failed but can be ignored:', error);
                 }
 
                 // eslint-disable-next-line no-console

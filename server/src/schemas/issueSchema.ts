@@ -58,7 +58,7 @@ export const resolveIssueSchema = {
     params: z.object({
         issueId: z.string().refine((val) => !isNaN(Number(val)), {
             message: 'Issue ID must be a number',
-      }),
+        }),
     }),
     body: z.object({
         resolved_by: z.number(),
