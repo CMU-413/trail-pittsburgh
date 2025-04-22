@@ -1,7 +1,8 @@
 import express from 'express';
 
-import { IssueService } from '@/services/IssueService';
 import { createIssueSchema } from '@/schemas/issueSchema';
+import { IssueService } from '@/services/IssueService';
+
 
 export class IssueController {
 
@@ -50,7 +51,7 @@ export class IssueController {
         try {
             //try to enforce the zod format coming from issueSchema file
             const parsed = createIssueSchema.parse(req);
-            const { issue, signedUrl } = await this.issueService.createIssue(parsed.body)
+            const { issue, signedUrl } = await this.issueService.createIssue(parsed.body);
             // const { issue, signedUrl } = await this.issueService.createIssue(req.body);
     
             res.status(201).json({ issue, signedUrl });
