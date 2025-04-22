@@ -3,7 +3,7 @@ import React from 'react';
 import {
     Navigate, Outlet, useLocation
 } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../providers/AuthProvider';
 import { LoadingSpinner } from '../layout/LoadingSpinner';
 
 interface ProtectedRouteProps {
@@ -13,11 +13,11 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     requirePermission = true
 }) => {
-    const { isAuthenticated, hasPermission, isLoading } = useAuth();
+    const { isAuthenticated, hasPermission, loading } = useAuth();
     const location = useLocation();
 
     // Show loading spinner while authentication state is being determined
-    if (isLoading) {
+    if (loading) {
         return <LoadingSpinner message="Checking authentication..." />;
     }
 

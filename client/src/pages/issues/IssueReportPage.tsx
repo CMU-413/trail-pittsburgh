@@ -1,7 +1,7 @@
 // src/pages/issues/IssueReportPage.tsx
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Issue } from '../../types';
+import { IssueParams } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { IssueReportForm } from '../../components/issues/IssueReportForm';
 import { Alert } from '../../components/ui/Alert';
@@ -19,7 +19,7 @@ export const IssueReportPage: React.FC = () => {
     const parkId = queryParams.get('parkId') ? parseInt(queryParams.get('parkId')!, 10) : undefined;
     const trailId = queryParams.get('trailId') ? parseInt(queryParams.get('trailId')!, 10) : undefined;
 
-    const handleSubmit = async (data: Omit<Issue, 'issue_id'>) => {
+    const handleSubmit = async (data: IssueParams) => {
         try {
             await issueApi.createIssue(data);
             // Set submission state to true to hide the form

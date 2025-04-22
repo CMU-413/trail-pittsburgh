@@ -36,9 +36,10 @@ export const IssueDetailPage: React.FC = () => {
 
     // Mock current user - in a real app, this would come from auth context
     const currentUser = {
-        user_id: 1,
+        userId: 1,
         name: 'John Smith',
-        role: 'steward'
+        role: 'steward',
+        permission: 'steward'
     };
 
     const formatDate = (dateString: string, formatStr: string = 'PPP p') => {
@@ -83,11 +84,11 @@ export const IssueDetailPage: React.FC = () => {
                 setIssue(issueData);
 
                 // Fetch related park
-                const parkData = await parkApi.getPark(issueData.park_id);
+                const parkData = await parkApi.getPark(issueData.parkId);
                 setPark(parkData || null);
 
                 // Fetch related trail
-                const trailData = await trailApi.getTrail(issueData.trail_id);
+                const trailData = await trailApi.getTrail(issueData.trailId);
                 setTrail(trailData || null);
 
                 // Fetch resolution info if resolved
@@ -120,7 +121,7 @@ export const IssueDetailPage: React.FC = () => {
         try {
             const { issue: updatedIssue, resolution: newResolution } = await mockApi.resolveIssue(
                 issueId,
-                currentUser.user_id,
+                currentUser.userId,
                 image,
                 notes
             );
@@ -128,7 +129,7 @@ export const IssueDetailPage: React.FC = () => {
             setIssue(updatedIssue);
             setResolution(newResolution);
 
-            const user = await mockApi.getUser(currentUser.user_id);
+            const user = await mockApi.getUser(currentUser.userId);
             setResolvedBy(user || null);
         } catch (err) {
             // eslint-disable-next-line no-console
@@ -137,7 +138,7 @@ export const IssueDetailPage: React.FC = () => {
         }
     };
 
-    const canResolveIssue = currentUser.role === 'steward' || currentUser.role === 'owner';
+    const canResolveIssue = currentUser.permission === 'steward' || currentUser.permission === 'owner';
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -163,7 +164,7 @@ export const IssueDetailPage: React.FC = () => {
     return (
         <div>
             <PageHeader
-                title={`${issue.issue_type.charAt(0).toUpperCase() + issue.issue_type.slice(1)} Issue`}
+                title={`${issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)} Issue`}
                 subtitle={park && trail ? `${park.name} • ${trail.name}` : 'Loading location...'}
                 action={
                     issue.status !== 'resolved' && canResolveIssue ? (
@@ -183,10 +184,10 @@ export const IssueDetailPage: React.FC = () => {
                         <div className="flex items-center">
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-900">
-                                    {issue.issue_type.charAt(0).toUpperCase() + issue.issue_type.slice(1)}
+                                    {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
                                 </h3>
                                 <p className="text-sm text-gray-500">
-                                    Reported {formatDate(issue.created_at)}
+                                    Reported {formatDate(issue.createdAt)}
                                 </p>
                             </div>
                         </div>
@@ -198,12 +199,12 @@ export const IssueDetailPage: React.FC = () => {
                         <p className="text-gray-700 whitespace-pre-line">{issue.description}</p>
                     </div>
 
-                    {issue.issue_image && (
+                    {issue.image && (
                         <div className="mb-6">
                             <h4 className="text-sm font-medium text-gray-500 mb-2">Issue Image</h4>
                             <div className="rounded-lg overflow-hidden border border-gray-200">
                                 <img
-                                    src={issue.issue_image}
+                                    src={issue.image.url}
                                     alt="Issue"
                                     className="w-full h-auto max-h-96 object-contain"
                                 />
@@ -269,31 +270,31 @@ export const IssueDetailPage: React.FC = () => {
                             <div className="flex justify-between mb-4">
                                 <h4 className="text-lg font-semibold text-gray-900">Resolution</h4>
                                 <span className="text-sm text-gray-500">
-                                    {formatDate(resolution.resolved_at)}
+                                    {formatDate(resolution.resolvedAt)}
                                 </span>
                             </div>
 
                             {resolvedBy && (
                                 <div className="flex items-center mb-4">
                                     <div className="flex-shrink-0 mr-3">
-                                        {resolvedBy.picture ? (
+                                        {resolvedBy.profileImage ? (
                                             <img
-                                                src={resolvedBy.picture}
-                                                alt={resolvedBy.name}
+                                                src={resolvedBy.profileImage}
+                                                alt={resolvedBy.username}
                                                 className="h-8 w-8 rounded-full"
                                             />
                                         ) : (
                                             <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-800 font-medium">
-                                                {resolvedBy.name.charAt(0)}
+                                                {resolvedBy.username.charAt(0)}
                                             </div>
                                         )}
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-900">
-                                            Resolved by {resolvedBy.name}
+                                            Resolved by {resolvedBy.username}
                                         </p>
                                         <p className="text-xs text-gray-500">
-                                            {resolvedBy.role && resolvedBy.role.charAt(0).toUpperCase() + resolvedBy.role.slice(1)}
+                                            {resolvedBy.permission && resolvedBy.permission.charAt(0).toUpperCase() + resolvedBy.permission.slice(1)}
                                         </p>
                                     </div>
                                 </div>
@@ -349,7 +350,7 @@ export const IssueDetailPage: React.FC = () => {
                                 <div className="mt-1">
                                     {park && (
                                         <Link
-                                            to={`/parks/${park.park_id}`}
+                                            to={`/parks/${park.parkId}`}
                                             className="text-blue-600 hover:text-blue-500 block"
                                         >
                                             {park.name}
@@ -358,7 +359,7 @@ export const IssueDetailPage: React.FC = () => {
 
                                     {trail && (
                                         <Link
-                                            to={`/parks/${park?.park_id}/trails/${trail.trail_id}`}
+                                            to={`/parks/${park?.parkId}/trails/${trail.trailId}`}
                                             className="text-blue-600 hover:text-blue-500 block mt-1"
                                         >
                                             {trail.name}
@@ -372,13 +373,13 @@ export const IssueDetailPage: React.FC = () => {
                                 <div className="flex items-center mt-1">
                                     <svg className="w-4 h-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                            d={issue.is_public
+                                            d={issue.isPublic
                                                 ? 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z'
                                                 : 'M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21'}
                                         />
                                     </svg>
                                     <p className="text-sm">
-                                        {issue.is_public ? 'Public' : 'Private'}
+                                        {issue.isPublic ? 'Public' : 'Private'}
                                     </p>
                                 </div>
                             </div>
@@ -388,13 +389,13 @@ export const IssueDetailPage: React.FC = () => {
                                 <div className="flex items-center mt-1">
                                     <svg className="w-4 h-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                            d={issue.notify_reporter
+                                            d={issue.notifyReporter
                                                 ? 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
                                                 : 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'}
                                         />
                                     </svg>
                                     <p className="text-sm">
-                                        {issue.notify_reporter ? 'Reporter will be notified when resolved' : 'No notification requested'}
+                                        {issue.notifyReporter ? 'Reporter will be notified when resolved' : 'No notification requested'}
                                     </p>
                                 </div>
                             </div>

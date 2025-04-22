@@ -3,10 +3,10 @@ import { UserRepository } from '@/repositories';
 interface UserData {
     username?: string;
     email?: string;
-    is_admin?: boolean;
+    isAdmin?: boolean;
     permission?: string;
-    profile_image?: string;
-    is_active?: boolean;
+    profileImage?: string;
+    isActive?: boolean;
 }
 
 export class UserService {
@@ -40,6 +40,27 @@ export class UserService {
             profileImage,
             isActive
         );
+    }
+
+    public async findOrCreateFromGoogle(userData: {
+        email: string;
+        name: string;
+        picture?: string;
+    }) {
+        let user = await this.getUserByEmail(userData.email);
+    
+        if (!user) {
+            user = await this.createUser(
+                userData.name,
+                userData.email,
+                false,
+                'View',
+                userData.picture || 'default.jpg',
+                true
+            );
+        }
+    
+        return user;
     }
 
     public async deleteUser(userId: number) {

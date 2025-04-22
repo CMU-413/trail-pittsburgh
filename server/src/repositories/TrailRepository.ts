@@ -5,7 +5,7 @@ import { prisma } from '@/prisma/prismaClient';
 export class TrailRepository {
     public async getTrail(trailId: number) {
         return prisma.trail.findUnique({
-            where: { trail_id: trailId },
+            where: { trailId: trailId },
             include: {
                 park: true,
                 issues: true
@@ -22,9 +22,9 @@ export class TrailRepository {
         return prisma.trail.create({
             data: {
                 name,
-                park_id: parkId,
-                is_active: isActive,
-                is_open: isOpen
+                parkId: parkId,
+                isActive: isActive,
+                isOpen: isOpen
             },
             include: {
                 park: true,
@@ -45,7 +45,7 @@ export class TrailRepository {
     public async deleteTrail(trailId: number) {
         try {
             await prisma.trail.delete({
-                where: { trail_id: trailId }
+                where: { trailId: trailId }
             });
             return true;
         } catch (error) {
@@ -56,7 +56,7 @@ export class TrailRepository {
 
     public async getTrailsByPark(parkId: number) {
         return prisma.trail.findMany({
-            where: { park_id: parkId },
+            where: { parkId: parkId },
             include: {
                 park: true,
                 issues: true
@@ -66,8 +66,8 @@ export class TrailRepository {
 
     public async updateTrailStatus(trailId: number, isOpen: boolean) {
         return prisma.trail.update({
-            where: { trail_id: trailId },
-            data: { is_open: isOpen },
+            where: { trailId: trailId },
+            data: { isOpen: isOpen },
             include: {
                 park: true,
                 issues: true

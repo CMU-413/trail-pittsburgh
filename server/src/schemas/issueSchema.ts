@@ -26,19 +26,21 @@ export const getIssueSchema = z.object({
 
 export const createIssueSchema = z.object({
     body: z.object({
-        park_id: z.number(),
-        trail_id: z.number(),
-        issue_type: z.string(),
+        parkId: z.number(),
+        trailId: z.number(),
+        issueType: z.string(),
         urgency: z.number(),
-        isPublic: z.boolean().default(true),
+        isPublic: z.boolean().default(false),
         status: z.string().default('Open'),
 
-        reporter_email: z.string().optional(),
-        notify_reporter: z.boolean().default(false),
+        reporterEmail: z.string(),
+        notifyReporter: z.boolean().default(false),
         description: z.string().optional(),
-        issue_image: z.string().optional(),
+        imageType: z.enum(['image/jpeg', 'image/png', 'image/heic']).optional(),
     })
 });
+
+export type CreateIssueInput = z.output<typeof createIssueSchema>['body'];
 
 export const updateIssueStatusSchema = z.object({
     params: z.object({

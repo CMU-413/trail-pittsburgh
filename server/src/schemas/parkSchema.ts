@@ -18,7 +18,7 @@ export const updateParkSchema = z.object({
         parkId: z.coerce.number(),
     }),
     body: z.object({
-        is_active: z.boolean().optional(),
+        isActive: z.boolean().optional(),
         county: z.string().optional(),
         name: z.string().optional(),
     })

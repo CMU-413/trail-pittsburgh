@@ -1,0 +1,82 @@
+# Park API Routes
+
+Base URL: `/api/parks`
+
+---
+
+## Public Routes
+
+### `GET /api/parks`
+**Description:** Retrieve all parks.
+
+**Response:**
+- `200 OK`: List of park objects
+
+---
+
+### `GET /api/parks/:parkId`
+**Description:** Retrieve a specific park by ID.
+
+**Params:**
+- `parkId` (number, required)
+
+**Response:**
+- `200 OK`: Park object
+- `404 Not Found`: If park doesn't exist
+
+---
+
+## Protected Routes
+
+> Requires valid JWT in an HTTP-only cookie
+
+### `POST /api/parks`
+**Description:** Create a new park.
+
+**Request Body:**
+```json
+{
+  "name": "Park Name",
+  "location": "Somewhere, USA",
+  "isActive": true
+}
+```
+
+**Response:**
+- `201 Created`: Created park object
+- `401 Unauthorized`: If not logged in
+
+---
+
+### `PUT /api/parks/:parkId`
+**Description:** Update a park’s data.
+
+**Params:**
+- `parkId` (number, required)
+
+**Request Body:**
+```json
+{
+  "name": "New Park Name",
+  "location": "Updated Location",
+  "isActive": false
+}
+```
+
+**Response:**
+- `200 OK`: Updated park
+- `404 Not Found`: If park not found
+- `401 Unauthorized`: If not logged in
+
+---
+
+### `DELETE /api/parks/:parkId`
+**Description:** Delete a park by ID.
+
+**Params:**
+- `parkId` (number, required)
+
+**Response:**
+- `204 No Content`: If deleted
+- `404 Not Found`: If not found
+- `401 Unauthorized`: If not logged in

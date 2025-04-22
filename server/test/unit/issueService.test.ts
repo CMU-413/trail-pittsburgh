@@ -1,62 +1,77 @@
+import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
+import { CreateIssueInput } from '@/schemas/issueSchema';
 import { IssueService } from '@/services';
 
 jest.mock('@/repositories/IssueRepository');
+jest.mock('@/lib/GCSBucket');
 
 describe('IssueService', () => {
     let issueService: IssueService;
     let issueRepositoryMock: jest.Mocked<IssueRepository>;
+    let issueImageBucketMock: jest.Mocked<GCSBucket>;
+
+    const uploadUrl: SignedUrl = {
+        url: 'test.jpg',
+        key: 'unique',
+        type: 'upload',
+    };
 
     const baseIssue = {
-        issue_id: 1,
-        park_id: 1,
-        trail_id: 1,
-        issue_type: 'Flooding',
+        issueId: 1,
+        parkId: 1,
+        trailId: 1,
+        issueType: 'Flooding',
         urgency: 3,
         description: 'Trail is flooded',
-        is_public: true,
+        isPublic: true,
         status: 'Open',
-        notify_reporter: true,
-        reporter_email: 'reporter@example.com',
+        notifyReporter: true,
+        reporterEmail: 'reporter@example.com',
         longitude: -79.9901,
         latitude: 40.4406,
-        created_at: new Date(),
-        resolved_at: null,
-        issue_image: null,
-        park: { park_id: 1, name: 'Test Park', county: 'Allegheny', is_active: true, created_at: new Date() },
-        trail: { trail_id: 1, park_id: 1, name: 'Test Trail', is_active: true, is_open: true, created_at: new Date() }
+        createdAt: new Date(),
+        resolvedAt: null,
+        issueImage: null,
+        park: { parkId: 1, name: 'Test Park', county: 'Allegheny', isActive: true, createdAt: new Date() },
+        trail: { trailId: 1, parkId: 1, name: 'Test Trail', isActive: true, isOpen: true, createdAt: new Date() }
     };
 
     beforeEach(() => {
         issueRepositoryMock = new IssueRepository() as jest.Mocked<IssueRepository>;
-        issueService = new IssueService(issueRepositoryMock);
+        issueImageBucketMock = new GCSBucket('') as jest.Mocked<GCSBucket>;
+        issueService = new IssueService(issueRepositoryMock, issueImageBucketMock);
     });
 
     test('should create a new issue with required fields', async () => {
         issueRepositoryMock.createIssue.mockResolvedValue(baseIssue);
+        issueImageBucketMock.getUploadUrl.mockResolvedValue(uploadUrl);
 
-        const input = {
-            park_id: 1,
-            trail_id: 1,
-            issue_type: 'Flooding',
+        const input: CreateIssueInput = {
+            parkId: 1,
+            trailId: 1,
+            issueType: 'Flooding',
             urgency: 3,
-            reporter_email: 'reporter@example.com',
+            reporterEmail: 'reporter@example.com',
             description: 'Trail is flooded',
+            isPublic: true,
+            status: 'Open',
+            notifyReporter: true,
+            imageType: 'image/jpeg',
         };
 
         const result = await issueService.createIssue(input);
 
-        expect(issueRepositoryMock.createIssue).toHaveBeenCalledWith(input);
-        expect(result).toEqual(baseIssue);
+        expect(issueRepositoryMock.createIssue).toHaveBeenCalled();
+        expect(result).toEqual({ signedUrl:uploadUrl, issue: baseIssue });
     });
 
     test('should create a new issue with all optional fields', async () => {
         const fullIssue = {
             ...baseIssue,
-            is_public: false,
+            isPublic: false,
             status: 'In Progress',
-            notify_reporter: false,
-            issue_image: 'flooded-trail.jpg',
+            notifyReporter: false,
             longitude: -80.001,
             latitude: 40.441
         };
@@ -64,16 +79,15 @@ describe('IssueService', () => {
         issueRepositoryMock.createIssue.mockResolvedValue(fullIssue);
 
         const input = {
-            park_id: 1,
-            trail_id: 1,
-            issue_type: 'Flooding',
+            parkId: 1,
+            trailId: 1,
+            issueType: 'Flooding',
             urgency: 3,
             description: 'Very flooded trail',
-            is_public: false,
+            isPublic: false,
             status: 'In Progress',
-            notify_reporter: false,
-            issue_image: 'flooded-trail.jpg',
-            reporter_email: 'reporter@example.com',
+            notifyReporter: false,
+            reporterEmail: 'reporter@example.com',
             longitude: -80.001,
             latitude: 40.441
         };
@@ -81,16 +95,20 @@ describe('IssueService', () => {
         const result = await issueService.createIssue(input);
 
         expect(issueRepositoryMock.createIssue).toHaveBeenCalledWith(input);
-        expect(result).toEqual(fullIssue);
+        expect(result).toEqual({ issue: fullIssue });
     });
 
     test('should get an issue by ID', async () => {
         issueRepositoryMock.getIssue.mockResolvedValue(baseIssue);
 
+        // Remove property from obj
+        const { issueImage, ...expectedData } = baseIssue;
+        void issueImage;
+
         const result = await issueService.getIssue(1);
 
         expect(issueRepositoryMock.getIssue).toHaveBeenCalledWith(1);
-        expect(result).toEqual(baseIssue);
+        expect(result).toEqual({ image: undefined, ...expectedData });
     });
 
     test('should return null if issue is not found', async () => {
@@ -142,7 +160,7 @@ describe('IssueService', () => {
     });
 
     test('should update issue status', async () => {
-        const updated = { ...baseIssue, status: 'resolved', resolved_at: new Date() };
+        const updated = { ...baseIssue, status: 'resolved', resolvedAt: new Date() };
         issueRepositoryMock.updateIssueStatus.mockResolvedValue(updated);
 
         const result = await issueService.updateIssueStatus(1, 'resolved');

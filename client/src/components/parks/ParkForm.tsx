@@ -7,7 +7,7 @@ import { Alert } from '../ui/Alert';
 
 interface ParkFormProps {
     initialData?: Partial<Park>;
-    onSubmit: (data: Omit<Park, 'park_id'>) => Promise<void>;
+    onSubmit: (data: Omit<Park, 'parkId'>) => Promise<void>;
     isEditing?: boolean;
 }
 
@@ -19,8 +19,8 @@ export const ParkForm: React.FC<ParkFormProps> = ({
     const [formData, setFormData] = useState<Partial<Park>>({
         name: '',
         county: '',
-        is_active: true,
-        owner_id: 2, // Default owner - in real app, this might come from auth context
+        isActive: true,
+        ownerId: 2, // Default owner - in real app, this might come from auth context
         ...initialData
     });
 
@@ -49,7 +49,8 @@ export const ParkForm: React.FC<ParkFormProps> = ({
                 throw new Error('County is required');
             }
 
-            await onSubmit(formData as Omit<Park, 'park_id'>);
+            //  We would later upload the image to a server here and get back a URL to store with the park
+            await onSubmit(formData as Omit<Park, 'parkId'>);
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);
@@ -96,14 +97,14 @@ export const ParkForm: React.FC<ParkFormProps> = ({
 
                 <div className="flex items-center">
                     <input
-                        id="is_active"
-                        name="is_active"
+                        id="isActive"
+                        name="isActive"
                         type="checkbox"
-                        checked={formData.is_active}
+                        checked={formData.isActive}
                         onChange={handleChange}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                    <label htmlFor="is_active" className="ml-3 block text-sm text-gray-700">
+                    <label htmlFor="isActive" className="ml-3 block text-sm text-gray-700">
                         Park is active and open to visitors
                     </label>
                 </div>

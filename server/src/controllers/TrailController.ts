@@ -19,7 +19,7 @@ export class TrailController {
     public async getAllTrails(req: express.Request, res: express.Response) {
         try {
             const trails = await this.trailService.getAllTrails();
-            res.status(200).json(trails);
+            res.status(200).json({ trails });
         } catch (error) {
             res.status(500).json({ message: 'Failed to retrieve trails' });
         }
@@ -34,24 +34,25 @@ export class TrailController {
                 res.status(404).json({ message: 'Trail not found' });
                 return;
             }
-            res.json(trail);
+            res.json({ trail });
         } catch (error) {
             res.status(500).json({ message: 'Failed to retrieve trail' });
         }
     }
 
     public async createTrail(req: express.Request, res: express.Response) {
+        console.log('createTrail', req.body);
         try {
             const { name, parkId, isActive, isOpen } = req.body;
 
             const trail = await this.trailService.createTrail({
                 name,
-                park_id: parkId,
-                is_active: isActive,
-                is_open: isOpen
+                parkId: parkId,
+                isActive: isActive,
+                isOpen: isOpen
             });
 
-            res.status(201).json(trail);
+            res.status(201).json({ trail });
         } catch (error) {
             res.status(500).json({ message: 'Failed to create trail' });
         }
@@ -69,8 +70,9 @@ export class TrailController {
                 return;
             }
             
-            res.json(trail);
+            res.json({ trail });
         } catch (error) {
+            console.log(error);
             res.status(500).json({ message: 'Failed to update trail' });
         }
     }
@@ -96,9 +98,8 @@ export class TrailController {
             const parkId = Number(req.params.parkId);
             const trails = await this.trailService.getTrailsByPark(parkId);
 
-            return res.json({ parkId, trails });
+            return res.json({ trails });
         } catch (error) {
-
             // Type checking for the error
             let errorMessage = 'Server error fetching trails';
             if (error instanceof Error) {

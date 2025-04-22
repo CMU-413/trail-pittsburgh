@@ -1,7 +1,7 @@
 // src/pages/auth/SettingsPage.tsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../providers/AuthProvider';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -77,12 +77,12 @@ export const SettingsPage: React.FC = () => {
                     <Card title="Account" className="w-full flex flex-col">
                         <div className="flex items-center mb-6">
                             <img
-                                src={user.picture}
-                                alt={user.name}
+                                src={user.profileImage}
+                                alt={user.username}
                                 className="h-16 w-16 rounded-full object-cover border-2 border-white shadow-sm mr-4"
                             />
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">{user.username}</h3>
                                 <p className="text-sm text-gray-500">{user.email}</p>
                             </div>
                         </div>

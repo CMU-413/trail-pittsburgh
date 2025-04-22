@@ -54,8 +54,8 @@ export const ParkListPage: React.FC = () => {
     }
 
     // Filter active and inactive parks
-    const activeParks = parks.filter((park) => park.is_active);
-    const inactiveParks = parks.filter((park) => !park.is_active);
+    const activeParks = parks.filter((park) => park.isActive);
+    const inactiveParks = parks.filter((park) => !park.isActive);
 
     // Determine which parks to display
     const displayParks = showInactive ? parks : activeParks;
@@ -63,8 +63,8 @@ export const ParkListPage: React.FC = () => {
     // Sort parks: active parks first (sorted by name), then inactive parks (sorted by name)
     const sortedParks = [...displayParks].sort((a, b) => {
         // Active parks first
-        if (a.is_active && !b.is_active) {return -1;}
-        if (!a.is_active && b.is_active) {return 1;}
+        if (a.isActive && !b.isActive) {return -1;}
+        if (!a.isActive && b.isActive) {return 1;}
 
         // Then sort by name
         return a.name.localeCompare(b.name);
@@ -131,7 +131,7 @@ export const ParkListPage: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {sortedParks.map((park) => (
-                    <ParkCard key={park.park_id} park={park} />
+                    <ParkCard key={park.parkId} park={park} />
                 ))}
             </div>
         </div>

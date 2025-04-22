@@ -12,17 +12,17 @@ interface TrailCardProps {
 
 export const TrailCard: React.FC<TrailCardProps> = ({ trail, parkId }) => {
     return (
-        <Link to={`/parks/${parkId}/trails/${trail.trail_id}`} className="block hover:no-underline">
+        <Link to={`/parks/${parkId}/trails/${trail.trailId}`} className="block hover:no-underline">
             <Card className="h-full transition-shadow hover:shadow-lg">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">{trail.name}</h3>
                     <div className="flex space-x-2">
-                        {trail.is_active ? (
+                        {trail.isActive ? (
                             <Badge variant="success">Active</Badge>
                         ) : (
                             <Badge variant="secondary">Inactive</Badge>
                         )}
-                        {trail.is_open ? (
+                        {trail.isOpen ? (
                             <Badge variant="info">Open</Badge>
                         ) : (
                             <Badge variant="warning">Closed</Badge>
