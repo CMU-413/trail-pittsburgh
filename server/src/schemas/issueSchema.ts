@@ -35,7 +35,7 @@ export const createIssueSchema = z.object({
         latitude: z.number().optional(),
         longitude: z.number().optional(),
 
-        reporterEmail: z.string().optional(),
+        reporterEmail: z.string(),
         notifyReporter: z.boolean().default(false),
         description: z.string().optional(),
         imageType: z.enum(['image/jpeg', 'image/png', 'image/heic']).optional(),
