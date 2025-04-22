@@ -32,8 +32,8 @@ export const createIssueSchema = z.object({
         urgency: z.number(),
         isPublic: z.boolean().default(false),
         status: z.string().default('Open'),
-        latitude: z.number(),
-        longitude: z.number(),
+        latitude: z.number().optional(),
+        longitude: z.number().optional(),
 
         reporterEmail: z.string(),
         notifyReporter: z.boolean().default(false),
