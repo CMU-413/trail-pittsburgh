@@ -2,7 +2,6 @@
 import express from 'express';
 
 import { TrailController } from '@/controllers';
-import { errorHandlerWrapper } from '@/middlewares';
 import { authenticateToken } from '@/middlewares/auth';
 import { validateRequest } from '@/middlewares/validateRequest';
 import { TrailRepository } from '@/repositories';
@@ -22,12 +21,12 @@ const trailController = new TrailController(trailService);
 const router = express.Router();
 
 //Public Routes
-router.get('/', errorHandlerWrapper(trailController.getAllTrails)); // Get all trails
-router.get('/:trailId', validateRequest(getTrailSchema), errorHandlerWrapper(trailController.getTrail)); // Get a specific trail
+router.get('/', trailController.getAllTrails); // Get all trails
+router.get('/:trailId', validateRequest(getTrailSchema), trailController.getTrail); // Get a specific trail
 router.get(
     '/park/:parkId', 
     validateRequest(getTrailsFromParkSchema), 
-    errorHandlerWrapper(trailController.getTrailsByPark)
+    trailController.getTrailsByPark
 ); // Get trails from a park
 
 // Protected Routes
@@ -35,21 +34,21 @@ router.post(
     '/',
     authenticateToken,
     validateRequest(createTrailSchema),
-    errorHandlerWrapper(trailController.createTrail)
+    trailController.createTrail
 ); // Create a new trail
 
 router.put(
     '/:trailId',
     authenticateToken,
     validateRequest(updateTrailSchema),
-    errorHandlerWrapper(trailController.updateTrail)
+    trailController.updateTrail
 ); // Update a trail
 
 router.delete(
     '/:trailId',
     authenticateToken,
     validateRequest(deleteTrailSchema),
-    errorHandlerWrapper(trailController.deleteTrail)
+    trailController.deleteTrail
 ); // Delete a trail
 
 export { router as trailRouter };
