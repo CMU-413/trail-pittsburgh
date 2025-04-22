@@ -10,6 +10,7 @@ export const createParkSchema = z.object({
     body: z.object({
         name: z.string(),
         county: z.string(),
+        isActive: z.boolean().optional()
     })
 });
 
