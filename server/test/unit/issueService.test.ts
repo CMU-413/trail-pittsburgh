@@ -54,6 +54,8 @@ describe('IssueService', () => {
             urgency: 3,
             reporterEmail: 'reporter@example.com',
             description: 'Trail is flooded',
+            latitude: 40.4406,
+            longitude: -79.9901,
             isPublic: true,
             status: 'Open',
             notifyReporter: true,

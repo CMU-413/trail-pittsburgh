@@ -61,9 +61,9 @@ export const ImageMetadataDisplay: React.FC<ImageMetadataDisplayProps> = ({
     // Get coordinates string
     const getCoordinatesString = () => {
         if (hasCoordinates) {
-            const lat = metadata.latitude!.toFixed(6);
-            const lon = metadata.longitude!.toFixed(6);
-            return `${lat},${lon}`;
+            const latitude = metadata.latitude!.toFixed(6);
+            const longitude = metadata.longitude!.toFixed(6);
+            return `${latitude},${longitude}`;
         }
         return '';
     };
