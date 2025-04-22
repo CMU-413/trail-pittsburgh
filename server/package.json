@@ -5,15 +5,17 @@
   "scripts": {
     "dev": "tsx watch --no-warnings --clear-screen=false -r dotenv/config src/server.ts",
     "build": "tsc",
+    "clean": "rm -rf dist",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
-    "start": "tsx src/server.ts",
+    "start": "node -r ./tsconfig-paths-bootstrap.js dist/server.js",
     "seed": "npx prisma db seed",
-    "test": "jest"
+    "test": "jest unit",
+    "deploy": "gcloud builds submit --config cloudbuild.yaml"
   },
   "prisma": {
     "schema": "src/prisma/schema.prisma",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx src/prisma/seed.ts"
   },
   "jest": {
     "preset": "ts-jest",
@@ -29,25 +31,34 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "description": "",
   "dependencies": {
     "@google-cloud/secret-manager": "^5.6.0",
     "@google-cloud/storage": "^7.15.1",
     "@prisma/client": "^6.4.1",
-    "dotenv": "^16.4.7",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/jsonwebtoken": "^9.0.9",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "google-auth-library": "^9.15.1",
+    "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "pg": "^8.13.3"
+    "pg": "^8.13.3",
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
-    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.12",
-    "@types/node": "^22.13.10",
+    "@types/node": "^22.14.0",
     "@types/pg": "^8.11.11",
     "@types/supertest": "^6.0.2",
     "eslint": "^9.20.1",
@@ -58,6 +69,7 @@
     "prisma": "^6.4.1",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.6",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.24.1"

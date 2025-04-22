@@ -1,93 +1,102 @@
-import React, { useState, useEffect } from 'react';
+import React, {
+    createContext, useEffect, useState, useContext 
+} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
-import { ORGANIZATION_DOMAIN } from '../constants/config';
-import { AuthContext } from '../context/AuthContext';
-import { GoogleUser, JwtPayload } from '../types/auth';
-import { CredentialResponse } from '@react-oauth/google';
+import { User } from '../types';
 
-interface AuthProviderProps {
-    children: React.ReactNode;
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: () => void;
+  logout: () => void;
+  isAuthenticated: boolean;
+  hasPermission: boolean;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [user, setUser] = useState<GoogleUser | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
+    // Fetch current user on mount
     useEffect(() => {
-        // Check for existing auth token in localStorage on component mount
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-            try {
-                const decodedUser = jwtDecode<GoogleUser>(token);
-
-                // Check if token is expired
-                const currentTime = Date.now() / 1000;
-                const expiryTime = (jwtDecode<JwtPayload>(token)).exp;
-
-                if (expiryTime && expiryTime < currentTime) {
-                    // Token expired, clear it
-                    localStorage.removeItem('auth_token');
-                    setUser(null);
-                } else {
-                    setUser(decodedUser);
-                }
-            } catch (error) {
-                // eslint-disable-next-line no-console
-                console.error('Failed to decode token:', error);
-                localStorage.removeItem('auth_token');
-                setUser(null);
-            }
-        }
-        setIsLoading(false);
+        fetchCurrentUser();
     }, []);
 
-    const login = (credentialResponse: CredentialResponse) => {
-        if (credentialResponse?.credential) {
-            try {
-                // Save the token
-                localStorage.setItem('auth_token', credentialResponse.credential);
-
-                // Decode the JWT token to get user info
-                const decodedUser = jwtDecode<GoogleUser>(credentialResponse.credential);
-                // eslint-disable-next-line no-console
-                console.log('Decoded user:', decodedUser);
-                setUser(decodedUser);
-
-                // Redirect based on domain
-                if (decodedUser.hd === ORGANIZATION_DOMAIN) {
-                    navigate('/dashboard');
-                } else {
-                    navigate('/');
-                }
-            } catch (error) {
-                // eslint-disable-next-line no-console
-                console.error('Failed to authenticate:', error);
-                localStorage.removeItem('auth_token');
+    // Fetch current user from backend
+    const fetchCurrentUser = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
+                credentials: 'include'
+            });
+            
+            if (!res.ok) {
+                setUser(null);
+                return;
             }
+            
+            const data = await res.json();
+            if (data?.user) {
+                setUser(data.user);
+            } else {
+                setUser(null);
+            }
+        } catch {
+            setUser(null);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const logout = () => {
-        localStorage.removeItem('auth_token');
-        setUser(null);
-        navigate('/');
+    // Start OAuth flow
+    const login = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ redirectPath: '/dashboard' })
+            });
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
+            }
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('Login failed', error);
+        }
+    };
+
+    // Logout user
+    const logout = async () => {
+        try {
+            await fetch(`${import.meta.env.VITE_API_URL}/api/auth/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+            setUser(null);
+            navigate('/');
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('Logout failed', error);
+        }
     };
 
     const isAuthenticated = !!user;
+    const hasPermission = user?.email?.endsWith('@trailpittsburgh.org') ?? false;
 
-    // Check if user has permission (is from allowed domain)
-    const hasPermission = isAuthenticated && !!user?.hd && user.hd === ORGANIZATION_DOMAIN;
+    return (
+        <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated, hasPermission }}>
+            {children}
+        </AuthContext.Provider>
+    );
+};
 
-    const value = {
-        user,
-        isLoading,
-        isAuthenticated,
-        hasPermission,
-        login,
-        logout,
-    };
-
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = (): AuthContextType => {
+    const context = useContext(AuthContext);
+    if (!context) {throw new Error('useAuth must be used within an AuthProvider');}
+    return context;
 };

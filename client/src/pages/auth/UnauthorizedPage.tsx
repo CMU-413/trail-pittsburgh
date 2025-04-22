@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../providers/AuthProvider';
 import { ORGANIZATION_DOMAIN, APP_NAME } from '../../constants/config';
 
 export const UnauthorizedPage: React.FC = () => {
@@ -26,7 +26,7 @@ export const UnauthorizedPage: React.FC = () => {
                             this area. Access is restricted to @{ORGANIZATION_DOMAIN} accounts only.
                         </>
                     ) : (
-                        `Access to this area is restricted to ${APP_NAME} staff only.`
+                        `Access to this area is restricted to ${APP_NAME} steward only.`
                     )}
                 </p>
 

@@ -1,39 +1,57 @@
-import { GetSignedUrlConfig, Bucket } from '@google-cloud/storage';
+import {
+    GetSignedUrlConfig, Bucket, Storage 
+} from '@google-cloud/storage';
 
-import { getStorage } from '@/config/storage';
+export type SignedUrl = {
+    key: string;
+    url: string;
+    type: 'download' | 'upload';
+}
 
 export class GCSBucket {
-    private readonly bucket: Bucket;
+    private bucket: Bucket;
+    
+    // Expiration in seconds
+    private static readonly UPLOAD_BUCKET_TIMEOUT: number = 20;
+    private static readonly DOWNLOAD_BUCKET_TIMEOUT: number = 5 * 60;
 
-    private constructor(bucket: Bucket) {
-        this.bucket = bucket;
+    public constructor(bucketName: string) {
+        const storage = new Storage();
+        this.bucket = storage.bucket(bucketName);
     }
 
-    public static async of(bucketName: string): Promise<GCSBucket> {
-        const storage = await getStorage();
-        const bucket = storage.bucket(bucketName);
-        return new GCSBucket(bucket);
-    }
-
-    async getSignedUrl(key: string, expiresInSeconds = 60 * 30) {
+    async getDownloadUrl(key: string): Promise<SignedUrl> {
         const file = this.bucket.file(key);
         const options: GetSignedUrlConfig = {
             version: 'v4',
             action: 'read',
-            expires: Date.now() + expiresInSeconds * 1000,
+            expires: Date.now() + GCSBucket.DOWNLOAD_BUCKET_TIMEOUT * 1000,
         };
 
-        const [res] = await file.getSignedUrl(options);
-        return res;
+        const [url] = await file.getSignedUrl(options);
+
+        return {
+            key,
+            url,
+            type: 'download',
+        };
     }
 
-    async uploadImage(image: File, key: string) {
-        const imageData = await image.arrayBuffer();
-        const uint8Array = new Uint8Array(imageData);
+    async getUploadUrl(key: string, contentType: string): Promise<SignedUrl> {
         const file = this.bucket.file(key);
+        const options: GetSignedUrlConfig = {
+            version: 'v4',
+            action: 'write',
+            expires: Date.now() + GCSBucket.UPLOAD_BUCKET_TIMEOUT * 1000,
+            contentType
+        };
 
-        await file.save(uint8Array, {
-            resumable: false,
-        });
+        const [url] = await file.getSignedUrl(options);
+
+        return {
+            key,
+            url,
+            type: 'upload',
+        };
     }
 }

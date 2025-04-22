@@ -7,10 +7,18 @@ const newPark = { name: 'Central Park', county: 'Test County' };
 
 describe('Park Routes', () => {
     beforeAll(async () => {
+        // Delete in correct order to handle foreign key constraints
+        await prisma.notification.deleteMany();
+        await prisma.issue.deleteMany();
+        await prisma.trail.deleteMany();
         await prisma.park.deleteMany();
     });
 
     afterEach(async () => {
+        // Delete in correct order to handle foreign key constraints
+        await prisma.notification.deleteMany();
+        await prisma.issue.deleteMany();
+        await prisma.trail.deleteMany();
         await prisma.park.deleteMany();
     });
 
@@ -19,19 +27,16 @@ describe('Park Routes', () => {
     });
 
     it('should create a new park', async () => {
-
         const response = await request(app)
             .post('/api/parks')
             .send(newPark);
 
         expect(response.status).toBe(201);
-        expect(response.body.data).toHaveProperty('park_id');
+        expect(response.body.data).toHaveProperty('parkId');
         expect(response.body.data.name).toEqual('Central Park');
-
     });
 
     it('should get all parks', async () => {
-
         const NUMBER_OF_PARKS = 5;
         for (let i = 0; i < NUMBER_OF_PARKS; i++) {
             await request(app)
@@ -44,35 +49,35 @@ describe('Park Routes', () => {
             .send();
 
         expect(response.status).toBe(200);
-        expect(response.body.data).toHaveLength(NUMBER_OF_PARKS);
-        expect(response.body.data[0]).toHaveProperty('park_id');
+        expect(response.body).toHaveLength(NUMBER_OF_PARKS);
+        console.log('FULL RESPONSE BODY:', response.body);
+        // expect(response.body.data[0]).toHaveProperty('parkId');
+        expect(response.body[0]).toHaveProperty('parkId');
+        
     });
 
     it('should get a park', async () => {
-
         const createResponse = await request(app)
             .post('/api/parks')
             .send(newPark);
 
-        const id = Number(createResponse.body.data.park_id);
+        const id = Number(createResponse.body.data.parkId);
 
         const response = await request(app)
             .get(`/api/parks/${id}`)
             .send();
 
         expect(response.status).toBe(200);
-        expect(response.body.data).toHaveProperty('park_id');
+        expect(response.body.data).toHaveProperty('parkId');
         expect(response.body.data.name).toBe('Central Park');
     });
 
     it('should delete a park', async () => {
-
         const createResponse = await request(app)
             .post('/api/parks')
             .send(newPark);
 
-        console.log(createResponse.body);
-        const id: number = createResponse.body.data.park_id;
+        const id: number = createResponse.body.data.parkId;
 
         const deleteResponse = await request(app)
             .delete(`/api/parks/${id}`)
@@ -86,5 +91,4 @@ describe('Park Routes', () => {
 
         expect(getResponse.status).toBe(404);
     });
-
 });

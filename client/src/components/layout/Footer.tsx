@@ -1,7 +1,7 @@
 // src/components/layout/Footer.tsx
 import React, { SVGProps } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../providers/AuthProvider';
 import {
     APP_NAME, FACEBOOK_LINK, INSTAGRAM_LINK, X_LINK
 } from '../../constants/config';
@@ -13,7 +13,6 @@ export const Footer: React.FC = () => {
     // Public navigation available to all users
     const publicNavigation = [
         { name: 'Home', href: '/' },
-        { name: 'Report Issue', href: '/issues/report' },
     ];
 
     // Protected navigation for authenticated users with proper permissions
@@ -23,10 +22,13 @@ export const Footer: React.FC = () => {
         { name: 'Issues', href: '/issues' },
     ];
 
+    // Report Issue link (public)
+    const reportIssueLink = { name: 'Report Issue', href: '/issues/report' };
+
     // Determine which navigation links to display based on auth status
     const mainNavigation = isAuthenticated && hasPermission
-        ? [...publicNavigation, ...protectedNavigation]
-        : publicNavigation;
+        ? [...publicNavigation, ...protectedNavigation, reportIssueLink]
+        : [...publicNavigation, reportIssueLink];
 
     // Social links remain the same for all users
     const socialNavigation = [

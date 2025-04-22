@@ -4,13 +4,11 @@ import { Trail } from '../../types';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
-import { ImageUpload } from '../ui/ImageUpload';
-import { TextArea } from '../ui/TextArea';
 
 interface TrailFormProps {
     parkId: number;
     initialData?: Partial<Trail>;
-    onSubmit: (data: Omit<Trail, 'trail_id'>) => Promise<void>;
+    onSubmit: (data: Omit<Trail, 'trailId'>) => Promise<void>;
     isEditing?: boolean;
 }
 
@@ -21,14 +19,13 @@ export const TrailForm: React.FC<TrailFormProps> = ({
     isEditing = false
 }) => {
     const [formData, setFormData] = useState<Partial<Trail>>({
-        park_id: parkId,
+        parkId: parkId,
         name: '',
-        is_active: true,
-        is_open: true,
+        isActive: true,
+        isOpen: true,
         ...initialData
     });
 
-    const [description, setDescription] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -49,11 +46,6 @@ export const TrailForm: React.FC<TrailFormProps> = ({
         }
     };
 
-    // The handleImageChange function is needed for the ImageUpload component
-    const handleImageChange = () => {
-        // Empty function - image handling would be implemented in a real app
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -64,9 +56,7 @@ export const TrailForm: React.FC<TrailFormProps> = ({
                 throw new Error('Trail name is required');
             }
 
-            // We would later upload the image to a server here and get back a URL to store with the trail data
-
-            await onSubmit(formData as Omit<Trail, 'trail_id'>);
+            await onSubmit(formData as Omit<Trail, 'trailId'>);
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);
@@ -101,33 +91,18 @@ export const TrailForm: React.FC<TrailFormProps> = ({
                         fullWidth
                     />
 
-                    <TextArea
-                        label="Trail Description (Optional)"
-                        name="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        rows={4}
-                        placeholder="Describe the trail, its difficulty level, estimated completion time, etc."
-                        fullWidth
-                    />
-
-                    <ImageUpload
-                        label="Trail Image (Optional)"
-                        onChange={handleImageChange}
-                    />
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-gray-50 p-4 rounded-lg">
                             <div className="flex items-center">
                                 <input
-                                    id="is_active"
-                                    name="is_active"
+                                    id="isActive"
+                                    name="isActive"
                                     type="checkbox"
-                                    checked={formData.is_active}
+                                    checked={formData.isActive}
                                     onChange={handleChange}
                                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                 />
-                                <label htmlFor="is_active" className="ml-3 block text-sm text-gray-700">
+                                <label htmlFor="isActive" className="ml-3 block text-sm text-gray-700">
                                     Trail is active
                                 </label>
                             </div>
@@ -139,14 +114,14 @@ export const TrailForm: React.FC<TrailFormProps> = ({
                         <div className="bg-gray-50 p-4 rounded-lg">
                             <div className="flex items-center">
                                 <input
-                                    id="is_open"
-                                    name="is_open"
+                                    id="isOpen"
+                                    name="isOpen"
                                     type="checkbox"
-                                    checked={formData.is_open}
+                                    checked={formData.isOpen}
                                     onChange={handleChange}
                                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                 />
-                                <label htmlFor="is_open" className="ml-3 block text-sm text-gray-700">
+                                <label htmlFor="isOpen" className="ml-3 block text-sm text-gray-700">
                                     Trail is open
                                 </label>
                             </div>

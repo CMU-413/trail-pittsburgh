@@ -11,11 +11,11 @@ interface ParkCardProps {
 
 export const ParkCard: React.FC<ParkCardProps> = ({ park }) => {
     return (
-        <Link to={`/parks/${park.park_id}`} className="block hover:no-underline">
+        <Link to={`/parks/${park.parkId}`} className="block hover:no-underline">
             <Card className="h-full transition-shadow hover:shadow-lg">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">{park.name}</h3>
-                    {park.is_active ? (
+                    {park.isActive ? (
                         <Badge variant="success">Active</Badge>
                     ) : (
                         <Badge variant="secondary">Inactive</Badge>

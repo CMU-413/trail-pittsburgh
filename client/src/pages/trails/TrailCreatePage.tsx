@@ -7,24 +7,23 @@ import { Card } from '../../components/ui/Card';
 import { TrailForm } from '../../components/trails/TrailForm';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { Button } from '../../components/ui/Button';
-import { mockApi } from '../../services/mockData';
+import { trailApi } from '../../services/api';
 
 export const TrailCreatePage: React.FC = () => {
     const { parkId } = useParams<{ parkId: string }>();
     const navigate = useNavigate();
     
-    const handleSubmit = async (data: Omit<Trail, 'trail_id'>) => {
+    const handleSubmit = async (data: Omit<Trail, 'trailId'>) => {
         if (!parkId) {
             throw new Error('Park ID is required');
         }
-        
         try {
-            const newTrail = await mockApi.createTrail({
+            const newTrail = await trailApi.createTrail({
                 ...data,
-                park_id: parseInt(parkId, 10)
+                parkId: parseInt(parkId, 10)
             });
             
-            navigate(`/parks/${parkId}/trails/${newTrail.trail_id}`);
+            navigate(`/parks/${parkId}/trails/${newTrail.trailId}`);
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Error creating trail:', err);

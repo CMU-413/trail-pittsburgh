@@ -1,7 +1,8 @@
 // src/components/issues/IssueReportForm.tsx
+
 import React, { useState, useEffect } from 'react';
 import {
-    Issue, Park, Trail
+    Park, Trail, ImageMetadata, IssueParams
 } from '../../types';
 import { Input } from '../ui/Input';
 import { TextArea } from '../ui/TextArea';
@@ -10,10 +11,12 @@ import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
 import { ImageUpload } from '../ui/ImageUpload';
 import Location from '../ui/Location';
-import { mockApi } from '../../services/mockData';
+import { 
+    parkApi, trailApi 
+} from '../../services/api';
 
 interface IssueReportFormProps {
-    onSubmit: (data: Omit<Issue, 'issue_id'>) => Promise<void>;
+    onSubmit: (data: IssueParams) => Promise<void>; // Fixed: replaced 'any' with 'ImageMetadata'
     initialParkId?: number;
     initialTrailId?: number;
 }
@@ -23,21 +26,23 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     initialParkId,
     initialTrailId
 }) => {
-    const [formData, setFormData] = useState<Partial<Issue> & { reporter_email?: string }>({
-        park_id: initialParkId || 0,
-        trail_id: initialTrailId || 0,
-        is_public: true,
+    const [formData, setFormData] = useState<Partial<IssueParams>>({
+        parkId: initialParkId || 0,
+        trailId: initialTrailId || 0,
+        isPublic: true,
         status: 'open',
         description: '',
-        issue_type: '',
+        issueType: '',
         urgency: 3,
-        notify_reporter: true,
-        reporter_email: '',
-        reported_at: new Date().toISOString(),
+        notifyReporter: false,
+        reporterEmail: '',
+        createdAt: new Date().toISOString(),
         lon: undefined,
-        lat: undefined
+        lat: undefined,
+        imageMetadata: undefined
     });
 
+    const [imgPreview, setImgPreview] = useState<string>();
     const [parks, setParks] = useState<Park[]>([]);
     const [trails, setTrails] = useState<Trail[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -59,13 +64,13 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     useEffect(() => {
         const fetchParks = async () => {
             try {
-                const parksData = await mockApi.getParks();
-                setParks(parksData.filter((park) => park.is_active));
+                const parksData = await parkApi.getParks();
+                setParks(parksData.filter((park) => park.isActive));
 
                 // If we have a park ID, load its trails
-                if (formData.park_id) {
-                    const trailsData = await mockApi.getTrailsByPark(formData.park_id);
-                    setTrails(trailsData.filter((trail) => trail.is_active));
+                if (formData.parkId) {
+                    const trailsData = await trailApi.getTrailsByPark(formData.parkId);
+                    setTrails(trailsData.filter((trail) => trail.isActive));
                 }
             } catch (err) {
                 // eslint-disable-next-line no-console
@@ -75,21 +80,21 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         };
 
         fetchParks();
-    }, [formData.park_id]);
+    }, [formData.parkId]);
 
     // When park changes, update trails
     useEffect(() => {
         const fetchTrails = async () => {
-            if (formData.park_id) {
+            if (formData.parkId) {
                 try {
-                    const trailsData = await mockApi.getTrailsByPark(formData.park_id);
-                    setTrails(trailsData.filter((trail) => trail.is_active));
+                    const trailsData = await trailApi.getTrailsByPark(formData.parkId);
+                    setTrails(trailsData.filter((trail) => trail.isActive));
 
                     // If current trail doesn't belong to selected park, reset it
-                    if (formData.trail_id) {
-                        const trailExists = trailsData.some((t) => t.trail_id === formData.trail_id);
+                    if (formData.trailId) {
+                        const trailExists = trailsData.some((t) => t.trailId === formData.trailId);
                         if (!trailExists) {
-                            setFormData((prev) => ({ ...prev, trail_id: 0 }));
+                            setFormData((prev) => ({ ...prev, trailId: 0 }));
                         }
                     }
                 } catch (err) {
@@ -99,12 +104,12 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 }
             } else {
                 setTrails([]);
-                setFormData((prev) => ({ ...prev, trail_id: 0 }));
+                setFormData((prev) => ({ ...prev, trailId: 0 }));
             }
         };
 
         fetchTrails();
-    }, [formData.park_id, formData.trail_id]);
+    }, [formData.parkId, formData.trailId]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -114,8 +119,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             const checked = (e.target as HTMLInputElement).checked;
             setFormData((prev) => ({ ...prev, [name]: checked }));
 
-            // Clear email error when notify_reporter is unchecked
-            if (name === 'notify_reporter' && !checked) {
+            // Clear email error when notifyReporter is unchecked
+            if (name === 'notifyReporter' && !checked) {
                 setEmailError(null);
             }
 
@@ -129,7 +134,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         }
 
         // For email field, validate it
-        if (name === 'reporter_email') {
+        if (name === 'reporterEmail') {
             setEmailError(null);
         }
 
@@ -140,20 +145,34 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         setFormData((prev) => ({ ...prev, [name]: Number(value) || value }));
     };
 
+    const handleIssueTypeSelect = (type: string) => {
+        setFormData((prev) => ({ ...prev, issueType: type }));
+    };
+
     const handleUrgencySelect = (level: number) => {
         setFormData((prev) => ({ ...prev, urgency: level }));
     };
+    
+    const handleImageChange = (file: File | null, previewUrl: string | null, metadata?: ImageMetadata) => {
 
-    const handleImageChange = (file: File | null, previewUrl: string | null) => {
-        // We would later upload the file to a server and get a URL back
         if (previewUrl) {
-            // eslint-disable-next-line no-console
-            console.log({ file, previewUrl });
-            setFormData((prev) => ({ ...prev, issue_image: previewUrl }));
+            setImgPreview(previewUrl);
+        }
+
+        if (file) {
+            setFormData((prev) => {
+                const newData = {
+                    ...prev,
+                    image: file,
+                    imageMetadata: metadata || {}
+                };
+                return newData;
+            });
         } else {
             setFormData((prev) => {
                 const newData = { ...prev };
-                delete newData.issue_image;
+                delete newData.image;
+                delete newData.imageMetadata;
                 return newData;
             });
         }
@@ -167,6 +186,49 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             lon
         }));
         setLocationProvided(true);
+    };
+
+    // Get issue type icon
+    const getIssueTypeIcon = (type: string) => {
+        switch (type) {
+        case 'obstruction':
+            return (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            );
+        case 'erosion':
+            return (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+            );
+        case 'flooding':
+            return (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                </svg>
+            );
+        case 'signage':
+            return (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            );
+        case 'vandalism':
+            return (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+            );
+        case 'other':
+        default:
+            return (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            );
+        }
     };
 
     // Validate email format
@@ -184,15 +246,15 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
         try {
             // Make sure all required fields are present
-            if (!formData.park_id) {
+            if (!formData.parkId) {
                 throw new Error('Please select a park.');
             }
 
-            if (!formData.trail_id) {
+            if (!formData.trailId) {
                 throw new Error('Please select a trail.');
             }
 
-            if (!formData.issue_type) {
+            if (!formData.issueType) {
                 throw new Error('Please select an issue type.');
             }
 
@@ -201,13 +263,13 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             }
 
             // Check email if notification is enabled
-            if (formData.notify_reporter) {
-                if (!formData.reporter_email || formData.reporter_email.trim() === '') {
+            if (formData.notifyReporter) {
+                if (!formData.reporterEmail || formData.reporterEmail.trim() === '') {
                     setEmailError('Please provide your email to receive notifications.');
                     throw new Error('Please provide your email to receive notifications.');
                 }
 
-                if (!validateEmail(formData.reporter_email)) {
+                if (!validateEmail(formData.reporterEmail)) {
                     setEmailError('Please enter a valid email address.');
                     throw new Error('Please enter a valid email address.');
                 }
@@ -217,23 +279,23 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             const dataToSubmit = {
                 ...formData,
                 reported_at: new Date().toISOString()
-            } as Omit<Issue, 'issue_id'>;
+            } as IssueParams;
 
             await onSubmit(dataToSubmit);
             setSuccess(true);
 
             // Reset form
             setFormData({
-                park_id: 0,
-                trail_id: 0,
-                is_public: true,
+                parkId: 0,
+                trailId: 0,
+                isPublic: true,
                 status: 'open',
                 description: '',
-                issue_type: '',
+                issueType: '',
                 urgency: 3,
-                notify_reporter: true,
-                reporter_email: '',
-                reported_at: new Date().toISOString(),
+                notifyReporter: false,
+                reporterEmail: '',
+                createdAt: new Date().toISOString(),
                 lon: undefined,
                 lat: undefined
             });
@@ -267,9 +329,9 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
     const getUrgencyColor = (level: number) => {
         switch (level) {
-        case 1: return 'bg-green-100 text-green-800 border-green-200';
+        case 1: return 'bg-emerald-100 text-emerald-800 border-emerald-200';
         case 2: return 'bg-blue-100 text-blue-800 border-blue-200';
-        case 3: return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        case 3: return 'bg-amber-100 text-amber-800 border-amber-200';
         case 4: return 'bg-orange-100 text-orange-800 border-orange-200';
         case 5: return 'bg-red-100 text-red-800 border-red-200';
         default: return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -306,10 +368,10 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         label="Which park is the issue in?"
                         options={[
                             { value: '', label: 'Select a park' },
-                            ...parks.map((park) => ({ value: park.park_id.toString(), label: park.name }))
+                            ...parks.map((park) => ({ value: park.parkId.toString(), label: park.name }))
                         ]}
-                        value={formData.park_id?.toString() || ''}
-                        onChange={handleSelectChange('park_id')}
+                        value={formData.parkId?.toString() || ''}
+                        onChange={handleSelectChange('parkId')}
                         required
                         fullWidth
                         helperText="Select the park where you found the issue"
@@ -318,14 +380,14 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                     <Select
                         label="Which trail is affected?"
                         options={[
-                            { value: '', label: formData.park_id ? 'Select a trail' : 'Select a park first' },
-                            ...trails.map((trail) => ({ value: trail.trail_id.toString(), label: trail.name }))
+                            { value: '', label: formData.parkId ? 'Select a trail' : 'Select a park first' },
+                            ...trails.map((trail) => ({ value: trail.trailId.toString(), label: trail.name }))
                         ]}
-                        value={formData.trail_id?.toString() || ''}
-                        onChange={handleSelectChange('trail_id')}
+                        value={formData.trailId?.toString() || ''}
+                        onChange={handleSelectChange('trailId')}
                         required
                         fullWidth
-                        disabled={!formData.park_id}
+                        disabled={!formData.parkId}
                         helperText="Select the specific trail with the issue"
                     />
                 </div>
@@ -335,37 +397,80 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-5">Issue Details</h3>
                 <div className="space-y-6">
-                    <Select
-                        label="What type of issue is it?"
-                        options={[
-                            { value: '', label: 'Select issue type' },
-                            ...issueTypes
-                        ]}
-                        value={formData.issue_type || ''}
-                        onChange={handleSelectChange('issue_type')}
-                        required
-                        fullWidth
-                        helperText="Select the category that best describes the issue"
-                    />
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                            What type of issue is it?
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {issueTypes.map((type) => (
+                                <button
+                                    key={type.value}
+                                    type="button"
+                                    onClick={() => handleIssueTypeSelect(type.value)}
+                                    className={`
+                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                        ${formData.issueType === type.value
+                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                    : 'border-gray-200'
+                                }
+                                    `}
+                                >
+                                    <div className={`p-2 rounded-full mr-3 ${formData.issueType === type.value ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
+                                        {getIssueTypeIcon(type.value)}
+                                    </div>
+                                    <span className="font-medium text-sm">{type.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <p className="mt-2 text-xs text-gray-500">Select the category that best describes the issue</p>
+                    </div>
 
+                    {/* Urgency selector */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                             How urgent is this issue?
                         </label>
-                        <div className="grid grid-cols-5 gap-2">
+                        {/* For large screens: all options in one row */}
+                        <div className="hidden md:grid md:grid-cols-5 gap-3">
                             {[1, 2, 3, 4, 5].map((level) => (
                                 <button
                                     key={level}
                                     type="button"
                                     onClick={() => handleUrgencySelect(level)}
                                     className={`
-                                        py-3 px-2 rounded-lg text-center border transition-all
+                                        p-3 rounded-lg text-center border transition-all cursor-pointer
                                         ${formData.urgency === level
-                                    ? `${getUrgencyColor(level)} ring-2 ring-offset-1 ring-blue-500 font-medium`
-                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}
+                                    ? `${getUrgencyColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
+                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                                }
                                     `}
                                 >
-                                    {getUrgencyLabel(level)}
+                                    <div className="text-sm font-medium">{getUrgencyLabel(level)}</div>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* For mobile: options stacked one per row */}
+                        <div className="grid grid-cols-1 gap-3 md:hidden">
+                            {[1, 2, 3, 4, 5].map((level) => (
+                                <button
+                                    key={level}
+                                    type="button"
+                                    onClick={() => handleUrgencySelect(level)}
+                                    className={`
+                                        p-3 rounded-lg text-center border transition-all flex justify-between items-center cursor-pointer
+                                        ${formData.urgency === level
+                                    ? `${getUrgencyColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
+                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                                }
+                                    `}
+                                >
+                                    <div className="text-sm font-medium">{getUrgencyLabel(level)}</div>
+                                    {formData.urgency === level && (
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    )}
                                 </button>
                             ))}
                         </div>
@@ -386,8 +491,10 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                     <ImageUpload
                         label="Add a photo (optional)"
                         onChange={handleImageChange}
-                        existingImageUrl={formData.issue_image}
+                        existingImageUrl={imgPreview}
+                        existingMetadata={formData.imageMetadata}
                         className="mt-4"
+                        acceptedFormats="image/jpeg,image/png,image/gif,image/heic,image/heif"
                     />
                 </div>
             </div>
@@ -406,26 +513,26 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 <div className="space-y-4">
                     <div className="flex items-center">
                         <input
-                            id="notify_reporter"
-                            name="notify_reporter"
+                            id="notifyReporter"
+                            name="notifyReporter"
                             type="checkbox"
-                            checked={formData.notify_reporter}
+                            checked={formData.notifyReporter}
                             onChange={handleChange}
                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         />
-                        <label htmlFor="notify_reporter" className="ml-3 block text-sm text-gray-700">
+                        <label htmlFor="notifyReporter" className="ml-3 block text-sm text-gray-700">
                             Notify me when this issue is resolved
                         </label>
                     </div>
 
-                    {/* Email input field that appears when notify_reporter is checked */}
-                    {formData.notify_reporter && (
+                    {/* Email input field that appears when notifyReporter is checked */}
+                    {formData.notifyReporter && (
                         <div className="pl-7 mt-3">
                             <Input
                                 label="Email Address"
-                                name="reporter_email"
+                                name="reporterEmail"
                                 type="email"
-                                value={formData.reporter_email || ''}
+                                value={formData.reporterEmail || ''}
                                 onChange={handleChange}
                                 placeholder="your.email@example.com"
                                 error={emailError || undefined}

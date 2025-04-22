@@ -8,9 +8,11 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
-import { mockApi } from '../../services/mockData';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { getIssueStatusDotColor } from '../../utils/issueStatusUtils';
+import { 
+    parkApi, trailApi, issueApi
+} from '../../services/api';
 
 export const DashboardPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -27,8 +29,8 @@ export const DashboardPage: React.FC = () => {
         const fetchData = async () => {
             try {
                 // Fetch issues
-                const issuesData = await mockApi.getIssues();
-                const filteredIssues = issuesData.filter((issue) => issue.is_public);
+                const issuesData = await issueApi.getAllIssues();
+                const filteredIssues = issuesData.filter((issue) => issue.isPublic);
                 setIssues(filteredIssues.slice(0, 6)); // Show only the most recent 6 issues
 
                 // Calculate statistics
@@ -37,17 +39,17 @@ export const DashboardPage: React.FC = () => {
                 setResolvedIssues(filteredIssues.filter((i) => i.status === 'resolved').length);
 
                 // Fetch parks and trails for display
-                const parksData = await mockApi.getParks();
+                const parksData = await parkApi.getParks();
                 const parksMap: Record<number, Park> = {};
-                parksData.forEach((park) => {
-                    parksMap[park.park_id] = park;
+                parksData.forEach((park: Park) => {
+                    parksMap[park.parkId] = park;
                 });
                 setParks(parksMap);
 
-                const trailsData = await mockApi.getTrails();
+                const trailsData = await trailApi.getAllTrails();
                 const trailsMap: Record<number, Trail> = {};
                 trailsData.forEach((trail) => {
-                    trailsMap[trail.trail_id] = trail;
+                    trailsMap[trail.trailId] = trail;
                 });
                 setTrails(trailsMap);
             } catch (err) {
@@ -67,7 +69,7 @@ export const DashboardPage: React.FC = () => {
 
     // Get the most recent issues
     const recentIssues = [...issues].sort(
-        (a, b) => new Date(b.reported_at).getTime() - new Date(a.reported_at).getTime()
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     ).slice(0, 5);
 
     return (
@@ -130,20 +132,20 @@ export const DashboardPage: React.FC = () => {
                     >
                         <div className="divide-y divide-gray-200">
                             {recentIssues.map((issue) => (
-                                <div key={issue.issue_id} className="flex items-start py-4 first:pt-0 last:pb-0">
+                                <div key={issue.issueId} className="flex items-start py-4 first:pt-0 last:pb-0">
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between">
-                                            <Link to={`/issues/${issue.issue_id}`} className="font-medium text-blue-600 hover:text-blue-500 truncate">
-                                                {issue.issue_type.charAt(0).toUpperCase() + issue.issue_type.slice(1)}
+                                            <Link to={`/issues/${issue.issueId}`} className="font-medium text-blue-600 hover:text-blue-500 truncate">
+                                                {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
                                             </Link>
                                             <span className="text-sm text-gray-500 whitespace-nowrap ml-4">
-                                                {formatDistanceToNow(new Date(issue.reported_at), { addSuffix: true })}
+                                                {formatDistanceToNow(new Date(issue.createdAt), { addSuffix: true })}
                                             </span>
                                         </div>
                                         <p className="text-sm text-gray-600 mt-1 line-clamp-2">{issue.description}</p>
                                         <p className="text-xs text-gray-500 mt-1 flex items-center">
                                             <span className={`inline-block w-2 h-2 rounded-full mr-2 ${getIssueStatusDotColor(issue.status)}`}></span>
-                                            {parks[issue.park_id]?.name} &bull; {trails[issue.trail_id]?.name}
+                                            {parks[issue.parkId]?.name} &bull; {trails[issue.trailId]?.name}
                                         </p>
                                     </div>
                                 </div>
@@ -156,15 +158,15 @@ export const DashboardPage: React.FC = () => {
                     <Card title="Parks Overview">
                         <div className="divide-y divide-gray-200">
                             {Object.values(parks).slice(0, 5).map((park) => (
-                                <div key={park.park_id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
-                                    <Link to={`/parks/${park.park_id}`} className="font-medium text-blue-600 hover:text-blue-500 truncate max-w-[70%]">
+                                <div key={park.parkId} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                                    <Link to={`/parks/${park.parkId}`} className="font-medium text-blue-600 hover:text-blue-500 truncate max-w-[70%]">
                                         {park.name}
                                     </Link>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${park.is_active
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${park.isActive
                                         ? 'bg-green-100 text-green-800'
                                         : 'bg-gray-100 text-gray-800'
                                     }`}>
-                                        {park.is_active ? 'Active' : 'Inactive'}
+                                        {park.isActive ? 'Active' : 'Inactive'}
                                     </span>
                                 </div>
                             ))}

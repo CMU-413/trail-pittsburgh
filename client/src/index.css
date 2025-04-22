@@ -85,3 +85,23 @@ body {
 .bg-gradient-to-br.from-slate-900.via-indigo-900.to-slate-800 {
   background-image: linear-gradient(to bottom right, #1e293b, var(--primary-color-dark), #1e293b) !important;
 }
+
+/* Make sure Leaflet controls stay in proper stacking context */
+.leaflet-control {
+  z-index: 20 !important; 
+}
+
+/* Ensure Leaflet container stays below header */
+.leaflet-container {
+  z-index: 10 !important;
+}
+
+/* Bump up z-index for mobile menu */
+.sm\\:hidden.absolute.w-full {
+  z-index: 50 !important;
+}
+
+/* Ensures fixed header always stays on top */
+nav.fixed {
+  z-index: 50 !important;
+}

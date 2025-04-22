@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Link, useLocation, useNavigate
 } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../providers/AuthProvider';
 import { APP_NAME } from '../../constants/config';
 
 export const Header: React.FC = () => {
@@ -44,7 +44,6 @@ export const Header: React.FC = () => {
     // Navigation links that are public
     const publicNavigation = [
         { name: 'Home', href: '/', current: location.pathname === '/' },
-        { name: 'Report Issue', href: '/issues/report', current: location.pathname === '/issues/report' },
     ];
 
     // Navigation links for authenticated users
@@ -54,8 +53,17 @@ export const Header: React.FC = () => {
         { name: 'Issues', href: '/issues', current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report' },
     ];
 
+    // Report Issue link (public)
+    const reportIssueLink = {
+        name: 'Report Issue',
+        href: '/issues/report',
+        current: location.pathname === '/issues/report'
+    };
+
     // Determine which navigation to use
-    const navigation = hasPermission ? [...publicNavigation, ...authNavigation] : publicNavigation;
+    const navigation = hasPermission
+        ? [...publicNavigation, ...authNavigation, reportIssueLink]
+        : [...publicNavigation, reportIssueLink];
 
     // Handle profile actions
     const handleLogout = () => {
@@ -63,6 +71,29 @@ export const Header: React.FC = () => {
         logout();
         navigate('/');
     };
+
+    async function auth() {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    redirectPath: window.location.pathname
+                }),
+                credentials: 'include'
+            });
+            const data = await response.json();
+            
+            if (data.url) {
+                window.location.href = data.url;
+            }
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('Authentication error:', error);
+        }
+    }
 
     return (
         <nav className={`fixed w-full z-10 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-white/80 backdrop-blur-md'
@@ -134,24 +165,27 @@ export const Header: React.FC = () => {
                                     >
                                         <div className="text-right hidden md:block">
                                             <p className="text-sm font-medium text-gray-700 truncate">{user?.name}</p>
-                                            <p className="text-xs text-gray-500 capitalize">{hasPermission ? 'Staff' : 'Public'}</p>
+                                            <p className="text-xs text-gray-500 capitalize">{hasPermission ? 'Steward' : 'Public'}</p>
                                         </div>
                                         <div className="relative flex-shrink-0">
                                             <img
                                                 className="h-10 w-10 rounded-full object-cover ring-2 ring-white"
-                                                src={user?.picture || `https://placehold.co/600x400?text=${encodeURIComponent(user?.name || 'User Name')}`}
+                                                src={user?.picture || `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user?.name || 'User')}`}
                                                 alt={user?.name || 'User profile'}
+                                                onError={(e) => {
+                                                    e.currentTarget.src = `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user?.name || 'User')}`;
+                                                }}
                                             />
                                         </div>
                                     </button>
                                 </div>
                             ) : (
-                                <Link
-                                    to="/login"
+                                <button
+                                    onClick={auth}
                                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD4602] hover:bg-[#a33e02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD4602]"
                                 >
                                     Sign in
-                                </Link>
+                                </button>
                             )}
 
                             {/* Dropdown menu */}
@@ -241,13 +275,16 @@ export const Header: React.FC = () => {
                                 <div className="flex-shrink-0 relative">
                                     <img
                                         className="h-10 w-10 rounded-full object-cover"
-                                        src={user?.picture || 'https://via.placeholder.com/150'}
+                                        src={user?.picture || `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user?.name || 'User')}`}
                                         alt={user?.name || 'User profile'}
+                                        onError={(e) => {
+                                            e.currentTarget.src = `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=${encodeURIComponent(user?.name || 'User')}`;
+                                        }}
                                     />
                                 </div>
                                 <div className="ml-3">
                                     <div className="text-base font-medium text-gray-800">{user?.name}</div>
-                                    <div className="text-sm font-medium text-gray-500 capitalize">{hasPermission ? 'Staff' : 'Public'}</div>
+                                    <div className="text-sm font-medium text-gray-500 capitalize">{hasPermission ? 'Steward' : 'Public'}</div>
                                 </div>
                             </div>
                             <div className="mt-3 space-y-1">
@@ -274,15 +311,12 @@ export const Header: React.FC = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="pt-4 pb-3 border-t border-gray-200">
-                            <Link
-                                to="/login"
-                                className="block px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#BD4602]"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                Sign in
-                            </Link>
-                        </div>
+                        <button
+                            onClick={auth}
+                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD4602] hover:bg-[#a33e02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD4602]"
+                        >
+                            Sign in
+                        </button>
                     )}
                 </div>
             )}

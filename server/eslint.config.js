@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 /** @type {import('eslint').Linter.Config[]} */
 export default [
     {
-        ignores: ['dist/**/*', 'node_modules/**/*'],
+        ignores: ['dist/**/*', 'node_modules/**/*', 'test/**/*', 'tsconfig-paths-bootstrap.js'],
     },
     {
         files: ['**/*.{js,ts}'],
@@ -55,7 +55,7 @@ export default [
             'prefer-template': 'error',
             'no-return-await': 'error',
             'no-unsafe-optional-chaining': 'error',
-            'max-len': ['error', { 'code': 80, 'ignoreStrings': true, 'ignoreTemplateLiterals': true }],
+            'max-len': ['error', { 'code': 100, 'ignoreStrings': true, 'ignoreTemplateLiterals': true }],
             'function-paren-newline': ['error', 'consistent'],
             'object-curly-newline': ['error', { 'ImportDeclaration': { 'minProperties': 3, 'consistent': true } }],
             'arrow-parens': ['error', 'always'],

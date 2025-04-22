@@ -1,9 +1,12 @@
-import { Prisma } from '@prisma/client';
-
 import { ParkRepository } from '@/repositories';
 
-export class ParkService {
+interface ParkData {
+    name: string;
+    county?: string;
+    isActive?: boolean;
+}
 
+export class ParkService {
     private readonly parkRepository: ParkRepository;
 
     constructor(parkRepository: ParkRepository) {
@@ -18,17 +21,29 @@ export class ParkService {
         return this.parkRepository.getAllParks();
     }
 
-    public async createPark(newPark: Prisma.ParkCreateInput) {
-        return this.parkRepository.createPark(newPark);
+    public async createPark(parkData: ParkData) {
+        return this.parkRepository.createPark(parkData);
     }
 
-    public async updatePark(
-        parkId: number, { isActive }: { isActive: boolean }
-    ) {
-        return this.parkRepository.setParkStatus(parkId, isActive);
+    public async updatePark(parkId: number, parkData: Partial<ParkData>) {
+        const existingPark = await this.parkRepository.getPark(parkId);
+        if (!existingPark) {
+            return null;
+        }
+
+        return this.parkRepository.updatePark(parkId, parkData);
     }
 
     public async deletePark(parkId: number) {
+        const existingPark = await this.parkRepository.getPark(parkId);
+        if (!existingPark) {
+            return false;
+        }
+
         return this.parkRepository.deletePark(parkId);
+    }
+
+    public async getTrailsByPark(parkId: number) {
+        return this.parkRepository.getTrailsByPark(parkId);
     }
 }

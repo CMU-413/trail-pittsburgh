@@ -7,87 +7,69 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Trail {
-  trail_id  Int      @id @default(autoincrement())
-  park_id   Int
-  name      String   @db.VarChar(150)
-  is_active Boolean
-  is_open   Boolean
-  issues    Issue[]
-
-  //Foreign key relation to Park
-  park Park @relation(fields: [park_id], references: [park_id])
-}
-
-model User {
-  user_id                  Int       @id @default(autoincrement())
-  username                 String    @unique @db.VarChar(100)
-  is_admin                 Boolean
-  is_hubspot_user          Boolean
-  profile_image_key        String    @db.VarChar
-  email                    String    @unique @db.VarChar(100)
-  created_at               DateTime? @default(now())
-  is_active                Boolean
-
-  //Relation: one user can have multiple permissions
-  permissions   Permission[]
-  notifications Notification[]
-}
-
 model Park {
-  park_id   Int     @id(map: "Parks_pkey") @default(autoincrement())
-  name      String  @db.VarChar(150)
-  county    String  @db.VarChar(150)
-  is_active Boolean @default(true)
-  trails      Trail[]
-  issues      Issue[]
-  permissions Permission[]
+  parkId    Int      @id(map: "Parks_pkey") @default(autoincrement()) @map("park_id")
+  name      String   @db.VarChar(150)
+  county    String   @db.VarChar(150)
+  isActive  Boolean  @default(true)         @map("is_active")
+  createdAt DateTime @default(now())        @map("created_at")
+
+  trails Trail[]
+  issues Issue[]
 }
 
-model Permission {
-  permission_id   Int       @id @default(autoincrement())
-  user_id         Int
-  resource_type   String    @db.VarChar(150)
-  resource_id     Int
-  permission_type String    @db.VarChar(150)
-  assigned_date   DateTime? @default(now())
-  is_active       Boolean
+model Trail {
+  trailId   Int      @id @default(autoincrement()) @map("trail_id")
+  parkId    Int                                   @map("park_id")
+  name      String   @db.VarChar(150)
+  isActive  Boolean  @default(true)               @map("is_active")
+  isOpen    Boolean                               @map("is_open")
+  createdAt DateTime @default(now())              @map("created_at")
 
-  //Foreign Key in relation to Users
-  user User @relation(fields: [user_id], references: [user_id])
-  park Park @relation(fields: [resource_id], references: [park_id])
+  park   Park   @relation(fields: [parkId], references: [parkId])
+  issues Issue[]
 }
 
 model Issue {
-  issue_id        Int       @id @default(autoincrement())
-  park_id         Int
-  trail_id        Int
-  is_public       Boolean
-  status          String    @db.VarChar(150)
-  description     String    @db.VarChar(150)
-  created_at      DateTime? @default(now())
-  issue_type      String    @db.VarChar(150)
-  urgency         Int
-  issue_image     String?    @db.VarChar(150)
-  notify_reporter Boolean
-  resolved_at     DateTime? @default(now())
+  issueId        Int      @id @default(autoincrement())         @map("issue_id")
+  parkId         Int                                           @map("park_id")
+  trailId        Int                                           @map("trail_id")
+  isPublic       Boolean                                       @map("is_public")
+  status         String
+  description    String?  @db.VarChar(150)
+  issueType      String   @db.VarChar(150)                     @map("issue_type")
+  urgency        Int
+  issueImage     String?  @db.VarChar(150)                     @map("issue_image")
+  notifyReporter Boolean                                       @map("notify_reporter")
+  reporterEmail  String   @db.VarChar(150)                     @map("reporter_email")
+  longitude      Float?
+  latitude       Float?
+  createdAt      DateTime @default(now())                      @map("created_at")
+  resolvedAt     DateTime?                                     @map("resolved_at")
 
-  //Foreign Key in relation to Parks and Trails
-  park  Park  @relation(fields: [park_id], references: [park_id])
-  trail Trail @relation(fields: [trail_id], references: [trail_id])
+  park           Park     @relation(fields: [parkId], references: [parkId])
+  trail          Trail    @relation(fields: [trailId], references: [trailId])
+  notifications  Notification[]
+}
+
+model User {
+  userId       Int      @id @default(autoincrement()) @map("user_id")
+  username     String   @unique @db.VarChar(100)
+  isAdmin      Boolean                                  @map("is_admin")
+  permission   String
+  profileImage String   @db.VarChar                     @map("profile_image")
+  email        String   @unique @db.VarChar(100)
+  isActive     Boolean                                  @map("is_active")
+  createdAt    DateTime @default(now())                 @map("created_at")
 }
 
 model Notification {
-  notification_id Int    @id @default(autoincrement())
-  recipient_id    Int
-  content         String @db.VarChar(150)
+  notificationId Int      @id @default(autoincrement()) @map("notification_id")
+  issueId        Int                                     @map("issue_id")
+  recipientEmail String                                 @map("recipient_email")
+  content        String   @db.VarChar(150)
+  sentAt         DateTime?                              @map("sent_at")
+  createdAt      DateTime @default(now())               @map("created_at")
 
-  //Foreign Key in relation to Users
-  user User @relation(fields: [recipient_id], references: [user_id])
-}
-
-model Anonymous_user {
-  id     Int    @id @default(autoincrement())
-  email  String @unique
-  status String @db.VarChar(150)
+  user Issue @relation(fields: [issueId], references: [issueId])
 }

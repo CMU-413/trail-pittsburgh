@@ -1,65 +1,115 @@
+// types/index.ts
+
+export type ApiResponse<T> = {
+    data: T;
+};
+
 export type Park = {
-    park_id: number;
-    owner_id: number;
+    parkId: number;
+    ownerId?: number; // Not in schema, but retained if relevant in frontend
     name: string;
     county: string;
-    is_active: boolean;
+    isActive: boolean;
+    createdAt: string;
 };
-
+  
 export type Trail = {
-    trail_id: number;
-    park_id: number;
+    trailId: number;
+    parkId: number;
     name: string;
-    is_active: boolean;
-    is_open: boolean;
+    isActive: boolean;
+    isOpen: boolean;
+    createdAt: string;
 };
-
-export type IssueStatus = 'open' | 'in_progress' | 'resolved';
-
+  
+export type IssueStatus = 'open' | 'in_progress' | 'resolved'; // match backend usage (consider moving to Prisma enum)
+  
+export interface ImageMetadata {
+    DateTimeOriginal?: string;
+    Make?: string;
+    Model?: string;
+    latitude?: number;
+    longitude?: number;
+    Orientation?: number;
+    ExposureTime?: number;
+    FNumber?: number;
+    ISO?: number;
+    LensModel?: string;
+    Software?: string;
+    GPSLatitude?: number;
+    GPSLongitude?: number;
+    [key: string]: string | number | boolean | undefined;
+}
+  
 export type Issue = {
-    issue_id: number;
-    park_id: number;
-    trail_id: number;
-    is_public: boolean;
+    issueId: number;
+    parkId: number;
+    trailId: number;
+    isPublic: boolean;
     status: IssueStatus;
-    description: string;
-    reported_at: string; // ISO date string
-    reporter_email?: string;
-    issue_type: string;
+    description?: string;
+    issueType: string;
     urgency: number; // 1-5 scale
-    issue_image?: string;
+    image?: SignedUrl;
+    imageMetadata?: ImageMetadata;
     lon?: number;
     lat?: number;
-    notify_reporter: boolean;
-    resolved_at?: string; // ISO date string
+    notifyReporter: boolean;
+    reporterEmail: string;
+    createdAt: string;
+    resolvedAt?: string;
+};  
+
+export type SignedUrl = {
+    key: string;
+    url: string;
+    type: 'download' | 'upload';
+};
+
+export type IssueParams = Omit<Issue, 'resolvedAt' | 'image' | 'issueId'> & {
+    image?: File;
+    reporterEmail?: string;
 };
 
 export type UserRole = 'owner' | 'steward' | 'volunteer';
 
 export type User = {
-    user_id: number;
-    name: string;
-    is_hubspot_user: boolean;
-    picture?: string;
+    id: string;
     email: string;
-    created_at: string;
-    is_active: boolean;
-    role?: UserRole;
+    name?: string;
+    picture?: string;
+    permission?: string;
+    profileImage?: string;
+    username?: string;
+    userId?: number;
+    isAdmin?: boolean;
+    isActive?: boolean;
+    createdAt?: string;
 };
-
+  
 export type StewardParkAssignment = {
     assignment_id: number;
-    user_id: number; // Steward
-    park_id: number;
+    userId: number;
+    parkId: number;
     assigned_date: string;
-    is_active: boolean;
+    isActive: boolean;
 };
-
+  
 export type IssueResolutionUpdate = {
     res_id: number;
-    issue_id: number;
+    issueId: number;
     resolve_image?: string;
     resolve_notes?: string;
-    resolved_at: string;
-    resolved_by: number; // user_id
+    resolvedAt: string;
+    resolved_by: number;
+    resolve_imageMetadata?: ImageMetadata;
+};
+  
+export type Notification = {
+    notification_id: number;
+    issueId: number;
+    recipientEmail: string;
+    content: string;
+    sentAt?: string;
+    createdAt: string;
 };
