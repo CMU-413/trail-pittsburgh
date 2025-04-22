@@ -7,7 +7,9 @@ Base URL: `/api/issues`
 ## Public Routes
 
 ### `GET /api/issues`
-**Description:** Retrieve all issues.
+
+**Description:**  
+Retrieve all issues.
 
 **Response:**
 - `200 OK`: List of issue objects
@@ -15,10 +17,15 @@ Base URL: `/api/issues`
 ---
 
 ### `GET /api/issues/:issueId`
-**Description:** Retrieve a specific issue by ID.
+
+**Description:**  
+Retrieve a specific issue by ID.
 
 **Params:**
 - `issueId` (number, required)
+
+**Validation:**  
+- Validated using `getIssueSchema`
 
 **Response:**
 - `200 OK`: Issue object
@@ -27,10 +34,15 @@ Base URL: `/api/issues`
 ---
 
 ### `GET /api/issues/park/:parkId`
-**Description:** Get issues associated with a specific park.
+
+**Description:**  
+Get issues associated with a specific park.
 
 **Params:**
 - `parkId` (number, required)
+
+**Validation:**  
+- Validated using `getIssuesByParkSchema`
 
 **Response:**
 - `200 OK`: List of issues for the park
@@ -38,10 +50,15 @@ Base URL: `/api/issues`
 ---
 
 ### `GET /api/issues/trail/:trailId`
-**Description:** Get issues associated with a specific trail.
+
+**Description:**  
+Get issues associated with a specific trail.
 
 **Params:**
 - `trailId` (number, required)
+
+**Validation:**  
+- Validated using `getIssuesByTrailSchema`
 
 **Response:**
 - `200 OK`: List of issues for the trail
@@ -49,10 +66,15 @@ Base URL: `/api/issues`
 ---
 
 ### `GET /api/issues/urgency/:urgency`
-**Description:** Get issues by urgency level.
+
+**Description:**  
+Get issues by urgency level.
 
 **Params:**
 - `urgency` (string, required – e.g. `"low"`, `"medium"`, `"high"`)
+
+**Validation:**  
+- Validated using `getIssuesByUrgencySchema`
 
 **Response:**
 - `200 OK`: Filtered list of issues
@@ -64,7 +86,11 @@ Base URL: `/api/issues`
 > Requires valid JWT in an HTTP-only cookie
 
 ### `POST /api/issues`
-**Description:** Create a new issue.
+
+**Description:**  
+Create a new issue.
+
+**Authentication Required:** Yes
 
 **Request Body:**
 ```json
@@ -75,6 +101,9 @@ Base URL: `/api/issues`
 }
 ```
 
+**Validation:**  
+- Validated using `createIssueSchema`
+
 **Response:**
 - `201 Created`: Created issue object
 - `401 Unauthorized`: If not logged in
@@ -82,7 +111,11 @@ Base URL: `/api/issues`
 ---
 
 ### `PUT /api/issues/:issueId/status`
-**Description:** Update the status of an issue.
+
+**Description:**  
+Update the status of an issue.
+
+**Authentication Required:** Yes
 
 **Params:**
 - `issueId` (number, required)
@@ -94,6 +127,9 @@ Base URL: `/api/issues`
 }
 ```
 
+**Validation:**  
+- Validated using `updateIssueStatusSchema`
+
 **Response:**
 - `200 OK`: Updated issue
 - `404 Not Found`: If issue not found
@@ -102,10 +138,17 @@ Base URL: `/api/issues`
 ---
 
 ### `DELETE /api/issues/:issueId`
-**Description:** Delete an issue by ID.
+
+**Description:**  
+Delete an issue by ID.
+
+**Authentication Required:** Yes
 
 **Params:**
 - `issueId` (number, required)
+
+**Validation:**  
+- Validated using `deleteIssueSchema`
 
 **Response:**
 - `204 No Content`: If deleted
