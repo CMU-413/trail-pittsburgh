@@ -34,23 +34,6 @@ export const IssueDetailPage: React.FC = () => {
 
     const { user } = useAuth();
 
-    if (!user) {
-        return (
-            <div>
-                <PageHeader title="Authentication Required" />
-                <EmptyState
-                    title="Please log in"
-                    description="You need to be logged in to view issue details."
-                    action={
-                        <Button variant="primary" onClick={() => navigate('/login')}>
-                            Log In
-                        </Button>
-                    }
-                />
-            </div>
-        );
-    }
-
     const formatDate = (dateString: string, formatStr: string = 'PPP p') => {
         try {
             if (!dateString) {
@@ -133,7 +116,7 @@ export const IssueDetailPage: React.FC = () => {
         }
     };
 
-    const canResolveIssue = user.permission === 'steward' || user.permission === 'owner';
+    const canResolveIssue = user !== null && (user.permission === 'steward' || user.permission === 'owner');
 
     if (isLoading) {
         return <LoadingSpinner />;
