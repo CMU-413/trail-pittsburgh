@@ -29,7 +29,7 @@ export const parkApi = {
         return response.park;
     },
 
-    createPark: async (parkData: Omit<Park, 'park_id'>): Promise<Park> => {
+    createPark: async (parkData: Omit<Park, 'parkId'>): Promise<Park> => {
         const response = await fetch(`${API_BASE_URL}/parks`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -41,7 +41,7 @@ export const parkApi = {
     },
 
     updatePark: async (parkData: Park): Promise<Park> => {
-        const response = await fetch(`${API_BASE_URL}/parks/${parkData.park_id}`, {
+        const response = await fetch(`${API_BASE_URL}/parks/${parkData.parkId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(parkData),
@@ -87,7 +87,7 @@ export const trailApi = {
         return response.trails;
     },
 
-    createTrail: async (trailData: Omit<Trail, 'trail_id'>): Promise<Trail> => {
+    createTrail: async (trailData: Omit<Trail, 'trailId'>): Promise<Trail> => {
         const response = await fetch(`${API_BASE_URL}/trails`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -99,10 +99,10 @@ export const trailApi = {
     },
 
     updateTrail: async (trailData: Trail): Promise<Trail> => {
-        const response = await fetch(`${API_BASE_URL}/trails/${trailData.trail_id}`, {
+        const response = await fetch(`${API_BASE_URL}/trails/${trailData.trailId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ isOpen: trailData.is_open }),
+            body: JSON.stringify({ isOpen: trailData.isOpen }),
             credentials: 'include'
         }).then(handleResponse);
         return response.trail;

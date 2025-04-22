@@ -24,29 +24,29 @@ export const IssueCard: React.FC<IssueCardProps> = ({
     // Format date for better display
     const getFormattedDate = () => {
         try {
-            if (!issue.created_at) {
+            if (!issue.createdAt) {
                 return 'unknown time';
             }
-            const reportedDate = new Date(issue.created_at);
+            const reportedDate = new Date(issue.createdAt);
             if (isNaN(reportedDate.getTime())) {
                 return 'unknown time';
             }
             return formatDistanceToNow(reportedDate, { addSuffix: true });
         } catch (error) {
             // eslint-disable-next-line no-console
-            console.error('Error formatting date:', error, issue.created_at);
+            console.error('Error formatting date:', error, issue.createdAt);
             return 'unknown time';
         }
     };
 
     return (
-        <Link to={`/issues/${issue.issue_id}`} className="block hover:no-underline group">
+        <Link to={`/issues/${issue.issueId}`} className="block hover:no-underline group">
             <Card className="h-full transition-all duration-300 group-hover:shadow-lg border border-gray-100 group-hover:border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900">
-                                {issue.issue_type.charAt(0).toUpperCase() + issue.issue_type.slice(1)}
+                                {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
                             </h3>
                             <p className="text-sm text-gray-500">Reported {getFormattedDate()}</p>
                         </div>

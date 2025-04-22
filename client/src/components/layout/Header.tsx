@@ -161,7 +161,7 @@ export const Header: React.FC = () => {
                                         <div className="relative flex-shrink-0">
                                             <img
                                                 className="h-10 w-10 rounded-full object-cover ring-2 ring-white"
-                                                src={user?.profile_image || `https://ui-avatars.com/api/?background=random&color=fff&size=400?text=${encodeURIComponent(user?.username || 'User Name')}`}
+                                                src={user?.profileImage || `https://ui-avatars.com/api/?background=random&color=fff&size=400?text=${encodeURIComponent(user?.username || 'User Name')}`}
                                                 alt={user?.username || 'User profile'}
                                             />
                                         </div>
@@ -263,7 +263,7 @@ export const Header: React.FC = () => {
                                 <div className="flex-shrink-0 relative">
                                     <img
                                         className="h-10 w-10 rounded-full object-cover"
-                                        src={user?.profile_image || `https://ui-avatars.com/api/?background=random&color=fff&size=400?text=${encodeURIComponent(user?.username || 'User Name')}`}
+                                        src={user?.profileImage || `https://ui-avatars.com/api/?background=random&color=fff&size=400?text=${encodeURIComponent(user?.username || 'User Name')}`}
                                         alt={user?.username || 'User profile'}
                                     />
                                 </div>

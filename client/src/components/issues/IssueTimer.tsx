@@ -44,7 +44,7 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
         const updateTime = () => {
             try {
                 // Safely parse reported date
-                const reportedDate = safeParseISO(issue.created_at);
+                const reportedDate = safeParseISO(issue.createdAt);
                 if (!reportedDate) {
                     setTimeDisplay('Unknown duration');
                     setStatusIndicator(isResolved ? 'Resolved' : 'Unknown');
@@ -55,8 +55,8 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
                 
                 // Safely parse resolved date if applicable
                 let endDate: Date;
-                if (isResolved && issue.resolved_at) {
-                    const resolvedDate = safeParseISO(issue.resolved_at);
+                if (isResolved && issue.resolvedAt) {
+                    const resolvedDate = safeParseISO(issue.resolvedAt);
                     endDate = resolvedDate || now;
                 } else {
                     endDate = now;
@@ -139,7 +139,7 @@ export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
         
         if (!isResolved) {
             try {
-                const reportedDate = safeParseISO(issue.created_at);
+                const reportedDate = safeParseISO(issue.createdAt);
                 
                 if (reportedDate) {
                     const now = new Date();

@@ -18,23 +18,23 @@ describe('IssueService', () => {
     };
 
     const baseIssue = {
-        issue_id: 1,
-        park_id: 1,
-        trail_id: 1,
-        issue_type: 'Flooding',
+        issueId: 1,
+        parkId: 1,
+        trailId: 1,
+        issueType: 'Flooding',
         urgency: 3,
         description: 'Trail is flooded',
-        is_public: true,
+        isPublic: true,
         status: 'Open',
-        notify_reporter: true,
-        reporter_email: 'reporter@example.com',
+        notifyReporter: true,
+        reporterEmail: 'reporter@example.com',
         longitude: -79.9901,
         latitude: 40.4406,
-        created_at: new Date(),
-        resolved_at: null,
-        issue_image: null,
-        park: { park_id: 1, name: 'Test Park', county: 'Allegheny', is_active: true, created_at: new Date() },
-        trail: { trail_id: 1, park_id: 1, name: 'Test Trail', is_active: true, is_open: true, created_at: new Date() }
+        createdAt: new Date(),
+        resolvedAt: null,
+        issueImage: null,
+        park: { parkId: 1, name: 'Test Park', county: 'Allegheny', isActive: true, createdAt: new Date() },
+        trail: { trailId: 1, parkId: 1, name: 'Test Trail', isActive: true, isOpen: true, createdAt: new Date() }
     };
 
     beforeEach(() => {
@@ -48,16 +48,16 @@ describe('IssueService', () => {
         issueImageBucketMock.getUploadUrl.mockResolvedValue(uploadUrl);
 
         const input: CreateIssueInput = {
-            park_id: 1,
-            trail_id: 1,
-            issue_type: 'Flooding',
+            parkId: 1,
+            trailId: 1,
+            issueType: 'Flooding',
             urgency: 3,
-            reporter_email: 'reporter@example.com',
+            reporterEmail: 'reporter@example.com',
             description: 'Trail is flooded',
-            is_public: true,
+            isPublic: true,
             status: 'Open',
-            notify_reporter: true,
-            image_type: 'image/jpeg',
+            notifyReporter: true,
+            imageType: 'image/jpeg',
         };
 
         const result = await issueService.createIssue(input);
@@ -69,9 +69,9 @@ describe('IssueService', () => {
     test('should create a new issue with all optional fields', async () => {
         const fullIssue = {
             ...baseIssue,
-            is_public: false,
+            isPublic: false,
             status: 'In Progress',
-            notify_reporter: false,
+            notifyReporter: false,
             longitude: -80.001,
             latitude: 40.441
         };
@@ -79,15 +79,15 @@ describe('IssueService', () => {
         issueRepositoryMock.createIssue.mockResolvedValue(fullIssue);
 
         const input = {
-            park_id: 1,
-            trail_id: 1,
-            issue_type: 'Flooding',
+            parkId: 1,
+            trailId: 1,
+            issueType: 'Flooding',
             urgency: 3,
             description: 'Very flooded trail',
-            is_public: false,
+            isPublic: false,
             status: 'In Progress',
-            notify_reporter: false,
-            reporter_email: 'reporter@example.com',
+            notifyReporter: false,
+            reporterEmail: 'reporter@example.com',
             longitude: -80.001,
             latitude: 40.441
         };
@@ -102,8 +102,8 @@ describe('IssueService', () => {
         issueRepositoryMock.getIssue.mockResolvedValue(baseIssue);
 
         // Remove property from obj
-        const { issue_image, ...expectedData } = baseIssue;
-        void issue_image;
+        const { issueImage, ...expectedData } = baseIssue;
+        void issueImage;
 
         const result = await issueService.getIssue(1);
 
@@ -160,7 +160,7 @@ describe('IssueService', () => {
     });
 
     test('should update issue status', async () => {
-        const updated = { ...baseIssue, status: 'resolved', resolved_at: new Date() };
+        const updated = { ...baseIssue, status: 'resolved', resolvedAt: new Date() };
         issueRepositoryMock.updateIssueStatus.mockResolvedValue(updated);
 
         const result = await issueService.updateIssueStatus(1, 'resolved');

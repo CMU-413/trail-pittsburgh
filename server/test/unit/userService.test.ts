@@ -8,16 +8,15 @@ describe('UserService', () => {
     let userRepositoryMock: jest.Mocked<UserRepository>;
 
     const mockUser = {
-        user_id: 1,
+        userId: 1,
         username: 'test_user',
         email: 'test@example.com',
-        is_admin: false,
+        isAdmin: false,
         permission: 'read',
-        profile_image: 'default.jpg',
-        is_active: true,
-        created_at: new Date(),
-        is_hubspot_user: false,
-        profile_image_key: 'default.jpg',
+        profileImage: 'default.jpg',
+        isActive: true,
+        createdAt: new Date(),
+        profileImageKey: 'default.jpg',
     };
 
     beforeEach(() => {
@@ -44,10 +43,10 @@ describe('UserService', () => {
     test('should create a new user with custom values', async () => {
         const customUser = {
             ...mockUser,
-            is_admin: true,
+            isAdmin: true,
             permission: 'write',
-            profile_image: 'custom.jpg',
-            is_active: false
+            profileImage: 'custom.jpg',
+            isActive: false
         };
 
         userRepositoryMock.createUser.mockResolvedValue(customUser);
@@ -100,7 +99,7 @@ describe('UserService', () => {
     });
 
     test('should update user if they exist', async () => {
-        const updateData = { username: 'updated_user', is_active: false };
+        const updateData = { username: 'updated_user', isActive: false };
         const updatedUser = { ...mockUser, ...updateData };
 
         userRepositoryMock.getUser.mockResolvedValue(mockUser);

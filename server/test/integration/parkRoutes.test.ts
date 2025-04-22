@@ -32,7 +32,7 @@ describe('Park Routes', () => {
             .send(newPark);
 
         expect(response.status).toBe(201);
-        expect(response.body.data).toHaveProperty('park_id');
+        expect(response.body.data).toHaveProperty('parkId');
         expect(response.body.data.name).toEqual('Central Park');
     });
 
@@ -51,8 +51,8 @@ describe('Park Routes', () => {
         expect(response.status).toBe(200);
         expect(response.body).toHaveLength(NUMBER_OF_PARKS);
         console.log('FULL RESPONSE BODY:', response.body);
-        // expect(response.body.data[0]).toHaveProperty('park_id');
-        expect(response.body[0]).toHaveProperty('park_id');
+        // expect(response.body.data[0]).toHaveProperty('parkId');
+        expect(response.body[0]).toHaveProperty('parkId');
         
     });
 
@@ -61,14 +61,14 @@ describe('Park Routes', () => {
             .post('/api/parks')
             .send(newPark);
 
-        const id = Number(createResponse.body.data.park_id);
+        const id = Number(createResponse.body.data.parkId);
 
         const response = await request(app)
             .get(`/api/parks/${id}`)
             .send();
 
         expect(response.status).toBe(200);
-        expect(response.body.data).toHaveProperty('park_id');
+        expect(response.body.data).toHaveProperty('parkId');
         expect(response.body.data.name).toBe('Central Park');
     });
 
@@ -77,7 +77,7 @@ describe('Park Routes', () => {
             .post('/api/parks')
             .send(newPark);
 
-        const id: number = createResponse.body.data.park_id;
+        const id: number = createResponse.body.data.parkId;
 
         const deleteResponse = await request(app)
             .delete(`/api/parks/${id}`)
