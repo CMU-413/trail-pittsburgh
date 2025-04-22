@@ -19,6 +19,7 @@ import { ImageMetadataDisplay } from '../../components/ui/ImageMetadataDisplay';
 import { 
     parkApi, trailApi, issueApi
 } from '../../services/api';
+import { useAuth } from '../../providers/AuthProvider';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -31,13 +32,7 @@ export const IssueDetailPage: React.FC = () => {
     const [isResolving, setIsResolving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Mock current user - in a real app, this would come from auth context
-    const currentUser = {
-        userId: 1,
-        name: 'John Smith',
-        role: 'steward',
-        permission: 'steward'
-    };
+    const { user } = useAuth();
 
     const formatDate = (dateString: string, formatStr: string = 'PPP p') => {
         try {
@@ -121,7 +116,7 @@ export const IssueDetailPage: React.FC = () => {
         }
     };
 
-    const canResolveIssue = currentUser.permission === 'steward' || currentUser.permission === 'owner';
+    const canResolveIssue = user !== null && (user.permission === 'steward' || user.permission === 'owner');
 
     if (isLoading) {
         return <LoadingSpinner />;
