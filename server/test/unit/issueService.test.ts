@@ -54,6 +54,8 @@ describe('IssueService', () => {
             urgency: 3,
             reporterEmail: 'reporter@example.com',
             description: 'Trail is flooded',
+            latitude: 40.4406,
+            longitude: -79.9901,
             isPublic: true,
             status: 'Open',
             notifyReporter: true,
@@ -101,14 +103,10 @@ describe('IssueService', () => {
     test('should get an issue by ID', async () => {
         issueRepositoryMock.getIssue.mockResolvedValue(baseIssue);
 
-        // Remove property from obj
-        const { issueImage, ...expectedData } = baseIssue;
-        void issueImage;
-
         const result = await issueService.getIssue(1);
 
         expect(issueRepositoryMock.getIssue).toHaveBeenCalledWith(1);
-        expect(result).toEqual({ image: undefined, ...expectedData });
+        expect(result).toEqual(baseIssue);
     });
 
     test('should return null if issue is not found', async () => {
