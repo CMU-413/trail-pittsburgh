@@ -1,7 +1,7 @@
 import request from 'supertest';
 
-import { app } from '@/app';
-import { prisma } from '@/prisma/prismaClient'; // Your Express app
+import { app } from '../../src/app';
+import { prisma } from '../../src/prisma/prismaClient';
 
 const newPark = { name: 'Central Park', county: 'Test County' };
 
@@ -32,8 +32,8 @@ describe('Park Routes', () => {
             .send(newPark);
 
         expect(response.status).toBe(201);
-        expect(response.body.data).toHaveProperty('parkId');
-        expect(response.body.data.name).toEqual('Central Park');
+        expect(response.body.park).toHaveProperty('parkId');
+        expect(response.body.park.name).toEqual('Central Park');
     });
 
     it('should get all parks', async () => {
@@ -49,11 +49,8 @@ describe('Park Routes', () => {
             .send();
 
         expect(response.status).toBe(200);
-        expect(response.body).toHaveLength(NUMBER_OF_PARKS);
-        console.log('FULL RESPONSE BODY:', response.body);
-        // expect(response.body.data[0]).toHaveProperty('parkId');
-        expect(response.body[0]).toHaveProperty('parkId');
-        
+        expect(response.body.parks).toHaveLength(NUMBER_OF_PARKS);
+        expect(response.body.parks[0]).toHaveProperty('parkId');
     });
 
     it('should get a park', async () => {
@@ -61,15 +58,15 @@ describe('Park Routes', () => {
             .post('/api/parks')
             .send(newPark);
 
-        const id = Number(createResponse.body.data.parkId);
+        const id = createResponse.body.park.parkId;
 
         const response = await request(app)
             .get(`/api/parks/${id}`)
             .send();
 
         expect(response.status).toBe(200);
-        expect(response.body.data).toHaveProperty('parkId');
-        expect(response.body.data.name).toBe('Central Park');
+        expect(response.body.park).toHaveProperty('parkId');
+        expect(response.body.park.name).toBe('Central Park');
     });
 
     it('should delete a park', async () => {
@@ -77,7 +74,7 @@ describe('Park Routes', () => {
             .post('/api/parks')
             .send(newPark);
 
-        const id: number = createResponse.body.data.parkId;
+        const id = createResponse.body.park.parkId;
 
         const deleteResponse = await request(app)
             .delete(`/api/parks/${id}`)

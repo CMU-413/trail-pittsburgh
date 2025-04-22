@@ -71,7 +71,7 @@ export class ParkController {
     }
 
     public async deletePark(req: express.Request, res: express.Response) {
-        const parkId = Number(req.params.id);
+        const parkId = Number(req.params.parkId);
         const deleted = await this.parkService.deletePark(parkId);
 
         if (!deleted) {
