@@ -4,7 +4,6 @@ import {
     Routes, Route
 } from 'react-router-dom';
 
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Layout } from './components/layout/Layout';
 import { AuthProvider } from './providers/AuthProvider';
 import { ProtectedRoute, PublicRoute } from './components/auth/ProtectedRoute';
@@ -87,13 +86,9 @@ const AppContent: React.FC = () => {
 };
 
 export const App: React.FC = () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
     return (
-        <GoogleOAuthProvider clientId={clientId}>
-            <AuthProvider>
-                <AppContent />
-            </AuthProvider>
-        </GoogleOAuthProvider>
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
     );
 };

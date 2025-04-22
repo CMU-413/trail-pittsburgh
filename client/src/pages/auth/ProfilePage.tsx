@@ -32,12 +32,12 @@ export const ProfilePage: React.FC = () => {
                         <div className="flex flex-col items-center py-6">
                             <div className="relative mb-4">
                                 <img
-                                    src={user.profileImage}
-                                    alt={user.username}
+                                    src={user.picture}
+                                    alt={user.name}
                                     className="h-32 w-32 rounded-full object-cover border-4 border-white shadow-md"
                                 />
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900">{user.username}</h2>
+                            <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
                             <p className="text-sm text-gray-500 mb-4">{user.email}</p>
 
                             {user.permission && (
@@ -65,7 +65,7 @@ export const ProfilePage: React.FC = () => {
                         <div className="space-y-4">
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">Name</h3>
-                                <p className="mt-1 text-base text-gray-900">{user.username}</p>
+                                <p className="mt-1 text-base text-gray-900">{user.name}</p>
                             </div>
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">Email</h3>

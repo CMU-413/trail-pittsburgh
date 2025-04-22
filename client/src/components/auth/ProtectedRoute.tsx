@@ -1,5 +1,5 @@
 // src/components/auth/ProtectedRoute.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     Navigate, Outlet, useLocation
 } from 'react-router-dom';
@@ -13,7 +13,7 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     requirePermission = true
 }) => {
-    const { isAuthenticated, hasPermission, loading } = useAuth();
+    const { isAuthenticated, hasPermission, loading, login } = useAuth();
     const location = useLocation();
 
     // Show loading spinner while authentication state is being determined
@@ -21,9 +21,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         return <LoadingSpinner message="Checking authentication..." />;
     }
 
-    // If not authenticated, redirect to login
+    // If not authenticated, trigger login directly
     if (!isAuthenticated) {
-        return <Navigate to="/login" state={{ from: location }} replace />;
+        // We need to use useEffect because login() triggers navigation
+        useEffect(() => {
+            login();
+        }, [login]);
+        
+        return <LoadingSpinner message="Redirecting to login..." />;
     }
 
     // If we require organization permission and user doesn't have it

@@ -63,7 +63,9 @@ export class AuthController {
         res.status(200).json({
             user: {
                 id: user.id,
-                email: user.email
+                email: user.email,
+                name: user.name,
+                picture: user.picture
             }
         });
     }

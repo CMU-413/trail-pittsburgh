@@ -1,22 +1,15 @@
-import { CredentialResponse } from '@react-oauth/google';
-
-export interface GoogleUser {
+export interface User {
+    id: string;
     email: string;
-    name: string;
-    picture: string;
-    sub: string; // Google user ID
-    hd?: string; // Hosted domain (for organization emails)
-}
-
-export interface JwtPayload extends GoogleUser {
-    exp: number; // Expiration time
+    name?: string;
+    picture?: string;
 }
 
 export interface AuthContextType {
-    user: GoogleUser | null;
-    isLoading: boolean;
+    user: User | null;
+    loading: boolean;
     isAuthenticated: boolean;
     hasPermission: boolean;
-    login: (credentialResponse: CredentialResponse) => void;
+    login: () => void;
     logout: () => void;
 }
