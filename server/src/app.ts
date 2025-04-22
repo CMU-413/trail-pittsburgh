@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 
-import { errorHandler } from '@/middlewares';
+import { errorHandler, morganMiddleware } from '@/middlewares';
 import { limiter } from '@/middlewares/rateLimiter';
 import { securityHeaders } from '@/middlewares/securityHeaders';
 import {
@@ -13,8 +13,6 @@ import {
     parkRouter,
     trailRouter
 } from '@/routes';
-import { errorHandler, morganMiddleware } from '@/middlewares';
-import { issueRouter, parkRouter } from '@/routes';
 
 const app = express();
 
