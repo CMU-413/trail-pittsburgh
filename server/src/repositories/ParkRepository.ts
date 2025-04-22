@@ -1,4 +1,4 @@
-import { prisma } from '@/prisma/prismaClient';
+import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 
 interface ParkData {
     name: string;
@@ -40,7 +40,7 @@ export class ParkRepository {
                 data: parkData
             });
         } catch (error) {
-            if (isParkNotFoundError(error)) { return null;}
+            if (isNotFoundError(error)) { return null; }
             throw error;
         }
     }
@@ -56,7 +56,7 @@ export class ParkRepository {
                 data: { isActive: isActive }
             });
         } catch (error) {
-            if (isParkNotFoundError(error)) { return null; }
+            if (isNotFoundError(error)) { return null; }
             throw error;
         }
     }
@@ -66,7 +66,8 @@ export class ParkRepository {
             await prisma.park.delete({ where: { parkId: parkId } });
             return true;
         } catch (error) {
-            if (isParkNotFoundError(error)) { return false; }
+            // Park id not found
+            if (isNotFoundError(error)) { return false; }
             throw error;
         }
     }
@@ -86,11 +87,4 @@ export class ParkRepository {
             throw error;
         }
     }
-}
-
-function isParkNotFoundError(error: unknown): boolean {
-    if (!error || typeof error !== 'object') { return false; }
-
-    const prismaError = error as { code?: string };
-    return prismaError.code === 'P2025' || prismaError.code === 'P2016';
 }

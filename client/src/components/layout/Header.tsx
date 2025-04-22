@@ -74,7 +74,7 @@ export const Header: React.FC = () => {
 
     async function auth() {
         try {
-            const response = await fetch('http://127.0.0.1:3000/api/auth', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
