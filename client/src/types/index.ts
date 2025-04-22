@@ -78,6 +78,13 @@ export type User = {
     email: string;
     name?: string;
     picture?: string;
+    permission?: string;
+    profileImage?: string;
+    username?: string;
+    userId?: number;
+    isAdmin?: boolean;
+    isActive?: boolean;
+    createdAt?: string;
 };
   
 export type StewardParkAssignment = {

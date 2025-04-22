@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import {
     Navigate, Outlet, useLocation
 } from 'react-router-dom';
-import { useAuth } from '../../providers/useAuth';
+import { useAuth } from '../../providers/AuthProvider';
 import { LoadingSpinner } from '../layout/LoadingSpinner';
 
 interface ProtectedRouteProps {
@@ -16,6 +16,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const { isAuthenticated, hasPermission, loading, login } = useAuth();
     const location = useLocation();
 
+    // Move useEffect outside of conditional rendering
     useEffect(() => {
         if (!isAuthenticated && !loading) {
             login();

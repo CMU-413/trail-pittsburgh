@@ -1,12 +1,19 @@
 import React, {
-    createContext, useEffect, useState
+    createContext, useEffect, useState, useContext 
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '../types';
-import { AuthContextType } from './types';
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: () => void;
+  logout: () => void;
+  isAuthenticated: boolean;
+  hasPermission: boolean;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-export { AuthContext };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -85,4 +92,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             {children}
         </AuthContext.Provider>
     );
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = (): AuthContextType => {
+    const context = useContext(AuthContext);
+    if (!context) {throw new Error('useAuth must be used within an AuthProvider');}
+    return context;
 };

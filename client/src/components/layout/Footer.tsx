@@ -1,7 +1,7 @@
 // src/components/layout/Footer.tsx
 import React, { SVGProps } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../providers/useAuth';
+import { useAuth } from '../../providers/AuthProvider';
 import {
     APP_NAME, FACEBOOK_LINK, INSTAGRAM_LINK, X_LINK
 } from '../../constants/config';
