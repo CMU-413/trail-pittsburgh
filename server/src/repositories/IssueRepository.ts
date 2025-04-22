@@ -30,7 +30,8 @@ export class IssueRepository {
                     status: data.status,
                     notifyReporter: data.notifyReporter ?? true,
                     reporterEmail: data.reporterEmail,
-                    issueImage: data.issueImageKey,
+                    // issueImage: data.issueImageKey,
+                    issueImage: data.issueImage,  
                 },
                 include: {
                     park: true,

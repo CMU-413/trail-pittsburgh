@@ -54,7 +54,8 @@ export class IssueService {
         }
 
         const newIssueInput = {
-            issueImageKey: key,
+            issueImage: key,
+            // issueImageKey: key,
             ...data
         };
 

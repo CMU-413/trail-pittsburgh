@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { IssueService } from '@/services/IssueService';
+import { createIssueSchema } from '@/schemas/issueSchema';
 
 export class IssueController {
 
@@ -47,7 +48,10 @@ export class IssueController {
 
     public async createIssue(req: express.Request, res: express.Response) {
         try {
-            const { issue, signedUrl } = await this.issueService.createIssue(req.body);
+            //try to enforce the zod format coming from issueSchema file
+            const parsed = createIssueSchema.parse(req);
+            const { issue, signedUrl } = await this.issueService.createIssue(parsed.body)
+            // const { issue, signedUrl } = await this.issueService.createIssue(req.body);
     
             res.status(201).json({ issue, signedUrl });
         } catch (error) {
@@ -57,7 +61,8 @@ export class IssueController {
     
     public async updateIssueStatus(req: express.Request, res: express.Response) {
         try {
-            const issueId = Number(req.params.id);
+            const issueId = Number(req.params.issueId);
+            // const issueId = Number(req.params.id);
             const { status } = req.body;
 
             if (!status) {
@@ -79,7 +84,8 @@ export class IssueController {
 
     public async deleteIssue(req: express.Request, res: express.Response) {
         try {
-            const issueId = Number(req.params.id);
+            // const issueId = Number(req.params.id);
+            const issueId = Number(req.params.issueId);
             const deleted = await this.issueService.deleteIssue(issueId);
 
             if (!deleted) {

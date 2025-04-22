@@ -32,7 +32,6 @@ export const createIssueSchema = z.object({
         urgency: z.number(),
         isPublic: z.boolean().default(false),
         status: z.string().default('Open'),
-
         reporterEmail: z.string(),
         notifyReporter: z.boolean().default(false),
         description: z.string().optional(),
