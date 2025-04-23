@@ -39,7 +39,7 @@ export class ParkController {
             const parks = await this.parkService.getAllParks();
             res.json({ parks });
         } catch (error) {
-            logger.error(`Error fetching all parks ${req.params.parkId}`);
+            logger.error(`Error fetching all parks`, error);
             res.status(500).json({ message: 'Failed to retrieve all parks' });
         }
     }
