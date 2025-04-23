@@ -30,17 +30,20 @@ export class AuthController {
         const { code, state } = req.query;
 
         try {
+            const isProd = process.env.NODE_ENV === 'production';
             const { token } = await this.authService.handleGoogleCallback(code as string);
 
             res.cookie('token', token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'none',
+                secure: isProd,
+                sameSite: isProd ? 'none' : 'strict',
                 maxAge: 24 * 60 * 60 * 1000
             });
 
             const redirectTarget = typeof state === 'string' ? state : '/';
-            res.redirect(`${process.env.CLIENT_URL}/${redirectTarget}`);
+            const url = new URL(redirectTarget, process.env.CLIENT_URL);
+
+            res.redirect(url.toString());
         } catch (error) {
             logger.error(`Error with OAuth callback`, error);
             res.redirect(`${process.env.CLIENT_URL}/unauthorized`);
