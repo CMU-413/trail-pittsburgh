@@ -33,7 +33,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         status: 'open',
         description: '',
         issueType: '',
-        urgency: 3,
+        urgency: 'MEDIUM',
         notifyReporter: false,
         reporterEmail: '',
         createdAt: new Date().toISOString(),
@@ -51,13 +51,14 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     const [emailError, setEmailError] = useState<string | null>(null);
     const [locationProvided, setLocationProvided] = useState(false);
 
+    //ENUM: HAS TO MATCH ISSUE TYPE IN SERVER
     const issueTypes = [
-        { value: 'obstruction', label: 'Obstruction (tree down, etc.)' },
-        { value: 'erosion', label: 'Trail Erosion' },
-        { value: 'flooding', label: 'Flooding' },
-        { value: 'signage', label: 'Damaged/Missing Signage' },
-        { value: 'vandalism', label: 'Vandalism' },
-        { value: 'other', label: 'Other' }
+        { value: 'OBSTRUCTION', label: 'Obstruction (tree down, etc.)' },
+        { value: 'EROSION', label: 'Trail Erosion' },
+        { value: 'FLOODING', label: 'Flooding' },
+        { value: 'SIGNAGE', label: 'Damaged/Missing Signage' },
+        { value: 'VANDALISM', label: 'Vandalism' },
+        { value: 'OTHER', label: 'Other' }
     ];
 
     // Load parks and trails
@@ -149,7 +150,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         setFormData((prev) => ({ ...prev, issueType: type }));
     };
 
-    const handleUrgencySelect = (level: number) => {
+    const handleUrgencySelect = (level: 'LOW' | 'MEDIUM_LOW' | 'MEDIUM' | 'MEDIUM_HIGH' | 'HIGH') => {
         setFormData((prev) => ({ ...prev, urgency: level }));
     };
     
@@ -292,7 +293,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 status: 'open',
                 description: '',
                 issueType: '',
-                urgency: 3,
+                urgency: 'MEDIUM',
                 notifyReporter: false,
                 reporterEmail: '',
                 createdAt: new Date().toISOString(),
@@ -316,24 +317,24 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         }
     };
 
-    const getUrgencyLabel = (level: number) => {
+    const getUrgencyLabel = (level: 'LOW' | 'MEDIUM_LOW' | 'MEDIUM' | 'MEDIUM_HIGH' | 'HIGH') => {
         switch (level) {
-        case 1: return 'Very Low';
-        case 2: return 'Low';
-        case 3: return 'Medium';
-        case 4: return 'High';
-        case 5: return 'Very High';
+        case 'LOW': return 'Low';
+        case 'MEDIUM_LOW': return 'Medium Low';
+        case 'MEDIUM': return 'Medium';
+        case 'MEDIUM_HIGH': return 'Medium High';
+        case 'HIGH': return 'High';
         default: return 'Medium';
         }
     };
 
-    const getUrgencyColor = (level: number) => {
+    const getUrgencyColor = (level: 'LOW' | 'MEDIUM_LOW' | 'MEDIUM' | 'MEDIUM_HIGH' | 'HIGH') => {
         switch (level) {
-        case 1: return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-        case 2: return 'bg-blue-100 text-blue-800 border-blue-200';
-        case 3: return 'bg-amber-100 text-amber-800 border-amber-200';
-        case 4: return 'bg-orange-100 text-orange-800 border-orange-200';
-        case 5: return 'bg-red-100 text-red-800 border-red-200';
+        case 'LOW': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        case 'MEDIUM_LOW': return 'bg-blue-100 text-blue-800 border-blue-200';
+        case 'MEDIUM': return 'bg-amber-100 text-amber-800 border-amber-200';
+        case 'MEDIUM_HIGH': return 'bg-orange-100 text-orange-800 border-orange-200';
+        case 'HIGH': return 'bg-red-100 text-red-800 border-red-200';
         default: return 'bg-gray-100 text-gray-800 border-gray-200';
         }
     };
@@ -432,7 +433,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         </label>
                         {/* For large screens: all options in one row */}
                         <div className="hidden md:grid md:grid-cols-5 gap-3">
-                            {[1, 2, 3, 4, 5].map((level) => (
+                            {(['LOW', 'MEDIUM_LOW', 'MEDIUM', 'MEDIUM_HIGH', 'HIGH'] as const).map((level) => (
                                 <button
                                     key={level}
                                     type="button"
@@ -452,7 +453,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
                         {/* For mobile: options stacked one per row */}
                         <div className="grid grid-cols-1 gap-3 md:hidden">
-                            {[1, 2, 3, 4, 5].map((level) => (
+                            {(['LOW', 'MEDIUM_LOW', 'MEDIUM', 'MEDIUM_HIGH', 'HIGH'] as const).map((level) => (
                                 <button
                                     key={level}
                                     type="button"

@@ -49,7 +49,7 @@ export type Issue = {
     status: IssueStatus;
     description?: string;
     issueType: string;
-    urgency: number; // 1-5 scale
+    urgency: 'LOW' | 'MEDIUM_LOW' | 'MEDIUM' | 'MEDIUM_HIGH' | 'HIGH';
     image?: SignedUrl;
     imageMetadata?: ImageMetadata;
     longitude?: number;
@@ -78,11 +78,10 @@ export type User = {
     email: string;
     name?: string;
     picture?: string;
-    permission?: string;
+    role?: string;
     profileImage?: string;
     username?: string;
     userId?: number;
-    isAdmin?: boolean;
     isActive?: boolean;
     createdAt?: string;
 };
