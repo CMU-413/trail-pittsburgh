@@ -32,7 +32,7 @@ export class IssueRepository {
                     latitude: data.latitude,
                     longitude: data.longitude,
                     notifyReporter: data.notifyReporter ?? true,
-                    reporterEmail: data.reporterEmail,
+                    reporterEmail: data.reporterEmail ?? '',
                     issueImage: data.issueImageKey,
                 },
                 include: {

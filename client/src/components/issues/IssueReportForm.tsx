@@ -30,7 +30,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         parkId: initialParkId || 0,
         trailId: initialTrailId || 0,
         isPublic: true,
-        status: 'open',
+        status: 'OPEN',
         description: '',
         issueType: '',
         urgency: 'MEDIUM',
@@ -279,6 +279,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             // Set the reported date to now
             const dataToSubmit = {
                 ...formData,
+                reporterEmail: formData.notifyReporter ? formData.reporterEmail : undefined,
                 reported_at: new Date().toISOString()
             } as IssueParams;
 
@@ -290,7 +291,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 parkId: 0,
                 trailId: 0,
                 isPublic: true,
-                status: 'open',
+                status: 'OPEN',
                 description: '',
                 issueType: '',
                 urgency: 'MEDIUM',

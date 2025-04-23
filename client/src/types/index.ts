@@ -22,7 +22,8 @@ export type Trail = {
     createdAt: string;
 };
   
-export type IssueStatus = 'open' | 'in_progress' | 'resolved'; // match backend usage (consider moving to Prisma enum)
+// ENUM: HAS TO MATCH FOR ISSUE STATUS IN SERVER
+export type IssueStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'; 
   
 export interface ImageMetadata {
     DateTimeOriginal?: string;

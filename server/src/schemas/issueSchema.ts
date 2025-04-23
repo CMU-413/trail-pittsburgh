@@ -61,7 +61,7 @@ export const createIssueSchema = z.object({
         status: z.nativeEnum(IssueStatus).default(IssueStatus.OPEN),
         latitude: z.number().optional(),
         longitude: z.number().optional(),
-        reporterEmail: z.string().email(),
+        reporterEmail: z.string().email().optional(),
         notifyReporter: z.boolean().default(false),
         description: z.string().max(150).optional(),
         imageType: z.enum(['image/jpeg', 'image/png', 'image/heic']).optional(),
