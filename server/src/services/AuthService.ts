@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import { UserService } from './UserService';
 
-import { getGoogleUserData } from '@/utils/googleAuth';
+import { getGoogleUserData } from '@/lib/googleAuth';
 
 export class AuthService {
     private oAuth2Client: OAuth2Client;

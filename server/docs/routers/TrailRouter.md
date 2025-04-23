@@ -7,18 +7,25 @@ Base URL: `/api/trails`
 ## Public Routes
 
 ### `GET /api/trails`
-**Description:** Retrieve all trails.
+
+**Description:**  
+Retrieve all trails.
 
 **Response:**
-- `200 OK`: List of trail objects.
+- `200 OK`: List of trail objects
 
 ---
 
 ### `GET /api/trails/:trailId`
-**Description:** Retrieve a specific trail by its ID.
+
+**Description:**  
+Retrieve a specific trail by its ID.
 
 **Params:**
 - `trailId` (number, required)
+
+**Validation:**  
+- Validated using `getTrailSchema`
 
 **Response:**
 - `200 OK`: Trail object
@@ -27,10 +34,15 @@ Base URL: `/api/trails`
 ---
 
 ### `GET /api/trails/park/:parkId`
-**Description:** Retrieve all trails belonging to a specific park.
+
+**Description:**  
+Retrieve all trails belonging to a specific park.
 
 **Params:**
 - `parkId` (number, required)
+
+**Validation:**  
+- Validated using `getTrailsFromParkSchema`
 
 **Response:**
 - `200 OK`: List of trails for the park
@@ -42,7 +54,11 @@ Base URL: `/api/trails`
 > Requires valid JWT in an HTTP-only cookie
 
 ### `POST /api/trails`
-**Description:** Create a new trail.
+
+**Description:**  
+Create a new trail.
+
+**Authentication Required:** Yes
 
 **Request Body:**
 ```json
@@ -54,6 +70,9 @@ Base URL: `/api/trails`
 }
 ```
 
+**Validation:**  
+- Validated using `createTrailSchema`
+
 **Response:**
 - `201 Created`: Created trail object
 - `401 Unauthorized`: If not logged in
@@ -61,7 +80,11 @@ Base URL: `/api/trails`
 ---
 
 ### `PUT /api/trails/:trailId`
-**Description:** Update the status of a trail (open/closed).
+
+**Description:**  
+Update a trail's data (e.g., open/closed status or other fields).
+
+**Authentication Required:** Yes
 
 **Params:**
 - `trailId` (number, required)
@@ -73,6 +96,9 @@ Base URL: `/api/trails`
 }
 ```
 
+**Validation:**  
+- Validated using `updateTrailSchema`
+
 **Response:**
 - `200 OK`: Updated trail
 - `404 Not Found`: If trail not found
@@ -81,10 +107,17 @@ Base URL: `/api/trails`
 ---
 
 ### `DELETE /api/trails/:trailId`
-**Description:** Delete a trail by ID.
+
+**Description:**  
+Delete a trail by ID.
+
+**Authentication Required:** Yes
 
 **Params:**
 - `trailId` (number, required)
+
+**Validation:**  
+- Validated using `deleteTrailSchema`
 
 **Response:**
 - `204 No Content`: If deleted

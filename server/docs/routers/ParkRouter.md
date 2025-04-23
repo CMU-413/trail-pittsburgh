@@ -7,7 +7,9 @@ Base URL: `/api/parks`
 ## Public Routes
 
 ### `GET /api/parks`
-**Description:** Retrieve all parks.
+
+**Description:**  
+Retrieve all parks.
 
 **Response:**
 - `200 OK`: List of park objects
@@ -15,10 +17,15 @@ Base URL: `/api/parks`
 ---
 
 ### `GET /api/parks/:parkId`
-**Description:** Retrieve a specific park by ID.
+
+**Description:**  
+Retrieve a specific park by ID.
 
 **Params:**
 - `parkId` (number, required)
+
+**Validation:**  
+- Validated using `getParkSchema`
 
 **Response:**
 - `200 OK`: Park object
@@ -31,7 +38,11 @@ Base URL: `/api/parks`
 > Requires valid JWT in an HTTP-only cookie
 
 ### `POST /api/parks`
-**Description:** Create a new park.
+
+**Description:**  
+Create a new park.
+
+**Authentication Required:** Yes
 
 **Request Body:**
 ```json
@@ -42,6 +53,9 @@ Base URL: `/api/parks`
 }
 ```
 
+**Validation:**  
+- Validated using `createParkSchema`
+
 **Response:**
 - `201 Created`: Created park object
 - `401 Unauthorized`: If not logged in
@@ -49,7 +63,11 @@ Base URL: `/api/parks`
 ---
 
 ### `PUT /api/parks/:parkId`
-**Description:** Update a park’s data.
+
+**Description:**  
+Update a park’s data.
+
+**Authentication Required:** Yes
 
 **Params:**
 - `parkId` (number, required)
@@ -63,6 +81,9 @@ Base URL: `/api/parks`
 }
 ```
 
+**Validation:**  
+- Validated using `updateParkSchema`
+
 **Response:**
 - `200 OK`: Updated park
 - `404 Not Found`: If park not found
@@ -71,10 +92,17 @@ Base URL: `/api/parks`
 ---
 
 ### `DELETE /api/parks/:parkId`
-**Description:** Delete a park by ID.
+
+**Description:**  
+Delete a park by ID.
+
+**Authentication Required:** Yes
 
 **Params:**
 - `parkId` (number, required)
+
+**Validation:**  
+- Validated using `deleteParkSchema`
 
 **Response:**
 - `204 No Content`: If deleted
