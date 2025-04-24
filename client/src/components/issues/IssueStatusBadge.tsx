@@ -11,15 +11,15 @@ interface IssueStatusBadgeProps {
 export const IssueStatusBadge: React.FC<IssueStatusBadgeProps> = ({ status, className = '' }) => {
     // Updated color mapping to match the dashboard
     const statusVariant = {
-        open: 'danger',
-        in_progress: 'warning',
-        resolved: 'success'
+        OPEN: 'danger',
+        IN_PROGRESS: 'warning',
+        RESOLVED: 'success'
     } as const;
 
     const statusLabel = {
-        open: 'Open',
-        in_progress: 'In Progress',
-        resolved: 'Resolved'
+        OPEN: 'Open',
+        IN_PROGRESS: 'In Progress',
+        RESOLVED: 'Resolved'
     };
 
     return (

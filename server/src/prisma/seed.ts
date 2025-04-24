@@ -98,7 +98,7 @@ async function main() {
                 parkId: parkRecords[1].parkId,
                 trailId: trailRecords[1].trailId,
                 issueType: IssueType.OBSTRUCTION,
-                urgency: Urgency.MEDIUM_HIGH,
+                urgency: Urgency.MEDIUM,
                 description: 'A fallen tree is blocking the path near mile marker 5.',
                 isPublic: true,
                 status: IssueStatus.OPEN,

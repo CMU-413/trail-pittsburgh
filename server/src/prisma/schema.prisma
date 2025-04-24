@@ -31,17 +31,17 @@ enum UserRole {
 }
 
 enum Urgency {
+  VERY_LOW
   LOW
-  MEDIUM_LOW
   MEDIUM
-  MEDIUM_HIGH
   HIGH
+  VERY_HIGH
 }
 
 model Park {
   parkId    Int      @id(map: "Parks_pkey") @default(autoincrement()) @map("park_id")
-  name      String   @db.VarChar(150)
-  county    String   @db.VarChar(150)
+  name      String   @db.VarChar(50)
+  county    String   @db.VarChar(50)
   isActive  Boolean  @default(true)         @map("is_active")
   createdAt DateTime @default(now())        @map("created_at")
 
@@ -51,27 +51,27 @@ model Park {
 
 model Trail {
   trailId   Int      @id @default(autoincrement()) @map("trail_id")
-  parkId    Int                                   @map("park_id")
-  name      String   @db.VarChar(150)
-  isActive  Boolean  @default(true)               @map("is_active")
-  isOpen    Boolean                               @map("is_open")
-  createdAt DateTime @default(now())              @map("created_at")
+  parkId    Int                                    @map("park_id")
+  name      String   @db.VarChar(100)
+  isActive  Boolean  @default(true)                @map("is_active")
+  isOpen    Boolean  @default(true)                @map("is_open")
+  createdAt DateTime @default(now())               @map("created_at")
 
   park   Park   @relation(fields: [parkId], references: [parkId])
   issues Issue[]
 }
 
 model Issue {
-  issueId        Int         @id @default(autoincrement())         @map("issue_id")
+  issueId        Int         @id @default(autoincrement())        @map("issue_id")
   parkId         Int                                              @map("park_id")
   trailId        Int                                              @map("trail_id")
   isPublic       Boolean                                          @map("is_public")
   status         IssueStatus @default(OPEN)
-  description    String?     @db.VarChar(150)
+  description    String?     @db.VarChar(450)
   issueType      IssueType                                        @map("issue_type")
-  urgency        Urgency     @default(MEDIUM)
+  urgency        Urgency
   issueImage     String?     @db.VarChar(150)                     @map("issue_image")
-  notifyReporter Boolean                                          @map("notify_reporter")
+  notifyReporter Boolean     @default(false)                      @map("notify_reporter")
   reporterEmail  String      @db.VarChar(150)                     @map("reporter_email")
   longitude      Float?
   latitude       Float?

@@ -3,8 +3,7 @@ import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 interface UserUpdateData {
     username?: string;
     email?: string;
-    isAdmin?: boolean;
-    permission?: string;
+    role?: string;
     profileImage?: string;
     isActive?: boolean;
 }
@@ -24,8 +23,7 @@ export class UserRepository {
     public async createUser(
         username: string,
         email: string,
-        isAdmin: boolean = false,
-        permission: string = 'read',
+        role: string = 'ROLE_USER',
         profileImage: string = 'default.jpg',
         isActive: boolean = true
     ) {
@@ -34,8 +32,7 @@ export class UserRepository {
                 data: {
                     username,
                     email,
-                    isAdmin: isAdmin,
-                    permission,
+                    role,
                     profileImage: profileImage,
                     isActive: isActive
                 }

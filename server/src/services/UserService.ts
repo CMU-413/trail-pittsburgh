@@ -3,8 +3,7 @@ import { UserRepository } from '@/repositories';
 interface UserData {
     username?: string;
     email?: string;
-    isAdmin?: boolean;
-    permission?: string;
+    role?: string;
     profileImage?: string;
     isActive?: boolean;
 }
@@ -28,16 +27,14 @@ export class UserService {
     public async createUser(
         username: string,
         email: string,
-        isAdmin: boolean = false,
-        permission: string = 'read',
+        role: string = 'ROLE_USER',
         profileImage: string = this.DEFAULT_PROFILE_IMAGE,
         isActive: boolean = true
     ) {
         return this.userRepository.createUser(
             username,
             email,
-            isAdmin,
-            permission,
+            role,
             profileImage,
             isActive
         );
@@ -58,8 +55,7 @@ export class UserService {
             user = await this.createUser(
                 userData.name,
                 userData.email,
-                false,
-                'View',
+                'ROLE_USER',
                 profileImage,
                 true
             );
