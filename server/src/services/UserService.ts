@@ -1,5 +1,6 @@
-import { UserRepository } from '@/repositories';
 import { User, UserRoleEnum } from '@prisma/client';
+
+import { UserRepository } from '@/repositories';
 
 export class UserService {
     private readonly userRepository: UserRepository;

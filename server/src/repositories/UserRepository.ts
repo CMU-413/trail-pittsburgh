@@ -1,5 +1,6 @@
-import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 import { User, UserRoleEnum } from '@prisma/client';
+
+import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 
 export class UserRepository {
     public async getUser(userId: number) {

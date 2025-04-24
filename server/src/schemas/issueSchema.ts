@@ -1,6 +1,7 @@
+import {
+    Prisma , IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
+} from '@prisma/client';
 import { z } from 'zod';
-import { Prisma } from '@prisma/client';
-import { IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum } from '@prisma/client';
 
 export const getIssuesByParkSchema = z.object({
     params: z.object({

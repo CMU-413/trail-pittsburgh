@@ -1,6 +1,9 @@
+import {
+    IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
+} from '@prisma/client';
+
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 import { CreateIssueDbInput } from '@/schemas/issueSchema';
-import { IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum } from '@prisma/client';
 
 export class IssueRepository {
     public async getIssue(issueId: number) {
@@ -128,7 +131,7 @@ export class IssueRepository {
                 }
             });
         } catch (error) {
-            if (isNotFoundError(error)) return null;
+            if (isNotFoundError(error)) {return null;}
             console.error('Error resolving issue:', error);
             throw error;
         }

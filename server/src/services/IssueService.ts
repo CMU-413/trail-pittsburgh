@@ -1,9 +1,9 @@
+import { IssueUrgencyEnum, IssueStatusEnum } from '@prisma/client';
 import { v4 as uuid } from 'uuid';
 
 import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
 import { CreateIssueInput, IssueRecord } from '@/schemas/issueSchema';
-import { IssueUrgencyEnum, IssueStatusEnum } from '@prisma/client';
 
 export class IssueService {
     private readonly issueRepository: IssueRepository;

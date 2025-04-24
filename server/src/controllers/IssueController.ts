@@ -1,8 +1,8 @@
+import { Urgency, IssueStatus } from '@prisma/client';
 import express from 'express';
 
 import { IssueService } from '@/services/IssueService';
 import { logger } from '@/utils/logger';
-import { Urgency, IssueStatus } from '@prisma/client';
 
 export class IssueController {
 
