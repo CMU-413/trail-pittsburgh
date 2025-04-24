@@ -36,7 +36,13 @@ export const Select: React.FC<SelectProps> = ({
         }
     };
 
-    const sortedOptions = [...options].sort((a, b) => a.label.localeCompare(b.label));
+    const defaultOptions = options.filter((option) => option.value === '');
+    const otherOptions = options.filter((option) => option.value !== '');
+
+    const sortedOptions = [
+        ...defaultOptions,
+        ...otherOptions.sort((a, b) => a.label.localeCompare(b.label)),
+    ];
 
     return (
         <div className={`${widthClass} ${className} mb-2`}>
