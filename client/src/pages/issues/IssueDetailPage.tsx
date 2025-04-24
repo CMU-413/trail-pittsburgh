@@ -116,7 +116,7 @@ export const IssueDetailPage: React.FC = () => {
         }
     };
 
-    const canResolveIssue = user !== null && (user.permission === 'steward' || user.permission === 'owner');
+    const canResolveIssue = user !== null;
 
     if (isLoading) {
         return <LoadingSpinner />;
