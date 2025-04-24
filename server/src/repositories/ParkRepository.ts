@@ -1,6 +1,5 @@
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
-import { Park } from '@prisma/client';
-
+import { CreatePark, UpdatePark } from '@/schemas/parkSchema';
 export class ParkRepository {
     public async getPark(parkId: number) {
         return prisma.park.findUnique({
@@ -10,13 +9,12 @@ export class ParkRepository {
         });
     }
 
-    public async createPark(parkData: Park) {
+    public async createPark(parkData: CreatePark) {
         try {
             const result = await prisma.park.create({
                 data: {
                     name: parkData.name,
-                    county: parkData.county ?? '', // fallback if undefined
-                    isActive: parkData.isActive ?? true
+                    county: parkData.county,
                 }
             });
             return result;
@@ -26,7 +24,7 @@ export class ParkRepository {
         }
     }
 
-    public async updatePark(parkId: number, parkData: Partial<Park>) {
+    public async updatePark(parkId: number, parkData: UpdatePark) {
         try {
             return await prisma.park.update({
                 where: { parkId: parkId },
