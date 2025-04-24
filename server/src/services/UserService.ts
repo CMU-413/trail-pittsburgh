@@ -1,12 +1,5 @@
 import { UserRepository } from '@/repositories';
-
-interface UserData {
-    username?: string;
-    email?: string;
-    role?: string;
-    profileImage?: string;
-    isActive?: boolean;
-}
+import { User, UserRoleEnum } from '@prisma/client';
 
 export class UserService {
     private readonly userRepository: UserRepository;
@@ -27,7 +20,7 @@ export class UserService {
     public async createUser(
         username: string,
         email: string,
-        role: string = 'ROLE_USER',
+        role: UserRoleEnum = UserRoleEnum.ROLE_USER,
         profileImage: string = this.DEFAULT_PROFILE_IMAGE,
         isActive: boolean = true
     ) {
@@ -55,7 +48,7 @@ export class UserService {
             user = await this.createUser(
                 userData.name,
                 userData.email,
-                'ROLE_USER',
+                UserRoleEnum.ROLE_USER,
                 profileImage,
                 true
             );
@@ -75,7 +68,7 @@ export class UserService {
         return this.userRepository.deleteUser(userId);
     }
 
-    public async updateUser(userId: number, data: UserData) {
+    public async updateUser(userId: number, data: Partial<User>) {
         const existingUser = await this.userRepository.getUser(userId);
         if (!existingUser) {
             return null;

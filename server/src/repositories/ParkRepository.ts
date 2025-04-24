@@ -1,5 +1,5 @@
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
-import { ParkData } from '@/utils/types';
+import { Park } from '@prisma/client';
 
 export class ParkRepository {
     public async getPark(parkId: number) {
@@ -10,7 +10,7 @@ export class ParkRepository {
         });
     }
 
-    public async createPark(parkData: ParkData) {
+    public async createPark(parkData: Park) {
         try {
             const result = await prisma.park.create({
                 data: {
@@ -26,7 +26,7 @@ export class ParkRepository {
         }
     }
 
-    public async updatePark(parkId: number, parkData: Partial<ParkData>) {
+    public async updatePark(parkId: number, parkData: Partial<Park>) {
         try {
             return await prisma.park.update({
                 where: { parkId: parkId },

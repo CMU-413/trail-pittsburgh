@@ -1,12 +1,5 @@
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
-
-interface UserUpdateData {
-    username?: string;
-    email?: string;
-    role?: string;
-    profileImage?: string;
-    isActive?: boolean;
-}
+import { User, UserRoleEnum } from '@prisma/client';
 
 export class UserRepository {
     public async getUser(userId: number) {
@@ -23,7 +16,7 @@ export class UserRepository {
     public async createUser(
         username: string,
         email: string,
-        role: string = 'ROLE_USER',
+        role: UserRoleEnum = UserRoleEnum.ROLE_USER,
         profileImage: string = 'default.jpg',
         isActive: boolean = true
     ) {
@@ -65,7 +58,7 @@ export class UserRepository {
         }
     }
 
-    public async updateUser(userId: number, data: UserUpdateData) {
+    public async updateUser(userId: number, data: Partial<User>) {
         try {
             return await prisma.user.update({
                 where: { userId: userId },

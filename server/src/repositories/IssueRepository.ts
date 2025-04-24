@@ -1,6 +1,6 @@
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
-import { IssueStatus, IssueType, Urgency } from '@prisma/client';
 import { CreateIssueDbInput } from '@/schemas/issueSchema';
+import { IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum } from '@prisma/client';
 
 export class IssueRepository {
     public async getIssue(issueId: number) {
@@ -88,7 +88,7 @@ export class IssueRepository {
         });
     }
 
-    public async getIssuesByStatus(status: IssueStatus) {
+    public async getIssuesByStatus(status: IssueStatusEnum) {
         return prisma.issue.findMany({
             where: { status },
             include: {
@@ -98,7 +98,7 @@ export class IssueRepository {
         });
     }
 
-    public async getIssuesByType(type: IssueType) {
+    public async getIssuesByType(type: IssueTypeEnum) {
         return prisma.issue.findMany({
             where: { issueType: type },
             include: {
@@ -108,7 +108,7 @@ export class IssueRepository {
         });
     }
 
-    public async getIssuesByUrgency(urgencyLevel: Urgency) {
+    public async getIssuesByUrgency(urgencyLevel: IssueUrgencyEnum) {
         return prisma.issue.findMany({
             where: { urgency: urgencyLevel },
             include: {
@@ -118,7 +118,7 @@ export class IssueRepository {
         });
     }
 
-    public async updateIssueStatus(issueId: number, status: IssueStatus) {
+    public async updateIssueStatus(issueId: number, status: IssueStatusEnum) {
         try {
             return await prisma.issue.update({
                 where: { issueId },

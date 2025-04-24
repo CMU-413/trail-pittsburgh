@@ -1,5 +1,5 @@
 import { ParkRepository } from '@/repositories';
-import { ParkData } from '@/utils/types';
+import { Park } from '@prisma/client';
 
 export class ParkService {
     private readonly parkRepository: ParkRepository;
@@ -16,11 +16,11 @@ export class ParkService {
         return this.parkRepository.getAllParks();
     }
 
-    public async createPark(parkData: ParkData) {
+    public async createPark(parkData: Park) {
         return this.parkRepository.createPark(parkData);
     }
 
-    public async updatePark(parkId: number, parkData: Partial<ParkData>) {
+    public async updatePark(parkId: number, parkData: Partial<Park>) {
         const existingPark = await this.parkRepository.getPark(parkId);
         if (!existingPark) {
             return null;

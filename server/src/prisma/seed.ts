@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole, IssueStatus, IssueType, Urgency } from '@prisma/client';
+import { PrismaClient, UserRoleEnum, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -16,35 +16,35 @@ async function main() {
             { 
                 username: 'john_doe', 
                 email: 'john@example.com',
-                role: UserRole.ROLE_USER,
+                role: UserRoleEnum.ROLE_USER,
                 profileImage: 'default.jpg',
                 isActive: true
             },
             { 
                 username: 'jane_smith', 
                 email: 'jane@example.com',
-                role: UserRole.ROLE_ADMIN,
+                role: UserRoleEnum.ROLE_ADMIN,
                 profileImage: 'default.jpg',
                 isActive: true
             },
             { 
                 username: 'mike_wilson', 
                 email: 'mike@example.com',
-                role: UserRole.ROLE_USER,
+                role: UserRoleEnum.ROLE_USER,
                 profileImage: 'default.jpg',
                 isActive: true
             },
             { 
                 username: 'sarah_jones', 
                 email: 'sarah@example.com',
-                role: UserRole.ROLE_USER,
+                role: UserRoleEnum.ROLE_USER,
                 profileImage: 'default.jpg',
                 isActive: true
             },
             { 
                 username: 'david_brown', 
                 email: 'david@example.com',
-                role: UserRole.ROLE_SUPERADMIN,
+                role: UserRoleEnum.ROLE_SUPERADMIN,
                 profileImage: 'default.jpg',
                 isActive: true
             }
@@ -86,33 +86,33 @@ async function main() {
             {
                 parkId: parkRecords[0].parkId,
                 trailId: trailRecords[0].trailId,
-                issueType: IssueType.FLOODING,
-                urgency: Urgency.HIGH,
+                issueType: IssueTypeEnum.FLOODING,
+                urgency: IssueUrgencyEnum.HIGH,
                 description: 'Heavy rainfall caused water pooling on the trail.',
                 isPublic: true,
-                status: IssueStatus.OPEN,
+                status: IssueStatusEnum.OPEN,
                 notifyReporter: true,
                 reporterEmail: 'john@example.com'
             },
             {
                 parkId: parkRecords[1].parkId,
                 trailId: trailRecords[1].trailId,
-                issueType: IssueType.OBSTRUCTION,
-                urgency: Urgency.MEDIUM,
+                issueType: IssueTypeEnum.OBSTRUCTION,
+                urgency: IssueUrgencyEnum.MEDIUM,
                 description: 'A fallen tree is blocking the path near mile marker 5.',
                 isPublic: true,
-                status: IssueStatus.OPEN,
+                status: IssueStatusEnum.OPEN,
                 notifyReporter: true,
                 reporterEmail: 'jane@example.com'
             },
             {
                 parkId: parkRecords[2].parkId,
                 trailId: trailRecords[2].trailId,
-                issueType: IssueType.EROSION,
-                urgency: Urgency.HIGH,
+                issueType: IssueTypeEnum.EROSION,
+                urgency: IssueUrgencyEnum.HIGH,
                 description: 'Severe erosion has made the path unsafe for bikers.',
                 isPublic: true,
-                status: IssueStatus.OPEN,
+                status: IssueStatusEnum.OPEN,
                 notifyReporter: true,
                 reporterEmail: 'mike@example.com'
             }

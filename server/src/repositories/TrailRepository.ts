@@ -1,5 +1,5 @@
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
-import { TrailData } from '@/utils/types';
+import { Trail } from '@prisma/client';
 
 export class TrailRepository {
     public async getTrail(trailId: number) {
@@ -12,7 +12,7 @@ export class TrailRepository {
         });
     }
 
-    public async createTrail(trailData: TrailData) {
+    public async createTrail(trailData: Trail) {
         try {
             const result = await prisma.trail.create({
                 data: {
@@ -60,7 +60,7 @@ export class TrailRepository {
         });
     }
 
-    public async updateTrail(trailId: number, trailData: Partial<TrailData>) {
+    public async updateTrail(trailId: number, trailData: Partial<Trail>) {
         try {
             return await prisma.trail.update({
                 where: { trailId: trailId },

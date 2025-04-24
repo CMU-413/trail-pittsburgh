@@ -1,5 +1,5 @@
 import { TrailRepository } from '@/repositories';
-import { TrailData } from '@/utils/types';
+import { Trail } from '@prisma/client';
 
 export class TrailService {
     private readonly trailRepository: TrailRepository;
@@ -16,7 +16,7 @@ export class TrailService {
         return this.trailRepository.getAllTrails();
     }
 
-    public async createTrail(trailData: TrailData) {
+    public async createTrail(trailData: Trail) {
         return this.trailRepository.createTrail(trailData);
     }
 
@@ -24,7 +24,7 @@ export class TrailService {
         return this.trailRepository.deleteTrail(trailId);
     }
 
-    public async updateTrail(trailId: number, trailData: Partial<TrailData>) {
+    public async updateTrail(trailId: number, trailData: Partial<Trail>) {
         const existingTrail = await this.trailRepository.getTrail(trailId);
         if (!existingTrail) {
             return null;

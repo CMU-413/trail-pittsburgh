@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { IssueStatus, IssueType, Urgency, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum } from '@prisma/client';
 
 export const getIssuesByParkSchema = z.object({
     params: z.object({
@@ -15,7 +16,7 @@ export const getIssuesByTrailSchema = z.object({
 
 export const getIssuesByUrgencySchema = z.object({
     params: z.object({
-        urgency: z.nativeEnum(Urgency),
+        urgency: z.nativeEnum(IssueUrgencyEnum),
     })
 });
 
@@ -30,7 +31,7 @@ export const updateIssueStatusSchema = z.object({
         issueId: z.coerce.number(),
     }),
     body: z.object({
-        status: z.nativeEnum(IssueStatus),
+        status: z.nativeEnum(IssueStatusEnum),
     })
 });
 
@@ -55,10 +56,10 @@ export const createIssueSchema = z.object({
     body: z.object({
         parkId: z.coerce.number(),
         trailId: z.coerce.number(),
-        issueType: z.nativeEnum(IssueType),
-        urgency: z.nativeEnum(Urgency),
+        issueType: z.nativeEnum(IssueTypeEnum),
+        urgency: z.nativeEnum(IssueUrgencyEnum),
         isPublic: z.boolean().default(false),
-        status: z.nativeEnum(IssueStatus).default(IssueStatus.OPEN),
+        status: z.nativeEnum(IssueStatusEnum).default(IssueStatusEnum.OPEN),
         latitude: z.number().optional(),
         longitude: z.number().optional(),
         reporterEmail: z.string().email().optional(),

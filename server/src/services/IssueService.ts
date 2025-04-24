@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
 import { CreateIssueInput, IssueRecord } from '@/schemas/issueSchema';
-import { Urgency, IssueStatus } from '@prisma/client';
+import { IssueUrgencyEnum, IssueStatusEnum } from '@prisma/client';
 
 export class IssueService {
     private readonly issueRepository: IssueRepository;
@@ -79,11 +79,11 @@ export class IssueService {
         return this.issueRepository.getIssuesByTrail(trailId);
     }
 
-    public async getIssuesByUrgency(urgencyLevel: Urgency) {
+    public async getIssuesByUrgency(urgencyLevel: IssueUrgencyEnum) {
         return this.issueRepository.getIssuesByUrgency(urgencyLevel);
     }
 
-    public async updateIssueStatus(issueId: number, status: IssueStatus) {
+    public async updateIssueStatus(issueId: number, status: IssueStatusEnum) {
         const issue = await this.issueRepository.updateIssueStatus(issueId, status);
         if (!issue) {
             return null;
