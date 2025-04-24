@@ -267,7 +267,16 @@ export const IssueDetailPage: React.FC = () => {
 
                     <div className="mb-6">
                         <h4 className="text-sm font-medium text-gray-500 mb-2">Description</h4>
-                        <p className="text-gray-700 whitespace-pre-line">{issue.description}</p>
+                        {isEditing ? (
+                            <textarea
+                                value={editedDescription}
+                                onChange={(e) => setEditedDescription(e.target.value)}
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-h-32"
+                                rows={4}
+                            />
+                        ) : (
+                            <p className="text-gray-700 whitespace-pre-line">{issue.description}</p>
+                        )}
                     </div>
 
                     {issue.image && (

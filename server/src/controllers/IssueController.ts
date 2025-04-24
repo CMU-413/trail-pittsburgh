@@ -17,6 +17,7 @@ export class IssueController {
         this.getIssuesByPark = this.getIssuesByPark.bind(this);
         this.getIssuesByTrail = this.getIssuesByTrail.bind(this);
         this.getIssuesByUrgency = this.getIssuesByUrgency.bind(this);
+        this.updateIssue = this.updateIssue.bind(this);
     }
 
     public async getIssue(req: express.Request, res: express.Response) {
