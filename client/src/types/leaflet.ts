@@ -7,12 +7,12 @@ export interface LeafletMap {
 }
 
 export interface LeafletMouseEvent {
-    latlng: { latitude: number; lng: number };
+    latlng: { lat: number; lng: number };
 }
 
 export interface LeafletMarkerDragEvent {
     target: {
-        getLatLng: () => { latitude: number; lng: number };
+        getLatLng: () => { lat: number; lng: number };
     };
 }
 
