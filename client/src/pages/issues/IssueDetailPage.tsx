@@ -236,8 +236,13 @@ export const IssueDetailPage: React.FC = () => {
                         
                         {/* Resolve button - shown when not editing */}
                         {issue.status !== 'resolved' && canResolveIssue && !isEditing && (
-                            <Button variant="success" onClick={handleResolveIssue} /* ... */>
-                                Resolve Issue
+                            <Button
+                                variant="success"
+                                onClick={handleResolveIssue}
+                                isLoading={isResolving}
+                                disabled={isResolving}
+                            >
+                                {isResolving ? 'Resolving...' : 'Resolve Issue'}
                             </Button>
                         )}
                     </div>
@@ -249,17 +254,39 @@ export const IssueDetailPage: React.FC = () => {
                     <div className="flex justify-between mb-6">
                         <div className="flex items-center">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                    {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
-                                </h3>
-                                <p className="text-sm text-gray-500">
-                                    Reported {formatDate(issue.createdAt)}
-                                </p>
-                                {issue.resolvedAt && (
-                                    <p className="text-sm text-green-600">
-                                        Resolved {formatDate(issue.resolvedAt)}
+                            {isEditing ? (
+                                <div className="space-y-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Issue Type
+                                    </label>
+                                    <select
+                                        value={editedIssueType}
+                                        onChange={(e) => setEditedIssueType(e.target.value)}
+                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                    >
+                                        <option value="obstruction">Obstruction (tree down, etc.)</option>
+                                        <option value="erosion">Trail Erosion</option>
+                                        <option value="flooding">Flooding</option>
+                                        <option value="signage">Damaged/Missing Signage</option>
+                                        <option value="vandalism">Vandalism</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            ) : (
+                                <>
+                                    <h3 className="text-lg font-semibold text-gray-900">
+                                        {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
+                                    </h3>
+                                    <p className="text-sm text-gray-500">
+                                        Reported {formatDate(issue.createdAt)}
                                     </p>
-                                )}
+                                    {issue.resolvedAt && (
+                                        <p className="text-sm text-green-600">
+                                            Resolved {formatDate(issue.resolvedAt)}
+                                        </p>
+                                    )}
+                                </>
+                            )}
                             </div>
                         </div>
                         <IssueStatusBadge status={issue.status} />
