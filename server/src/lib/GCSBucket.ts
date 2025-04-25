@@ -5,7 +5,6 @@ import {
 export type SignedUrl = {
     key: string;
     url: string;
-    type: 'download' | 'upload';
 }
 
 export class GCSBucket {
@@ -33,7 +32,6 @@ export class GCSBucket {
         return {
             key,
             url,
-            type: 'download',
         };
     }
 
@@ -51,7 +49,6 @@ export class GCSBucket {
         return {
             key,
             url,
-            type: 'upload',
         };
     }
 }
