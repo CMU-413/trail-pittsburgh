@@ -71,4 +71,16 @@ export class GCSBucket {
             url,
         };
     }
+
+    async getImageMetadata(key: string) {
+        const file = this.bucket.file(key);
+        const [fileMetadata] = await file.getMetadata();
+        const { contentType, metadata } = fileMetadata;
+
+        return {
+            contentType,
+            metadata
+        };
+
+    }
 }
