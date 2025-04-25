@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const isAuthenticated = !!user;
-    const hasPermission = user?.email?.endsWith('@trailpittsburgh.org') ?? false;
+    const hasPermission = user?.email?.endsWith(`@${import.meta.env.VITE_ORGANIZATION_DOMAIN}`) ?? false;
 
     return (
         <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated, hasPermission }}>
