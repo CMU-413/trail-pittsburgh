@@ -148,15 +148,8 @@ export const IssueDetailPage: React.FC = () => {
     return (
         <div className="container max-w-6xl mx-auto px-4 py-8">
             <PageHeader
-                title={
-                    <>
-                        {formatIssueType(issue.issueType)}
-                        <span className="text-base text-gray-500 font-normal ml-2">
-                            #{issue.issueId}
-                        </span>
-                    </>
-                }
-                subtitle={park && trail ? `${park.name} • ${trail.name}` : 'Loading location...'}
+                title={`${formatIssueType(issue.issueType)}`}
+                subtitle={`#${issue.issueId} • ${park && trail ? `${park.name} • ${trail.name}` : 'Loading location...'}`}
                 action={
                     issue.status !== IssueStatusEnum.RESOLVED && canResolveIssue ? (
                         <Button
