@@ -14,7 +14,6 @@ describe('IssueService', () => {
     const uploadUrl: SignedUrl = {
         url: 'test.jpg',
         key: 'unique',
-        type: 'upload',
     };
 
     const baseIssue = {
@@ -39,7 +38,11 @@ describe('IssueService', () => {
 
     beforeEach(() => {
         issueRepositoryMock = new IssueRepository() as jest.Mocked<IssueRepository>;
-        issueImageBucketMock = new GCSBucket('') as jest.Mocked<GCSBucket>;
+        issueImageBucketMock = {
+            getUploadUrl: jest.fn().mockReturnValue(uploadUrl),
+            getDownloadUrl: jest.fn().mockReturnValue(uploadUrl),
+        } as unknown as jest.Mocked<GCSBucket>;
+
         issueService = new IssueService(issueRepositoryMock, issueImageBucketMock);
     });
 
