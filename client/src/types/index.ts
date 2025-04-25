@@ -21,10 +21,31 @@ export type Trail = {
     isOpen: boolean;
     createdAt: string;
 };
-  
-// ENUM: HAS TO MATCH FOR ISSUE STATUS IN SERVER
-export type IssueStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'; 
-  
+
+export enum IssueStatusEnum {
+    OPEN = 'OPEN',
+    IN_PROGRESS = 'IN_PROGRESS',
+    RESOLVED = 'RESOLVED',
+    CLOSED = 'CLOSED'
+}
+
+export enum IssueTypeEnum {
+    OBSTRUCTION = 'OBSTRUCTION',
+    EROSION = 'EROSION',
+    FLOODING = 'FLOODING',
+    SIGNAGE = 'SIGNAGE',
+    VANDALISM = 'VANDALISM',
+    OTHER = 'OTHER'
+}
+
+export enum IssueUrgencyEnum {
+    VERY_LOW = 'VERY_LOW',
+    LOW = 'LOW',
+    MEDIUM = 'MEDIUM',
+    HIGH = 'HIGH',
+    VERY_HIGH = 'VERY_HIGH'
+}
+
 export interface ImageMetadata {
     DateTimeOriginal?: string;
     Make?: string;
@@ -47,10 +68,10 @@ export type Issue = {
     parkId: number;
     trailId: number;
     isPublic: boolean;
-    status: IssueStatus;
+    status: IssueStatusEnum;
     description?: string;
-    issueType: string;
-    urgency: 'LOW' | 'MEDIUM_LOW' | 'MEDIUM' | 'MEDIUM_HIGH' | 'HIGH';
+    issueType: IssueTypeEnum;
+    urgency: IssueUrgencyEnum;
     image?: SignedUrl;
     imageMetadata?: ImageMetadata;
     longitude?: number;
@@ -80,6 +101,7 @@ export type User = {
     name?: string;
     picture?: string;
     role?: string;
+    permission?: 'owner' | 'steward' | 'volunteer';
     profileImage?: string;
     username?: string;
     userId?: number;

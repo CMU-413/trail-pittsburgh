@@ -1,9 +1,8 @@
 // src/components/issues/IssueCard.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-    Issue, Park, Trail 
-} from '../../types';
+import { Issue, Park, Trail } from '../../types';
+import { getUrgencyLevelIndex } from '../../utils/issueUrgencyUtils';
 import { Card } from '../ui/Card';
 import { IssueStatusBadge } from './IssueStatusBadge';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
@@ -39,6 +38,10 @@ export const IssueCard: React.FC<IssueCardProps> = ({
         }
     };
 
+    const formatIssueType = (type: string): string => {
+        return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    };
+
     return (
         <Link to={`/issues/${issue.issueId}`} className="block hover:no-underline group">
             <Card className="h-full transition-all duration-300 group-hover:shadow-lg border border-gray-100 group-hover:border-gray-200">
@@ -46,7 +49,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
                     <div className="flex items-center">
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900">
-                                {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
+                                {formatIssueType(issue.issueType)}
                             </h3>
                             <p className="text-sm text-gray-500">Reported {getFormattedDate()}</p>
                         </div>
@@ -75,8 +78,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
                         <span className="text-xs font-medium text-gray-500 mr-2">Urgency:</span>
                         <div className="flex">
                             {Array.from({ length: 5 }).map((_, i) => {
-                                const urgencyLevels = ['LOW', 'MEDIUM_LOW', 'MEDIUM', 'MEDIUM_HIGH', 'HIGH'] as const;
-                                const currentLevel = urgencyLevels.indexOf(issue.urgency);
+                                const currentLevel = getUrgencyLevelIndex(issue.urgency);
                                 return (
                                     <svg
                                         key={i}

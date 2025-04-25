@@ -1,4 +1,4 @@
-import { Urgency, IssueStatus } from '@prisma/client';
+import { IssueUrgencyEnum, IssueStatusEnum } from '@prisma/client';
 import express from 'express';
 
 import { IssueService } from '@/services/IssueService';
@@ -83,7 +83,7 @@ export class IssueController {
 
     public async getIssuesByUrgency(req: express.Request, res: express.Response) {
         try {
-            const urgency = req.params.urgency as Urgency;
+            const urgency = req.params.urgency as IssueUrgencyEnum;
             const issues = await this.issueService.getIssuesByUrgency(urgency);
             res.json({ issues });
         } catch (error) {
@@ -114,7 +114,7 @@ export class IssueController {
         const issueId = Number(req.params.issueId);
 
         try {
-            const status = req.body.status as IssueStatus;
+            const status = req.body.status as IssueStatusEnum;
             const issue = await this.issueService.updateIssueStatus(issueId, status);
 
             if (!issue) {

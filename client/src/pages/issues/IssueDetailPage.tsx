@@ -4,7 +4,7 @@ import {
     Link, useParams, useNavigate
 } from 'react-router-dom';
 import { 
-    Issue, Park, Trail
+    Issue, Park, Trail, IssueStatusEnum
 } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
@@ -20,6 +20,7 @@ import {
     parkApi, trailApi, issueApi
 } from '../../services/api';
 import { useAuth } from '../../providers/AuthProvider';
+import { getUrgencyLevelIndex } from '../../utils/issueUrgencyUtils';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -103,7 +104,7 @@ export const IssueDetailPage: React.FC = () => {
             setIsResolving(true);
             const id = parseInt(issueId, 10);
 
-            const updatedIssue = await issueApi.updateIssueStatus(id, 'resolved');
+            const updatedIssue = await issueApi.updateIssueStatus(id, IssueStatusEnum.RESOLVED);
             
             if (updatedIssue) {
                 setIssue(updatedIssue);
@@ -117,6 +118,11 @@ export const IssueDetailPage: React.FC = () => {
     };
 
     const canResolveIssue = user !== null && (user.permission === 'steward' || user.permission === 'owner');
+
+    // Format issue type for display
+    const formatIssueType = (type: string): string => {
+        return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    };
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -140,12 +146,12 @@ export const IssueDetailPage: React.FC = () => {
     }
 
     return (
-        <div>
+        <div className="container max-w-6xl mx-auto px-4 py-8">
             <PageHeader
-                title={`${issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)} Issue`}
+                title={`${formatIssueType(issue.issueType)}`}
                 subtitle={park && trail ? `${park.name} • ${trail.name}` : 'Loading location...'}
                 action={
-                    issue.status !== 'resolved' && canResolveIssue ? (
+                    issue.status !== IssueStatusEnum.RESOLVED && canResolveIssue ? (
                         <Button
                             variant="success"
                             onClick={handleResolveIssue}
@@ -164,7 +170,7 @@ export const IssueDetailPage: React.FC = () => {
                         <div className="flex items-center">
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-900">
-                                    {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
+                                    {formatIssueType(issue.issueType)}
                                 </h3>
                                 <p className="text-sm text-gray-500">
                                     Reported {formatDate(issue.createdAt)}
@@ -261,8 +267,7 @@ export const IssueDetailPage: React.FC = () => {
                                 <div className="flex items-center mt-1">
                                     <div className="flex">
                                         {Array.from({ length: 5 }).map((_, i) => {
-                                            const urgencyLevels = ['LOW', 'MEDIUM_LOW', 'MEDIUM', 'MEDIUM_HIGH', 'HIGH'] as const;
-                                            const currentLevel = urgencyLevels.indexOf(issue.urgency);
+                                            const currentLevel = getUrgencyLevelIndex(issue.urgency);
                                             return (
                                                 <svg
                                                     key={i}
@@ -279,7 +284,7 @@ export const IssueDetailPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            {issue.status !== 'resolved' && <IssueTimer issue={issue} />}
+                            {issue.status !== IssueStatusEnum.RESOLVED && <IssueTimer issue={issue} />}
 
                             <div>
                                 <p className="text-sm font-medium text-gray-500">Location</p>

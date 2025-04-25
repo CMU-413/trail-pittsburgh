@@ -1,38 +1,42 @@
 // src/utils/issueStatusUtils.ts
-import { IssueStatus } from '../types';
+import { IssueStatusEnum } from '../types';
 
-export const getIssueStatusColor = (status: IssueStatus): string => {
+export const getIssueStatusColor = (status: IssueStatusEnum): string => {
     switch (status) {
-    case 'OPEN': return 'bg-red-500 text-white';
-    case 'IN_PROGRESS': return 'bg-yellow-500 text-white';
-    case 'RESOLVED': return 'bg-green-500 text-white';
+    case IssueStatusEnum.OPEN: return 'bg-red-500 text-white';
+    case IssueStatusEnum.IN_PROGRESS: return 'bg-yellow-500 text-white';
+    case IssueStatusEnum.RESOLVED: return 'bg-green-500 text-white';
+    case IssueStatusEnum.CLOSED: return 'bg-gray-500 text-white';
     default: return 'bg-gray-500 text-white';
     }
 };
 
-export const getIssueStatusTextColor = (status: IssueStatus): string => {
+export const getIssueStatusTextColor = (status: IssueStatusEnum): string => {
     switch (status) {
-    case 'OPEN': return 'text-red-600';
-    case 'IN_PROGRESS': return 'text-yellow-600';
-    case 'RESOLVED': return 'text-green-600';
+    case IssueStatusEnum.OPEN: return 'text-red-600';
+    case IssueStatusEnum.IN_PROGRESS: return 'text-yellow-600';
+    case IssueStatusEnum.RESOLVED: return 'text-green-600';
+    case IssueStatusEnum.CLOSED: return 'text-gray-600';
     default: return 'text-gray-600';
     }
 };
 
-export const getIssueStatusDotColor = (status: IssueStatus): string => {
+export const getIssueStatusDotColor = (status: IssueStatusEnum): string => {
     switch (status) {
-    case 'OPEN': return 'bg-red-500';
-    case 'IN_PROGRESS': return 'bg-yellow-500';
-    case 'RESOLVED': return 'bg-green-500';
+    case IssueStatusEnum.OPEN: return 'bg-red-500';
+    case IssueStatusEnum.IN_PROGRESS: return 'bg-yellow-500';
+    case IssueStatusEnum.RESOLVED: return 'bg-green-500';
+    case IssueStatusEnum.CLOSED: return 'bg-gray-500';
     default: return 'bg-gray-500';
     }
 };
 
-export const getIssueStatusLightBgColor = (status: IssueStatus): string => {
+export const getIssueStatusLightBgColor = (status: IssueStatusEnum): string => {
     switch (status) {
-    case 'OPEN': return 'bg-red-100';
-    case 'IN_PROGRESS': return 'bg-yellow-100';
-    case 'RESOLVED': return 'bg-green-100';
+    case IssueStatusEnum.OPEN: return 'bg-red-100';
+    case IssueStatusEnum.IN_PROGRESS: return 'bg-yellow-100';
+    case IssueStatusEnum.RESOLVED: return 'bg-green-100';
+    case IssueStatusEnum.CLOSED: return 'bg-gray-100';
     default: return 'bg-gray-100';
     }
 };

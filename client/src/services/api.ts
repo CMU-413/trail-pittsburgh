@@ -1,5 +1,5 @@
 import {
-    Park, Trail, Issue, IssueParams
+    Park, Trail, Issue, IssueParams, IssueStatusEnum, IssueUrgencyEnum
 } from '../types';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL  }/api`;
@@ -154,7 +154,7 @@ export const issueApi = {
         return response.issues;
     },
 
-    getIssuesByUrgency: async (urgency: number): Promise<Issue[]> => {
+    getIssuesByUrgency: async (urgency: IssueUrgencyEnum): Promise<Issue[]> => {
         const response = await fetch(`${API_BASE_URL}/issues/urgency/${urgency}`);
         return handleResponse(response);
     },
@@ -186,7 +186,7 @@ export const issueApi = {
         return issue;
     },
 
-    updateIssueStatus: async (issueId: number, status: string): Promise<Issue> => {
+    updateIssueStatus: async (issueId: number, status: IssueStatusEnum): Promise<Issue> => {
         // Create the request body with status
         const requestBody = JSON.stringify({ status });
         

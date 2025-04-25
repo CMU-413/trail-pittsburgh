@@ -1,6 +1,6 @@
 // src/components/issues/IssueResolutionForm.tsx
 import React, { useState } from 'react';
-import { Issue } from '../../types';
+import { Issue, IssueStatusEnum } from '../../types';
 import { TextArea } from '../ui/TextArea';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
@@ -68,7 +68,7 @@ export const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
     };
 
     // If the issue is already resolved, don't show the form
-    if (issue.status === 'resolved') {
+    if (issue.status === IssueStatusEnum.RESOLVED) {
         return (
             <Alert variant="success">
                 This issue has already been resolved.
