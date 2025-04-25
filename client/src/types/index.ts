@@ -6,7 +6,6 @@ export type ApiResponse<T> = {
 
 export type Park = {
     parkId: number;
-    ownerId?: number; // Not in schema, but retained if relevant in frontend
     name: string;
     county: string;
     isActive: boolean;
