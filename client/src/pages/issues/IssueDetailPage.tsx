@@ -148,7 +148,14 @@ export const IssueDetailPage: React.FC = () => {
     return (
         <div className="container max-w-6xl mx-auto px-4 py-8">
             <PageHeader
-                title={`${formatIssueType(issue.issueType)}`}
+                title={
+                    <>
+                        {formatIssueType(issue.issueType)}
+                        <span className="text-base text-gray-500 font-normal ml-2">
+                            #{issue.issueId}
+                        </span>
+                    </>
+                }
                 subtitle={park && trail ? `${park.name} • ${trail.name}` : 'Loading location...'}
                 action={
                     issue.status !== IssueStatusEnum.RESOLVED && canResolveIssue ? (
@@ -169,9 +176,11 @@ export const IssueDetailPage: React.FC = () => {
                     <div className="flex justify-between mb-6">
                         <div className="flex items-center">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                    {formatIssueType(issue.issueType)}
-                                </h3>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <h3 className="text-lg font-semibold text-gray-900">
+                                        {formatIssueType(issue.issueType)}
+                                    </h3>
+                                </div>
                                 <p className="text-sm text-gray-500">
                                     Reported {formatDate(issue.createdAt)}
                                 </p>

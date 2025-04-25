@@ -50,9 +50,14 @@ export const IssueCard: React.FC<IssueCardProps> = ({
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900">
-                                {formatIssueType(issue.issueType)}
-                            </h3>
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    {formatIssueType(issue.issueType)} 
+                                    <span className="text-sm text-gray-500 font-normal ml-1">
+                                        #{issue.issueId}
+                                    </span>
+                                </h3>
+                            </div>
                             <p className="text-sm text-gray-500">Reported {getFormattedDate()}</p>
                         </div>
                     </div>
