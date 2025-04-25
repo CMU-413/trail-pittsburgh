@@ -5,7 +5,6 @@ import { IssueRepository } from '@/repositories';
 import {
     CreateIssueInput
 } from '@/schemas/issueSchema';
-import { IssueRecord } from '@/types/issueTypes';
 
 export class IssueService {
     private readonly issueRepository: IssueRepository;
@@ -16,19 +15,9 @@ export class IssueService {
         this.issueImageBucket = imagesBucket;
     }
 
-    private async buildIssueWithImage(issue: IssueRecord) {
-        const { issueImage } = issue;
+    private async getIssueImage(imageKey: string) {
 
-        if (!issueImage) {
-            return issue;
-        }
-
-        const image = await this.issueImageBucket.getDownloadUrl(issueImage);
-
-        return {
-            image,
-            ...issue
-        };
+        return this.issueImageBucket.getDownloadUrl(imageKey);
     }
 
     public async getIssue(issueId: number) {
@@ -37,7 +26,12 @@ export class IssueService {
             return null;
         }
 
-        return this.buildIssueWithImage(issue);
+        const { issueImage } = issue;
+
+        return {
+            ...issue,
+            ...(issueImage && { image: this.getIssueImage(issueImage) })
+        };
     }
 
     public async getAllIssues() {
@@ -92,6 +86,11 @@ export class IssueService {
             return null;
         }
 
-        return this.buildIssueWithImage(issue);
+        const { issueImage } = issue;
+
+        return {
+            ...issue,
+            ...(issueImage && { image: this.getIssueImage(issueImage) })
+        };
     }
 }
