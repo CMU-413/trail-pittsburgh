@@ -1,7 +1,9 @@
 // src/components/ui/UrgencySelect.tsx
 import React from 'react';
 import { IssueUrgencyEnum } from '../../types';
-import { getUrgencyLabel, getUrgencyColor, getUrgencyIconSize } from '../../utils/issueUrgencyUtils';
+import {
+    getUrgencyLabel, getUrgencyColor, getUrgencyIconSize 
+} from '../../utils/issueUrgencyUtils';
 
 interface UrgencySelectProps {
     value: IssueUrgencyEnum;

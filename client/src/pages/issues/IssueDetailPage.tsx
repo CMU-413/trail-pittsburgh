@@ -121,7 +121,7 @@ export const IssueDetailPage: React.FC = () => {
 
     // Format issue type for display
     const formatIssueType = (type: string): string => {
-        return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+        return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
     };
 
     if (isLoading) {

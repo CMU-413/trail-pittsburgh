@@ -1,7 +1,9 @@
 // src/components/issues/IssueCard.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Issue, Park, Trail } from '../../types';
+import {
+    Issue, Park, Trail 
+} from '../../types';
 import { getUrgencyLevelIndex } from '../../utils/issueUrgencyUtils';
 import { Card } from '../ui/Card';
 import { IssueStatusBadge } from './IssueStatusBadge';
@@ -39,7 +41,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
     };
 
     const formatIssueType = (type: string): string => {
-        return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+        return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
     };
 
     return (
