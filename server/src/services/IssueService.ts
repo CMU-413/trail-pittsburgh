@@ -17,7 +17,15 @@ export class IssueService {
 
     private async getIssueImage(imageKey: string) {
 
-        return this.issueImageBucket.getDownloadUrl(imageKey);
+        const signedUrl = await this.issueImageBucket.getDownloadUrl(imageKey);
+
+        const { contentType, metadata } = await this.issueImageBucket.getImageMetadata(imageKey);
+
+        return {
+            ...signedUrl,
+            contentType,
+            metadata: metadata ?? {}
+        };
     }
 
     public async getIssue(issueId: number) {
@@ -30,7 +38,7 @@ export class IssueService {
 
         return {
             ...issue,
-            ...(issueImage && { image: this.getIssueImage(issueImage) })
+            ...(issueImage && { image: await this.getIssueImage(issueImage) })
         };
     }
 
@@ -90,7 +98,7 @@ export class IssueService {
 
         return {
             ...issue,
-            ...(issueImage && { image: this.getIssueImage(issueImage) })
+            ...(issueImage && { image: await this.getIssueImage(issueImage) })
         };
     }
 }
