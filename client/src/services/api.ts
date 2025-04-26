@@ -1,5 +1,6 @@
 import {
-    Park, Trail, Issue, IssueParams, IssueStatusEnum, IssueUrgencyEnum
+    Park, Trail, Issue, IssueParams, IssueStatusEnum, IssueUrgencyEnum,
+    IssueTypeEnum
 } from '../types';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL  }/api`;
@@ -241,8 +242,8 @@ export const issueApi = {
 
     updateIssue: async (issueId: number, data: {
         description?: string;
-        urgency?: number;
-        issueType?: string;
+        urgency?: IssueUrgencyEnum;
+        issueType?: IssueTypeEnum;
     }): Promise<Issue> => {
         const response = await fetch(`${API_BASE_URL}/issues/${issueId}`, {
             method: 'PUT',

@@ -20,7 +20,13 @@ import {
     parkApi, trailApi, issueApi
 } from '../../services/api';
 import { useAuth } from '../../providers/AuthProvider';
-import { getUrgencyLevelIndex } from '../../utils/issueUrgencyUtils';
+import { 
+    getUrgencyLevelIndex,
+    issueUrgencyFrontendToEnum,
+    issueUrgencyEnumToFrontend
+} from '../../utils/issueUrgencyUtils';
+import { issueTypeFrontendToEnum } from '../../utils/issueTypeUtils';
+import { IssueUrgencyEnum, IssueTypeEnum } from '../../types/index';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -82,7 +88,7 @@ export const IssueDetailPage: React.FC = () => {
 
                 setIssue(issueData);
                 setEditedDescription(issueData.description || '');
-                setEditedUrgency(issueData.urgency);
+                setEditedUrgency(issueUrgencyEnumToFrontend(issueData.urgency));
                 setEditedIssueType(issueData.issueType);
 
                 // Fetch related park
@@ -137,19 +143,21 @@ export const IssueDetailPage: React.FC = () => {
             
             const updateData: {
                 description?: string;
-                urgency?: number;
-                issueType?: string;
+                urgency?: IssueUrgencyEnum;
+                issueType?: IssueTypeEnum;
             } = {};
             
             // Only include fields that have changed
             if (editedDescription !== issue.description) {
                 updateData.description = editedDescription;
             }
-            if (editedUrgency !== issue.urgency) {
-                updateData.urgency = editedUrgency;
+            const editedUrgencyEnum = issueUrgencyFrontendToEnum(editedUrgency);
+            if (editedUrgencyEnum !== issue.urgency) {
+                updateData.urgency = editedUrgencyEnum;
             }
-            if (editedIssueType !== issue.issueType) {
-                updateData.issueType = editedIssueType;
+            const editedIssueTypeEnum = issueTypeFrontendToEnum(editedIssueType);
+            if (editedIssueTypeEnum !== issue.issueType) {
+                updateData.issueType = editedIssueTypeEnum;
             }
     
             if (Object.keys(updateData).length > 0) {
@@ -227,7 +235,7 @@ export const IssueDetailPage: React.FC = () => {
                                         setIsEditing(false);
                                         // Reset fields to original values
                                         setEditedDescription(issue.description || '');
-                                        setEditedUrgency(issue.urgency);
+                                        setEditedUrgency(issueUrgencyEnumToFrontend(issue.urgency));
                                         setEditedIssueType(issue.issueType);
                                     }}
                                     disabled={isSaving}

@@ -43,3 +43,37 @@ export const getUrgencyIconSize = (level: IssueUrgencyEnum): number => {
     default: return 5;
     }
 }; 
+
+export const issueUrgencyFrontendToEnum = (urgency: number): IssueUrgencyEnum => {
+    switch (urgency) {
+    case 1:
+        return IssueUrgencyEnum.VERY_LOW;
+    case 2:
+        return IssueUrgencyEnum.LOW;
+    case 3:
+        return IssueUrgencyEnum.MEDIUM;
+    case 4:
+        return IssueUrgencyEnum.HIGH;
+    case 5:
+        return IssueUrgencyEnum.VERY_HIGH;
+    default:
+        return IssueUrgencyEnum.VERY_LOW;
+    }
+};
+
+export const issueUrgencyEnumToFrontend = (urgency: IssueUrgencyEnum): number => {
+    switch (urgency) {
+    case IssueUrgencyEnum.VERY_LOW:
+        return 1;
+    case IssueUrgencyEnum.LOW:
+        return 2;
+    case IssueUrgencyEnum.MEDIUM:
+        return 3;
+    case IssueUrgencyEnum.HIGH:
+        return 4;
+    case IssueUrgencyEnum.VERY_HIGH:
+        return 5;
+    default:
+        return 1;
+    }
+};
