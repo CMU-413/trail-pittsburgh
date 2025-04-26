@@ -136,4 +136,31 @@ export class IssueRepository {
             throw error;
         }
     }
+
+    public async updateIssue(issueId: number, data: Partial<{
+        description?: string;
+        urgency: number;
+        issueType: string;
+    }>) {
+        try {
+            return await prisma.issue.update({
+                where: { issueId: issueId },
+                data: {
+                    ...(data.description !== undefined && { description: data.description }),
+                    ...(data.urgency !== undefined && { urgency: data.urgency }),
+                    ...(data.issueType !== undefined && { issueType: data.issueType }),
+                },
+                include: {
+                    park: true,
+                    trail: true
+                }
+            });
+        } catch (error) {
+            if (isNotFoundError(error)) {
+                return null;
+            }
+            console.error('Error updating issue:', error);
+            throw error;
+        }
+    }
 }

@@ -58,10 +58,10 @@ const Location: React.FC<LocationProps> = ({
         if (!readOnly) {
             marker.current.on('dragend', (e: LeafletMarkerDragEvent) => {
                 const newPos = e.target.getLatLng();
-                setLat(newPos.latitude);
+                setLat(newPos.lat);
                 setLon(newPos.lng);
                 if (onLocationSelected) {
-                    onLocationSelected(newPos.latitude, newPos.lng);
+                    onLocationSelected(newPos.lat, newPos.lng);
                 }
             });
         }
@@ -105,7 +105,7 @@ const Location: React.FC<LocationProps> = ({
         // Click handler for the map (only if not readOnly)
         if (!readOnly) {
             leafletMap.current.on('click', (e: LeafletMouseEvent) => {
-                const { latitude: newLat, lng: newLon } = e.latlng;
+                const { lat: newLat, lng: newLon } = e.latlng;
                 updateMarker(newLat, newLon);
                 setLat(newLat);
                 setLon(newLon);

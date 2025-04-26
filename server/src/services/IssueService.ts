@@ -91,4 +91,18 @@ export class IssueService {
 
         return this.buildIssueWithImage(issue);
     }
+
+    public async updateIssue(issueId: number, data: {
+        description?: string;
+        urgency?: number;
+        issueType?: string;
+    }) {
+        const issue = await this.issueRepository.updateIssue(issueId, data);
+        
+        if (!issue) {
+            return null;
+        }
+        
+        return this.buildIssueWithImage(issue);
+    }
 }

@@ -238,4 +238,19 @@ export const issueApi = {
             throw new Error(errorMessage);
         }
     },
+
+    updateIssue: async (issueId: number, data: {
+        description?: string;
+        urgency?: number;
+        issueType?: string;
+    }): Promise<Issue> => {
+        const response = await fetch(`${API_BASE_URL}/issues/${issueId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+            credentials: 'include'
+        }).then(handleResponse);
+        
+        return response.issue;
+    },
 };
