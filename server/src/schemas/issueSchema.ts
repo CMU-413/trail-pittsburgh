@@ -38,7 +38,14 @@ export const createIssueSchema = z.object({
         reporterEmail: z.string(),
         notifyReporter: z.boolean().default(false),
         description: z.string().optional(),
-        imageType: z.enum(['image/jpeg', 'image/png', 'image/heic']).optional(),
+        imageMetadata: z.object({
+            contentType: z.enum(['image/jpeg', 'image/png', 'image/heic']),
+            headers: z.object({
+                'x-goog-meta-capturedAt': z.string(),
+                'x-goog-meta-latitude': z.string(),
+                'x-goog-meta-longitude': z.string(),
+            }).optional()
+        }).optional(),
     })
 });
 

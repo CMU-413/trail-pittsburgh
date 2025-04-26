@@ -26,7 +26,14 @@ export function createBucket(bucketName: string): Bucket {
 export type SignedUrl = {
     key: string;
     url: string;
-}
+};
+
+export type FileMetadata = {
+    contentType: string;
+    headers?: {
+        [key: string]: string | undefined;
+    }
+};
 
 export class GCSBucket {
     private bucket: Bucket;
@@ -55,13 +62,16 @@ export class GCSBucket {
         };
     }
 
-    async getUploadUrl(key: string, contentType: string): Promise<SignedUrl> {
+    async getUploadUrl(key: string, metadata: FileMetadata): Promise<SignedUrl> {
         const file = this.bucket.file(key);
+        const { contentType, headers } = metadata;
+
         const options: GetSignedUrlConfig = {
             version: 'v4',
             action: 'write',
             expires: Date.now() + GCSBucket.UPLOAD_BUCKET_TIMEOUT * 1000,
-            contentType
+            contentType,
+            extensionHeaders: headers
         };
 
         const [url] = await file.getSignedUrl(options);

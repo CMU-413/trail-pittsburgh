@@ -47,16 +47,16 @@ export class IssueService {
     }
 
     public async createIssue(data: CreateIssueInput) {
-        const { imageType } = data;
+        const { imageMetadata } = data;
         let key: string | undefined;
         let signedUrl: SignedUrl | undefined;
 
-        if (imageType) {
+        if (imageMetadata) {
             // Generate image key
-            const ext = imageType.split('/')[1];
+            const ext = imageMetadata.contentType.split('/')[1];
             key = `${uuid()}.${ext}`;
 
-            signedUrl = await this.issueImageBucket.getUploadUrl(key, imageType);
+            signedUrl = await this.issueImageBucket.getUploadUrl(key, imageMetadata);
         }
 
         const newIssueInput = {
