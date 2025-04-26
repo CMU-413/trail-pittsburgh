@@ -36,6 +36,14 @@ export const Select: React.FC<SelectProps> = ({
         }
     };
 
+    const defaultOptions = options.filter((option) => option.value === '');
+    const otherOptions = options.filter((option) => option.value !== '');
+
+    const sortedOptions = [
+        ...defaultOptions,
+        ...otherOptions.sort((a, b) => a.label.localeCompare(b.label)),
+    ];
+
     return (
         <div className={`${widthClass} ${className} mb-2`}>
             {label && (
@@ -80,7 +88,7 @@ export const Select: React.FC<SelectProps> = ({
                     disabled={disabled}
                     {...props}
                 >
-                    {options.map((option) => (
+                    {sortedOptions.map((option) => (
                         <option
                             key={option.value}
                             value={option.value}
