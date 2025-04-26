@@ -69,3 +69,23 @@ export const resolveIssueSchema = {
         image_type: z.string().optional(), // For uploaded images
     }),
 };
+
+export const updateIssueSchema = z.object({
+    params: z.object({
+        issueId: z.coerce.number(),
+    }),
+    body: z.object({
+        description: z.string().optional(),
+        urgency: z.number().min(1).max(5).optional(),
+        issueType: z.string().optional(),
+    }).refine((data) => {
+        // At least one field must be provided
+        return data.description !== undefined || 
+               data.urgency !== undefined || 
+               data.issueType !== undefined;
+    }, {
+        message: 'At least one field must be provided for update'
+    })
+});
+
+export type UpdateIssueInput = z.output<typeof updateIssueSchema>['body'];

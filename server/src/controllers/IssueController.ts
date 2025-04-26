@@ -17,6 +17,7 @@ export class IssueController {
         this.getIssuesByPark = this.getIssuesByPark.bind(this);
         this.getIssuesByTrail = this.getIssuesByTrail.bind(this);
         this.getIssuesByUrgency = this.getIssuesByUrgency.bind(this);
+        this.updateIssue = this.updateIssue.bind(this);
     }
 
     public async getIssue(req: express.Request, res: express.Response) {
@@ -125,6 +126,29 @@ export class IssueController {
         } catch (error) {
             logger.error(`Error getting issues by urgency ${req.params.urgency}:`, error);
             res.status(500).json({ message: 'Failed to retrieve issues by urgency' });
+        }
+    }
+
+    public async updateIssue(req: express.Request, res: express.Response) {
+        const issueId = Number(req.params.issueId);
+        
+        try {
+            const { description, urgency, issueType } = req.body;
+            const issue = await this.issueService.updateIssue(issueId, {
+                description,
+                urgency,
+                issueType
+            });
+            
+            if (!issue) {
+                res.status(404).json({ message: 'Issue not found' });
+                return;
+            }
+            
+            res.json({ issue });
+        } catch (error) {
+            logger.error(`Error updating issue ${issueId}`, error);
+            res.status(500).json({ message: 'Failed to update issue' });
         }
     }
 }

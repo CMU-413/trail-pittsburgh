@@ -12,7 +12,8 @@ import {
     getIssuesByTrailSchema,
     getIssuesByUrgencySchema,
     getIssueSchema,
-    updateIssueStatusSchema
+    updateIssueStatusSchema,
+    updateIssueSchema
 } from '@/schemas/issueSchema';
 import { IssueService } from '@/services/IssueService';
 
@@ -51,5 +52,12 @@ router.delete(
     validateRequest(deleteIssueSchema),
     issueController.deleteIssue
 ); // Delete an issue
+
+router.put(
+    '/:issueId',
+    authenticateToken,
+    validateRequest(updateIssueSchema),
+    issueController.updateIssue
+); // Update an issue
 
 export { router as issueRouter };

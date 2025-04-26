@@ -32,6 +32,12 @@ export const IssueDetailPage: React.FC = () => {
     const [isResolving, setIsResolving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedDescription, setEditedDescription] = useState('');
+    const [editedUrgency, setEditedUrgency] = useState<number>(1);
+    const [editedIssueType, setEditedIssueType] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+
     const { user } = useAuth();
 
     const formatDate = (dateString: string, formatStr: string = 'PPP p') => {
@@ -74,6 +80,9 @@ export const IssueDetailPage: React.FC = () => {
                 }
 
                 setIssue(issueData);
+                setEditedDescription(issueData.description || '');
+                setEditedUrgency(issueData.urgency);
+                setEditedIssueType(issueData.issueType);
 
                 // Fetch related park
                 const parkData = await parkApi.getPark(issueData.parkId);
@@ -116,6 +125,53 @@ export const IssueDetailPage: React.FC = () => {
         }
     };
 
+    const handleSaveChanges = async () => {
+        if (!issue || !issueId) {
+            return;
+        }
+    
+        try {
+            setIsSaving(true);
+            const id = parseInt(issueId, 10);
+            
+            const updateData: {
+                description?: string;
+                urgency?: number;
+                issueType?: string;
+            } = {};
+            
+            // Only include fields that have changed
+            if (editedDescription !== issue.description) {
+                updateData.description = editedDescription;
+            }
+            if (editedUrgency !== issue.urgency) {
+                updateData.urgency = editedUrgency;
+            }
+            if (editedIssueType !== issue.issueType) {
+                updateData.issueType = editedIssueType;
+            }
+    
+            if (Object.keys(updateData).length > 0) {
+                const updatedIssue = await issueApi.updateIssue(id, updateData);
+                
+                if (updatedIssue) {
+                    setIssue(updatedIssue);
+                    setIsEditing(false);
+                }
+            } else {
+                setIsEditing(false);
+            }
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('Error updating issue:', err);
+            alert('Failed to update issue. Please try again.');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+    
+    // Grant all user with edit access for now
+    const canEditIssue = user !== null;
     const canResolveIssue = user !== null;
 
     if (isLoading) {
@@ -145,16 +201,56 @@ export const IssueDetailPage: React.FC = () => {
                 title={`${issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)} Issue`}
                 subtitle={park && trail ? `${park.name} • ${trail.name}` : 'Loading location...'}
                 action={
-                    issue.status !== 'resolved' && canResolveIssue ? (
-                        <Button
-                            variant="success"
-                            onClick={handleResolveIssue}
-                            isLoading={isResolving}
-                            disabled={isResolving}
-                        >
-                            {isResolving ? 'Resolving...' : 'Resolve Issue'}
-                        </Button>
-                    ) : null
+                    <div className="flex gap-3">
+                        {/* Edit button - only shown when not editing no matter issue is resolved or not */}
+                        {canEditIssue && !isEditing && (
+                            <Button
+                                variant="secondary"
+                                onClick={() => setIsEditing(true)}
+                            >
+                                Edit Issue
+                            </Button>
+                        )}
+                        
+                        {/* Cancel and Save buttons - only shown when editing */}
+                        {isEditing && (
+                            <>
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => {
+                                        setIsEditing(false);
+                                        // Reset fields to original values
+                                        setEditedDescription(issue.description || '');
+                                        setEditedUrgency(issue.urgency);
+                                        setEditedIssueType(issue.issueType);
+                                    }}
+                                    disabled={isSaving}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    onClick={handleSaveChanges}
+                                    isLoading={isSaving}
+                                    disabled={isSaving}
+                                >
+                                    {isSaving ? 'Saving...' : 'Save Changes'}
+                                </Button>
+                            </>
+                        )}
+                        
+                        {/* Resolve button - shown when not editing */}
+                        {issue.status !== 'resolved' && canResolveIssue && !isEditing && (
+                            <Button
+                                variant="success"
+                                onClick={handleResolveIssue}
+                                isLoading={isResolving}
+                                disabled={isResolving}
+                            >
+                                {isResolving ? 'Resolving...' : 'Resolve Issue'}
+                            </Button>
+                        )}
+                    </div>
                 }
             />
 
@@ -163,16 +259,38 @@ export const IssueDetailPage: React.FC = () => {
                     <div className="flex justify-between mb-6">
                         <div className="flex items-center">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                    {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
-                                </h3>
-                                <p className="text-sm text-gray-500">
-                                    Reported {formatDate(issue.createdAt)}
-                                </p>
-                                {issue.resolvedAt && (
-                                    <p className="text-sm text-green-600">
-                                        Resolved {formatDate(issue.resolvedAt)}
-                                    </p>
+                                {isEditing ? (
+                                    <div className="space-y-1">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                        Issue Type
+                                        </label>
+                                        <select
+                                            value={editedIssueType}
+                                            onChange={(e) => setEditedIssueType(e.target.value)}
+                                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                        >
+                                            <option value="obstruction">Obstruction (tree down, etc.)</option>
+                                            <option value="erosion">Trail Erosion</option>
+                                            <option value="flooding">Flooding</option>
+                                            <option value="signage">Damaged/Missing Signage</option>
+                                            <option value="vandalism">Vandalism</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <h3 className="text-lg font-semibold text-gray-900">
+                                            {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                        Reported {formatDate(issue.createdAt)}
+                                        </p>
+                                        {issue.resolvedAt && (
+                                            <p className="text-sm text-green-600">
+                                            Resolved {formatDate(issue.resolvedAt)}
+                                            </p>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -181,7 +299,16 @@ export const IssueDetailPage: React.FC = () => {
 
                     <div className="mb-6">
                         <h4 className="text-sm font-medium text-gray-500 mb-2">Description</h4>
-                        <p className="text-gray-700 whitespace-pre-line">{issue.description}</p>
+                        {isEditing ? (
+                            <textarea
+                                value={editedDescription}
+                                onChange={(e) => setEditedDescription(e.target.value)}
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-h-32"
+                                rows={4}
+                            />
+                        ) : (
+                            <p className="text-gray-700 whitespace-pre-line">{issue.description}</p>
+                        )}
                     </div>
 
                     {issue.image && (
@@ -258,24 +385,40 @@ export const IssueDetailPage: React.FC = () => {
                         <div className="space-y-4">
                             <div>
                                 <p className="text-sm font-medium text-gray-500">Urgency</p>
-                                <div className="flex items-center mt-1">
-                                    <div className="flex">
-                                        {Array.from({ length: 5 }).map((_, i) => (
-                                            <svg
-                                                key={i}
-                                                className={`w-4 h-4 ${i < issue.urgency ? 'text-red-500' : 'text-gray-300'}`}
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                                <path d="M10.865 2.23a1 1 0 00-1.73 0L1.322 16.23A1 1 0 002.152 18h15.696a1 1 0 00.83-1.77L10.865 2.23zM10 14a1 1 0 110 2 1 1 0 010-2zm-.75-7.5a.75.75 0 011.5 0v4.5a.75.75 0 01-1.5 0V6.5z" />
-                                            </svg>
-                                        ))}
+                                {isEditing ? (
+                                    <div className="mt-1">
+                                        <select
+                                            value={editedUrgency}
+                                            onChange={(e) => setEditedUrgency(Number(e.target.value))}
+                                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                        >
+                                            {[1, 2, 3, 4, 5].map((level) => (
+                                                <option key={level} value={level}>
+                                                    {level} - {['Low', 'Medium-Low', 'Medium', 'Medium-High', 'High'][level - 1]}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
-                                    <span className="ml-2 text-sm text-gray-600">
-                                        {issue.urgency} of 5
-                                    </span>
-                                </div>
+                                ) : (
+                                    <div className="flex items-center mt-1">
+                                        <div className="flex">
+                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                <svg
+                                                    key={i}
+                                                    className={`w-4 h-4 ${i < issue.urgency ? 'text-red-500' : 'text-gray-300'}`}
+                                                    fill="currentColor"
+                                                    viewBox="0 0 20 20"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path d="M10.865 2.23a1 1 0 00-1.73 0L1.322 16.23A1 1 0 002.152 18h15.696a1 1 0 00.83-1.77L10.865 2.23zM10 14a1 1 0 110 2 1 1 0 010-2zm-.75-7.5a.75.75 0 011.5 0v4.5a.75.75 0 01-1.5 0V6.5z" />
+                                                </svg>
+                                            ))}
+                                        </div>
+                                        <span className="ml-2 text-sm text-gray-600">
+                                            {issue.urgency} of 5
+                                        </span>
+                                    </div>
+                                )}
                             </div>
 
                             {issue.status !== 'resolved' && <IssueTimer issue={issue} />}
