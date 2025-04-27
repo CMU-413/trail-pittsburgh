@@ -4,7 +4,7 @@ import {
     Link, useParams, useNavigate
 } from 'react-router-dom';
 import { 
-    Issue, Park, Trail
+    Issue, Park, Trail, IssueStatusEnum
 } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
@@ -20,6 +20,13 @@ import {
     parkApi, trailApi, issueApi
 } from '../../services/api';
 import { useAuth } from '../../providers/AuthProvider';
+import { 
+    getUrgencyLevelIndex,
+    issueUrgencyFrontendToEnum,
+    issueUrgencyEnumToFrontend
+} from '../../utils/issueUrgencyUtils';
+import { issueTypeFrontendToEnum } from '../../utils/issueTypeUtils';
+import { IssueUrgencyEnum, IssueTypeEnum } from '../../types/index';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -81,7 +88,7 @@ export const IssueDetailPage: React.FC = () => {
 
                 setIssue(issueData);
                 setEditedDescription(issueData.description || '');
-                setEditedUrgency(issueData.urgency);
+                setEditedUrgency(issueUrgencyEnumToFrontend(issueData.urgency));
                 setEditedIssueType(issueData.issueType);
 
                 // Fetch related park
@@ -112,7 +119,7 @@ export const IssueDetailPage: React.FC = () => {
             setIsResolving(true);
             const id = parseInt(issueId, 10);
 
-            const updatedIssue = await issueApi.updateIssueStatus(id, 'resolved');
+            const updatedIssue = await issueApi.updateIssueStatus(id, IssueStatusEnum.RESOLVED);
             
             if (updatedIssue) {
                 setIssue(updatedIssue);
@@ -136,19 +143,21 @@ export const IssueDetailPage: React.FC = () => {
             
             const updateData: {
                 description?: string;
-                urgency?: number;
-                issueType?: string;
+                urgency?: IssueUrgencyEnum;
+                issueType?: IssueTypeEnum;
             } = {};
             
             // Only include fields that have changed
             if (editedDescription !== issue.description) {
                 updateData.description = editedDescription;
             }
-            if (editedUrgency !== issue.urgency) {
-                updateData.urgency = editedUrgency;
+            const editedUrgencyEnum = issueUrgencyFrontendToEnum(editedUrgency);
+            if (editedUrgencyEnum !== issue.urgency) {
+                updateData.urgency = editedUrgencyEnum;
             }
-            if (editedIssueType !== issue.issueType) {
-                updateData.issueType = editedIssueType;
+            const editedIssueTypeEnum = issueTypeFrontendToEnum(editedIssueType);
+            if (editedIssueTypeEnum !== issue.issueType) {
+                updateData.issueType = editedIssueTypeEnum;
             }
     
             if (Object.keys(updateData).length > 0) {
@@ -174,6 +183,11 @@ export const IssueDetailPage: React.FC = () => {
     const canEditIssue = user !== null;
     const canResolveIssue = user !== null;
 
+    // Format issue type for display
+    const formatIssueType = (type: string): string => {
+        return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+    };
+
     if (isLoading) {
         return <LoadingSpinner />;
     }
@@ -196,10 +210,10 @@ export const IssueDetailPage: React.FC = () => {
     }
 
     return (
-        <div>
+        <div className="container max-w-6xl mx-auto px-4 py-8">
             <PageHeader
-                title={`${issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)} Issue`}
-                subtitle={park && trail ? `${park.name} • ${trail.name}` : 'Loading location...'}
+                title={`${formatIssueType(issue.issueType)}`}
+                subtitle={`#${issue.issueId} • ${park && trail ? `${park.name} • ${trail.name}` : 'Loading location...'}`}
                 action={
                     <div className="flex gap-3">
                         {/* Edit button - only shown when not editing no matter issue is resolved or not */}
@@ -221,7 +235,7 @@ export const IssueDetailPage: React.FC = () => {
                                         setIsEditing(false);
                                         // Reset fields to original values
                                         setEditedDescription(issue.description || '');
-                                        setEditedUrgency(issue.urgency);
+                                        setEditedUrgency(issueUrgencyEnumToFrontend(issue.urgency));
                                         setEditedIssueType(issue.issueType);
                                     }}
                                     disabled={isSaving}
@@ -238,9 +252,8 @@ export const IssueDetailPage: React.FC = () => {
                                 </Button>
                             </>
                         )}
-                        
                         {/* Resolve button - shown when not editing */}
-                        {issue.status !== 'resolved' && canResolveIssue && !isEditing && (
+                        {issue.status !== IssueStatusEnum.RESOLVED && canResolveIssue && !isEditing && (
                             <Button
                                 variant="success"
                                 onClick={handleResolveIssue}
@@ -402,26 +415,26 @@ export const IssueDetailPage: React.FC = () => {
                                 ) : (
                                     <div className="flex items-center mt-1">
                                         <div className="flex">
-                                            {Array.from({ length: 5 }).map((_, i) => (
-                                                <svg
-                                                    key={i}
-                                                    className={`w-4 h-4 ${i < issue.urgency ? 'text-red-500' : 'text-gray-300'}`}
-                                                    fill="currentColor"
-                                                    viewBox="0 0 20 20"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <path d="M10.865 2.23a1 1 0 00-1.73 0L1.322 16.23A1 1 0 002.152 18h15.696a1 1 0 00.83-1.77L10.865 2.23zM10 14a1 1 0 110 2 1 1 0 010-2zm-.75-7.5a.75.75 0 011.5 0v4.5a.75.75 0 01-1.5 0V6.5z" />
-                                                </svg>
-                                            ))}
+                                            {Array.from({ length: 5 }).map((_, i) => {
+                                                const currentLevel = getUrgencyLevelIndex(issue.urgency);
+                                                return (
+                                                    <svg
+                                                        key={i}
+                                                        className={`w-4 h-4 ${i <= currentLevel ? 'text-red-500' : 'text-gray-300'}`}
+                                                        fill="currentColor"
+                                                        viewBox="0 0 20 20"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                    >
+                                                        <path d="M10.865 2.23a1 1 0 00-1.73 0L1.322 16.23A1 1 0 002.152 18h15.696a1 1 0 00.83-1.77L10.865 2.23zM10 14a1 1 0 110 2 1 1 0 010-2zm-.75-7.5a.75.75 0 011.5 0v4.5a.75.75 0 01-1.5 0V6.5z" />
+                                                    </svg>
+                                                );
+                                            })}
                                         </div>
-                                        <span className="ml-2 text-sm text-gray-600">
-                                            {issue.urgency} of 5
-                                        </span>
                                     </div>
                                 )}
                             </div>
 
-                            {issue.status !== 'resolved' && <IssueTimer issue={issue} />}
+                            {issue.status !== IssueStatusEnum.RESOLVED && <IssueTimer issue={issue} />}
 
                             <div>
                                 <p className="text-sm font-medium text-gray-500">Location</p>

@@ -1,5 +1,7 @@
 import { UserRepository } from '@/repositories';
 import { UserService } from '@/services';
+import { UserRoleEnum } from '@prisma/client';
+
 
 jest.mock('@/repositories/UserRepository');
 
@@ -11,8 +13,7 @@ describe('UserService', () => {
         userId: 1,
         username: 'test_user',
         email: 'test@example.com',
-        isAdmin: false,
-        permission: 'read',
+        role: UserRoleEnum.ROLE_USER,
         profileImage: 'default.jpg',
         isActive: true,
         createdAt: new Date(),
@@ -32,8 +33,7 @@ describe('UserService', () => {
         expect(userRepositoryMock.createUser).toHaveBeenCalledWith(
             'test_user',
             'test@example.com',
-            false,
-            'read',
+            UserRoleEnum.ROLE_USER,
             'default.jpg',
             true
         );
@@ -43,8 +43,7 @@ describe('UserService', () => {
     test('should create a new user with custom values', async () => {
         const customUser = {
             ...mockUser,
-            isAdmin: true,
-            permission: 'write',
+            role: UserRoleEnum.ROLE_ADMIN,
             profileImage: 'custom.jpg',
             isActive: false
         };
@@ -54,8 +53,7 @@ describe('UserService', () => {
         const result = await userService.createUser(
             'test_user',
             'test@example.com',
-            true,
-            'write',
+            UserRoleEnum.ROLE_ADMIN,
             'custom.jpg',
             false
         );
@@ -63,8 +61,7 @@ describe('UserService', () => {
         expect(userRepositoryMock.createUser).toHaveBeenCalledWith(
             'test_user',
             'test@example.com',
-            true,
-            'write',
+            UserRoleEnum.ROLE_ADMIN,
             'custom.jpg',
             false
         );

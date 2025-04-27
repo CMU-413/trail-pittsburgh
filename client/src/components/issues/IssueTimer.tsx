@@ -1,6 +1,6 @@
 // src/components/issues/IssueTimer.tsx
 import React, { useState, useEffect } from 'react';
-import { Issue } from '../../types';
+import { Issue, IssueStatusEnum } from '../../types';
 import { differenceInDays } from 'date-fns/differenceInDays';
 import { differenceInHours } from 'date-fns/differenceInHours';
 import { differenceInMinutes } from 'date-fns/differenceInMinutes';
@@ -14,7 +14,7 @@ interface IssueTimerProps {
 export const IssueTimer: React.FC<IssueTimerProps> = ({ issue }) => {
     const [timeDisplay, setTimeDisplay] = useState<string>('');
     const [statusIndicator, setStatusIndicator] = useState<string>('');
-    const isResolved = issue.status === 'resolved';
+    const isResolved = issue.status === IssueStatusEnum.RESOLVED;
 
     // Safe date parsing function
     const safeParseISO = (dateString?: string): Date | null => {

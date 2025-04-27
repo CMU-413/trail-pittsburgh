@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Issue, Park, Trail 
+    Issue, Park, Trail, IssueStatusEnum 
 } from '../../types';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -35,8 +35,8 @@ export const DashboardPage: React.FC = () => {
 
                 // Calculate statistics
                 setTotalIssues(filteredIssues.length);
-                setOpenIssues(filteredIssues.filter((i) => i.status === 'open').length);
-                setResolvedIssues(filteredIssues.filter((i) => i.status === 'resolved').length);
+                setOpenIssues(filteredIssues.filter((i) => i.status === IssueStatusEnum.OPEN).length);
+                setResolvedIssues(filteredIssues.filter((i) => i.status === IssueStatusEnum.RESOLVED).length);
 
                 // Fetch parks and trails for display
                 const parksData = await parkApi.getParks();

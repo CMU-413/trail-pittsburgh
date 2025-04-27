@@ -10,6 +10,7 @@ export const createParkSchema = z.object({
     body: z.object({
         name: z.string(),
         county: z.string(),
+        isActive: z.boolean().default(true).optional(),
     })
 });
 
@@ -29,3 +30,6 @@ export const deleteParkSchema = z.object({
         parkId: z.coerce.number(),
     })
 });
+
+export type CreatePark = z.infer<typeof createParkSchema>['body'];
+export type UpdatePark = z.infer<typeof updateParkSchema>['body'];

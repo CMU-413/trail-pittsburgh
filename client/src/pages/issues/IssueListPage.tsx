@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-    Issue, Park, Trail, IssueStatus
+    Issue, Park, Trail, IssueStatusEnum
 } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
@@ -20,6 +20,7 @@ import { parseISO } from 'date-fns/parseISO';
 import { 
     parkApi, trailApi, issueApi
 } from '../../services/api';
+import { getUrgencyLevelIndex } from '../../utils/issueUrgencyUtils';
 
 // Define filter and sort options
 type DateFilter = 'all' | 'week' | 'month' | '3months' | 'year';
@@ -30,7 +31,7 @@ export const IssueListPage: React.FC = () => {
     const queryParams = new URLSearchParams(location.search);
     const initialParkId = queryParams.get('parkId') ? parseInt(queryParams.get('parkId')!, 10) : undefined;
     const initialTrailId = queryParams.get('trailId') ? parseInt(queryParams.get('trailId')!, 10) : undefined;
-    const initialStatus = queryParams.get('status') as IssueStatus | undefined || undefined;
+    const initialStatus = queryParams.get('status') as IssueStatusEnum | undefined || undefined;
 
     const [issues, setIssues] = useState<Issue[]>([]);
     const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
@@ -42,7 +43,7 @@ export const IssueListPage: React.FC = () => {
     // Filters
     const [selectedParkId, setSelectedParkId] = useState<number | undefined>(initialParkId);
     const [selectedTrailId, setSelectedTrailId] = useState<number | undefined>(initialTrailId);
-    const [selectedStatus, setSelectedStatus] = useState<IssueStatus | 'all'>(initialStatus || 'all');
+    const [selectedStatus, setSelectedStatus] = useState<IssueStatusEnum | 'all'>(initialStatus || 'all');
     const [dateFilter, setDateFilter] = useState<DateFilter>('all');
     const [sortBy, setSortBy] = useState<SortOption>('newest');
 
@@ -86,9 +87,9 @@ export const IssueListPage: React.FC = () => {
             case 'oldest':
                 return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
             case 'urgency-high':
-                return b.urgency - a.urgency;
+                return getUrgencyLevelIndex(b.urgency) - getUrgencyLevelIndex(a.urgency);
             case 'urgency-low':
-                return a.urgency - b.urgency;
+                return getUrgencyLevelIndex(a.urgency) - getUrgencyLevelIndex(b.urgency);
             default:
                 return 0;
             }
@@ -172,7 +173,7 @@ export const IssueListPage: React.FC = () => {
     };
 
     const handleStatusChange = (value: string) => {
-        setSelectedStatus(value as IssueStatus | 'all');
+        setSelectedStatus(value as IssueStatusEnum | 'all');
     };
 
     const handleDateFilterChange = (value: string) => {
