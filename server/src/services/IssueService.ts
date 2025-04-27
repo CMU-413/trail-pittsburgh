@@ -1,4 +1,4 @@
-import { IssueUrgencyEnum, IssueStatusEnum } from '@prisma/client';
+import { IssueUrgencyEnum, IssueStatusEnum, IssueTypeEnum } from '@prisma/client';
 import { v4 as uuid } from 'uuid';
 
 import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
@@ -94,8 +94,8 @@ export class IssueService {
 
     public async updateIssue(issueId: number, data: {
         description?: string;
-        urgency?: number;
-        issueType?: string;
+        urgency?: IssueUrgencyEnum;
+        issueType?: IssueTypeEnum;
     }) {
         const issue = await this.issueRepository.updateIssue(issueId, data);
         

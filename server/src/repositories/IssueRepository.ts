@@ -139,8 +139,8 @@ export class IssueRepository {
 
     public async updateIssue(issueId: number, data: Partial<{
         description?: string;
-        urgency: number;
-        issueType: string;
+        urgency?: IssueUrgencyEnum;
+        issueType?: IssueTypeEnum;
     }>) {
         try {
             return await prisma.issue.update({
@@ -159,7 +159,6 @@ export class IssueRepository {
             if (isNotFoundError(error)) {
                 return null;
             }
-            console.error('Error updating issue:', error);
             throw error;
         }
     }
