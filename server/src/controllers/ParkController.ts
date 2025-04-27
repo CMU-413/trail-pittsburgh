@@ -25,6 +25,7 @@ export class ParkController {
 
             if (!park) {
                 res.status(404).json({ message: 'Park not found.' });
+                return;
             }
 
             res.status(200).json({ park });
