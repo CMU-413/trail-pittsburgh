@@ -1,5 +1,5 @@
 import {
-    IssueUrgencyEnum, IssueStatusEnum, IssueTypeEnum
+    IssueUrgencyEnum, IssueTypeEnum, IssueStatusEnum
 } from '@prisma/client';
 import { v4 as uuid } from 'uuid';
 
@@ -86,6 +86,20 @@ export class IssueService {
 
     public async getIssuesByUrgency(urgencyLevel: IssueUrgencyEnum) {
         return this.issueRepository.getIssuesByUrgency(urgencyLevel);
+    }
+
+    public async updateIssueStatus(issueId: number, status: IssueStatusEnum) {
+        const issue = await this.issueRepository.updateIssueStatus(issueId, status);
+        if (!issue) {
+            return null;
+        }
+
+        const { issueImage } = issue;
+
+        return {
+            ...issue,
+            ...(issueImage && { image: await this.getIssueImage(issueImage) })
+        };
     }
 
     public async updateIssue(issueId: number, data: {

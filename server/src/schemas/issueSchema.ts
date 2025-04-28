@@ -66,7 +66,6 @@ export const createIssueSchema = z.object({
         reporterEmail: z.string().email().optional(),
         notifyReporter: z.boolean().default(false),
         description: z.string().max(150).optional(),
-        imageType: z.enum(['image/jpeg', 'image/png', 'image/heic']).optional(),
         imageMetadata: z.object({
             contentType: z.enum(['image/jpeg', 'image/png', 'image/heic']),
             headers: z.object({
