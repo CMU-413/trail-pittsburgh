@@ -6,7 +6,6 @@ export type ApiResponse<T> = {
 
 export type Park = {
     parkId: number;
-    ownerId?: number; // Not in schema, but retained if relevant in frontend
     name: string;
     county: string;
     isActive: boolean;
@@ -21,9 +20,31 @@ export type Trail = {
     isOpen: boolean;
     createdAt: string;
 };
-  
-export type IssueStatus = 'open' | 'in_progress' | 'resolved'; // match backend usage (consider moving to Prisma enum)
-  
+
+export enum IssueStatusEnum {
+    OPEN = 'OPEN',
+    IN_PROGRESS = 'IN_PROGRESS',
+    RESOLVED = 'RESOLVED',
+    CLOSED = 'CLOSED'
+}
+
+export enum IssueTypeEnum {
+    OBSTRUCTION = 'OBSTRUCTION',
+    EROSION = 'EROSION',
+    FLOODING = 'FLOODING',
+    SIGNAGE = 'SIGNAGE',
+    VANDALISM = 'VANDALISM',
+    OTHER = 'OTHER'
+}
+
+export enum IssueUrgencyEnum {
+    VERY_LOW = 'VERY_LOW',
+    LOW = 'LOW',
+    MEDIUM = 'MEDIUM',
+    HIGH = 'HIGH',
+    VERY_HIGH = 'VERY_HIGH'
+}
+
 export interface ImageMetadata {
     DateTimeOriginal?: string;
     Make?: string;
@@ -46,10 +67,10 @@ export type Issue = {
     parkId: number;
     trailId: number;
     isPublic: boolean;
-    status: IssueStatus;
+    status: IssueStatusEnum;
     description?: string;
-    issueType: string;
-    urgency: number; // 1-5 scale
+    issueType: IssueTypeEnum;
+    urgency: IssueUrgencyEnum;
     image?: SignedUrl;
     imageMetadata?: ImageMetadata;
     longitude?: number;
@@ -78,11 +99,11 @@ export type User = {
     email: string;
     name?: string;
     picture?: string;
-    permission?: string;
+    role?: string;
+    permission?: 'owner' | 'steward' | 'volunteer';
     profileImage?: string;
     username?: string;
     userId?: number;
-    isAdmin?: boolean;
     isActive?: boolean;
     createdAt?: string;
 };

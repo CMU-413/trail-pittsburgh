@@ -2,6 +2,7 @@ import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
 import { CreateIssueInput } from '@/schemas/issueSchema';
 import { IssueService } from '@/services';
+import { IssueUrgencyEnum, IssueStatusEnum, IssueTypeEnum } from '@prisma/client';
 
 jest.mock('@/repositories/IssueRepository');
 jest.mock('@/lib/GCSBucket');
@@ -20,11 +21,11 @@ describe('IssueService', () => {
         issueId: 1,
         parkId: 1,
         trailId: 1,
-        issueType: 'Flooding',
-        urgency: 3,
+        issueType: IssueTypeEnum.FLOODING,
+        urgency: IssueUrgencyEnum.MEDIUM,
         description: 'Trail is flooded',
         isPublic: true,
-        status: 'Open',
+        status: IssueStatusEnum.OPEN,
         notifyReporter: true,
         reporterEmail: 'reporter@example.com',
         longitude: -79.9901,
@@ -53,14 +54,14 @@ describe('IssueService', () => {
         const input: CreateIssueInput = {
             parkId: 1,
             trailId: 1,
-            issueType: 'Flooding',
-            urgency: 3,
+            issueType: IssueTypeEnum.FLOODING,
+            urgency: IssueUrgencyEnum.MEDIUM,
             reporterEmail: 'reporter@example.com',
             description: 'Trail is flooded',
             latitude: 40.4406,
             longitude: -79.9901,
             isPublic: true,
-            status: 'Open',
+            status: IssueStatusEnum.OPEN,
             notifyReporter: true,
             imageMetadata: {
                 contentType: 'image/jpeg'
@@ -77,7 +78,7 @@ describe('IssueService', () => {
         const fullIssue = {
             ...baseIssue,
             isPublic: false,
-            status: 'In Progress',
+            status: IssueStatusEnum.IN_PROGRESS,
             notifyReporter: false,
             longitude: -80.001,
             latitude: 40.441
@@ -88,11 +89,11 @@ describe('IssueService', () => {
         const input = {
             parkId: 1,
             trailId: 1,
-            issueType: 'Flooding',
-            urgency: 3,
+            issueType: IssueTypeEnum.FLOODING,
+            urgency: IssueUrgencyEnum.MEDIUM,
             description: 'Very flooded trail',
             isPublic: false,
-            status: 'In Progress',
+            status: IssueStatusEnum.IN_PROGRESS,
             notifyReporter: false,
             reporterEmail: 'reporter@example.com',
             longitude: -80.001,
@@ -156,19 +157,19 @@ describe('IssueService', () => {
         const issues = [baseIssue];
         issueRepositoryMock.getIssuesByUrgency.mockResolvedValue(issues);
 
-        const result = await issueService.getIssuesByUrgency(3);
+        const result = await issueService.getIssuesByUrgency(IssueUrgencyEnum.MEDIUM);
 
-        expect(issueRepositoryMock.getIssuesByUrgency).toHaveBeenCalledWith(3);
+        expect(issueRepositoryMock.getIssuesByUrgency).toHaveBeenCalledWith(IssueUrgencyEnum.MEDIUM);
         expect(result).toEqual(issues);
     });
 
     test('should update issue status', async () => {
-        const updated = { ...baseIssue, status: 'resolved', resolvedAt: new Date() };
+        const updated = { ...baseIssue, status: IssueStatusEnum.RESOLVED, resolvedAt: new Date() };
         issueRepositoryMock.updateIssueStatus.mockResolvedValue(updated);
 
-        const result = await issueService.updateIssueStatus(1, 'resolved');
+        const result = await issueService.updateIssueStatus(1, IssueStatusEnum.RESOLVED);
 
-        expect(issueRepositoryMock.updateIssueStatus).toHaveBeenCalledWith(1, 'resolved');
+        expect(issueRepositoryMock.updateIssueStatus).toHaveBeenCalledWith(1, IssueStatusEnum.RESOLVED);
         expect(result).toEqual(updated);
     });
 });

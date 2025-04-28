@@ -1,10 +1,11 @@
+import {
+    IssueUrgencyEnum, IssueStatusEnum, IssueTypeEnum
+} from '@prisma/client';
 import { v4 as uuid } from 'uuid';
 
 import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
-import {
-    CreateIssueInput
-} from '@/schemas/issueSchema';
+import { CreateIssueInput, IssueRecord } from '@/schemas/issueSchema';
 
 export class IssueService {
     private readonly issueRepository: IssueRepository;
@@ -83,12 +84,25 @@ export class IssueService {
         return this.issueRepository.getIssuesByTrail(trailId);
     }
 
-    public async getIssuesByUrgency(urgencyLevel: number) {
+    public async getIssuesByUrgency(urgencyLevel: IssueUrgencyEnum) {
         return this.issueRepository.getIssuesByUrgency(urgencyLevel);
     }
 
-    public async updateIssueStatus(issueId: number, status: string) {
+    public async updateIssueStatus(issueId: number, status: IssueStatusEnum) {
         const issue = await this.issueRepository.updateIssueStatus(issueId, status);
+        if (!issue) {
+            return null;
+        }
+
+        return this.buildIssueWithImage(issue);
+    }
+
+    public async updateIssue(issueId: number, data: {
+        description?: string;
+        urgency?: IssueUrgencyEnum;
+        issueType?: IssueTypeEnum;
+    }) {
+        const issue = await this.issueRepository.updateIssue(issueId, data);
 
         if (!issue) {
             return null;

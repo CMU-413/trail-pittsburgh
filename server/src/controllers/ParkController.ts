@@ -47,7 +47,7 @@ export class ParkController {
 
     public async createPark(req: express.Request, res: express.Response) {
         try {
-            const { name, county, ownerId, isActive } = req.body;
+            const { name, county, isActive } = req.body;
 
             // Validate required fields
             if (!name || !county) {
@@ -59,7 +59,6 @@ export class ParkController {
             const parkData = {
                 name,
                 county,
-                ownerId: ownerId || null,
                 isActive: isActive !== undefined ? isActive : true
             };
 

@@ -4,7 +4,7 @@ import {
     Link, useParams, useNavigate 
 } from 'react-router-dom';
 import {
-    Trail, Park, Issue 
+    Trail, Park, Issue, IssueStatusEnum
 } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
@@ -116,7 +116,7 @@ export const TrailDetailPage: React.FC = () => {
     }
     
     // Count open issues
-    const openIssuesCount = issues.filter((issue) => issue.status === 'open').length;
+    const openIssuesCount = issues.filter((issue) => issue.status === IssueStatusEnum.OPEN).length;
     
     return (
         <div>

@@ -10,8 +10,8 @@ export const createTrailSchema = z.object({
     body: z.object({
         name: z.string(),
         parkId: z.number(),
-        isActive: z.boolean().default(true),
-        isOpen: z.boolean().default(true),
+        isActive: z.boolean().optional(),
+        isOpen: z.boolean().optional(),
     })
 });
 
@@ -37,3 +37,6 @@ export const getTrailsFromParkSchema = z.object({
         parkId: z.coerce.number(),
     }),
 });
+
+export type CreateTrail = z.infer<typeof createTrailSchema>['body'];
+export type UpdateTrail = z.infer<typeof updateTrailSchema>['body'];

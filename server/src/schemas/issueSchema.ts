@@ -1,3 +1,6 @@
+import {
+    Prisma , IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum
+} from '@prisma/client';
 import { z } from 'zod';
 
 export const getIssuesByParkSchema = z.object({
@@ -14,7 +17,7 @@ export const getIssuesByTrailSchema = z.object({
 
 export const getIssuesByUrgencySchema = z.object({
     params: z.object({
-        urgency: z.coerce.number(),
+        urgency: z.nativeEnum(IssueUrgencyEnum),
     })
 });
 
@@ -24,20 +27,46 @@ export const getIssueSchema = z.object({
     })
 });
 
+export const updateIssueStatusSchema = z.object({
+    params: z.object({
+        issueId: z.coerce.number(),
+    }),
+    body: z.object({
+        status: z.nativeEnum(IssueStatusEnum),
+    })
+});
+
+export const deleteIssueSchema = z.object({
+    params: z.object({
+        issueId: z.coerce.number(),
+    })
+});
+
+export const resolveIssueSchema = z.object({
+    params: z.object({
+        issueId: z.coerce.number(),
+    }),
+    body: z.object({
+        resolved_by: z.coerce.number(),
+        resolution_notes: z.string().optional(),
+        image_type: z.string().optional(),
+    })
+});
+
 export const createIssueSchema = z.object({
     body: z.object({
-        parkId: z.number(),
-        trailId: z.number(),
-        issueType: z.string(),
-        urgency: z.number(),
+        parkId: z.coerce.number(),
+        trailId: z.coerce.number(),
+        issueType: z.nativeEnum(IssueTypeEnum),
+        urgency: z.nativeEnum(IssueUrgencyEnum),
         isPublic: z.boolean().default(false),
-        status: z.string().default('Open'),
+        status: z.nativeEnum(IssueStatusEnum).default(IssueStatusEnum.OPEN),
         latitude: z.number().optional(),
         longitude: z.number().optional(),
-
-        reporterEmail: z.string(),
+        reporterEmail: z.string().email().optional(),
         notifyReporter: z.boolean().default(false),
-        description: z.string().optional(),
+        description: z.string().max(150).optional(),
+        imageType: z.enum(['image/jpeg', 'image/png', 'image/heic']).optional(),
         imageMetadata: z.object({
             contentType: z.enum(['image/jpeg', 'image/png', 'image/heic']),
             headers: z.object({
@@ -51,28 +80,28 @@ export const createIssueSchema = z.object({
 
 export type CreateIssueInput = z.output<typeof createIssueSchema>['body'];
 
-export const updateIssueStatusSchema = z.object({
-    params: z.object({
-        issueId: z.coerce.number(),
-    }),
-    body: z.object({
-        status: z.string(),
-    })
-});
-
-export const deleteIssueSchema = z.object({
-    params: z.object({
-        issueId: z.coerce.number(),
-    })
-});
-
-export const resolveIssueSchema = {
-    params: z.object({
-        issueId: z.coerce.number(),
-    }),
-    body: z.object({
-        resolved_by: z.number(),
-        resolution_notes: z.string().optional(),
-        image_type: z.string().optional(), // For uploaded images
-    }),
+export type CreateIssueDbInput = CreateIssueInput & {
+    issueImageKey?: string;
 };
+
+export type IssueRecord = Prisma.IssueGetPayload<object>;
+
+export const updateIssueSchema = z.object({
+    params: z.object({
+        issueId: z.coerce.number(),
+    }),
+    body: z.object({
+        description: z.string().optional(),
+        urgency: z.number().min(1).max(5).optional(),
+        issueType: z.string().optional(),
+    }).refine((data) => {
+        // At least one field must be provided
+        return data.description !== undefined ||
+               data.urgency !== undefined ||
+               data.issueType !== undefined;
+    }, {
+        message: 'At least one field must be provided for update'
+    })
+});
+
+export type UpdateIssueInput = z.output<typeof updateIssueSchema>['body'];

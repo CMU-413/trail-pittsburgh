@@ -1,13 +1,6 @@
-import { isNotFoundError, prisma } from '@/prisma/prismaClient';
+import { User, UserRoleEnum } from '@prisma/client';
 
-interface UserUpdateData {
-    username?: string;
-    email?: string;
-    isAdmin?: boolean;
-    permission?: string;
-    profileImage?: string;
-    isActive?: boolean;
-}
+import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 
 export class UserRepository {
     public async getUser(userId: number) {
@@ -24,8 +17,7 @@ export class UserRepository {
     public async createUser(
         username: string,
         email: string,
-        isAdmin: boolean = false,
-        permission: string = 'read',
+        role: UserRoleEnum = UserRoleEnum.ROLE_USER,
         profileImage: string = 'default.jpg',
         isActive: boolean = true
     ) {
@@ -34,8 +26,7 @@ export class UserRepository {
                 data: {
                     username,
                     email,
-                    isAdmin: isAdmin,
-                    permission,
+                    role,
                     profileImage: profileImage,
                     isActive: isActive
                 }
@@ -68,7 +59,7 @@ export class UserRepository {
         }
     }
 
-    public async updateUser(userId: number, data: UserUpdateData) {
+    public async updateUser(userId: number, data: Partial<User>) {
         try {
             return await prisma.user.update({
                 where: { userId: userId },

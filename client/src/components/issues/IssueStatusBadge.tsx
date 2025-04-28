@@ -1,25 +1,26 @@
 // src/components/issues/IssueStatusBadge.tsx
 import React from 'react';
-import { IssueStatus } from '../../types';
+import { IssueStatusEnum } from '../../types';
 import { Badge } from '../ui/Badge';
 
 interface IssueStatusBadgeProps {
-    status: IssueStatus;
+    status: IssueStatusEnum;
     className?: string;
 }
 
 export const IssueStatusBadge: React.FC<IssueStatusBadgeProps> = ({ status, className = '' }) => {
-    // Updated color mapping to match the dashboard
     const statusVariant = {
-        open: 'danger',
-        in_progress: 'warning',
-        resolved: 'success'
+        [IssueStatusEnum.OPEN]: 'danger',
+        [IssueStatusEnum.IN_PROGRESS]: 'warning',
+        [IssueStatusEnum.RESOLVED]: 'success',
+        [IssueStatusEnum.CLOSED]: 'secondary'
     } as const;
 
     const statusLabel = {
-        open: 'Open',
-        in_progress: 'In Progress',
-        resolved: 'Resolved'
+        [IssueStatusEnum.OPEN]: 'Open',
+        [IssueStatusEnum.IN_PROGRESS]: 'In Progress',
+        [IssueStatusEnum.RESOLVED]: 'Resolved',
+        [IssueStatusEnum.CLOSED]: 'Closed'
     };
 
     return (

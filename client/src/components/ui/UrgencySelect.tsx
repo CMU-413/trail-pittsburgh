@@ -1,9 +1,13 @@
 // src/components/ui/UrgencySelect.tsx
 import React from 'react';
+import { IssueUrgencyEnum } from '../../types';
+import {
+    getUrgencyLabel, getUrgencyColor, getUrgencyIconSize 
+} from '../../utils/issueUrgencyUtils';
 
 interface UrgencySelectProps {
-    value: number;
-    onChange: (level: number) => void;
+    value: IssueUrgencyEnum;
+    onChange: (level: IssueUrgencyEnum) => void;
     label?: string;
     helperText?: string;
 }
@@ -14,28 +18,6 @@ export const UrgencySelect: React.FC<UrgencySelectProps> = ({
     label = 'Urgency Level',
     helperText = 'Select the urgency level based on safety risk and trail usability impact'
 }) => {
-    const getUrgencyLabel = (level: number) => {
-        switch (level) {
-        case 1: return 'Very Low';
-        case 2: return 'Low';
-        case 3: return 'Medium';
-        case 4: return 'High';
-        case 5: return 'Very High';
-        default: return 'Medium';
-        }
-    };
-
-    const getUrgencyColor = (level: number) => {
-        switch (level) {
-        case 1: return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-        case 2: return 'bg-blue-100 text-blue-800 border-blue-200';
-        case 3: return 'bg-amber-100 text-amber-800 border-amber-200';
-        case 4: return 'bg-orange-100 text-orange-800 border-orange-200';
-        case 5: return 'bg-red-100 text-red-800 border-red-200';
-        default: return 'bg-gray-100 text-gray-800 border-gray-200';
-        }
-    };
-
     return (
         <div>
             {label && (
@@ -44,7 +26,13 @@ export const UrgencySelect: React.FC<UrgencySelectProps> = ({
                 </label>
             )}
             <div className="grid grid-cols-5 gap-2">
-                {[1, 2, 3, 4, 5].map((level) => (
+                {([
+                    IssueUrgencyEnum.VERY_LOW,
+                    IssueUrgencyEnum.LOW, 
+                    IssueUrgencyEnum.MEDIUM, 
+                    IssueUrgencyEnum.HIGH, 
+                    IssueUrgencyEnum.VERY_HIGH
+                ]).map((level) => (
                     <button
                         key={level}
                         type="button"
@@ -61,7 +49,7 @@ export const UrgencySelect: React.FC<UrgencySelectProps> = ({
                             {Array.from({ length: 1 }).map((_, i) => (
                                 <svg
                                     key={i}
-                                    className={`w-${3 + level} h-${3 + level}`}
+                                    className={`w-${getUrgencyIconSize(level)} h-${getUrgencyIconSize(level)}`}
                                     fill="currentColor"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"

@@ -20,7 +20,6 @@ export const ParkForm: React.FC<ParkFormProps> = ({
         name: '',
         county: '',
         isActive: true,
-        ownerId: 2, // Default owner - in real app, this might come from auth context
         ...initialData
     });
 
