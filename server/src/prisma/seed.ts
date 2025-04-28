@@ -57,11 +57,20 @@ async function main() {
     //eslint-disable-next-line
     const parks = await prisma.park.createMany({
         data: [
-            { name: 'Point State Park', county: 'Allegheny' },
-            { name: 'Schenley Park', county: 'Allegheny' },
+            { name: 'Alameda Park', county: 'Butler' },
+            { name: 'Bavington - Hillman State Park', county: 'Washington' },
+            { name: 'Boyce Park', county: 'Allegheny' },
+            { name: 'Deer Lakes Park', county: 'Allegheny' },
             { name: 'Frick Park', county: 'Allegheny' },
+            { name: 'Hartwood Acres', county: 'Allegheny' },
             { name: 'Highland Park', county: 'Allegheny' },
-            { name: 'Riverview Park', county: 'Allegheny' }
+            { name: 'Moraine State Park', county: 'Butler' },
+            { name: 'North Park', county: 'Allegheny' },
+            { name: 'Oakmont Trails', county: 'Allegheny' },
+            { name: 'Riverview Park', county: 'Allegheny' },
+            { name: 'Settlers Cabin Park', county: 'Allegheny' },
+            { name: 'South Park', county: 'Allegheny' },
+            { name: 'White Oak Park', county: 'Allegheny' }
         ]
     });
 
