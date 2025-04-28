@@ -1,5 +1,5 @@
 import {
-    Prisma , IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
+    Prisma , IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum
 } from '@prisma/client';
 import { z } from 'zod';
 
@@ -66,7 +66,14 @@ export const createIssueSchema = z.object({
         reporterEmail: z.string().email().optional(),
         notifyReporter: z.boolean().default(false),
         description: z.string().max(150).optional(),
-        imageType: z.enum(['image/jpeg', 'image/png', 'image/heic']).optional(),
+        imageMetadata: z.object({
+            contentType: z.enum(['image/jpeg', 'image/png', 'image/heic']),
+            headers: z.object({
+                'x-goog-meta-capturedAt': z.string(),
+                'x-goog-meta-latitude': z.string(),
+                'x-goog-meta-longitude': z.string(),
+            }).optional()
+        }).optional(),
     })
 });
 
@@ -88,8 +95,8 @@ export const updateIssueSchema = z.object({
         issueType: z.string().optional(),
     }).refine((data) => {
         // At least one field must be provided
-        return data.description !== undefined || 
-               data.urgency !== undefined || 
+        return data.description !== undefined ||
+               data.urgency !== undefined ||
                data.issueType !== undefined;
     }, {
         message: 'At least one field must be provided for update'

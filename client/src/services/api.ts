@@ -136,6 +136,7 @@ export const issueApi = {
             credentials: 'include'
         })
             .then(handleResponse);
+        console.log(response.issue);
         return response.issue;
     },
 
@@ -161,13 +162,29 @@ export const issueApi = {
     },
 
     createIssue: async (issueData: IssueParams): Promise<Issue> => {
-        const { image, ...payload } = issueData;
+        const { image, imageMetadata, ...payload } = issueData;
+
+        let headers =  undefined;
+        if (imageMetadata) {
+            const { DateTimeOriginal, latitude, longitude } = imageMetadata;
+            if (DateTimeOriginal && latitude && longitude) {
+                headers = {
+                    'x-goog-meta-capturedAt': DateTimeOriginal,
+                    'x-goog-meta-latitude': latitude.toString(),
+                    'x-goog-meta-longitude': longitude.toString(),
+                };
+            }
+        }
+
         const response = await fetch(`${API_BASE_URL}/issues`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 ...payload,
-                imageType: image?.type,
+                imageMetadata: image ? {
+                    contentType: image.type,
+                    headers,
+                } : undefined,
             }),
             credentials: 'include'
         })
@@ -180,6 +197,7 @@ export const issueApi = {
                 method: 'PUT',
                 headers: {
                     'Content-Type': image.type,
+                    ...headers
                 },
                 body: image,
             });
