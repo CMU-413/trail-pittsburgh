@@ -91,8 +91,8 @@ export const updateIssueSchema = z.object({
     }),
     body: z.object({
         description: z.string().optional(),
-        urgency: z.number().min(1).max(5).optional(),
-        issueType: z.string().optional(),
+        urgency: z.nativeEnum(IssueUrgencyEnum).optional(),
+        issueType: z.nativeEnum(IssueTypeEnum).optional(),
     }).refine((data) => {
         // At least one field must be provided
         return data.description !== undefined ||
