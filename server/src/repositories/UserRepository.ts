@@ -31,7 +31,6 @@ export class UserRepository {
                     isActive: isActive
                 }
             });
-            console.log('User created successfully:', result);
             return result;
         } catch (error) {
             console.error('Error creating user:', error);
@@ -90,6 +89,28 @@ export class UserRepository {
             });
         } catch (error) {
             console.error('Error getting user by username:', error);
+            throw error;
+        }
+    }
+
+    public async getUserRole(userId: number) {
+        try {
+            const user = await this.getUser(userId);
+            return user?.role;
+        } catch (error) {
+            console.error('Error getting user role:', error);
+            throw error;
+        }
+    }
+
+    public async updateUserRole(userId: number, role: UserRoleEnum) {
+        try {
+            return await prisma.user.update({
+                where: { userId: userId },
+                data: { role }
+            });
+        } catch (error) {
+            console.error('Error updating user role:', error);
             throw error;
         }
     }

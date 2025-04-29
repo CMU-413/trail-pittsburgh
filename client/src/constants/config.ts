@@ -3,9 +3,6 @@
 // Application name
 export const APP_NAME = 'Trail Pittsburgh';
 
-// The organization domain that's allowed to access restricted pages
-export const ORGANIZATION_DOMAIN: string = import.meta.env.VITE_ORGANIZATION_DOMAIN;
-
 // Volunteer link constant
 export const VOLUNTEER_LINK = 'https://www.trailpittsburgh.org/volunteer/';
 

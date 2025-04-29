@@ -36,8 +36,9 @@ export class AuthController {
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: isProd,
-                sameSite: isProd ? 'none' : 'strict',
-                maxAge: 24 * 60 * 60 * 1000
+                sameSite: isProd ? 'none' : 'lax',
+                maxAge: 24 * 60 * 60 * 1000,
+                path: '/'
             });
 
             const redirectTarget = typeof state === 'string' ? state : '/';
@@ -51,10 +52,13 @@ export class AuthController {
     }
 
     public logout(req: Request, res: Response) {
+        const isProd = process.env.NODE_ENV === 'production';
+
         res.clearCookie('token', {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
+            secure: isProd,
+            sameSite: isProd ? 'none' : 'lax',
+            path: '/'
         });
 
         res.status(200).json({ message: 'Logged out successfully' });
@@ -83,7 +87,8 @@ export class AuthController {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                picture: pictureUrl
+                picture: pictureUrl,
+                role: user.role
             }
         });
     }

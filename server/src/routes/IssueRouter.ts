@@ -2,8 +2,9 @@ import express from 'express';
 
 import { IssueController } from '@/controllers/';
 import { createBucket, GCSBucket } from '@/lib/GCSBucket';
-import { authenticateToken } from '@/middlewares/auth';
-import { validateRequest } from '@/middlewares/validateRequest';
+import {
+    requireAdmin, requireSuperAdmin, authenticateToken, validateRequest 
+} from '@/middlewares/index';
 import { IssueRepository } from '@/repositories';
 import {
     createIssueSchema,
@@ -26,13 +27,6 @@ const issueController = new IssueController(issueService);
 const router = express.Router();
 
 // Public Routes
-router.get('/', issueController.getAllIssues); // Get all issues
-router.get('/park/:parkId', validateRequest(getIssuesByParkSchema), issueController.getIssuesByPark); // Get issues by park
-router.get('/trail/:trailId', validateRequest(getIssuesByTrailSchema), issueController.getIssuesByTrail); // Get issues by trail
-router.get('/urgency/:urgency', validateRequest(getIssuesByUrgencySchema), issueController.getIssuesByUrgency); // Get issues by urgency
-router.get('/:issueId', validateRequest(getIssueSchema), issueController.getIssue); // Get a specific issue
-
-// Protected Routes
 router.post(
     '/',
     authenticateToken,
@@ -40,25 +34,62 @@ router.post(
     issueController.createIssue
 ); // Create a new issue
 
+// User Routes
+// None for now
+
+// Admin Routes
+router.get('/', 
+    authenticateToken,
+    requireAdmin,
+    issueController.getAllIssues); // Get all issues
+
+router.get('/park/:parkId', 
+    authenticateToken,
+    validateRequest(getIssuesByParkSchema), 
+    requireAdmin,
+    issueController.getIssuesByPark); // Get issues by park
+
+router.get('/trail/:trailId', 
+    authenticateToken,
+    validateRequest(getIssuesByTrailSchema), 
+    requireAdmin,
+    issueController.getIssuesByTrail); // Get issues by trail
+
+router.get('/urgency/:urgency', 
+    authenticateToken,
+    validateRequest(getIssuesByUrgencySchema), 
+    requireAdmin,
+    issueController.getIssuesByUrgency); // Get issues by urgency
+
+router.get('/:issueId', 
+    authenticateToken,
+    validateRequest(getIssueSchema), 
+    requireAdmin,
+    issueController.getIssue); // Get a specific issue
+
 router.put(
     '/:issueId/status',
     authenticateToken,
     validateRequest(updateIssueStatusSchema),
+    requireAdmin,
     issueController.updateIssueStatus
-); // Update issue status
-
-router.delete(
-    '/:issueId',
-    authenticateToken,
-    validateRequest(deleteIssueSchema),
-    issueController.deleteIssue
-); // Delete an issue
+); // Update issue status (resolve issue)
 
 router.put(
     '/:issueId',
     authenticateToken,
     validateRequest(updateIssueSchema),
+    requireSuperAdmin,
     issueController.updateIssue
 ); // Update an issue
+
+// Super Admin Routes
+router.delete(
+    '/:issueId',
+    authenticateToken,
+    validateRequest(deleteIssueSchema),
+    requireSuperAdmin,
+    issueController.deleteIssue
+); // Delete an issue
 
 export { router as issueRouter };

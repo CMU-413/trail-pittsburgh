@@ -4,14 +4,15 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 
-import { morganMiddleware } from '@/middlewares';
-import { limiter } from '@/middlewares/rateLimiter';
-import { securityHeaders } from '@/middlewares/securityHeaders';
+import {
+    securityHeaders, limiter, morganMiddleware 
+} from '@/middlewares/index';
 import {
     authenticationRouter,
     issueRouter,
     parkRouter,
-    trailRouter
+    trailRouter,
+    userRouter
 } from '@/routes';
 
 const app = express();
@@ -45,6 +46,7 @@ app.use('/api/auth', authenticationRouter);
 app.use('/api/issues', issueRouter);
 app.use('/api/parks', parkRouter);
 app.use('/api/trails', trailRouter);
+app.use('/api/users', userRouter);
 
 // Health check
 app.get('/healthz', (req: express.Request, res: express.Response) => {
