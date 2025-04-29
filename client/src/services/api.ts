@@ -1,7 +1,8 @@
 import {
     Park, Trail, Issue, IssueParams, IssueStatusEnum, IssueUrgencyEnum,
     IssueTypeEnum,
-    UserRoleEnum
+    UserRoleEnum,
+    User
 } from '../types';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL  }/api`;
@@ -275,6 +276,30 @@ export const issueApi = {
 };
 
 export const userApi = {
+    getUsers: async (): Promise<User[]> => {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users`, {
+            credentials: 'include',
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch users');
+        }
+        return response.json();
+    },
+
+    updateUserRole: async (userId: string, role: UserRoleEnum): Promise<void> => {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${userId}/role`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ role }),
+        });
+        if (!response.ok) {
+            throw new Error('Failed to update user role');
+        }
+    },
+
     getUserRole: async (userId: number): Promise<UserRoleEnum> => {
         const response = await fetch(`${API_BASE_URL}/users/${userId}/role`, {
             credentials: 'include'

@@ -26,7 +26,8 @@ import {
     TrailEditPage,
     IssueListPage,
     IssueDetailPage,
-    IssueReportPage
+    IssueReportPage,
+    UserDetailPage,
 } from './pages';
 
 const AppContent: React.FC = () => {
@@ -40,34 +41,42 @@ const AppContent: React.FC = () => {
                     <Route path="issues/report" element={<IssueReportPage />} />
                 </Route>
 
-                {/* Protected Routes - require authentication and organization email */}
-                <Route element={<ProtectedRoute requirePermission={true} />}>
+                {/* Protected Routes - require authentication */}
+                <Route element={<ProtectedRoute />}>
+                    {/* User Routes - available to all authenticated users */}
                     <Route path="dashboard" element={<DashboardPage />} />
+                    <Route path="profile" element={<ProfilePage />} />
+                    <Route path="settings" element={<SettingsPage />} />
 
-                    {/* Parks */}
-                    <Route path="parks">
-                        <Route index element={<ParkListPage />} />
-                        <Route path="create" element={<ParkCreatePage />} />
-                        <Route path=":parkId" element={<ParkDetailPage />} />
-                        <Route path=":parkId/edit" element={<ParkEditPage />} />
+                    {/* Admin Routes - require admin role */}
+                    <Route element={<ProtectedRoute isAdmin={true} />}>
+                        {/* Parks */}
+                        <Route path="parks">
+                            <Route index element={<ParkListPage />} />
+                            <Route path="create" element={<ParkCreatePage />} />
+                            <Route path=":parkId" element={<ParkDetailPage />} />
+                            <Route path=":parkId/edit" element={<ParkEditPage />} />
 
-                        {/* Trails (nested under parks) */}
-                        <Route path=":parkId/trails">
-                            <Route path="create" element={<TrailCreatePage />} />
-                            <Route path=":trailId" element={<TrailDetailPage />} />
-                            <Route path=":trailId/edit" element={<TrailEditPage />} />
+                            {/* Trails (nested under parks) */}
+                            <Route path=":parkId/trails">
+                                <Route path="create" element={<TrailCreatePage />} />
+                                <Route path=":trailId" element={<TrailDetailPage />} />
+                                <Route path=":trailId/edit" element={<TrailEditPage />} />
+                            </Route>
+                        </Route>
+
+                        {/* Issues - except report page which is public */}
+                        <Route path="issues">
+                            <Route index element={<IssueListPage />} />
+                            <Route path=":issueId" element={<IssueDetailPage />} />
                         </Route>
                     </Route>
 
-                    {/* Issues - except report page which is public */}
-                    <Route path="issues">
-                        <Route index element={<IssueListPage />} />
-                        <Route path=":issueId" element={<IssueDetailPage />} />
+                    {/* Super Admin Routes - require super admin role */}
+                    <Route element={<ProtectedRoute isSuperAdmin={true} />}>
+                        {/* Users */}
+                        <Route path="users" element={<UserDetailPage />} />
                     </Route>
-
-                    {/* User Account */}
-                    <Route path="profile" element={<ProfilePage />} />
-                    <Route path="settings" element={<SettingsPage />} />
                 </Route>
 
                 {/* Fallback for 404 */}

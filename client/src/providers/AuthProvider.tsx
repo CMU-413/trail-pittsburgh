@@ -13,6 +13,7 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   hasPermission: UserRoleEnum | null;
+  userRole: UserRoleEnum | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -100,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const hasPermission = userRole;
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated, hasPermission }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated, hasPermission, userRole }}>
             {children}
         </AuthContext.Provider>
     );
