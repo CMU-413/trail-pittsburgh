@@ -88,7 +88,8 @@ export class AuthController {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                picture: pictureUrl
+                picture: pictureUrl,
+                role: user.role
             }
         });
     }
