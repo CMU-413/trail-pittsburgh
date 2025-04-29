@@ -9,6 +9,8 @@ export class UserController {
     constructor(userService: UserService) {
         this.userService = userService;
         this.getUserRole = this.getUserRole.bind(this);
+        this.getAllUsers = this.getAllUsers.bind(this);
+        this.updateUserRole = this.updateUserRole.bind(this);
     }
 
     public async getUserRole(req: express.Request, res: express.Response) {
@@ -33,6 +35,28 @@ export class UserController {
         } catch (error) {
             logger.error(`Error fetching user role for user ${userId}`, error);
             res.status(500).json({ message: 'Failed to retrieve user role' });
+        }
+    }
+
+    public async getAllUsers(req: express.Request, res: express.Response) {
+        try {
+            const users = await this.userService.getAllUsers();
+            res.status(200).json(users);
+        } catch (error) {
+            logger.error('Error fetching all users', error);
+            res.status(500).json({ message: 'Failed to retrieve all users' });
+        }
+    }
+
+    public async updateUserRole(req: express.Request, res: express.Response) {
+        const { userId } = req.params;
+        const { role } = req.body;
+        try {
+            const updatedUser = await this.userService.updateUserRole(parseInt(userId), role);
+            res.status(200).json(updatedUser);
+        } catch (error) {
+            logger.error('Error updating user role', error);
+            res.status(500).json({ message: 'Failed to update user role' });
         }
     }
 }

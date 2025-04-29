@@ -1,7 +1,9 @@
 import express from 'express';
 
 import { UserController } from '@/controllers';
-import { authenticateToken } from '@/middlewares';
+import {
+    requireSuperAdmin, authenticateToken 
+} from '@/middlewares/index';
 import { UserRepository } from '@/repositories';
 import { UserService } from '@/services';
 
@@ -15,5 +17,15 @@ const router = express.Router();
 router.get('/:userId/role',
     authenticateToken,
     userController.getUserRole);
+
+router.get('/',
+    authenticateToken,
+    requireSuperAdmin,
+    userController.getAllUsers);
+
+router.put('/:userId/role',
+    authenticateToken,
+    requireSuperAdmin,
+    userController.updateUserRole);
 
 export { router as userRouter };

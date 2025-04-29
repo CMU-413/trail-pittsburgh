@@ -93,4 +93,8 @@ export class UserService {
     public async getUserById(userId: number) {
         return this.userRepository.getUser(userId);
     }
+
+    public async updateUserRole(userId: number, role: UserRoleEnum) {
+        return this.userRepository.updateUserRole(userId, role);
+    }
 }

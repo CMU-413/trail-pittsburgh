@@ -102,4 +102,16 @@ export class UserRepository {
             throw error;
         }
     }
+
+    public async updateUserRole(userId: number, role: UserRoleEnum) {
+        try {
+            return await prisma.user.update({
+                where: { userId: userId },
+                data: { role }
+            });
+        } catch (error) {
+            console.error('Error updating user role:', error);
+            throw error;
+        }
+    }
 }
