@@ -31,7 +31,6 @@ export class UserRepository {
                     isActive: isActive
                 }
             });
-            console.log('User created successfully:', result);
             return result;
         } catch (error) {
             console.error('Error creating user:', error);

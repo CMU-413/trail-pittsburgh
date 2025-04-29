@@ -1,8 +1,7 @@
 import {
     Park, Trail, Issue, IssueParams, IssueStatusEnum, IssueUrgencyEnum,
     IssueTypeEnum,
-    UserRoleEnum,
-    User
+    UserRoleEnum
 } from '../types';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL  }/api`;
@@ -138,7 +137,6 @@ export const issueApi = {
             credentials: 'include'
         })
             .then(handleResponse);
-        console.log(response.issue);
         return response.issue;
     },
 
@@ -281,7 +279,6 @@ export const userApi = {
         const response = await fetch(`${API_BASE_URL}/users/${userId}/role`, {
             credentials: 'include'
         }).then(handleResponse);
-        console.log(response);
         return response.role;
     },
 };

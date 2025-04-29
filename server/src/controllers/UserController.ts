@@ -13,6 +13,7 @@ export class UserController {
 
     public async getUserRole(req: express.Request, res: express.Response) {
         // Get userId from the authenticated token
+        // eslint-disable-next-line
         const userId = (req as any).user?.id;
         
         if (!userId) {
