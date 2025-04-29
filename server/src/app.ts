@@ -4,9 +4,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 
-import { morganMiddleware } from '@/middlewares';
-import { limiter } from '@/middlewares/rateLimiter';
-import { securityHeaders } from '@/middlewares/securityHeaders';
+import {
+    securityHeaders, limiter, morganMiddleware 
+} from '@/middlewares/index';
 import {
     authenticationRouter,
     issueRouter,

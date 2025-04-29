@@ -16,6 +16,7 @@ export class AuthController {
     }
 
     public startGoogleOAuth(req: Request, res: Response) {
+        console.log('req.body', req.body);
         try {
             const redirectPath = req.body.redirectPath || '/';
             const url = this.authService.generateAuthUrl(redirectPath);

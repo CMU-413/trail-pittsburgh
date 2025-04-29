@@ -93,4 +93,14 @@ export class UserRepository {
             throw error;
         }
     }
+
+    public async getUserRole(userId: number) {
+        try {
+            const user = await this.getUser(userId);
+            return user?.role;
+        } catch (error) {
+            console.error('Error getting user role:', error);
+            throw error;
+        }
+    }
 }

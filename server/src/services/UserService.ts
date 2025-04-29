@@ -85,4 +85,12 @@ export class UserService {
     public async getUserByUsername(username: string) {
         return this.userRepository.getUserByUsername(username);
     }
+
+    public async getUserRole(userId: number) {
+        return this.userRepository.getUserRole(userId);
+    }
+
+    public async getUserById(userId: number) {
+        return this.userRepository.getUser(userId);
+    }
 }
