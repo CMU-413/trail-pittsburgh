@@ -5,7 +5,7 @@ import {
 } from 'react-router-dom';
 import { useAuth } from '../../providers/AuthProvider';
 import { APP_NAME } from '../../constants/config';
-
+import { UserRoleEnum } from '../../types/index';
 export const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -41,29 +41,38 @@ export const Header: React.FC = () => {
         };
     }, [isProfileOpen]);
 
-    // Navigation links that are public
+    // Navigation links for public
     const publicNavigation = [
         { name: 'Home', href: '/', current: location.pathname === '/' },
     ];
 
-    // Navigation links for authenticated users
-    const authNavigation = [
+    // Navigation links for admins
+    const adminNavigation = [
         { name: 'Dashboard', href: '/dashboard', current: location.pathname === '/dashboard' },
         { name: 'Parks', href: '/parks', current: location.pathname.startsWith('/parks') },
         { name: 'Issues', href: '/issues', current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report' },
     ];
 
+    // Navigation links for super admins
+    const superAdminNavigation = [
+        { name: 'Users', href: '/users', current: location.pathname.startsWith('/users') },
+    ];
+
     // Report Issue link (public)
-    const reportIssueLink = {
-        name: 'Report Issue',
-        href: '/issues/report',
-        current: location.pathname === '/issues/report'
-    };
+    const reportIssueLink = { name: 'Report Issue', href: '/issues/report', current: location.pathname === '/issues/report' };
 
     // Determine which navigation to use
-    const navigation = hasPermission
-        ? [...publicNavigation, ...authNavigation, reportIssueLink]
-        : [...publicNavigation, reportIssueLink];
+    const navigation = () => {
+        if (!hasPermission) {
+            return [...publicNavigation, reportIssueLink];
+        } else if (hasPermission === UserRoleEnum.ROLE_ADMIN) {
+            return [...publicNavigation, ...adminNavigation, reportIssueLink];
+        } else if (hasPermission === UserRoleEnum.ROLE_SUPERADMIN) {
+            return [...publicNavigation, ...adminNavigation, ...superAdminNavigation, reportIssueLink];
+        } else {
+            return [...publicNavigation, reportIssueLink];
+        }
+    };
 
     // Handle profile actions
     const handleLogout = () => {
@@ -135,7 +144,7 @@ export const Header: React.FC = () => {
                             </Link>
                         </div>
                         <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                            {navigation.map((item) => (
+                            {navigation().map((item) => (
                                 <Link
                                     key={item.name}
                                     to={item.href}
@@ -253,7 +262,7 @@ export const Header: React.FC = () => {
             {isMenuOpen && (
                 <div className="sm:hidden absolute w-full bg-white border-b border-gray-200 shadow-lg">
                     <div className="pt-2 pb-3 space-y-1">
-                        {navigation.map((item) => (
+                        {navigation().map((item) => (
                             <Link
                                 key={item.name}
                                 to={item.href}

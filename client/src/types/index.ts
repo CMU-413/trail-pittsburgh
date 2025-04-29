@@ -45,6 +45,12 @@ export enum IssueUrgencyEnum {
     VERY_HIGH = 'VERY_HIGH'
 }
 
+export enum UserRoleEnum {
+    ROLE_USER = 'ROLE_USER',
+    ROLE_ADMIN = 'ROLE_ADMIN',
+    ROLE_SUPERADMIN = 'ROLE_SUPERADMIN'
+}
+
 export interface ImageMetadata {
     DateTimeOriginal?: string;
     Make?: string;
@@ -92,14 +98,12 @@ export type IssueParams = Omit<Issue, 'resolvedAt' | 'image' | 'issueId'> & {
     reporterEmail?: string;
 };
 
-export type UserRole = 'owner' | 'steward' | 'volunteer';
-
 export type User = {
     id: string;
     email: string;
     name?: string;
     picture?: string;
-    role?: string;
+    role?: UserRoleEnum;
     permission?: 'owner' | 'steward' | 'volunteer';
     profileImage?: string;
     username?: string;

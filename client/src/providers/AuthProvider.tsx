@@ -3,6 +3,8 @@ import React, {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '../types';
+import { UserRoleEnum } from '../types/index';
+import { userApi } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -10,7 +12,7 @@ interface AuthContextType {
   login: () => void;
   logout: () => void;
   isAuthenticated: boolean;
-  hasPermission: boolean;
+  hasPermission: UserRoleEnum | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,6 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [userRole, setUserRole] = useState<UserRoleEnum | null>(null);
     const navigate = useNavigate();
 
     // Fetch current user on mount
@@ -49,6 +52,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
+
+     // Fetch user role when user changes
+     useEffect(() => {
+        const fetchRole = async () => {
+            console.log('fetching role');
+            if (user) {
+                const role = await userApi.getUserRole();
+                setUserRole(role);
+            } else {
+                setUserRole(null);
+            }
+        };
+        fetchRole();
+    }, [user]);
 
     // Start OAuth flow
     const login = async () => {
@@ -85,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const isAuthenticated = !!user;
-    const hasPermission = user?.email?.endsWith(`@${import.meta.env.VITE_ORGANIZATION_DOMAIN}`) ?? false;
+    const hasPermission = userRole;
 
     return (
         <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated, hasPermission }}>
