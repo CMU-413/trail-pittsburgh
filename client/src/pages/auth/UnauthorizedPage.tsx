@@ -23,7 +23,7 @@ export const UnauthorizedPage: React.FC = () => {
                     {user?.email ? (
                         <>
                             Your email <span className="font-medium">{user.email}</span> doesn't have permission to access
-                            this area. Access is restricted to accounts only.
+                            this area. Access is restricted to authorized accounts only.
                         </>
                     ) : (
                         `Access to this area is restricted to ${APP_NAME} steward only.`

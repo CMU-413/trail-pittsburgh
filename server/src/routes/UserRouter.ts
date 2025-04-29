@@ -16,6 +16,7 @@ const router = express.Router();
 // User Routes
 router.get('/:userId/role',
     authenticateToken,
+    requireSuperAdmin,
     userController.getUserRole);
 
 router.get('/',
