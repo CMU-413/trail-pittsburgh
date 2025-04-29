@@ -1,7 +1,8 @@
 import {
     Park, Trail, Issue, IssueParams, IssueStatusEnum, IssueUrgencyEnum,
     IssueTypeEnum,
-    UserRoleEnum
+    UserRoleEnum,
+    User
 } from '../types';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL  }/api`;
@@ -276,10 +277,11 @@ export const issueApi = {
 };
 
 export const userApi = {
-    getUserRole: async (): Promise<UserRoleEnum> => {
-        const response = await fetch(`${API_BASE_URL}/users/role`, {
+    getUserRole: async (userId: number): Promise<UserRoleEnum> => {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/role`, {
             credentials: 'include'
         }).then(handleResponse);
+        console.log(response);
         return response.role;
     },
 };

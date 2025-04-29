@@ -43,8 +43,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const data = await res.json();
             if (data?.user) {
                 setUser(data.user);
+            
+                const userId = data.user.id;
+                const role = await userApi.getUserRole(userId);
+            
+                if (role) {
+                    setUserRole(role);
+                }
             } else {
                 setUser(null);
+                setUserRole(null);
             }
         } catch {
             setUser(null);
@@ -52,20 +60,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
-
-     // Fetch user role when user changes
-     useEffect(() => {
-        const fetchRole = async () => {
-            console.log('fetching role');
-            if (user) {
-                const role = await userApi.getUserRole();
-                setUserRole(role);
-            } else {
-                setUserRole(null);
-            }
-        };
-        fetchRole();
-    }, [user]);
 
     // Start OAuth flow
     const login = async () => {
@@ -94,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 credentials: 'include'
             });
             setUser(null);
+            setUserRole(null);
             navigate('/');
         } catch (error) {
             // eslint-disable-next-line no-console
