@@ -497,7 +497,7 @@ export const IssueDetailPage: React.FC = () => {
                                 )}
                             </div>
 
-                            {issue.status !== IssueStatusEnum.RESOLVED && <IssueTimer issue={issue} />}
+                            <IssueTimer issue={issue} />
 
                             <div>
                                 <p className="text-sm font-medium text-gray-500">Location</p>
