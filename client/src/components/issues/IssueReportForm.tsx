@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-    Park, Trail, ImageMetadata, IssueParams
+    Park, Trail, ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum
 } from '../../types';
+import { getUrgencyLabel, getUrgencyColor } from '../../utils/issueUrgencyUtils';
 import { Input } from '../ui/Input';
 import { TextArea } from '../ui/TextArea';
 import { Select } from '../ui/Select';
@@ -16,7 +17,7 @@ import {
 } from '../../services/api';
 
 interface IssueReportFormProps {
-    onSubmit: (data: IssueParams) => Promise<void>; // Fixed: replaced 'any' with 'ImageMetadata'
+    onSubmit: (data: IssueParams) => Promise<void>;
     initialParkId?: number;
     initialTrailId?: number;
 }
@@ -30,10 +31,10 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         parkId: initialParkId || 0,
         trailId: initialTrailId || 0,
         isPublic: true,
-        status: 'open',
+        status: IssueStatusEnum.OPEN,
         description: '',
-        issueType: '',
-        urgency: 3,
+        issueType: IssueTypeEnum.OTHER,
+        urgency: IssueUrgencyEnum.MEDIUM,
         notifyReporter: false,
         reporterEmail: '',
         createdAt: new Date().toISOString(),
@@ -52,12 +53,12 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     const [locationProvided, setLocationProvided] = useState(false);
 
     const issueTypes = [
-        { value: 'obstruction', label: 'Obstruction (tree down, etc.)' },
-        { value: 'erosion', label: 'Trail Erosion' },
-        { value: 'flooding', label: 'Flooding' },
-        { value: 'signage', label: 'Damaged/Missing Signage' },
-        { value: 'vandalism', label: 'Vandalism' },
-        { value: 'other', label: 'Other' }
+        { value: IssueTypeEnum.OBSTRUCTION, label: 'Obstruction (tree down, etc.)' },
+        { value: IssueTypeEnum.EROSION, label: 'Trail Erosion' },
+        { value: IssueTypeEnum.FLOODING, label: 'Flooding' },
+        { value: IssueTypeEnum.SIGNAGE, label: 'Damaged/Missing Signage' },
+        { value: IssueTypeEnum.VANDALISM, label: 'Vandalism' },
+        { value: IssueTypeEnum.OTHER, label: 'Other' }
     ];
 
     // Load parks and trails
@@ -145,11 +146,11 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         setFormData((prev) => ({ ...prev, [name]: Number(value) || value }));
     };
 
-    const handleIssueTypeSelect = (type: string) => {
+    const handleIssueTypeSelect = (type: IssueTypeEnum) => {
         setFormData((prev) => ({ ...prev, issueType: type }));
     };
 
-    const handleUrgencySelect = (level: number) => {
+    const handleUrgencySelect = (level: IssueUrgencyEnum) => {
         setFormData((prev) => ({ ...prev, urgency: level }));
     };
     
@@ -189,39 +190,39 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     };
 
     // Get issue type icon
-    const getIssueTypeIcon = (type: string) => {
+    const getIssueTypeIcon = (type: IssueTypeEnum) => {
         switch (type) {
-        case 'obstruction':
+        case IssueTypeEnum.OBSTRUCTION:
             return (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
             );
-        case 'erosion':
+        case IssueTypeEnum.EROSION:
             return (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
             );
-        case 'flooding':
+        case IssueTypeEnum.FLOODING:
             return (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
                 </svg>
             );
-        case 'signage':
+        case IssueTypeEnum.SIGNAGE:
             return (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
             );
-        case 'vandalism':
+        case IssueTypeEnum.VANDALISM:
             return (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
             );
-        case 'other':
+        case IssueTypeEnum.OTHER:
         default:
             return (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -278,6 +279,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             // Set the reported date to now
             const dataToSubmit = {
                 ...formData,
+                reporterEmail: formData.notifyReporter ? formData.reporterEmail : undefined,
                 reported_at: new Date().toISOString()
             } as IssueParams;
 
@@ -289,10 +291,10 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 parkId: 0,
                 trailId: 0,
                 isPublic: true,
-                status: 'open',
+                status: IssueStatusEnum.OPEN,
                 description: '',
-                issueType: '',
-                urgency: 3,
+                issueType: IssueTypeEnum.OTHER,
+                urgency: IssueUrgencyEnum.MEDIUM,
                 notifyReporter: false,
                 reporterEmail: '',
                 createdAt: new Date().toISOString(),
@@ -313,28 +315,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
             console.error('Error submitting issue:', err);
         } finally {
             setIsLoading(false);
-        }
-    };
-
-    const getUrgencyLabel = (level: number) => {
-        switch (level) {
-        case 1: return 'Very Low';
-        case 2: return 'Low';
-        case 3: return 'Medium';
-        case 4: return 'High';
-        case 5: return 'Very High';
-        default: return 'Medium';
-        }
-    };
-
-    const getUrgencyColor = (level: number) => {
-        switch (level) {
-        case 1: return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-        case 2: return 'bg-blue-100 text-blue-800 border-blue-200';
-        case 3: return 'bg-amber-100 text-amber-800 border-amber-200';
-        case 4: return 'bg-orange-100 text-orange-800 border-orange-200';
-        case 5: return 'bg-red-100 text-red-800 border-red-200';
-        default: return 'bg-gray-100 text-gray-800 border-gray-200';
         }
     };
 
@@ -432,7 +412,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         </label>
                         {/* For large screens: all options in one row */}
                         <div className="hidden md:grid md:grid-cols-5 gap-3">
-                            {[1, 2, 3, 4, 5].map((level) => (
+                            {Object.values(IssueUrgencyEnum).map((level) => (
                                 <button
                                     key={level}
                                     type="button"
@@ -452,7 +432,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
                         {/* For mobile: options stacked one per row */}
                         <div className="grid grid-cols-1 gap-3 md:hidden">
-                            {[1, 2, 3, 4, 5].map((level) => (
+                            {Object.values(IssueUrgencyEnum).map((level) => (
                                 <button
                                     key={level}
                                     type="button"

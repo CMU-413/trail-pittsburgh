@@ -1,5 +1,6 @@
 import { TrailRepository } from '@/repositories';
 import { TrailService } from '@/services';
+import { IssueUrgencyEnum, IssueStatusEnum } from '@prisma/client';
 
 jest.mock('@/repositories/TrailRepository');
 
@@ -32,10 +33,10 @@ describe('TrailService', () => {
                 parkId: 1,
                 trailId: 1,
                 isPublic: true,
-                status: 'Open',
+                status: IssueStatusEnum.OPEN,
                 description: 'First issue',
                 issueType: 'Erosion',
-                urgency: 3,
+                urgency: IssueUrgencyEnum.MEDIUM,
                 issueImage: null,
                 notifyReporter: true,
                 reporterEmail: 'user1@example.com',
@@ -49,10 +50,10 @@ describe('TrailService', () => {
                 parkId: 1,
                 trailId: 1,
                 isPublic: true,
-                status: 'Open',
+                status: IssueStatusEnum.OPEN,
                 description: 'Second issue',
                 issueType: 'Flooding',
-                urgency: 4,
+                urgency: IssueUrgencyEnum.HIGH,
                 issueImage: null,
                 notifyReporter: true,
                 reporterEmail: 'user2@example.com',

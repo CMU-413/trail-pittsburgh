@@ -1,3 +1,15 @@
+-- CreateEnum
+CREATE TYPE "IssueStatus" AS ENUM ('OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED');
+
+-- CreateEnum
+CREATE TYPE "IssueType" AS ENUM ('OBSTRUCTION', 'EROSION', 'FLOODING', 'SIGNAGE', 'VANDALISM', 'OTHER');
+
+-- CreateEnum
+CREATE TYPE "UserRole" AS ENUM ('ROLE_USER', 'ROLE_ADMIN', 'ROLE_SUPERADMIN');
+
+-- CreateEnum
+CREATE TYPE "Urgency" AS ENUM ('LOW', 'MEDIUM_LOW', 'MEDIUM', 'MEDIUM_HIGH', 'HIGH');
+
 -- CreateTable
 CREATE TABLE "Park" (
     "park_id" SERIAL NOT NULL,
@@ -27,10 +39,10 @@ CREATE TABLE "Issue" (
     "park_id" INTEGER NOT NULL,
     "trail_id" INTEGER NOT NULL,
     "is_public" BOOLEAN NOT NULL,
-    "status" TEXT NOT NULL,
+    "status" "IssueStatus" NOT NULL DEFAULT 'OPEN',
     "description" VARCHAR(150),
-    "issue_type" VARCHAR(150) NOT NULL,
-    "urgency" INTEGER NOT NULL,
+    "issue_type" "IssueType" NOT NULL,
+    "urgency" "Urgency" NOT NULL DEFAULT 'MEDIUM',
     "issue_image" VARCHAR(150),
     "notify_reporter" BOOLEAN NOT NULL,
     "reporter_email" VARCHAR(150) NOT NULL,
@@ -46,8 +58,7 @@ CREATE TABLE "Issue" (
 CREATE TABLE "User" (
     "user_id" SERIAL NOT NULL,
     "username" VARCHAR(100) NOT NULL,
-    "is_admin" BOOLEAN NOT NULL,
-    "permission" TEXT NOT NULL,
+    "role" "UserRole" NOT NULL DEFAULT 'ROLE_USER',
     "profile_image" VARCHAR NOT NULL,
     "email" VARCHAR(100) NOT NULL,
     "is_active" BOOLEAN NOT NULL,

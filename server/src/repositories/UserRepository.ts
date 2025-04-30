@@ -1,13 +1,6 @@
-import { isNotFoundError, prisma } from '@/prisma/prismaClient';
+import { User, UserRoleEnum } from '@prisma/client';
 
-interface UserUpdateData {
-    username?: string;
-    email?: string;
-    isAdmin?: boolean;
-    permission?: string;
-    profileImage?: string;
-    isActive?: boolean;
-}
+import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 
 export class UserRepository {
     public async getUser(userId: number) {
@@ -24,8 +17,7 @@ export class UserRepository {
     public async createUser(
         username: string,
         email: string,
-        isAdmin: boolean = false,
-        permission: string = 'read',
+        role: UserRoleEnum = UserRoleEnum.ROLE_USER,
         profileImage: string = 'default.jpg',
         isActive: boolean = true
     ) {
@@ -34,13 +26,11 @@ export class UserRepository {
                 data: {
                     username,
                     email,
-                    isAdmin: isAdmin,
-                    permission,
+                    role,
                     profileImage: profileImage,
                     isActive: isActive
                 }
             });
-            console.log('User created successfully:', result);
             return result;
         } catch (error) {
             console.error('Error creating user:', error);
@@ -68,7 +58,7 @@ export class UserRepository {
         }
     }
 
-    public async updateUser(userId: number, data: UserUpdateData) {
+    public async updateUser(userId: number, data: Partial<User>) {
         try {
             return await prisma.user.update({
                 where: { userId: userId },
@@ -99,6 +89,28 @@ export class UserRepository {
             });
         } catch (error) {
             console.error('Error getting user by username:', error);
+            throw error;
+        }
+    }
+
+    public async getUserRole(userId: number) {
+        try {
+            const user = await this.getUser(userId);
+            return user?.role;
+        } catch (error) {
+            console.error('Error getting user role:', error);
+            throw error;
+        }
+    }
+
+    public async updateUserRole(userId: number, role: UserRoleEnum) {
+        try {
+            return await prisma.user.update({
+                where: { userId: userId },
+                data: { role }
+            });
+        } catch (error) {
+            console.error('Error updating user role:', error);
             throw error;
         }
     }

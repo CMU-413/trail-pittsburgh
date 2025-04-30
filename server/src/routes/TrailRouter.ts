@@ -2,8 +2,9 @@
 import express from 'express';
 
 import { TrailController } from '@/controllers';
-import { authenticateToken } from '@/middlewares/auth';
-import { validateRequest } from '@/middlewares/validateRequest';
+import {
+    requireAdmin, requireSuperAdmin, authenticateToken, validateRequest 
+} from '@/middlewares/index';
 import { TrailRepository } from '@/repositories';
 import {
     createTrailSchema,
@@ -20,20 +21,25 @@ const trailController = new TrailController(trailService);
 
 const router = express.Router();
 
-//Public Routes
+// Public Routes
 router.get('/', trailController.getAllTrails); // Get all trails
-router.get('/:trailId', validateRequest(getTrailSchema), trailController.getTrail); // Get a specific trail
-router.get(
-    '/park/:parkId', 
-    validateRequest(getTrailsFromParkSchema), 
-    trailController.getTrailsByPark
-); // Get trails from a park
+router.get('/park/:parkId', validateRequest(getTrailsFromParkSchema), trailController.getTrailsByPark); // Get trails from a park
 
-// Protected Routes
+// User Routes
+// None for now
+
+// Admin Routes
+router.get('/:trailId', 
+    authenticateToken, 
+    validateRequest(getTrailSchema), 
+    requireAdmin,
+    trailController.getTrail); // Get a specific trail
+
 router.post(
     '/',
     authenticateToken,
     validateRequest(createTrailSchema),
+    requireAdmin,
     trailController.createTrail
 ); // Create a new trail
 
@@ -41,13 +47,16 @@ router.put(
     '/:trailId',
     authenticateToken,
     validateRequest(updateTrailSchema),
+    requireAdmin,
     trailController.updateTrail
 ); // Update a trail
 
+// Super Admin Routes
 router.delete(
     '/:trailId',
     authenticateToken,
     validateRequest(deleteTrailSchema),
+    requireSuperAdmin,
     trailController.deleteTrail
 ); // Delete a trail
 

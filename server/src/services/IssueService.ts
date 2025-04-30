@@ -1,11 +1,11 @@
+import {
+    IssueUrgencyEnum, IssueTypeEnum, IssueStatusEnum
+} from '@prisma/client';
 import { v4 as uuid } from 'uuid';
 
 import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
-import {
-    CreateIssueInput
-} from '@/schemas/issueSchema';
-import { IssueRecord } from '@/types/issueTypes';
+import { CreateIssueInput } from '@/schemas/issueSchema';
 
 export class IssueService {
     private readonly issueRepository: IssueRepository;
@@ -16,18 +16,16 @@ export class IssueService {
         this.issueImageBucket = imagesBucket;
     }
 
-    private async buildIssueWithImage(issue: IssueRecord) {
-        const { issueImage } = issue;
+    private async getIssueImage(imageKey: string) {
 
-        if (!issueImage) {
-            return issue;
-        }
+        const signedUrl = await this.issueImageBucket.getDownloadUrl(imageKey);
 
-        const image = await this.issueImageBucket.getDownloadUrl(issueImage);
+        const { contentType, metadata } = await this.issueImageBucket.getImageMetadata(imageKey);
 
         return {
-            image,
-            ...issue
+            ...signedUrl,
+            contentType,
+            metadata: metadata ?? {}
         };
     }
 
@@ -37,7 +35,12 @@ export class IssueService {
             return null;
         }
 
-        return this.buildIssueWithImage(issue);
+        const { issueImage } = issue;
+
+        return {
+            ...issue,
+            ...(issueImage && { image: await this.getIssueImage(issueImage) })
+        };
     }
 
     public async getAllIssues() {
@@ -45,16 +48,16 @@ export class IssueService {
     }
 
     public async createIssue(data: CreateIssueInput) {
-        const { imageType } = data;
+        const { imageMetadata } = data;
         let key: string | undefined;
         let signedUrl: SignedUrl | undefined;
 
-        if (imageType) {
+        if (imageMetadata) {
             // Generate image key
-            const ext = imageType.split('/')[1];
+            const ext = imageMetadata.contentType.split('/')[1];
             key = `${uuid()}.${ext}`;
 
-            signedUrl = await this.issueImageBucket.getUploadUrl(key, imageType);
+            signedUrl = await this.issueImageBucket.getUploadUrl(key, imageMetadata);
         }
 
         const newIssueInput = {
@@ -81,31 +84,40 @@ export class IssueService {
         return this.issueRepository.getIssuesByTrail(trailId);
     }
 
-    public async getIssuesByUrgency(urgencyLevel: number) {
+    public async getIssuesByUrgency(urgencyLevel: IssueUrgencyEnum) {
         return this.issueRepository.getIssuesByUrgency(urgencyLevel);
     }
 
-    public async updateIssueStatus(issueId: number, status: string) {
+    public async updateIssueStatus(issueId: number, status: IssueStatusEnum) {
         const issue = await this.issueRepository.updateIssueStatus(issueId, status);
-
         if (!issue) {
             return null;
         }
 
-        return this.buildIssueWithImage(issue);
+        const { issueImage } = issue;
+
+        return {
+            ...issue,
+            ...(issueImage && { image: await this.getIssueImage(issueImage) })
+        };
     }
 
     public async updateIssue(issueId: number, data: {
         description?: string;
-        urgency?: number;
-        issueType?: string;
+        urgency?: IssueUrgencyEnum;
+        issueType?: IssueTypeEnum;
     }) {
         const issue = await this.issueRepository.updateIssue(issueId, data);
-        
+
         if (!issue) {
             return null;
         }
-        
-        return this.buildIssueWithImage(issue);
+
+        const { issueImage } = issue;
+
+        return {
+            ...issue,
+            ...(issueImage && { image: await this.getIssueImage(issueImage) })
+        };
     }
 }

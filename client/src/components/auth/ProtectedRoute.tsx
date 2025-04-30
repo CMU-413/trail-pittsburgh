@@ -5,18 +5,22 @@ import {
 } from 'react-router-dom';
 import { useAuth } from '../../providers/AuthProvider';
 import { LoadingSpinner } from '../layout/LoadingSpinner';
+import { UserRoleEnum } from '../../types';
 
 interface ProtectedRouteProps {
-    requirePermission?: boolean; // If true, checks for organization email
+    isUser?: boolean;
+    isAdmin?: boolean;
+    isSuperAdmin?: boolean;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-    requirePermission = true
+    isUser = false,
+    isAdmin = false,
+    isSuperAdmin = false
 }) => {
-    const { isAuthenticated, hasPermission, loading, login } = useAuth();
+    const { isAuthenticated, loading, login, userRole } = useAuth();
     const location = useLocation();
 
-    // Move useEffect outside of conditional rendering
     useEffect(() => {
         if (!isAuthenticated && !loading) {
             login();
@@ -33,12 +37,26 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         return <LoadingSpinner message="Redirecting to login..." />;
     }
 
-    // If we require organization permission and user doesn't have it
-    if (requirePermission && !hasPermission) {
+    // Check if user has the required role
+    const hasRequiredRole = () => {
+        if (isSuperAdmin && userRole !== UserRoleEnum.ROLE_SUPERADMIN) {
+            return false;
+        }
+        if (isAdmin && userRole !== UserRoleEnum.ROLE_ADMIN && userRole !== UserRoleEnum.ROLE_SUPERADMIN) {
+            return false;
+        }
+        if (isUser && userRole !== UserRoleEnum.ROLE_USER && userRole !== UserRoleEnum.ROLE_ADMIN && userRole !== UserRoleEnum.ROLE_SUPERADMIN) {
+            return false;
+        }
+        return true;
+    };
+
+    // If user doesn't have the required role
+    if (!hasRequiredRole()) {
         return <Navigate to="/unauthorized" state={{ from: location }} replace />;
     }
 
-    // User is authenticated and has permission, render the protected content
+    // User is authenticated and has the required role, render the protected content
     return <Outlet />;
 };
 

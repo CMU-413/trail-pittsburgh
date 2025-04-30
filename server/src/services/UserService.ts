@@ -1,13 +1,6 @@
-import { UserRepository } from '@/repositories';
+import { User, UserRoleEnum } from '@prisma/client';
 
-interface UserData {
-    username?: string;
-    email?: string;
-    isAdmin?: boolean;
-    permission?: string;
-    profileImage?: string;
-    isActive?: boolean;
-}
+import { UserRepository } from '@/repositories';
 
 export class UserService {
     private readonly userRepository: UserRepository;
@@ -28,16 +21,14 @@ export class UserService {
     public async createUser(
         username: string,
         email: string,
-        isAdmin: boolean = false,
-        permission: string = 'read',
+        role: UserRoleEnum = UserRoleEnum.ROLE_USER,
         profileImage: string = this.DEFAULT_PROFILE_IMAGE,
         isActive: boolean = true
     ) {
         return this.userRepository.createUser(
             username,
             email,
-            isAdmin,
-            permission,
+            role,
             profileImage,
             isActive
         );
@@ -58,8 +49,7 @@ export class UserService {
             user = await this.createUser(
                 userData.name,
                 userData.email,
-                false,
-                'View',
+                UserRoleEnum.ROLE_USER,
                 profileImage,
                 true
             );
@@ -79,7 +69,7 @@ export class UserService {
         return this.userRepository.deleteUser(userId);
     }
 
-    public async updateUser(userId: number, data: UserData) {
+    public async updateUser(userId: number, data: Partial<User>) {
         const existingUser = await this.userRepository.getUser(userId);
         if (!existingUser) {
             return null;
@@ -94,5 +84,17 @@ export class UserService {
 
     public async getUserByUsername(username: string) {
         return this.userRepository.getUserByUsername(username);
+    }
+
+    public async getUserRole(userId: number) {
+        return this.userRepository.getUserRole(userId);
+    }
+
+    public async getUserById(userId: number) {
+        return this.userRepository.getUser(userId);
+    }
+
+    public async updateUserRole(userId: number, role: UserRoleEnum) {
+        return this.userRepository.updateUserRole(userId, role);
     }
 }

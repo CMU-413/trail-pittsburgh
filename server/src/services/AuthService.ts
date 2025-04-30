@@ -29,11 +29,6 @@ export class AuthService {
 
         const userData = await getGoogleUserData(tokens.access_token!);
 
-        const allowedDomain = process.env.ALLOWED_EMAIL_DOMAIN;
-        if (allowedDomain && !userData.email.endsWith(`@${allowedDomain}`)) {
-            throw new Error('Unauthorized domain');
-        }
-
         const user = await this.userService.findOrCreateFromGoogle({
             email: userData.email,
             name: userData.name,

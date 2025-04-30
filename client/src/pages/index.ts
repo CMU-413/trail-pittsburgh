@@ -20,3 +20,6 @@ export { TrailEditPage } from './trails/TrailEditPage';
 export { IssueListPage } from './issues/IssueListPage';
 export { IssueDetailPage } from './issues/IssueDetailPage';
 export { IssueReportPage } from './issues/IssueReportPage';
+
+// Users
+export { UserDetailPage } from './users/UserDetailPage';

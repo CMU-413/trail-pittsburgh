@@ -1,5 +1,8 @@
 import {
-    Park, Trail, Issue, IssueParams
+    Park, Trail, Issue, IssueParams, IssueStatusEnum, IssueUrgencyEnum,
+    IssueTypeEnum,
+    UserRoleEnum,
+    User
 } from '../types';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL  }/api`;
@@ -154,19 +157,35 @@ export const issueApi = {
         return response.issues;
     },
 
-    getIssuesByUrgency: async (urgency: number): Promise<Issue[]> => {
+    getIssuesByUrgency: async (urgency: IssueUrgencyEnum): Promise<Issue[]> => {
         const response = await fetch(`${API_BASE_URL}/issues/urgency/${urgency}`);
         return handleResponse(response);
     },
 
     createIssue: async (issueData: IssueParams): Promise<Issue> => {
-        const { image, ...payload } = issueData;
+        const { image, imageMetadata, ...payload } = issueData;
+
+        let headers =  undefined;
+        if (imageMetadata) {
+            const { DateTimeOriginal, latitude, longitude } = imageMetadata;
+            if (DateTimeOriginal && latitude && longitude) {
+                headers = {
+                    'x-goog-meta-capturedAt': DateTimeOriginal,
+                    'x-goog-meta-latitude': latitude.toString(),
+                    'x-goog-meta-longitude': longitude.toString(),
+                };
+            }
+        }
+
         const response = await fetch(`${API_BASE_URL}/issues`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 ...payload,
-                imageType: image?.type,
+                imageMetadata: image ? {
+                    contentType: image.type,
+                    headers,
+                } : undefined,
             }),
             credentials: 'include'
         })
@@ -179,6 +198,7 @@ export const issueApi = {
                 method: 'PUT',
                 headers: {
                     'Content-Type': image.type,
+                    ...headers
                 },
                 body: image,
             });
@@ -186,7 +206,7 @@ export const issueApi = {
         return issue;
     },
 
-    updateIssueStatus: async (issueId: number, status: string): Promise<Issue> => {
+    updateIssueStatus: async (issueId: number, status: IssueStatusEnum): Promise<Issue> => {
         // Create the request body with status
         const requestBody = JSON.stringify({ status });
         
@@ -241,8 +261,8 @@ export const issueApi = {
 
     updateIssue: async (issueId: number, data: {
         description?: string;
-        urgency?: number;
-        issueType?: string;
+        urgency?: IssueUrgencyEnum;
+        issueType?: IssueTypeEnum;
     }): Promise<Issue> => {
         const response = await fetch(`${API_BASE_URL}/issues/${issueId}`, {
             method: 'PUT',
@@ -252,5 +272,38 @@ export const issueApi = {
         }).then(handleResponse);
         
         return response.issue;
+    },
+};
+
+export const userApi = {
+    getUsers: async (): Promise<User[]> => {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users`, {
+            credentials: 'include',
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch users');
+        }
+        return response.json();
+    },
+
+    updateUserRole: async (userId: string, role: UserRoleEnum): Promise<void> => {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${userId}/role`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ role }),
+        });
+        if (!response.ok) {
+            throw new Error('Failed to update user role');
+        }
+    },
+
+    getUserRole: async (userId: number): Promise<UserRoleEnum> => {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/role`, {
+            credentials: 'include'
+        }).then(handleResponse);
+        return response.role;
     },
 };

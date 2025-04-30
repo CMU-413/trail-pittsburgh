@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  useDefine       = true
 }
 
 datasource db {
@@ -7,12 +8,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum IssueStatusEnum {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum IssueTypeEnum {
+  OBSTRUCTION
+  EROSION
+  FLOODING
+  SIGNAGE
+  VANDALISM
+  OTHER
+}
+
+enum IssueUrgencyEnum {
+  VERY_LOW
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+}
+
+enum UserRoleEnum {
+  ROLE_USER
+  ROLE_ADMIN
+  ROLE_SUPERADMIN
+}
+
 model Park {
-  parkId    Int      @id(map: "Parks_pkey") @default(autoincrement()) @map("park_id")
-  name      String   @db.VarChar(150)
-  county    String   @db.VarChar(150)
-  isActive  Boolean  @default(true)         @map("is_active")
-  createdAt DateTime @default(now())        @map("created_at")
+  parkId    Int      @id @default(autoincrement()) @map("park_id")
+  name      String   @db.VarChar(50)
+  county    String   @db.VarChar(50)
+  isActive  Boolean  @default(true)                @map("is_active")
+  createdAt DateTime @default(now())               @map("created_at")
 
   trails Trail[]
   issues Issue[]
@@ -20,56 +51,55 @@ model Park {
 
 model Trail {
   trailId   Int      @id @default(autoincrement()) @map("trail_id")
-  parkId    Int                                   @map("park_id")
-  name      String   @db.VarChar(150)
-  isActive  Boolean  @default(true)               @map("is_active")
-  isOpen    Boolean                               @map("is_open")
-  createdAt DateTime @default(now())              @map("created_at")
+  parkId    Int                                    @map("park_id")
+  name      String   @db.VarChar(100)
+  isActive  Boolean  @default(true)                @map("is_active")
+  isOpen    Boolean  @default(true)                @map("is_open")
+  createdAt DateTime @default(now())               @map("created_at")
 
   park   Park   @relation(fields: [parkId], references: [parkId])
   issues Issue[]
 }
 
 model Issue {
-  issueId        Int      @id @default(autoincrement())         @map("issue_id")
-  parkId         Int                                           @map("park_id")
-  trailId        Int                                           @map("trail_id")
-  isPublic       Boolean                                       @map("is_public")
-  status         String
-  description    String?  @db.VarChar(150)
-  issueType      String   @db.VarChar(150)                     @map("issue_type")
-  urgency        Int
-  issueImage     String?  @db.VarChar(150)                     @map("issue_image")
-  notifyReporter Boolean                                       @map("notify_reporter")
-  reporterEmail  String   @db.VarChar(150)                     @map("reporter_email")
+  issueId        Int              @id @default(autoincrement())   @map("issue_id")
+  parkId         Int                                              @map("park_id")
+  trailId        Int                                              @map("trail_id")
+  isPublic       Boolean                                          @map("is_public")
+  status         IssueStatusEnum  @default(OPEN)
+  description    String?          @db.VarChar(450)
+  issueType      IssueTypeEnum                                    @map("issue_type")
+  urgency        IssueUrgencyEnum
+  issueImage     String?          @db.VarChar(150)                @map("issue_image")
+  notifyReporter Boolean          @default(false)                 @map("notify_reporter")
+  reporterEmail  String           @db.VarChar(150)                @map("reporter_email")
   longitude      Float?
   latitude       Float?
-  createdAt      DateTime @default(now())                      @map("created_at")
-  resolvedAt     DateTime?                                     @map("resolved_at")
+  createdAt      DateTime         @default(now())                 @map("created_at")
+  resolvedAt     DateTime?                                        @map("resolved_at")
 
-  park           Park     @relation(fields: [parkId], references: [parkId])
-  trail          Trail    @relation(fields: [trailId], references: [trailId])
+  park           Park             @relation(fields: [parkId], references: [parkId])
+  trail          Trail            @relation(fields: [trailId], references: [trailId])
   notifications  Notification[]
 }
 
 model User {
-  userId       Int      @id @default(autoincrement()) @map("user_id")
-  username     String   @unique @db.VarChar(100)
-  isAdmin      Boolean                                  @map("is_admin")
-  permission   String
-  profileImage String   @db.VarChar                     @map("profile_image")
-  email        String   @unique @db.VarChar(100)
-  isActive     Boolean                                  @map("is_active")
-  createdAt    DateTime @default(now())                 @map("created_at")
+  userId       Int             @id @default(autoincrement())  @map("user_id")
+  username     String          @unique @db.VarChar(100)
+  role         UserRoleEnum    @default(ROLE_USER)
+  profileImage String          @db.VarChar                    @map("profile_image")
+  email        String          @unique @db.VarChar(100)
+  isActive     Boolean                                        @map("is_active")
+  createdAt    DateTime        @default(now())                @map("created_at")
 }
 
 model Notification {
-  notificationId Int      @id @default(autoincrement()) @map("notification_id")
-  issueId        Int                                     @map("issue_id")
-  recipientEmail String                                 @map("recipient_email")
-  content        String   @db.VarChar(150)
-  sentAt         DateTime?                              @map("sent_at")
-  createdAt      DateTime @default(now())               @map("created_at")
+  notificationId Int         @id @default(autoincrement())   @map("notification_id")
+  issueId        Int                                         @map("issue_id")
+  recipientEmail String                                      @map("recipient_email")
+  content        String      @db.VarChar(150)
+  sentAt         DateTime?                                   @map("sent_at")
+  createdAt      DateTime    @default(now())                 @map("created_at")
 
   user Issue @relation(fields: [issueId], references: [issueId])
 }

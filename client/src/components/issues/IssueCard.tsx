@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import {
     Issue, Park, Trail 
 } from '../../types';
+import { getUrgencyLevelIndex } from '../../utils/issueUrgencyUtils';
 import { Card } from '../ui/Card';
 import { IssueStatusBadge } from './IssueStatusBadge';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
@@ -39,15 +40,24 @@ export const IssueCard: React.FC<IssueCardProps> = ({
         }
     };
 
+    const formatIssueType = (type: string): string => {
+        return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+    };
+
     return (
         <Link to={`/issues/${issue.issueId}`} className="block hover:no-underline group">
             <Card className="h-full transition-all duration-300 group-hover:shadow-lg border border-gray-100 group-hover:border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900">
-                                {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
-                            </h3>
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    {formatIssueType(issue.issueType)} 
+                                    <span className="text-sm text-gray-500 font-normal ml-1">
+                                        #{issue.issueId}
+                                    </span>
+                                </h3>
+                            </div>
                             <p className="text-sm text-gray-500">Reported {getFormattedDate()}</p>
                         </div>
                     </div>
@@ -74,17 +84,20 @@ export const IssueCard: React.FC<IssueCardProps> = ({
                     <div className="flex items-center">
                         <span className="text-xs font-medium text-gray-500 mr-2">Urgency:</span>
                         <div className="flex">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                                <svg
-                                    key={i}
-                                    className={`w-4 h-4 ${i < issue.urgency ? 'text-red-500' : 'text-gray-300'}`}
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path d="M10.865 2.23a1 1 0 00-1.73 0L1.322 16.23A1 1 0 002.152 18h15.696a1 1 0 00.83-1.77L10.865 2.23zM10 14a1 1 0 110 2 1 1 0 010-2zm-.75-7.5a.75.75 0 011.5 0v4.5a.75.75 0 01-1.5 0V6.5z" />
-                                </svg>
-                            ))}
+                            {Array.from({ length: 5 }).map((_, i) => {
+                                const currentLevel = getUrgencyLevelIndex(issue.urgency);
+                                return (
+                                    <svg
+                                        key={i}
+                                        className={`w-4 h-4 ${i <= currentLevel ? 'text-red-500' : 'text-gray-300'}`}
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path d="M10.865 2.23a1 1 0 00-1.73 0L1.322 16.23A1 1 0 002.152 18h15.696a1 1 0 00.83-1.77L10.865 2.23zM10 14a1 1 0 110 2 1 1 0 010-2zm-.75-7.5a.75.75 0 011.5 0v4.5a.75.75 0 01-1.5 0V6.5z" />
+                                    </svg>
+                                );
+                            })}
                         </div>
                     </div>
 
