@@ -41,7 +41,8 @@ export class AuthController {
                 secure: isProd,
                 sameSite: isProd ? 'none' : 'lax',
                 maxAge: 24 * 60 * 60 * 1000,
-                path: '/'
+                path: '/',
+                domain: isProd ? process.env.CLIENT_URL : undefined,
             });
 
             const redirectTarget = typeof state === 'string' ? state : '/';
