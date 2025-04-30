@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setUser(data.user);
 
                 const role = data.user.role;
-            
+
                 if (role) {
                     setUserRole(role);
                 }
