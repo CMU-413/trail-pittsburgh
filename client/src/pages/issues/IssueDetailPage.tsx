@@ -277,8 +277,8 @@ export const IssueDetailPage: React.FC = () => {
                 subtitle={`#${issue.issueId} • ${park && trail ? `${park.name} • ${trail.name}` : 'Loading location...'}`}
                 action={
                     <div className="flex gap-3">
-                        {/* Edit button - only shown when not editing no matter issue is resolved or not */}
-                        {canEditIssue && !isEditing && (
+                        {/* Edit button - only shown when not editing and issue is not resolved */}
+                        {canEditIssue && !isEditing && issue.status !== IssueStatusEnum.RESOLVED && (
                             <Button
                                 variant="secondary"
                                 onClick={() => setIsEditing(true)}
