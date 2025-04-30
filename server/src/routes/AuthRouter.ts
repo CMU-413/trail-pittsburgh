@@ -17,7 +17,7 @@ const oAuth2Client = new OAuth2Client(
     `${process.env.SERVER_URL}/api/auth/google/callback`
 );
 const authService = new AuthService(userService, oAuth2Client);
-const authController = new AuthController(authService);
+const authController = new AuthController(authService, userService);
 
 const router = express.Router();
 

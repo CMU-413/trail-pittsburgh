@@ -44,9 +44,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const data = await res.json();
             if (data?.user) {
                 setUser(data.user);
-            
-                const userId = data.user.id;
-                const role = await userApi.getUserRole(userId);
+                console.log(data.user);
+
+                const role = data.user.role;
             
                 if (role) {
                     setUserRole(role);
