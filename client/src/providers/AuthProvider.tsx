@@ -4,7 +4,6 @@ import React, {
 import { useNavigate } from 'react-router-dom';
 import { User } from '../types';
 import { UserRoleEnum } from '../types/index';
-import { userApi } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -44,7 +43,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const data = await res.json();
             if (data?.user) {
                 setUser(data.user);
-                console.log(data.user);
 
                 const role = data.user.role;
             
