@@ -32,17 +32,16 @@ describe('Trail Routes', () => {
 
     afterAll(async () => {
         await prisma.$executeRaw`ROLLBACK`;
+        await prisma.$disconnect();
     });
 
-    afterAll(async () => {
+    beforeAll(async () => {
+        await prisma.$executeRaw`BEGIN`;
+        
         await prisma.notification.deleteMany();
         await prisma.issue.deleteMany();
         await prisma.trail.deleteMany();
         await prisma.park.deleteMany();
-        await prisma.$disconnect();
-    }); 
-    beforeAll(async () => {
-        await prisma.$executeRaw`BEGIN`;
         
         testPark = await prisma.park.create({
             data: {
@@ -54,9 +53,10 @@ describe('Trail Routes', () => {
     });
 
     beforeEach(async () => {
-        await prisma.trail.deleteMany({
-            where: { parkId: testParkId }
-        });
+        // Clean up all trails before each test, not just for the test park
+        await prisma.notification.deleteMany();
+        await prisma.issue.deleteMany();
+        await prisma.trail.deleteMany();
     });
 
     it('should create a new trail', async () => {
@@ -73,6 +73,12 @@ describe('Trail Routes', () => {
     });
 
     it('should get all trails', async () => {
+        const beforeResponse = await request(app)
+            .get('/api/trails')
+            .send();
+        
+        const initialTrailCount = beforeResponse.body.trails.length;
+        
         const NUMBER_OF_TRAILS = 5;
         for (let i = 0; i < NUMBER_OF_TRAILS; i++) {
             await request(app)
@@ -80,15 +86,15 @@ describe('Trail Routes', () => {
                 .set('Authorization', 'Bearer TEST_TOKEN')
                 .send({ ...newTrail, parkId: testParkId });
         }
-
-        const response = await request(app)
+    
+        const afterResponse = await request(app)
             .get('/api/trails')
             .send();
-
-        expect(response.status).toBe(200);
-        expect(response.body.trails).toHaveLength(NUMBER_OF_TRAILS);
-        expect(response.body.trails[0]).toHaveProperty('trailId');
-        expect(response.body.trails[0].trailId).toBeDefined();
+    
+        expect(afterResponse.status).toBe(200);
+        expect(afterResponse.body.trails.length).toBe(initialTrailCount + NUMBER_OF_TRAILS);
+        expect(afterResponse.body.trails[0]).toHaveProperty('trailId');
+        expect(afterResponse.body.trails[0].trailId).toBeDefined();
     });
 
     it('should get a trail', async () => {
@@ -175,6 +181,10 @@ describe('Trail Routes', () => {
     });
 
     it('should get trails by park', async () => {
+        await prisma.notification.deleteMany();
+        await prisma.issue.deleteMany();
+        await prisma.trail.deleteMany();
+        
         const NUMBER_OF_TRAILS = 3;
         for (let i = 0; i < NUMBER_OF_TRAILS; i++) {
             await request(app)
