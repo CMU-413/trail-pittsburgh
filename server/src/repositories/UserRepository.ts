@@ -82,17 +82,6 @@ export class UserRepository {
         }
     }
 
-    public async getUserByUsername(username: string) {
-        try {
-            return await prisma.user.findUnique({
-                where: { username }
-            });
-        } catch (error) {
-            console.error('Error getting user by username:', error);
-            throw error;
-        }
-    }
-
     public async getUserRole(userId: number) {
         try {
             const user = await this.getUser(userId);

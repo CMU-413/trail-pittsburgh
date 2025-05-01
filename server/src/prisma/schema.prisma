@@ -85,7 +85,7 @@ model Issue {
 
 model User {
   userId       Int             @id @default(autoincrement())  @map("user_id")
-  username     String          @unique @db.VarChar(100)
+  username     String          @db.VarChar(100)
   role         UserRoleEnum    @default(ROLE_USER)
   profileImage String          @db.VarChar                    @map("profile_image")
   email        String          @unique @db.VarChar(100)

@@ -126,13 +126,4 @@ describe('UserService', () => {
         expect(userRepositoryMock.getUserByEmail).toHaveBeenCalledWith('test@example.com');
         expect(result).toEqual(mockUser);
     });
-
-    test('should get user by username', async () => {
-        userRepositoryMock.getUserByUsername.mockResolvedValue(mockUser);
-
-        const result = await userService.getUserByUsername('test_user');
-
-        expect(userRepositoryMock.getUserByUsername).toHaveBeenCalledWith('test_user');
-        expect(result).toEqual(mockUser);
-    });
 });

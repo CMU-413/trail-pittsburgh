@@ -82,10 +82,6 @@ export class UserService {
         return this.userRepository.getUserByEmail(email);
     }
 
-    public async getUserByUsername(username: string) {
-        return this.userRepository.getUserByUsername(username);
-    }
-
     public async getUserRole(userId: number) {
         return this.userRepository.getUserRole(userId);
     }
