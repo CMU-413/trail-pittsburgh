@@ -18,15 +18,25 @@ export class IssueService {
 
     private async getIssueImage(imageKey: string) {
 
-        const signedUrl = await this.issueImageBucket.getDownloadUrl(imageKey);
+        try {
+            const signedUrl = await this.issueImageBucket.getDownloadUrl(imageKey);
 
-        const { contentType, metadata } = await this.issueImageBucket.getImageMetadata(imageKey);
+            const {
+                contentType,
+                metadata
+            } = await this.issueImageBucket.getImageMetadata(imageKey);
 
-        return {
-            ...signedUrl,
-            contentType,
-            metadata: metadata ?? {}
-        };
+            return {
+                ...signedUrl,
+                contentType,
+                metadata: metadata ?? {}
+            };
+
+        } catch (error) {
+            return {
+                errorMessage: 'Error: Unable to load image'
+            };
+        }
     }
 
     public async getIssue(issueId: number) {
