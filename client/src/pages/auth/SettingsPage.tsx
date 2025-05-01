@@ -109,6 +109,12 @@ export const SettingsPage: React.FC = () => {
 
                 <div className="lg:col-span-2 flex">
                     <Card title="Notification Settings" className="w-full flex flex-col">
+                        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-sm">
+                            <p className="text-sm text-blue-700">
+                                Note: Notification functionality is not currently implemented due to time constraints. 
+                                These settings are in place for future development.
+                            </p>
+                        </div>
                         <div className="space-y-6 flex-grow">
                             <div className="flex items-center justify-between">
                                 <div>
