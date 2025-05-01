@@ -48,9 +48,6 @@ Redirects the user to `${CLIENT_URL}/${state}` or `/` with no JSON body.
 - `/unauthorized` – if email domain is not allowed.
 - `/error` – on general authentication failure.
 
-**Notes:**
-- Only users with an email domain matching `ALLOWED_EMAIL_DOMAIN` are allowed.
-
 ---
 
 ## `POST /api/auth/logout`
