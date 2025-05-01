@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid';
 import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
 import { CreateIssueInput } from '@/schemas/issueSchema';
+import { logger } from '@/utils/logger';
 
 export class IssueService {
     private readonly issueRepository: IssueRepository;
@@ -33,6 +34,9 @@ export class IssueService {
             };
 
         } catch (error) {
+            logger.error(`Could not find issue image with key ${imageKey}`);
+            logger.error(error);
+            
             return {
                 errorMessage: 'Error: Unable to load image'
             };
