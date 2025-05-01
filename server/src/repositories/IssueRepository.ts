@@ -138,6 +138,8 @@ export class IssueRepository {
     }
 
     public async updateIssue(issueId: number, data: Partial<{
+        parkId?: number;
+        trailId?: number;
         description?: string;
         urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
@@ -149,6 +151,8 @@ export class IssueRepository {
                     ...(data.description !== undefined && { description: data.description }),
                     ...(data.urgency !== undefined && { urgency: data.urgency }),
                     ...(data.issueType !== undefined && { issueType: data.issueType }),
+                    ...(data.parkId !== undefined && { parkId: data.parkId }),
+                    ...(data.trailId !== undefined && { trailId: data.trailId }),
                 },
                 include: {
                     park: true,
