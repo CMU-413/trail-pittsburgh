@@ -1,13 +1,13 @@
 # Authentication API Routes
 
-Base URL: `/api/auth`
+**Base URL:** `/api/auth`
 
 ---
 
 ## `POST /api/auth`
 
 **Description:**  
-Generates a Google OAuth 2.0 authorization URL and returns it to the client.
+Initiates the Google OAuth 2.0 login process by generating an authorization URL.
 
 **Request Body:**
 ```json
@@ -24,39 +24,39 @@ Generates a Google OAuth 2.0 authorization URL and returns it to the client.
 ```
 
 **Notes:**
-- This route is used to initiate the login process from the frontend.
-- The request is validated against the `startOAuthSchema`.
+- This route is used to begin the login process from the frontend.
+- Request is validated against the `startOAuthSchema`.
 
 ---
 
 ## `GET /api/auth/google/callback`
 
 **Description:**  
-Handles the OAuth callback from Google. Exchanges the authorization code for user info, creates or finds the user in the database, signs a JWT, and sets it as an HTTP-only cookie.
+Handles the OAuth callback from Google. Exchanges the authorization code for user info, finds or creates a user in the database, signs a JWT, and sets it in an HTTP-only cookie.
 
 **Query Parameters:**
-- `code` – required – authorization code from Google
-- `state` – optional – frontend redirect path (originally passed in `redirectPath`)
+- `code` – *required* – Authorization code from Google.
+- `state` – *optional* – Original redirect path passed via `redirectPath`.
 
 **Response:**  
-Redirects to `${CLIENT_URL}/${state}` or `/` with no JSON body.
+Redirects the user to `${CLIENT_URL}/${state}` or `/` with no JSON body.
 
 **Cookie Set:**
 - `token` – HTTP-only, SameSite=Strict, Secure (in production)
 
 **Error Redirects:**
-- `/unauthorized` – if email domain is not allowed
-- `/error` – if other errors occur during authentication
+- `/unauthorized` – if email domain is not allowed.
+- `/error` – on general authentication failure.
 
 **Notes:**
-- Login is restricted to users with email domains matching the environment variable `ALLOWED_EMAIL_DOMAIN` (e.g., `@trailpittsburgh.org`).
+- Only users with an email domain matching `ALLOWED_EMAIL_DOMAIN` are allowed.
 
 ---
 
 ## `POST /api/auth/logout`
 
 **Description:**  
-Clears the authentication token by removing the `token` cookie.
+Logs out the current user by clearing the `token` cookie.
 
 **Response:**
 ```json
@@ -70,55 +70,64 @@ Clears the authentication token by removing the `token` cookie.
 ## `GET /api/auth/me`
 
 **Description:**  
-Returns the currently authenticated user by verifying the JWT token from the cookie.
+Retrieves the currently authenticated user by verifying the JWT token in the cookie.
 
-**Authentication Required:** Yes (JWT cookie)
+**Authentication Required:** Yes
 
-**Response:**
+**Response (Authenticated):**
 ```json
 {
   "user": {
     "id": 123,
-    "email": "user@example.com"
+    "email": "user@example.com",
+    "name": "Jane Doe",
+    "picture": "https://yourdomain.com/api/auth/profile-image-proxy?url=...",
+    "role": "admin"
   }
 }
 ```
 
-**Error Response (Unauthenticated):**
+**Response (Unauthenticated or No User Found):**
 ```json
 {
-  "error": "Access token required"
+  "user": null
 }
 ```
 
-**Error Response (Invalid/Expired Token):**
+**Error Response (Server Error):**
 ```json
 {
-  "error": "Invalid or expired token"
+  "message": "Failed to retrieve user information"
 }
 ```
+
+**Notes:**
+- If the user's `profileImage` is hosted on `googleusercontent.com`, it is proxied to bypass CORS.
+- The `role` field reflects user authorization level (e.g., `"user"`, `"admin"`, `"superadmin"`).
 
 ---
 
 ## `GET /api/auth/profile-image-proxy`
 
 **Description:**  
-Fetches a Google-hosted profile image from a specified URL and returns it with appropriate headers to handle CORS and caching.
+Fetches and proxies a Google-hosted profile image to avoid CORS issues, with appropriate caching headers.
 
 **Query Parameters:**
-- `url` – required – The URL of the Google-hosted image (`*.googleusercontent.com` only)
+- `url` – *required* – URL of the Google-hosted image (`*.googleusercontent.com` only)
 
-**Response:**  
-- Returns the proxied image with headers:
-  - `Content-Type` based on the image
-  - `Cache-Control: public, max-age=86400`
-  - `Access-Control-Allow-Origin: *`
+**Response:**
+- Returns the proxied image.
+
+**Headers:**
+- `Content-Type` — based on fetched image
+- `Cache-Control: public, max-age=86400`
+- `Access-Control-Allow-Origin: *`
 
 **Error Handling:**
-- Returns `400` if the URL is missing
-- Returns `403` if the URL does not contain `googleusercontent.com`
-- Redirects to a default avatar if image fetching fails:
+- Returns `400` if `url` is missing.
+- Returns `403` if `url` does not contain `googleusercontent.com`.
+- Redirects to a default avatar:
   `https://ui-avatars.com/api/?background=random&color=fff&size=400&name=User`
 
 **Notes:**
-- This is a proxy route to work around CORS issues when displaying Google profile images on the frontend.
+- This proxy is required due to CORS restrictions on Google's image servers.

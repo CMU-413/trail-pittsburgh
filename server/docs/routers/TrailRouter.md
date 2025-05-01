@@ -1,6 +1,6 @@
 # Trail API Routes
 
-Base URL: `/api/trails`
+**Base URL:** `/api/trails`
 
 ---
 
@@ -11,25 +11,10 @@ Base URL: `/api/trails`
 **Description:**  
 Retrieve all trails.
 
+**Authentication Required:** No
+
 **Response:**
 - `200 OK`: List of trail objects
-
----
-
-### `GET /api/trails/:trailId`
-
-**Description:**  
-Retrieve a specific trail by its ID.
-
-**Params:**
-- `trailId` (number, required)
-
-**Validation:**  
-- Validated using `getTrailSchema`
-
-**Response:**
-- `200 OK`: Trail object
-- `404 Not Found`: If trail doesn't exist
 
 ---
 
@@ -37,6 +22,8 @@ Retrieve a specific trail by its ID.
 
 **Description:**  
 Retrieve all trails belonging to a specific park.
+
+**Authentication Required:** No
 
 **Params:**
 - `parkId` (number, required)
@@ -53,12 +40,31 @@ Retrieve all trails belonging to a specific park.
 
 > Requires valid JWT in an HTTP-only cookie
 
+### `GET /api/trails/:trailId`
+
+**Description:**  
+Retrieve a specific trail by its ID.
+
+**Authentication Required:** Yes (Admin)
+
+**Params:**
+- `trailId` (number, required)
+
+**Validation:**  
+- Validated using `getTrailSchema`
+
+**Response:**
+- `200 OK`: Trail object
+- `404 Not Found`: If trail doesn't exist
+
+---
+
 ### `POST /api/trails`
 
 **Description:**  
 Create a new trail.
 
-**Authentication Required:** Yes
+**Authentication Required:** Yes (Admin)
 
 **Request Body:**
 ```json
@@ -84,7 +90,7 @@ Create a new trail.
 **Description:**  
 Update a trail's data (e.g., open/closed status or other fields).
 
-**Authentication Required:** Yes
+**Authentication Required:** Yes (Admin)
 
 **Params:**
 - `trailId` (number, required)
@@ -111,7 +117,7 @@ Update a trail's data (e.g., open/closed status or other fields).
 **Description:**  
 Delete a trail by ID.
 
-**Authentication Required:** Yes
+**Authentication Required:** Yes (Super Admin)
 
 **Params:**
 - `trailId` (number, required)

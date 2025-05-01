@@ -1,6 +1,6 @@
 # Park API Routes
 
-Base URL: `/api/parks`
+**Base URL:** `/api/parks`
 
 ---
 
@@ -11,15 +11,23 @@ Base URL: `/api/parks`
 **Description:**  
 Retrieve all parks.
 
+**Authentication Required:** No
+
 **Response:**
 - `200 OK`: List of park objects
 
 ---
 
+## Protected Routes
+
+> Requires valid JWT in an HTTP-only cookie
+
 ### `GET /api/parks/:parkId`
 
 **Description:**  
 Retrieve a specific park by ID.
+
+**Authentication Required:** Yes (Admin)
 
 **Params:**
 - `parkId` (number, required)
@@ -33,16 +41,12 @@ Retrieve a specific park by ID.
 
 ---
 
-## Protected Routes
-
-> Requires valid JWT in an HTTP-only cookie
-
 ### `POST /api/parks`
 
 **Description:**  
 Create a new park.
 
-**Authentication Required:** Yes
+**Authentication Required:** Yes (Admin)
 
 **Request Body:**
 ```json
@@ -67,7 +71,7 @@ Create a new park.
 **Description:**  
 Update a park’s data.
 
-**Authentication Required:** Yes
+**Authentication Required:** Yes (Admin)
 
 **Params:**
 - `parkId` (number, required)
@@ -96,7 +100,7 @@ Update a park’s data.
 **Description:**  
 Delete a park by ID.
 
-**Authentication Required:** Yes
+**Authentication Required:** Yes (Super Admin)
 
 **Params:**
 - `parkId` (number, required)
