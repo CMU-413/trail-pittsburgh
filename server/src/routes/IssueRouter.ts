@@ -79,7 +79,7 @@ router.put(
     '/:issueId',
     authenticateToken,
     validateRequest(updateIssueSchema),
-    requireSuperAdmin,
+    requireAdmin,
     issueController.updateIssue
 ); // Update an issue
 
