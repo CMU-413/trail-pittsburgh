@@ -6,6 +6,9 @@ import { PageHeader } from '../../components/layout/PageHeader';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { UserRoleEnum } from '../../types';
+import { APP_NAME } from '../../constants/config';
+import { formatUserRole, hasAccess } from '../../utils/formatters';
 
 export const ProfilePage: React.FC = () => {
     const { user, logout } = useAuth();
@@ -43,9 +46,9 @@ export const ProfilePage: React.FC = () => {
                             <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
                             <p className="text-sm text-gray-500 mb-4">{user.email}</p>
 
-                            {user.permission && (
+                            {user.role && (
                                 <Badge variant="primary" className="mb-4">
-                                    {user.permission}
+                                    {formatUserRole(user.role)}
                                 </Badge>
                             )}
 
@@ -76,7 +79,7 @@ export const ProfilePage: React.FC = () => {
                             </div>
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">Organization</h3>
-                                <p className="mt-1 text-base text-gray-900">{user.permission || 'Personal Account'}</p>
+                                <p className="mt-1 text-base text-gray-900">{APP_NAME}</p>
                             </div>
                         </div>
                     </Card>
@@ -86,14 +89,24 @@ export const ProfilePage: React.FC = () => {
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">Account Type</h3>
                                 <p className="mt-1 flex items-center">
-                                    {user.permission === 'owner' ? (
+                                    {user.role === UserRoleEnum.ROLE_SUPERADMIN ? (
                                         <>
-                                            <span className="bg-green-100 text-green-800 font-medium py-1 px-2 rounded-md text-sm">Steward</span>
-                                            <span className="ml-2 text-sm text-gray-600">Full access to all features</span>
+                                            <span className="bg-purple-100 text-purple-800 font-medium py-1 px-2 rounded-md text-sm">Super Admin</span>
+                                            <span className="ml-2 text-sm text-gray-600">Full access to all features and system administration</span>
+                                        </>
+                                    ) : user.role === UserRoleEnum.ROLE_ADMIN ? (
+                                        <>
+                                            <span className="bg-green-100 text-green-800 font-medium py-1 px-2 rounded-md text-sm">Admin</span>
+                                            <span className="ml-2 text-sm text-gray-600">Access to management features and reports</span>
+                                        </>
+                                    ) : user.role === UserRoleEnum.ROLE_USER ? (
+                                        <>
+                                            <span className="bg-blue-100 text-blue-800 font-medium py-1 px-2 rounded-md text-sm">User</span>
+                                            <span className="ml-2 text-sm text-gray-600">Standard user access</span>
                                         </>
                                     ) : (
                                         <>
-                                            <span className="bg-blue-100 text-blue-800 font-medium py-1 px-2 rounded-md text-sm">Public User</span>
+                                            <span className="bg-gray-100 text-gray-800 font-medium py-1 px-2 rounded-md text-sm">Public User</span>
                                             <span className="ml-2 text-sm text-gray-600">Limited access to public features only</span>
                                         </>
                                     )}
@@ -103,25 +116,29 @@ export const ProfilePage: React.FC = () => {
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">Permissions</h3>
                                 <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    <div className={`px-3 py-2 rounded-md ${user.permission === 'owner' ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
+                                    <div className={`px-3 py-2 rounded-md ${hasAccess(user.role, UserRoleEnum.ROLE_ADMIN) ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
                                         <span className="block text-sm font-medium">Dashboard</span>
-                                        <span className="block text-xs mt-1">{user.permission === 'owner' ? 'Full access' : 'No access'}</span>
+                                        <span className="block text-xs mt-1">{hasAccess(user.role, UserRoleEnum.ROLE_ADMIN) ? 'Full access' : 'No access'}</span>
                                     </div>
-                                    <div className={`px-3 py-2 rounded-md ${user.permission === 'owner' ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
+                                    <div className={`px-3 py-2 rounded-md ${hasAccess(user.role, UserRoleEnum.ROLE_ADMIN) ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
                                         <span className="block text-sm font-medium">Parks Management</span>
-                                        <span className="block text-xs mt-1">{user.permission === 'owner' ? 'Full access' : 'No access'}</span>
+                                        <span className="block text-xs mt-1">{hasAccess(user.role, UserRoleEnum.ROLE_ADMIN) ? 'Full access' : 'No access'}</span>
                                     </div>
-                                    <div className={`px-3 py-2 rounded-md ${user.permission === 'owner' ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
+                                    <div className={`px-3 py-2 rounded-md ${hasAccess(user.role, UserRoleEnum.ROLE_ADMIN) ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
                                         <span className="block text-sm font-medium">Trails Management</span>
-                                        <span className="block text-xs mt-1">{user.permission === 'owner' ? 'Full access' : 'No access'}</span>
+                                        <span className="block text-xs mt-1">{hasAccess(user.role, UserRoleEnum.ROLE_ADMIN) ? 'Full access' : 'No access'}</span>
                                     </div>
                                     <div className="px-3 py-2 rounded-md bg-green-50 text-green-700">
                                         <span className="block text-sm font-medium">Issue Reporting</span>
                                         <span className="block text-xs mt-1">Full access</span>
                                     </div>
-                                    <div className={`px-3 py-2 rounded-md ${user.permission === 'owner' ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
+                                    <div className={`px-3 py-2 rounded-md ${hasAccess(user.role, UserRoleEnum.ROLE_ADMIN) ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
                                         <span className="block text-sm font-medium">Issue Management</span>
-                                        <span className="block text-xs mt-1">{user.permission === 'owner' ? 'Full access' : 'No access'}</span>
+                                        <span className="block text-xs mt-1">{hasAccess(user.role, UserRoleEnum.ROLE_ADMIN) ? 'Full access' : 'No access'}</span>
+                                    </div>
+                                    <div className={`px-3 py-2 rounded-md ${hasAccess(user.role, UserRoleEnum.ROLE_SUPERADMIN) ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
+                                        <span className="block text-sm font-medium">User Management</span>
+                                        <span className="block text-xs mt-1">{hasAccess(user.role, UserRoleEnum.ROLE_SUPERADMIN) ? 'Full access' : 'No access'}</span>
                                     </div>
                                 </div>
                             </div>
