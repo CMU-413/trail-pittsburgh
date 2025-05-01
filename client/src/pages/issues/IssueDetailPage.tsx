@@ -35,6 +35,8 @@ export const IssueDetailPage: React.FC = () => {
     const [issue, setIssue] = useState<Issue | null>(null);
     const [park, setPark] = useState<Park | null>(null);
     const [trail, setTrail] = useState<Trail | null>(null);
+    const [parks, setParks] = useState<Park[]>([]);
+    const [trails, setTrails] = useState<Trail[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isResolving, setIsResolving] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -43,6 +45,8 @@ export const IssueDetailPage: React.FC = () => {
     const [editedDescription, setEditedDescription] = useState('');
     const [editedUrgency, setEditedUrgency] = useState<number>(1);
     const [editedIssueType, setEditedIssueType] = useState('');
+    const [editedParkId, setEditedParkId] = useState<number>(0);
+    const [editedTrailId, setEditedTrailId] = useState<number>(0);
     const [isSaving, setIsSaving] = useState(false);
 
     const { user } = useAuth();
@@ -89,7 +93,9 @@ export const IssueDetailPage: React.FC = () => {
                 setIssue(issueData);
                 setEditedDescription(issueData.description || '');
                 setEditedUrgency(issueUrgencyEnumToFrontend(issueData.urgency));
-                setEditedIssueType(issueData.issueType);
+                setEditedIssueType(issueData.issueType.toLowerCase());
+                setEditedParkId(issueData.parkId);
+                setEditedTrailId(issueData.trailId || 0);
 
                 // Fetch related park
                 const parkData = await parkApi.getPark(issueData.parkId);
@@ -98,6 +104,14 @@ export const IssueDetailPage: React.FC = () => {
                 // Fetch related trail
                 const trailData = await trailApi.getTrail(issueData.trailId);
                 setTrail(trailData || null);
+
+                // Fetch all parks for dropdown
+                const parksData = await parkApi.getParks();
+                setParks(parksData.filter((p) => p.isActive));
+
+                // Fetch trails for the selected park
+                const trailsData = await trailApi.getTrailsByPark(issueData.parkId);
+                setTrails(trailsData.filter((t) => t.isActive));
             } catch (err) {
                 // eslint-disable-next-line no-console
                 console.error('Error fetching issue details:', err);
@@ -109,6 +123,34 @@ export const IssueDetailPage: React.FC = () => {
 
         fetchIssueData();
     }, [issueId]);
+
+    // When park changes, update trails
+    useEffect(() => {
+        const fetchTrails = async () => {
+            if (editedParkId) {
+                try {
+                    const trailsData = await trailApi.getTrailsByPark(editedParkId);
+                    setTrails(trailsData.filter((trail) => trail.isActive));
+
+                    // If current trail doesn't belong to selected park, reset it
+                    if (editedTrailId) {
+                        const trailExists = trailsData.some((t) => t.trailId === editedTrailId);
+                        if (!trailExists) {
+                            setEditedTrailId(0);
+                        }
+                    }
+                } catch (err) {
+                    // eslint-disable-next-line no-console
+                    console.error('Error loading trails:', err);
+                }
+            } else {
+                setTrails([]);
+                setEditedTrailId(0);
+            }
+        };
+
+        fetchTrails();
+    }, [editedParkId, editedTrailId]);
 
     const handleResolveIssue = async () => {
         if (!issue || !issueId) {
@@ -145,6 +187,8 @@ export const IssueDetailPage: React.FC = () => {
                 description?: string;
                 urgency?: IssueUrgencyEnum;
                 issueType?: IssueTypeEnum;
+                parkId?: number;
+                trailId?: number;
             } = {};
             
             // Only include fields that have changed
@@ -155,9 +199,16 @@ export const IssueDetailPage: React.FC = () => {
             if (editedUrgencyEnum !== issue.urgency) {
                 updateData.urgency = editedUrgencyEnum;
             }
+            // Fix issue type comparison by converting both to the same format
             const editedIssueTypeEnum = issueTypeFrontendToEnum(editedIssueType);
             if (editedIssueTypeEnum !== issue.issueType) {
                 updateData.issueType = editedIssueTypeEnum;
+            }
+            if (editedParkId !== issue.parkId) {
+                updateData.parkId = editedParkId;
+            }
+            if (editedTrailId !== issue.trailId) {
+                updateData.trailId = editedTrailId;
             }
     
             if (Object.keys(updateData).length > 0) {
@@ -165,6 +216,17 @@ export const IssueDetailPage: React.FC = () => {
                 
                 if (updatedIssue) {
                     setIssue(updatedIssue);
+                    
+                    // Update park and trail data if they changed
+                    if (updateData.parkId) {
+                        const newPark = await parkApi.getPark(updateData.parkId);
+                        setPark(newPark || null);
+                    }
+                    if (updateData.trailId) {
+                        const newTrail = await trailApi.getTrail(updateData.trailId);
+                        setTrail(newTrail || null);
+                    }
+                    
                     setIsEditing(false);
                 }
             } else {
@@ -216,11 +278,19 @@ export const IssueDetailPage: React.FC = () => {
                 subtitle={`#${issue.issueId} • ${park && trail ? `${park.name} • ${trail.name}` : 'Loading location...'}`}
                 action={
                     <div className="flex gap-3">
-                        {/* Edit button - only shown when not editing no matter issue is resolved or not */}
-                        {canEditIssue && !isEditing && (
+                        {/* Edit button - only shown when not editing and issue is not resolved */}
+                        {canEditIssue && !isEditing && issue.status !== IssueStatusEnum.RESOLVED && (
                             <Button
                                 variant="secondary"
-                                onClick={() => setIsEditing(true)}
+                                onClick={() => {
+                                    setIsEditing(true);
+                                    // Reset fields to original values
+                                    setEditedDescription(issue.description || '');
+                                    setEditedUrgency(issueUrgencyEnumToFrontend(issue.urgency));
+                                    setEditedIssueType(issue.issueType.toLowerCase());
+                                    setEditedParkId(issue.parkId);
+                                    setEditedTrailId(issue.trailId || 0);
+                                }}
                             >
                                 Edit Issue
                             </Button>
@@ -236,7 +306,9 @@ export const IssueDetailPage: React.FC = () => {
                                         // Reset fields to original values
                                         setEditedDescription(issue.description || '');
                                         setEditedUrgency(issueUrgencyEnumToFrontend(issue.urgency));
-                                        setEditedIssueType(issue.issueType);
+                                        setEditedIssueType(issue.issueType.toLowerCase());
+                                        setEditedParkId(issue.parkId);
+                                        setEditedTrailId(issue.trailId || 0);
                                     }}
                                     disabled={isSaving}
                                 >
@@ -434,27 +506,69 @@ export const IssueDetailPage: React.FC = () => {
                                 )}
                             </div>
 
-                            {issue.status !== IssueStatusEnum.RESOLVED && <IssueTimer issue={issue} />}
+                            <IssueTimer issue={issue} />
 
                             <div>
                                 <p className="text-sm font-medium text-gray-500">Location</p>
                                 <div className="mt-1">
-                                    {park && (
-                                        <Link
-                                            to={`/parks/${park.parkId}`}
-                                            className="text-blue-600 hover:text-blue-500 block"
-                                        >
-                                            {park.name}
-                                        </Link>
-                                    )}
+                                    {isEditing ? (
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">
+                                                    Park
+                                                </label>
+                                                <select
+                                                    value={editedParkId}
+                                                    onChange={(e) => setEditedParkId(Number(e.target.value))}
+                                                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                                >
+                                                    <option value="">Select a park</option>
+                                                    {parks.map((p) => (
+                                                        <option key={p.parkId} value={p.parkId}>
+                                                            {p.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">
+                                                    Trail
+                                                </label>
+                                                <select
+                                                    value={editedTrailId}
+                                                    onChange={(e) => setEditedTrailId(Number(e.target.value))}
+                                                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                                    disabled={!editedParkId}
+                                                >
+                                                    <option value="">{editedParkId ? 'Select a trail' : 'Select a park first'}</option>
+                                                    {trails.map((t) => (
+                                                        <option key={t.trailId} value={t.trailId}>
+                                                            {t.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {park && (
+                                                <Link
+                                                    to={`/parks/${park.parkId}`}
+                                                    className="text-blue-600 hover:text-blue-500 block"
+                                                >
+                                                    {park.name}
+                                                </Link>
+                                            )}
 
-                                    {trail && (
-                                        <Link
-                                            to={`/parks/${park?.parkId}/trails/${trail.trailId}`}
-                                            className="text-blue-600 hover:text-blue-500 block mt-1"
-                                        >
-                                            {trail.name}
-                                        </Link>
+                                            {trail && (
+                                                <Link
+                                                    to={`/parks/${park?.parkId}/trails/${trail.trailId}`}
+                                                    className="text-blue-600 hover:text-blue-500 block mt-1"
+                                                >
+                                                    {trail.name}
+                                                </Link>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             </div>

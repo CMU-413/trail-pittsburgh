@@ -116,6 +116,8 @@ export class IssueService {
         description?: string;
         urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
+        parkId?: number;
+        trailId?: number;
     }) {
         const issue = await this.issueRepository.updateIssue(issueId, data);
 

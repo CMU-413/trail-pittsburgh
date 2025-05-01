@@ -6,6 +6,8 @@ import {
 import { useAuth } from '../../providers/AuthProvider';
 import { APP_NAME } from '../../constants/config';
 import { UserRoleEnum } from '../../types/index';
+import { formatUserRole } from '../../utils/formatters';
+
 export const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -14,7 +16,7 @@ export const Header: React.FC = () => {
     const navigate = useNavigate();
 
     // Get auth context
-    const { user, isAuthenticated, hasPermission, logout } = useAuth();
+    const { user, isAuthenticated, hasPermission, logout, userRole } = useAuth();
 
     // Handle scroll effect for header
     useEffect(() => {
@@ -174,7 +176,7 @@ export const Header: React.FC = () => {
                                     >
                                         <div className="text-right hidden md:block">
                                             <p className="text-sm font-medium text-gray-700 truncate">{user?.name}</p>
-                                            <p className="text-xs text-gray-500 capitalize">{hasPermission ? 'Steward' : 'Public'}</p>
+                                            <p className="text-xs text-gray-500 capitalize">{formatUserRole(userRole)}</p>
                                         </div>
                                         <div className="relative flex-shrink-0">
                                             <img
@@ -293,7 +295,7 @@ export const Header: React.FC = () => {
                                 </div>
                                 <div className="ml-3">
                                     <div className="text-base font-medium text-gray-800">{user?.name}</div>
-                                    <div className="text-sm font-medium text-gray-500 capitalize">{hasPermission ? 'Steward' : 'Public'}</div>
+                                    <div className="text-sm font-medium text-gray-500 capitalize">{formatUserRole(userRole)}</div>
                                 </div>
                             </div>
                             <div className="mt-3 space-y-1">
