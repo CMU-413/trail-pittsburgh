@@ -1,15 +1,19 @@
 # Issue API Routes
 
-Base URL: `/api/issues`
+**Base URL:** `/api/issues`
 
 ---
 
-## Public Routes
+## Protected Routes
+
+> Requires valid JWT in an HTTP-only cookie.
 
 ### `GET /api/issues`
 
 **Description:**  
 Retrieve all issues.
+
+**Authentication Required:** Yes (Admin)
 
 **Response:**
 - `200 OK`: List of issue objects
@@ -20,6 +24,8 @@ Retrieve all issues.
 
 **Description:**  
 Retrieve a specific issue by ID.
+
+**Authentication Required:** Yes (Admin)
 
 **Params:**
 - `issueId` (number, required)
@@ -38,6 +44,8 @@ Retrieve a specific issue by ID.
 **Description:**  
 Get issues associated with a specific park.
 
+**Authentication Required:** Yes (Admin)
+
 **Params:**
 - `parkId` (number, required)
 
@@ -53,6 +61,8 @@ Get issues associated with a specific park.
 
 **Description:**  
 Get issues associated with a specific trail.
+
+**Authentication Required:** Yes (Admin)
 
 **Params:**
 - `trailId` (number, required)
@@ -70,6 +80,8 @@ Get issues associated with a specific trail.
 **Description:**  
 Get issues by urgency level.
 
+**Authentication Required:** Yes (Admin)
+
 **Params:**
 - `urgency` (string, required – e.g. `"low"`, `"medium"`, `"high"`)
 
@@ -80,10 +92,6 @@ Get issues by urgency level.
 - `200 OK`: Filtered list of issues
 
 ---
-
-## Protected Routes
-
-> Requires valid JWT in an HTTP-only cookie
 
 ### `POST /api/issues`
 
@@ -115,7 +123,7 @@ Create a new issue.
 **Description:**  
 Update the status of an issue.
 
-**Authentication Required:** Yes
+**Authentication Required:** Yes (Admin)
 
 **Params:**
 - `issueId` (number, required)
@@ -137,12 +145,32 @@ Update the status of an issue.
 
 ---
 
+### `PUT /api/issues/:issueId`
+
+**Description:**  
+Update details of an issue.
+
+**Authentication Required:** Yes (Admin)
+
+**Params:**
+- `issueId` (number, required)
+
+**Validation:**  
+- Validated using `updateIssueSchema`
+
+**Response:**
+- `200 OK`: Updated issue
+- `404 Not Found`: If issue not found
+- `401 Unauthorized`: If not logged in
+
+---
+
 ### `DELETE /api/issues/:issueId`
 
 **Description:**  
 Delete an issue by ID.
 
-**Authentication Required:** Yes
+**Authentication Required:** Yes (Super Admin)
 
 **Params:**
 - `issueId` (number, required)
