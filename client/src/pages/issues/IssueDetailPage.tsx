@@ -93,7 +93,7 @@ export const IssueDetailPage: React.FC = () => {
                 setIssue(issueData);
                 setEditedDescription(issueData.description || '');
                 setEditedUrgency(issueUrgencyEnumToFrontend(issueData.urgency));
-                setEditedIssueType(issueData.issueType);
+                setEditedIssueType(issueData.issueType.toLowerCase());
                 setEditedParkId(issueData.parkId);
                 setEditedTrailId(issueData.trailId || 0);
 
@@ -199,6 +199,7 @@ export const IssueDetailPage: React.FC = () => {
             if (editedUrgencyEnum !== issue.urgency) {
                 updateData.urgency = editedUrgencyEnum;
             }
+            // Fix issue type comparison by converting both to the same format
             const editedIssueTypeEnum = issueTypeFrontendToEnum(editedIssueType);
             if (editedIssueTypeEnum !== issue.issueType) {
                 updateData.issueType = editedIssueTypeEnum;
@@ -281,7 +282,15 @@ export const IssueDetailPage: React.FC = () => {
                         {canEditIssue && !isEditing && issue.status !== IssueStatusEnum.RESOLVED && (
                             <Button
                                 variant="secondary"
-                                onClick={() => setIsEditing(true)}
+                                onClick={() => {
+                                    setIsEditing(true);
+                                    // Reset fields to original values
+                                    setEditedDescription(issue.description || '');
+                                    setEditedUrgency(issueUrgencyEnumToFrontend(issue.urgency));
+                                    setEditedIssueType(issue.issueType.toLowerCase());
+                                    setEditedParkId(issue.parkId);
+                                    setEditedTrailId(issue.trailId || 0);
+                                }}
                             >
                                 Edit Issue
                             </Button>
@@ -297,7 +306,7 @@ export const IssueDetailPage: React.FC = () => {
                                         // Reset fields to original values
                                         setEditedDescription(issue.description || '');
                                         setEditedUrgency(issueUrgencyEnumToFrontend(issue.urgency));
-                                        setEditedIssueType(issue.issueType);
+                                        setEditedIssueType(issue.issueType.toLowerCase());
                                         setEditedParkId(issue.parkId);
                                         setEditedTrailId(issue.trailId || 0);
                                     }}
