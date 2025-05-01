@@ -1,15 +1,30 @@
 import request from 'supertest';
-
 import { app } from '../../src/app';
 import { prisma } from '../../src/prisma/prismaClient';
+import { UserRoleEnum } from '@prisma/client';
+import { AuthRequest } from '../../src/middlewares/auth';
+import { Response, NextFunction } from 'express';
 
 const newPark = { name: 'Central Park', county: 'Test County' };
+
+jest.mock('../../src/middlewares/index', () => ({
+  ...jest.requireActual('../../src/middlewares/index'),
+  authenticateToken: (req: AuthRequest, res: Response, next: NextFunction) => {
+    req.user = {
+      userId: 1,
+      role: UserRoleEnum.ROLE_SUPERADMIN,
+      email: 'test@example.com'
+    };
+    next();
+  },
+  requireAdmin: (req: AuthRequest, res: Response, next: NextFunction) => next(),
+  requireSuperAdmin: (req: AuthRequest, res: Response, next: NextFunction) => next()
+}));
 
 describe('Park Routes', () => {
     
     beforeAll(async () => {
         await prisma.$executeRaw`BEGIN`;
-        // Delete in correct order to handle foreign key constraints
         await prisma.notification.deleteMany();
         await prisma.issue.deleteMany();
         await prisma.trail.deleteMany();
@@ -17,7 +32,6 @@ describe('Park Routes', () => {
     });
 
     afterEach(async () => {
-        // Delete in correct order to handle foreign key constraints
         await prisma.notification.deleteMany();
         await prisma.issue.deleteMany();
         await prisma.trail.deleteMany();
@@ -32,6 +46,7 @@ describe('Park Routes', () => {
     it('should create a new park', async () => {
         const response = await request(app)
             .post('/api/parks')
+            .set('Authorization', 'Bearer TEST_TOKEN')
             .send(newPark);
 
         expect(response.status).toBe(201);
@@ -44,6 +59,7 @@ describe('Park Routes', () => {
         for (let i = 0; i < NUMBER_OF_PARKS; i++) {
             await request(app)
                 .post('/api/parks')
+                .set('Authorization', 'Bearer TEST_TOKEN')
                 .send(newPark);
         }
 
@@ -59,12 +75,14 @@ describe('Park Routes', () => {
     it('should get a park', async () => {
         const createResponse = await request(app)
             .post('/api/parks')
+            .set('Authorization', 'Bearer TEST_TOKEN')
             .send(newPark);
 
         const id = createResponse.body.park.parkId;
 
         const response = await request(app)
             .get(`/api/parks/${id}`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
             .send();
 
         expect(response.status).toBe(200);
@@ -75,18 +93,21 @@ describe('Park Routes', () => {
     it('should delete a park', async () => {
         const createResponse = await request(app)
             .post('/api/parks')
+            .set('Authorization', 'Bearer TEST_TOKEN')
             .send(newPark);
 
         const id = createResponse.body.park.parkId;
 
         const deleteResponse = await request(app)
             .delete(`/api/parks/${id}`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
             .send();
 
         expect(deleteResponse.status).toBe(204);
 
         const getResponse = await request(app)
             .get(`/api/parks/${id}`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
             .send();
 
         expect(getResponse.status).toBe(404);
