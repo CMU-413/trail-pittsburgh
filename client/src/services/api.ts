@@ -166,11 +166,14 @@ export const issueApi = {
         const { image, imageMetadata, ...payload } = issueData;
 
         let headers =  undefined;
+
         if (imageMetadata) {
             const { DateTimeOriginal, latitude, longitude } = imageMetadata;
             if (DateTimeOriginal && latitude && longitude) {
+                const date = DateTimeOriginal as unknown as Date;
+
                 headers = {
-                    'x-goog-meta-capturedAt': DateTimeOriginal,
+                    'x-goog-meta-capturedAt': date.toISOString(),
                     'x-goog-meta-latitude': latitude.toString(),
                     'x-goog-meta-longitude': longitude.toString(),
                 };
