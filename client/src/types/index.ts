@@ -77,7 +77,7 @@ export type Issue = {
     description?: string;
     issueType: IssueTypeEnum;
     urgency: IssueUrgencyEnum;
-    image?: SignedUrl;
+    image?: Image;
     imageMetadata?: ImageMetadata;
     longitude?: number;
     latitude?: number;
@@ -87,10 +87,12 @@ export type Issue = {
     resolvedAt?: string;
 };  
 
-export type SignedUrl = {
+export type Image = {
     key: string;
     url: string;
-    type: 'download' | 'upload';
+    metadata: object;
+    contentType?: string;
+    errorMessage?: string;
 };
 
 export type IssueParams = Omit<Issue, 'resolvedAt' | 'image' | 'issueId'> & {

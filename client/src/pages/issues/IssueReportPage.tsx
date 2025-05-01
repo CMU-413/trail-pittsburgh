@@ -21,7 +21,9 @@ export const IssueReportPage: React.FC = () => {
 
     const handleSubmit = async (data: IssueParams) => {
         try {
-            await issueApi.createIssue(data);
+            const errorMsg = await issueApi.createIssue(data);
+            if (errorMsg) { console.error(errorMsg); } // TODO Update UI to display error message
+
             // Set submission state to true to hide the form
             setIsSubmitted(true);
             // Scroll to top for better UX

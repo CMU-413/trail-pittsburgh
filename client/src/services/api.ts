@@ -162,7 +162,7 @@ export const issueApi = {
         return handleResponse(response);
     },
 
-    createIssue: async (issueData: IssueParams): Promise<Issue> => {
+    createIssue: async (issueData: IssueParams): Promise<string | undefined> => {
         const { image, imageMetadata, ...payload } = issueData;
 
         let headers =  undefined;
@@ -188,13 +188,16 @@ export const issueApi = {
                 } : undefined,
             }),
             credentials: 'include'
-        })
-            .then(handleResponse);
+        });
 
-        const { issue, signedUrl } = response;
+        if (!response.ok) {
+            return 'Failed to create issue';
+        }
+
+        const { signedUrl } = await response.json();
 
         if (signedUrl && image) {
-            await fetch(signedUrl.url, {
+            const response = await fetch(signedUrl.url, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': image.type,
@@ -202,8 +205,13 @@ export const issueApi = {
                 },
                 body: image,
             });
+
+            if (!response.ok) {
+                return 'Issue created but failed to upload image';
+            }
         }
-        return issue;
+        return undefined;
+
     },
 
     updateIssueStatus: async (issueId: number, status: IssueStatusEnum): Promise<Issue> => {
