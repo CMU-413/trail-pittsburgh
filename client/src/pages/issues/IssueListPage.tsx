@@ -43,7 +43,7 @@ export const IssueListPage: React.FC = () => {
     // Filters
     const [selectedParkId, setSelectedParkId] = useState<number | undefined>(initialParkId);
     const [selectedTrailId, setSelectedTrailId] = useState<number | undefined>(initialTrailId);
-    const [selectedStatus, setSelectedStatus] = useState<IssueStatusEnum | 'all'>(initialStatus || 'all');
+    const [selectedStatus, setSelectedStatus] = useState<IssueStatusEnum | 'all'>(initialStatus || IssueStatusEnum.OPEN);
     const [dateFilter, setDateFilter] = useState<DateFilter>('all');
     const [sortBy, setSortBy] = useState<SortOption>('newest');
 
