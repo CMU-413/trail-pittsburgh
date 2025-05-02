@@ -238,9 +238,10 @@ export const IssueListPage: React.FC = () => {
                             label="Status"
                             options={[
                                 { value: 'all', label: 'All Statuses' },
-                                { value: 'open', label: 'Open' },
-                                { value: 'in_progress', label: 'In Progress' },
-                                { value: 'resolved', label: 'Resolved' }
+                                { value: IssueStatusEnum.OPEN, label: 'Open' },
+                                { value: IssueStatusEnum.IN_PROGRESS, label: 'In Progress' },
+                                { value: IssueStatusEnum.RESOLVED, label: 'Resolved' },
+                                { value: IssueStatusEnum.CLOSED, label: 'Closed' }
                             ]}
                             value={selectedStatus}
                             onChange={handleStatusChange}
