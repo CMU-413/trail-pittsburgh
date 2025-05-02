@@ -43,7 +43,7 @@ export const IssueListPage: React.FC = () => {
     // Filters
     const [selectedParkId, setSelectedParkId] = useState<number | undefined>(initialParkId);
     const [selectedTrailId, setSelectedTrailId] = useState<number | undefined>(initialTrailId);
-    const [selectedStatus, setSelectedStatus] = useState<IssueStatusEnum | 'all'>(initialStatus || 'all');
+    const [selectedStatus, setSelectedStatus] = useState<IssueStatusEnum | 'all'>(initialStatus || IssueStatusEnum.OPEN);
     const [dateFilter, setDateFilter] = useState<DateFilter>('all');
     const [sortBy, setSortBy] = useState<SortOption>('newest');
 
@@ -238,9 +238,10 @@ export const IssueListPage: React.FC = () => {
                             label="Status"
                             options={[
                                 { value: 'all', label: 'All Statuses' },
-                                { value: 'open', label: 'Open' },
-                                { value: 'in_progress', label: 'In Progress' },
-                                { value: 'resolved', label: 'Resolved' }
+                                { value: IssueStatusEnum.OPEN, label: 'Open' },
+                                { value: IssueStatusEnum.IN_PROGRESS, label: 'In Progress' },
+                                { value: IssueStatusEnum.RESOLVED, label: 'Resolved' },
+                                { value: IssueStatusEnum.CLOSED, label: 'Closed' }
                             ]}
                             value={selectedStatus}
                             onChange={handleStatusChange}
