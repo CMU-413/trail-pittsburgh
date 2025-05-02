@@ -16,12 +16,20 @@ Follow these steps to set up and run the client application:
     npm install
     ```
 
-3. **Start the development server:**
+3. **Set environment variables:**
+
+    In the `client` directory, ensure you have a `.env` file with the following line:
+
+    ```env
+    VITE_API_URL=http://localhost:3000
+    ```
+
+4. **Start the development server:**
 
     ```sh
     npm run dev
     ```
 
-4. **Verify the client is running:**
+5. **Verify the client is running:**
 
-   Open your browser and go to [http://localhost:5173](http://localhost:5173).  
+    Open your browser and go to [http://localhost:5173](http://localhost:5173).  
