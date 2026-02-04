@@ -55,25 +55,48 @@ To get this project up and running on your local machine, follow these steps:
 
     *   **Server:** Create a `.env` file in the `server` directory and configure the following variables (example):
         ```
-        DATABASE_URL="postgresql://user:password@host:port/database"
-        PROJECT_ID="your-gcp-project-id"
-        SERVICE_ACCOUNT_KEY="your-service-account-key-secret-name"
+        DATABASE_URL="postgresql://<username>@localhost:5432/trail_pgh"
+        PROJECT_ID="trail-pgh-issue-tracker"
+        GCS_SERVICE_ACCOUNT_KEY_FILENAME="<full filepath>"
+        TRAIL_ISSUE_IMAGE_BUCKET="trail-pgh-issue-images"
+        CLIENT_URL="http://localhost:5173"
         PORT=3000
         NODE_ENV=development
         ```
-        Ensure you have set up the **PROJECT_ID** and **SERVICE_ACCOUNT_KEY** in Google Cloud Secret Manager.
+        Steps to get `DATABASE_URL` working correctly:
+        ```
+        1. brew install postgresql@16
+        2. brew --prefix postgresql@16
+        3. echo 'export PATH="<output from step 2>/bin:$PATH"' >> ~/.zshrc
+        4. source ~/.zshrc
+        5. createddb trail_pgh
+        6. whoami
+        7 DATABASE_URL="postgresql:/[output from step 6]@localhost:5432/trail_pgh"
+        ```
 
+        Steps to get value for `GCS_SERVICE_ACCOUNT_KEY_FILENAME`:
+        ```
+        1. Go to https://console.cloud.google.com/iam-admin/serviceaccounts?referrer=search&authuser=0&hl=en&project=trail-pgh-issue-tracker
+        2. Click on trailpgh-service-account@trail-pgh-issue-tracker.iam.gserviceaccount.com
+        3. Select `Keys` tab
+        4. Select `Add key` -> `Create new key` -> `JSON` -> `Create`
+        5. Find the file locally (typically in `Downloads` folder), then move the file to safe place
+        6. `GCS_SERVICE_ACCOUNT_KEY_FILENAME="full filepath from step 5"`
+        ```
+
+        Ensure you have access to the **PROJECT_ID** and **SERVICE_ACCOUNT_KEY** in Google Cloud Secret Manager.
+        
     *   **Client:** Create a `.env.local` file in the `client` directory and configure the following variable (example):
         ```
-        VITE_GOOGLE_CLIENT_ID="your-google-oauth-client-id"
-        VITE_API_BASE_URL="http://localhost:3000/api" # Adjust if your server runs on a different port
+        VITE_API_URL="http://localhost:3000"
+        VITE_GOOGLE_CLIENT_ID="100051830254-ql36m1hdj5mo6u75i7if2qqcnus1osb6.apps.googleusercontent.com"
         ```
-        Obtain your **Google OAuth 2.0 Client ID** from the Google Cloud Console.
+        **Google OAuth 2.0 Client ID** was obtained from the Google Cloud Console.
 
 5.  **Set up the Database:**
 
-    *   Create a PostgreSQL database.
-    *   Update the `DATABASE_URL` in your server `.env` file with your database connection details.
+    *   Create a PostgreSQL database. (should be already done in step 4)
+    *   Update the `DATABASE_URL` in your server `.env` file with your database connection details. (should be already done in step 4)
     *   Run Prisma migrations to create the database schema:
         ```bash
         cd server
