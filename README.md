@@ -136,6 +136,32 @@ To get this project up and running on your local machine, follow these steps:
 
 Open your browser to `http://localhost:5173` to access the Trail Pittsburgh application.
 
+## **Architecture**
+
+* **Client**: Single Page App (Vite + React) — UI components, pages, auth context, API client. Entry: main.tsx → App.tsx.
+* **Server**: Express-like HTTP API — routes → controllers → services → repositories → Prisma (DB). Entry: server.ts / app.ts.
+* **Data flow**: Client `services/api.ts` → HTTP endpoints (`server/routes/*`) → controllers (`server/controllers/*`) → services (`server/services/*`) → repositories (`server/repositories/*`) → Prisma client (prismaClient.ts) → Postgres DB.
+
+## **External services used and how they're used**
+* **Google Cloud Storage (GCS)** — via @google-cloud/storage. Used to store issue/profile images and generate signed URLs for upload/download. Implementation: GCSBucket.ts.
+* **Google OAuth / Google APIs** — used for user authentication/identity: client uses `@react-oauth/google`, server calls Google userinfo endpoint (googleAuth.ts) and has `google-auth-library` in deps.
+* **Google Secret Manager** — dependency (`@google-cloud/secret-manager`) present for storing/retrieving secrets in GCP (server).
+* **Cloud Build + Cloud Run + Container Registry** — CI/CD and deployment pipeline defined in cloudbuild.yaml: builds Docker image for server, pushes to Container Registry, and deploys to Cloud Run. See cloudbuild.yaml.
+* **Cloud SQL (Postgres)** — referenced in cloudbuild.yaml via `--add-cloudsql-instances`, indicating production DB is a Cloud SQL Postgres instance.
+* **Firebase Hosting** — frontend configured for static hosting and SPA rewrites in firebase.json.
+* **Prisma / Postgres** — Postgres DB accessed via Prisma client; migrations under migrations.
+* **Local/other libs**: `multer` for multipart uploads (server), `exifr` + `heic2any` (client) for image metadata and HEIC conversion on upload.
+
+## **Deployment & infra notes**
+* Dockerfile for server builds TypeScript and Prisma client, then runs production image (see Dockerfile).
+* cloudbuild.yaml automates build/push/deploy to Cloud Run with Cloud SQL integration.
+* `deploy` script in package.json calls `gcloud builds submit`.
+
+## **Security & auth**
+* Backend uses JWT tokens (cookie-based) validated in auth.ts.
+* OAuth integration with Google (both client and server sides present).
+* Secrets expected to be provided through environment variables or Google Secret Manager in production.
+
 ## **Contributions**
 
 *   **Xinyi Chen**: xinyic2@andrew.cmu.edu
