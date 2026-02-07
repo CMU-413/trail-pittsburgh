@@ -169,6 +169,10 @@ Open your browser to `http://localhost:5173` to access the Trail Pittsburgh appl
 *   **Sen Feng**: senf@andrew.cmu.edu
 *   **Matthew Leboffe**: mleboffe@andrew.cmu.edu
 *   **Constantine Westerink**: cwesteri@andrew.cmu.edu
+*   ** Alanna Cao**: alannac@andrew.cmu.edu
+*   ** Alondra Robles**: arobles@andrew.cmu.edu
+*   ** Christina Trinh**: tchristina1607@gmail.com
+*   ** Vicky Zhu**: vickyzhu@andrew.cmu.edu
 
 ### Coding Standards
 
