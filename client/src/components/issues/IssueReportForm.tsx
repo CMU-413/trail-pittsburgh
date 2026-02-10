@@ -1,20 +1,16 @@
 // src/components/issues/IssueReportForm.tsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-    Park, Trail, ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum
+    ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum
 } from '../../types';
 import { getUrgencyLabel, getUrgencyColor } from '../../utils/issueUrgencyUtils';
 import { Input } from '../ui/Input';
-import { TextArea } from '../ui/TextArea';
-import { Select } from '../ui/Select';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
 import { ImageUpload } from '../ui/ImageUpload';
 import Location from '../ui/Location';
-import { 
-    parkApi, trailApi 
-} from '../../services/api';
+// import { TextArea } from '../ui/TextArea';
 
 interface IssueReportFormProps {
     onSubmit: (data: IssueParams) => Promise<void>;
@@ -28,13 +24,11 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     initialTrailId
 }) => {
     const [formData, setFormData] = useState<Partial<IssueParams>>({
-        parkId: initialParkId || 0,
-        trailId: initialTrailId || 0,
         isPublic: true,
         status: IssueStatusEnum.OPEN,
-        description: '',
-        issueType: IssueTypeEnum.OTHER,
-        urgency: IssueUrgencyEnum.MEDIUM,
+        // description: '',
+        issueType: IssueTypeEnum.OBSTRUCTION,
+        urgency: IssueUrgencyEnum.LOW,
         notifyReporter: false,
         reporterEmail: '',
         createdAt: new Date().toISOString(),
@@ -44,8 +38,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     });
 
     const [imgPreview, setImgPreview] = useState<string>();
-    const [parks, setParks] = useState<Park[]>([]);
-    const [trails, setTrails] = useState<Trail[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
@@ -60,57 +52,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         { value: IssueTypeEnum.VANDALISM, label: 'Vandalism' },
         { value: IssueTypeEnum.OTHER, label: 'Other' }
     ];
-
-    // Load parks and trails
-    useEffect(() => {
-        const fetchParks = async () => {
-            try {
-                const parksData = await parkApi.getParks();
-                setParks(parksData.filter((park) => park.isActive));
-
-                // If we have a park ID, load its trails
-                if (formData.parkId) {
-                    const trailsData = await trailApi.getTrailsByPark(formData.parkId);
-                    setTrails(trailsData.filter((trail) => trail.isActive));
-                }
-            } catch (err) {
-                // eslint-disable-next-line no-console
-                console.error('Error loading parks:', err);
-                setError('Unable to load parks. Please try again later.');
-            }
-        };
-
-        fetchParks();
-    }, [formData.parkId]);
-
-    // When park changes, update trails
-    useEffect(() => {
-        const fetchTrails = async () => {
-            if (formData.parkId) {
-                try {
-                    const trailsData = await trailApi.getTrailsByPark(formData.parkId);
-                    setTrails(trailsData.filter((trail) => trail.isActive));
-
-                    // If current trail doesn't belong to selected park, reset it
-                    if (formData.trailId) {
-                        const trailExists = trailsData.some((t) => t.trailId === formData.trailId);
-                        if (!trailExists) {
-                            setFormData((prev) => ({ ...prev, trailId: 0 }));
-                        }
-                    }
-                } catch (err) {
-                    // eslint-disable-next-line no-console
-                    console.error('Error loading trails:', err);
-                    setError('Unable to load trails. Please try again later.');
-                }
-            } else {
-                setTrails([]);
-                setFormData((prev) => ({ ...prev, trailId: 0 }));
-            }
-        };
-
-        fetchTrails();
-    }, [formData.parkId, formData.trailId]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -140,10 +81,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         }
 
         setFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleSelectChange = (name: string) => (value: string) => {
-        setFormData((prev) => ({ ...prev, [name]: Number(value) || value }));
     };
 
     const handleIssueTypeSelect = (type: IssueTypeEnum) => {
@@ -259,20 +196,16 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
         try {
             // Make sure all required fields are present
-            if (!formData.parkId) {
-                throw new Error('Please select a park.');
-            }
-
-            if (!formData.trailId) {
-                throw new Error('Please select a trail.');
-            }
-
             if (!formData.issueType) {
                 throw new Error('Please select an issue type.');
             }
 
-            if (!formData.description || formData.description.trim() === '') {
-                throw new Error('Please provide a description of the issue.');
+            // if (!formData.description || formData.description.trim() === '') {
+            //     throw new Error('Please provide a description of the issue.');
+            // }
+
+            if (!formData.imageMetadata) {
+                throw new Error('Please provide an image of the issue.');
             }
 
             // Check email if notification is enabled
@@ -300,13 +233,11 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
             // Reset form
             setFormData({
-                parkId: 0,
-                trailId: 0,
                 isPublic: true,
                 status: IssueStatusEnum.OPEN,
-                description: '',
+                // description: '',
                 issueType: IssueTypeEnum.OTHER,
-                urgency: IssueUrgencyEnum.MEDIUM,
+                urgency: IssueUrgencyEnum.LOW,
                 notifyReporter: false,
                 reporterEmail: '',
                 createdAt: new Date().toISOString(),
@@ -352,43 +283,19 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 </Alert>
             )}
 
-            {/* Location Section */}
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-5">Location Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Select
-                        label="Which park is the issue in?"
-                        options={[
-                            { value: '', label: 'Select a park' },
-                            ...parks.map((park) => ({ value: park.parkId.toString(), label: park.name }))
-                        ]}
-                        value={formData.parkId?.toString() || ''}
-                        onChange={handleSelectChange('parkId')}
-                        required
-                        fullWidth
-                        helperText="Select the park where you found the issue"
-                    />
-
-                    <Select
-                        label="Which trail is affected?"
-                        options={[
-                            { value: '', label: formData.parkId ? 'Select a trail' : 'Select a park first' },
-                            ...trails.map((trail) => ({ value: trail.trailId.toString(), label: trail.name }))
-                        ]}
-                        value={formData.trailId?.toString() || ''}
-                        onChange={handleSelectChange('trailId')}
-                        required
-                        fullWidth
-                        disabled={!formData.parkId}
-                        helperText="Select the specific trail with the issue"
-                    />
-                </div>
-            </div>
-
             {/* Issue Details Section */}
             <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-5">Issue Details</h3>
                 <div className="space-y-6">
+                    <ImageUpload
+                        label="Add a photo (Required)"
+                        onChange={handleImageChange}
+                        existingImageUrl={imgPreview}
+                        existingMetadata={formData.imageMetadata}
+                        className="mt-4"
+                        acceptedFormats="image/jpeg,image/png,image/gif,image/heic,image/heif"
+                    />
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                             What type of issue is it?
@@ -423,7 +330,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                             How urgent is this issue?
                         </label>
                         {/* For large screens: all options in one row */}
-                        <div className="hidden md:grid md:grid-cols-5 gap-3">
+                        <div className="hidden md:grid md:grid-cols-3 gap-3">
                             {Object.values(IssueUrgencyEnum).map((level) => (
                                 <button
                                     key={level}
@@ -469,7 +376,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         <p className="mt-2 text-xs text-gray-500">Select the urgency level based on safety risk and trail usability impact</p>
                     </div>
 
-                    <TextArea
+                    {/* Disable right now */}
+                    {/* <TextArea
                         label="Describe the issue and location"
                         name="description"
                         value={formData.description}
@@ -478,16 +386,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         placeholder="Please provide details about the issue (what you saw, where exactly it is located, etc.)..."
                         required
                         fullWidth
-                    />
-
-                    <ImageUpload
-                        label="Add a photo (optional)"
-                        onChange={handleImageChange}
-                        existingImageUrl={imgPreview}
-                        existingMetadata={formData.imageMetadata}
-                        className="mt-4"
-                        acceptedFormats="image/jpeg,image/png,image/gif,image/heic,image/heif"
-                    />
+                    /> */}
                 </div>
             </div>
 
@@ -513,7 +412,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         />
                         <label htmlFor="notifyReporter" className="ml-3 block text-sm text-gray-700">
-                            Notify me when this issue is resolved
+                            Opt-in for email notification on status updates regarding this issue
                         </label>
                     </div>
 
@@ -528,7 +427,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                                 onChange={handleChange}
                                 placeholder="your.email@example.com"
                                 error={emailError || undefined}
-                                helperText="We'll send you an update when this issue is resolved"
+                                helperText="We'll send you an update when on status changes on this issue"
                                 fullWidth
                                 leadingIcon={
                                     <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -546,9 +445,9 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 <Button
                     type="submit"
                     variant="primary"
-                    size="md"
+                    size="lg"
                     isLoading={isLoading}
-                    className="px-10 sm:px-12"
+                    className="px-14 py-4 text-lg"
                 >
                     Submit Issue Report
                 </Button>

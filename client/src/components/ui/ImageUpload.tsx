@@ -187,7 +187,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                                 strokeLinejoin="round"
                             />
                         </svg>
-                        <div className="flex text-sm text-gray-600">
+                        <div className="flex text-lg text-gray-600 ">
                             <label
                                 htmlFor="file-upload"
                                 className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"

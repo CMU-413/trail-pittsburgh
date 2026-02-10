@@ -245,7 +245,7 @@ const Location: React.FC<LocationProps> = ({
                                 isLoading={loading}
                                 className="self-start mt-2 mb-2 px-4"
                             >
-                                {latitude && longitude ? 'Update My Location' : 'Share My Location'}
+                                {latitude && longitude ? 'Update My Location' : 'Share My Location (Optional)'}
                             </Button>
                         </div>
 

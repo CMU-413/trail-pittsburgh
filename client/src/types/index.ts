@@ -37,11 +37,9 @@ export enum IssueTypeEnum {
 }
 
 export enum IssueUrgencyEnum {
-    VERY_LOW = 'VERY_LOW',
     LOW = 'LOW',
     MEDIUM = 'MEDIUM',
-    HIGH = 'HIGH',
-    VERY_HIGH = 'VERY_HIGH'
+    HIGH = 'HIGH'
 }
 
 export enum UserRoleEnum {

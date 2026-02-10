@@ -24,11 +24,9 @@ enum IssueTypeEnum {
 }
 
 enum IssueUrgencyEnum {
-  VERY_LOW
   LOW
   MEDIUM
   HIGH
-  VERY_HIGH
 }
 
 enum UserRoleEnum {
