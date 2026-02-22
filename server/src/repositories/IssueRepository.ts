@@ -1,5 +1,6 @@
 import {
-    IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
+    IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum, 
+    Prisma
 } from '@prisma/client';
 
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
@@ -58,35 +59,35 @@ export class IssueRepository {
         });
     }
 
-	public async getMapPins(minLat: number, 
-				minLng: number, 
-				maxLat: number, 
-				maxLng: number,
-				issueTypes: IssueTypeEnum[],
-				status: IssueStatusEnum) {
-		const whereClause: any = {
-			status,
-			latitude: { not: null, gte: minLat, lte: maxLat },
-			longitude: { not: null, gte: minLng, lte: maxLng },
-		};
+    public async getMapPins(minLat: number, 
+        minLng: number, 
+        maxLat: number, 
+        maxLng: number,
+        issueTypes: IssueTypeEnum[],
+        status: IssueStatusEnum) {
+        const whereClause : Prisma.IssueWhereInput = {
+            status,
+            latitude: { not: null, gte: minLat, lte: maxLat },
+            longitude: { not: null, gte: minLng, lte: maxLng },
+        };
 
         if (issueTypes && issueTypes.length > 0) {
   			whereClause.issueType = { in: issueTypes };
-		}
+        }
 
         return prisma.issue.findMany({
-			where: whereClause,
-			select: {
-				issueId: true,
+            where: whereClause,
+            select: {
+                issueId: true,
                 latitude: true,
                 longitude: true,
                 issueType: true,
                 urgency: true,
                 status: true,
                 createdAt: true,
-           },
+            },
         });
-	}
+    }
 
     public async deleteIssue(issueId: number) {
         try {

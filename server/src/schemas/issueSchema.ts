@@ -28,14 +28,14 @@ export const getIssueSchema = z.object({
 });
 
 export const getIssueMapPinsSchema = z.object({
-  query: z.object({
+    query: z.object({
     // required, because map requests need bounds (range of lat and lng)
-    bbox: z.string().min(1),
-    issueTypes:z
-		.union([z.nativeEnum(IssueTypeEnum), z.array(z.nativeEnum(IssueTypeEnum))])
+        bbox: z.string().min(1),
+        issueTypes:z
+            .union([z.nativeEnum(IssueTypeEnum), z.array(z.nativeEnum(IssueTypeEnum))])
  		.transform((v) => (v === undefined ? [] : Array.isArray(v) ? v : [v]))
   		.default([]),
-  })
+    })
 });
 
 export const updateIssueStatusSchema = z.object({

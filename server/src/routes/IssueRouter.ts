@@ -13,7 +13,7 @@ import {
     getIssuesByTrailSchema,
     getIssuesByUrgencySchema,
     getIssueSchema,
-	getIssueMapPinsSchema,
+    getIssueMapPinsSchema,
     updateIssueStatusSchema,
     updateIssueSchema
 } from '@/schemas/issueSchema';
@@ -63,8 +63,8 @@ router.get('/urgency/:urgency',
     issueController.getIssuesByUrgency); // Get issues by urgency
 
 router.get('/map', 
-	validateRequest(getIssueMapPinsSchema),
-	issueController.getMapPins);
+    validateRequest(getIssueMapPinsSchema),
+    issueController.getMapPins);
 
 router.get('/:issueId', 
     authenticateToken,
