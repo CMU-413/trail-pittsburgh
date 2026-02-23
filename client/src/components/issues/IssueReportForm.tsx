@@ -2,33 +2,29 @@
 
 import React, { useState } from 'react';
 import {
-    ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum
+    ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum, IssuePassibleEnum
 } from '../../types';
-import { getUrgencyLabel, getUrgencyColor } from '../../utils/issueUrgencyUtils';
+import { getSafetyRiskLabel, getSafetyRiskColor } from '../../utils/issueSafetyRiskUtils';
+import { getPassibleLabel, getPassibleColor } from '../../utils/issuePassibleUtils';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
 import { ImageUpload } from '../ui/ImageUpload';
 import Location from '../ui/Location';
-// import { TextArea } from '../ui/TextArea';
+import { TextArea } from '../ui/TextArea';
 
 interface IssueReportFormProps {
     onSubmit: (data: IssueParams) => Promise<void>;
-    initialParkId?: number;
-    initialTrailId?: number;
 }
 
-export const IssueReportForm: React.FC<IssueReportFormProps> = ({
-    onSubmit,
-    initialParkId,
-    initialTrailId
-}) => {
+export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) => {
     const [formData, setFormData] = useState<Partial<IssueParams>>({
         isPublic: true,
         status: IssueStatusEnum.OPEN,
-        // description: '',
+        description: '',
         issueType: IssueTypeEnum.OBSTRUCTION,
-        urgency: IssueUrgencyEnum.LOW,
+        safetyRisk: IssueRiskEnum.NO_RISK,
+        passible: IssuePassibleEnum.YES,
         notifyReporter: false,
         reporterEmail: '',
         createdAt: new Date().toISOString(),
@@ -46,10 +42,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
     const issueTypes = [
         { value: IssueTypeEnum.OBSTRUCTION, label: 'Obstruction (tree down, etc.)' },
-        { value: IssueTypeEnum.EROSION, label: 'Trail Erosion' },
-        { value: IssueTypeEnum.FLOODING, label: 'Flooding' },
-        { value: IssueTypeEnum.SIGNAGE, label: 'Damaged/Missing Signage' },
-        { value: IssueTypeEnum.VANDALISM, label: 'Vandalism' },
+        { value: IssueTypeEnum.STANDINGWATER, label: 'Standing Water/Mud' },
         { value: IssueTypeEnum.OTHER, label: 'Other' }
     ];
 
@@ -87,8 +80,12 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         setFormData((prev) => ({ ...prev, issueType: type }));
     };
 
-    const handleUrgencySelect = (level: IssueUrgencyEnum) => {
-        setFormData((prev) => ({ ...prev, urgency: level }));
+    const handleSafetyRiskSelect = (level: IssueRiskEnum) => {
+        setFormData((prev) => ({ ...prev, safetyRisk: level }));
+    };
+
+    const handlePassibleSelect = (level: IssuePassibleEnum) => {
+        setFormData((prev) => ({ ...prev, passible: level }));
     };
     
     const handleImageChange = (file: File | null, previewUrl: string | null, metadata?: ImageMetadata) => {
@@ -147,28 +144,10 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
             );
-        case IssueTypeEnum.EROSION:
-            return (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-            );
-        case IssueTypeEnum.FLOODING:
+        case IssueTypeEnum.STANDINGWATER:
             return (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                </svg>
-            );
-        case IssueTypeEnum.SIGNAGE:
-            return (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-            );
-        case IssueTypeEnum.VANDALISM:
-            return (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
             );
         case IssueTypeEnum.OTHER:
@@ -237,8 +216,9 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 status: IssueStatusEnum.OPEN,
                 // description: '',
                 issueType: IssueTypeEnum.OTHER,
-                urgency: IssueUrgencyEnum.LOW,
+                safetyRisk: IssueRiskEnum.NO_RISK,
                 notifyReporter: false,
+                passible: IssuePassibleEnum.YES,
                 reporterEmail: '',
                 createdAt: new Date().toISOString(),
                 longitude: undefined,
@@ -324,48 +304,48 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         <p className="mt-2 text-xs text-gray-500">Select the category that best describes the issue</p>
                     </div>
 
-                    {/* Urgency selector */}
+                    {/* Risk selector */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
-                            How urgent is this issue?
+                            Safety Risk?
                         </label>
                         {/* For large screens: all options in one row */}
                         <div className="hidden md:grid md:grid-cols-3 gap-3">
-                            {Object.values(IssueUrgencyEnum).map((level) => (
+                            {Object.values(IssueRiskEnum).map((level) => (
                                 <button
                                     key={level}
                                     type="button"
-                                    onClick={() => handleUrgencySelect(level)}
+                                    onClick={() => handleSafetyRiskSelect(level)}
                                     className={`
-                                        p-3 rounded-lg text-center border transition-all cursor-pointer
-                                        ${formData.urgency === level
-                                    ? `${getUrgencyColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
+                                        p-4 rounded-lg text-center border transition-all cursor-pointer
+                                        ${formData.safetyRisk === level
+                                    ? `${getSafetyRiskColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
                                     : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
                                 }
                                     `}
                                 >
-                                    <div className="text-sm font-medium">{getUrgencyLabel(level)}</div>
+                                    <div className="text-sm font-medium">{getSafetyRiskLabel(level)}</div>
                                 </button>
                             ))}
                         </div>
 
                         {/* For mobile: options stacked one per row */}
                         <div className="grid grid-cols-1 gap-3 md:hidden">
-                            {Object.values(IssueUrgencyEnum).map((level) => (
+                            {Object.values(IssueRiskEnum).map((level) => (
                                 <button
                                     key={level}
                                     type="button"
-                                    onClick={() => handleUrgencySelect(level)}
+                                    onClick={() => handleSafetyRiskSelect(level)}
                                     className={`
-                                        p-3 rounded-lg text-center border transition-all flex justify-between items-center cursor-pointer
-                                        ${formData.urgency === level
-                                    ? `${getUrgencyColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
+                                        p-4 rounded-lg text-center border transition-all flex justify-between items-center cursor-pointer
+                                        ${formData.safetyRisk === level
+                                    ? `${getSafetyRiskColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
                                     : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
                                 }
                                     `}
                                 >
-                                    <div className="text-sm font-medium">{getUrgencyLabel(level)}</div>
-                                    {formData.urgency === level && (
+                                    <div className="text-sm font-medium">{getSafetyRiskLabel(level)}</div>
+                                    {formData.safetyRisk === level && (
                                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                         </svg>
@@ -373,20 +353,58 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                                 </button>
                             ))}
                         </div>
-                        <p className="mt-2 text-xs text-gray-500">Select the urgency level based on safety risk and trail usability impact</p>
                     </div>
 
-                    {/* Disable right now */}
-                    {/* <TextArea
-                        label="Describe the issue and location"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        rows={4}
-                        placeholder="Please provide details about the issue (what you saw, where exactly it is located, etc.)..."
-                        required
-                        fullWidth
-                    /> */}
+                     {/* Passible selector */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                            Is it passible?
+                        </label>
+                        {/* For large screens: all options in one row */}
+                        <div className="hidden md:grid md:grid-cols-2 gap-3">
+                            {Object.values(IssuePassibleEnum).map((level) => (
+                                <button
+                                    key={level}
+                                    type="button"
+                                    onClick={() => handlePassibleSelect(level)}
+                                    className={`
+                                        p-3 rounded-lg text-center border transition-all cursor-pointer
+                                        ${formData.passible === level
+                                    ? `${getPassibleColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
+                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                                }
+                                    `}
+                                >
+                                    <div className="text-sm font-medium">{getPassibleLabel(level)}</div>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* For mobile: options stacked one per row */}
+                        <div className="grid grid-cols-1 gap-3 md:hidden">
+                            {Object.values(IssuePassibleEnum).map((level) => (
+                                <button
+                                    key={level}
+                                    type="button"
+                                    onClick={() => handlePassibleSelect(level)}
+                                    className={`
+                                        p-3 rounded-lg text-center border transition-all flex justify-between items-center cursor-pointer
+                                        ${formData.passible === level
+                                    ? `${getPassibleColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
+                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                                }
+                                    `}
+                                >
+                                    <div className="text-sm font-medium">{getPassibleLabel(level)}</div>
+                                    {formData.passible === level && (
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -439,6 +457,19 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                         </div>
                     )}
                 </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                <TextArea
+                    label="Additional Comments (Optional)"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    rows={4}
+                    placeholder="Provide any additional details about this issue (what you saw, where exactly it is located, etc)"
+                    required
+                    fullWidth
+                />
             </div>
 
             <div className="flex justify-center mt-8">

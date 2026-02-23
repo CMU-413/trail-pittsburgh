@@ -97,7 +97,7 @@ async function main() {
             {
                 parkId: parkRecords[0].parkId,
                 trailId: trailRecords[0].trailId,
-                issueType: IssueTypeEnum.FLOODING,
+                issueType: IssueTypeEnum.OBSTRUCTION,
                 urgency: IssueUrgencyEnum.HIGH,
                 description: 'Heavy rainfall caused water pooling on the trail.',
                 isPublic: true,
@@ -121,7 +121,7 @@ async function main() {
             {
                 parkId: parkRecords[2].parkId,
                 trailId: trailRecords[2].trailId,
-                issueType: IssueTypeEnum.EROSION,
+                issueType: IssueTypeEnum.OBSTRUCTION,
                 urgency: IssueUrgencyEnum.HIGH,
                 description: 'Severe erosion has made the path unsafe for bikers.',
                 isPublic: true,

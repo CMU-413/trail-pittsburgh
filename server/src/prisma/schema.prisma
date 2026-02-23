@@ -16,10 +16,7 @@ enum IssueStatusEnum {
 
 enum IssueTypeEnum {
   OBSTRUCTION
-  EROSION
-  FLOODING
-  SIGNAGE
-  VANDALISM
+  STANDINGWATER
   OTHER
 }
 

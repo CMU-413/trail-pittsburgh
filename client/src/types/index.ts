@@ -29,17 +29,26 @@ export enum IssueStatusEnum {
 
 export enum IssueTypeEnum {
     OBSTRUCTION = 'OBSTRUCTION',
-    EROSION = 'EROSION',
-    FLOODING = 'FLOODING',
-    SIGNAGE = 'SIGNAGE',
-    VANDALISM = 'VANDALISM',
+    STANDINGWATER = 'STANDINGWATER',
     OTHER = 'OTHER'
 }
 
+// Need to remove
 export enum IssueUrgencyEnum {
     LOW = 'LOW',
     MEDIUM = 'MEDIUM',
     HIGH = 'HIGH'
+}
+
+export enum IssueRiskEnum {
+    NO_RISK = 'NO_RISK',
+    MINOR_RISK = 'MINOR_RISK',
+    SERIOUS_RISK = 'SERIOUS_RISK'
+}
+
+export enum IssuePassibleEnum {
+    YES = 'YES',
+    NO = 'NO'
 }
 
 export enum UserRoleEnum {
@@ -75,10 +84,12 @@ export type Issue = {
     description?: string;
     issueType: IssueTypeEnum;
     urgency: IssueUrgencyEnum;
+    passible: IssuePassibleEnum;
+    safetyRisk: IssueRiskEnum;
     image?: Image;
     imageMetadata?: ImageMetadata;
-    longitude?: number;
-    latitude?: number;
+    longitude: number;
+    latitude: number;
     notifyReporter: boolean;
     reporterEmail: string;
     createdAt: string;
