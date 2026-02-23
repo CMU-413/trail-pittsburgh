@@ -16,6 +16,9 @@ import {
 
 const app = express();
 
+// Trust Cloud Run / Firebase proxy
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(securityHeaders);
 
