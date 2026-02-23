@@ -8,7 +8,7 @@
 
 */
 -- CreateEnum
-CREATE TYPE "IssueStatusEnum" AS ENUM ('OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED');
+CREATE TYPE "IssueStatusEnum" AS ENUM ('OPEN', 'IN_PROGRESS', 'RESOLVED');
 
 -- CreateEnum
 CREATE TYPE "IssueTypeEnum" AS ENUM ('OBSTRUCTION', 'EROSION', 'FLOODING', 'SIGNAGE', 'VANDALISM', 'OTHER');

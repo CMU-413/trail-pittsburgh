@@ -12,7 +12,6 @@ enum IssueStatusEnum {
   OPEN
   IN_PROGRESS
   RESOLVED
-  CLOSED
 }
 
 enum IssueTypeEnum {

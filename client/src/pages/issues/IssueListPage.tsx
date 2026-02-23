@@ -240,8 +240,7 @@ export const IssueListPage: React.FC = () => {
                                 { value: 'all', label: 'All Statuses' },
                                 { value: IssueStatusEnum.OPEN, label: 'Open' },
                                 { value: IssueStatusEnum.IN_PROGRESS, label: 'In Progress' },
-                                { value: IssueStatusEnum.RESOLVED, label: 'Resolved' },
-                                { value: IssueStatusEnum.CLOSED, label: 'Closed' }
+                                { value: IssueStatusEnum.RESOLVED, label: 'Resolved' }
                             ]}
                             value={selectedStatus}
                             onChange={handleStatusChange}

@@ -24,8 +24,7 @@ export type Trail = {
 export enum IssueStatusEnum {
     OPEN = 'OPEN',
     IN_PROGRESS = 'IN_PROGRESS',
-    RESOLVED = 'RESOLVED',
-    CLOSED = 'CLOSED'
+    RESOLVED = 'RESOLVED'
 }
 
 export enum IssueTypeEnum {

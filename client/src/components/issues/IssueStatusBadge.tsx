@@ -12,15 +12,13 @@ export const IssueStatusBadge: React.FC<IssueStatusBadgeProps> = ({ status, clas
     const statusVariant = {
         [IssueStatusEnum.OPEN]: 'danger',
         [IssueStatusEnum.IN_PROGRESS]: 'warning',
-        [IssueStatusEnum.RESOLVED]: 'success',
-        [IssueStatusEnum.CLOSED]: 'secondary'
+        [IssueStatusEnum.RESOLVED]: 'success'
     } as const;
 
     const statusLabel = {
         [IssueStatusEnum.OPEN]: 'Open',
         [IssueStatusEnum.IN_PROGRESS]: 'In Progress',
-        [IssueStatusEnum.RESOLVED]: 'Resolved',
-        [IssueStatusEnum.CLOSED]: 'Closed'
+        [IssueStatusEnum.RESOLVED]: 'Resolved'
     };
 
     return (
