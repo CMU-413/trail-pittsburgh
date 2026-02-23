@@ -17,6 +17,7 @@ export class IssueRepository {
                 }
             });
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error fetching issue:', error);
             throw error;
         }
@@ -45,6 +46,7 @@ export class IssueRepository {
                 }
             });
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error creating issue:', error);
             throw error;
         }
@@ -97,6 +99,7 @@ export class IssueRepository {
             if (isNotFoundError(error)) {
                 return false;
             }
+            // eslint-disable-next-line no-console
             console.error('Error deleting issue:', error);
             throw error;
         }
@@ -163,6 +166,7 @@ export class IssueRepository {
             });
         } catch (error) {
             if (isNotFoundError(error)) {return null;}
+            // eslint-disable-next-line no-console
             console.error('Error resolving issue:', error);
             throw error;
         }
