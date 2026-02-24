@@ -4,8 +4,13 @@ import {
 
 export function createBucket(bucketName: string): Bucket {
 
-    if (process.env.NODE_ENV === 'test') {
-        // In test mode, just return a mock bucket or do nothing.
+    // NOTE:
+    // Google Cloud Storage is intentionally disabled in local development and tests.
+    // Production uses the default Google Cloud service account.
+    // This avoids requiring cloud credentials for local dev.
+
+    if (process.env.NODE_ENV === 'development') {
+        // In development mode, just return a mock bucket or do nothing.
         // Note: Integration tests should not test bucket behavior.
         return {} as Bucket;
     }

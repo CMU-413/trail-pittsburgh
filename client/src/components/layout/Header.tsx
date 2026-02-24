@@ -8,6 +8,8 @@ import { APP_NAME } from '../../constants/config';
 import { UserRoleEnum } from '../../types/index';
 import { formatUserRole } from '../../utils/formatters';
 
+const API_BASE_URL = `/api`;
+
 export const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -85,7 +87,7 @@ export const Header: React.FC = () => {
 
     async function auth() {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth`, {
+            const response = await fetch(`${API_BASE_URL}/auth`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
