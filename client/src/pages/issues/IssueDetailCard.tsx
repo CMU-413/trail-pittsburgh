@@ -91,8 +91,8 @@ export const IssueDetailCard: React.FC<{ issueId: number; onClose: () => void }>
             <div className="absolute inset-0 bg-black/30" onClick={onClose} />
 
             {/* modal */}
-            <div className="absolute inset-0 flex items-center justify-center p-6">
-                <div className="relative w-full max-w-6xl bg-white rounded-xl shadow-xl overflow-hidden">
+            <div className="absolute inset-0 flex items-start justify-center p-3 md:p-6">
+                <div className="relative w-full max-w-6xl bg-white rounded-xl shadow-xl overflow-hidden max-h-[90vh] md:max-h-[85vh] flex flex-col">
                     {/* close */}
                     <button
                         onClick={onClose}
@@ -100,7 +100,7 @@ export const IssueDetailCard: React.FC<{ issueId: number; onClose: () => void }>
                         aria-label="Close"
                         type="button"
                     >
-				✕
+				    ✕
                     </button>
 
                     {loading ? (
@@ -112,7 +112,7 @@ export const IssueDetailCard: React.FC<{ issueId: number; onClose: () => void }>
                             <div className="text-red-600">{error}</div>
                         </div>
                     ) : !issue ? null : (
-                        <div className="p-8">
+                        <div className="p-4 md:p-8 overflow-y-auto">
                             {/* header row */}
                             <div className="flex items-start justify-between gap-6">
                                 <div>
@@ -122,7 +122,7 @@ export const IssueDetailCard: React.FC<{ issueId: number; onClose: () => void }>
 								#{issue.issueId ?? issueId}
                                         </span>
                                         {' '}
-                                        <span className="text-gray-800 font-semibold">
+                                        <span className="text-gray-800 font-semibold block md:inline">
 								• {issue.park?.name ?? ''}
                                         </span>
                                     </div>
@@ -131,13 +131,6 @@ export const IssueDetailCard: React.FC<{ issueId: number; onClose: () => void }>
 								Reported {new Date(issue.createdAt).toLocaleString()}
                                     </div>
                                 </div>
-
-                                {/* <div className="flex flex-col items-end gap-3">
-					<Button variant="secondary">Edit Issue</Button>
-					<div className="px-4 py-2 rounded-full bg-gray-100 text-gray-800 font-medium">
-						{(issue as any).assignee ? "Assigned" : "Unassigned"}
-					</div>
-					</div> */}
                             </div>
 
                             {/* main grid */}

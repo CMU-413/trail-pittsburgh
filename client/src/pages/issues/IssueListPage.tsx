@@ -283,7 +283,7 @@ export const IssueListPage: React.FC = () => {
                 <>
                     <div className="relative w-full rounded-lg overflow-hidden border border-gray-300 shadow-md md:col-span-3">
                         {/* Controls toolbar */}
-                        <div className="flex flex-wrap items-center gap-18 p-3 bg-white">
+                        <div className="flex flex-wrap items-center gap-3 md:gap-6 p-3 bg-white">
                             {/* Park select */}
                             <select
                                 value={selectedPark}
@@ -299,49 +299,52 @@ export const IssueListPage: React.FC = () => {
                             </select>
 
                             {/* Filters */}
-                            <div className="flex flex-wrap items-center gap-4">
-                                <label className="flex items-center gap-2 text-sm">
+                            <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:gap-4">
+                                <label className="flex items-center gap-2 text-sm cursor-pointer rounded-md border border-gray-300 px-3 py-2 select-none">
                                     <input
                                         type="checkbox"
+                                        className="h-5 w-5"
                                         checked={selectedTypes.includes(IssueTypeEnum.OBSTRUCTION)}
                                         onChange={() => toggleType(IssueTypeEnum.OBSTRUCTION)}
                                     />
-                                    <span className="flex items-center">
+                                    <span className="flex items-center gap-2">
                                         <PinLegend color="green" />
-								Obstruction
+								        Obstruction
                                     </span>
                                 </label>
 
-                                <label className="flex items-center gap-2 text-sm">
+                                <label className="flex items-center gap-2 text-sm cursor-pointer rounded-md border border-gray-300 px-3 py-2 select-none">
                                     <input
                                         type="checkbox"
+                                        className="h-5 w-5"
                                         checked={selectedTypes.includes(IssueTypeEnum.FLOODING)}
                                         onChange={() => toggleType(IssueTypeEnum.FLOODING)}
                                     />
-                                    <span className="flex items-center">
+                                    <span className="flex items-center gap-2">
                                         <PinLegend color="blue" />
-								Flooding
+							            Standing Water/Mud
                                     </span>
                                 </label>
 
-                                <label className="flex items-center gap-2 text-sm">
+                                <label className="flex items-center gap-2 text-sm cursor-pointer rounded-md border border-gray-300 px-3 py-2 select-none">
                                     <input
                                         type="checkbox"
+                                        className="h-5 w-5"
                                         checked={selectedTypes.includes(IssueTypeEnum.OTHER)}
                                         onChange={() => toggleType(IssueTypeEnum.OTHER)}
                                     />
-                                    <span className="flex items-center">
+                                    <span className="flex items-center gap-2">
                                         <PinLegend color="black" />
-								Other
+								        Other
                                     </span>
                                 </label>
                             </div>
 
                             {/* Spacer pushes clear button to the right on wide screens */}
-                            <div className="flex-1" />
+                            <div className="w-full md:w-auto" />
 
                             <button
-                                className="text-sm underline text-gray-600 whitespace-nowrap"
+                                className="text-sm underline text-gray-600 whitespace-nowrap md:ml-auto"
                                 onClick={() => setSelectedTypes([])}
                                 type="button"
                             >
