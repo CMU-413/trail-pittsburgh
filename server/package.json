@@ -8,7 +8,7 @@
     "clean": "rm -rf dist",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
-    "start": "node -r ./tsconfig-paths-bootstrap.js dist/server.js",
+    "start": "node -r ./tsconfig-paths-bootstrap.js dist/src/server.js",
     "seed": "npx prisma db seed",
     "test": "jest",
     "test:unit": "jest unit",
