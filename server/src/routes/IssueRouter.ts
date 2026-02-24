@@ -13,20 +13,29 @@ import {
     getIssuesByTrailSchema,
     getIssuesByUrgencySchema,
     getIssueSchema,
+    unsubscribeIssueNotificationsSchema,
     updateIssueStatusSchema,
     updateIssueSchema
 } from '@/schemas/issueSchema';
+import { IssueNotificationService } from '@/services/IssueNotificationService';
 import { IssueService } from '@/services/IssueService';
 
 const issueRepository = new IssueRepository();
 const bucket = createBucket(process.env.TRAIL_ISSUE_IMAGE_BUCKET!);
 const issueImageBucket = new GCSBucket(bucket);
-const issueService = new IssueService(issueRepository, issueImageBucket);
+const issueNotificationService = new IssueNotificationService();
+const issueService = new IssueService(issueRepository, issueImageBucket, issueNotificationService);
 const issueController = new IssueController(issueService);
 
 const router = express.Router();
 
 // Public Routes
+router.get(
+    '/:issueId/unsubscribe',
+    validateRequest(unsubscribeIssueNotificationsSchema),
+    issueController.unsubscribeReporterNotifications
+); // Unsubscribe reporter from issue email updates
+
 router.post(
     '/',
     authenticateToken,

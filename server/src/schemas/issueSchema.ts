@@ -36,6 +36,15 @@ export const updateIssueStatusSchema = z.object({
     })
 });
 
+export const unsubscribeIssueNotificationsSchema = z.object({
+    params: z.object({
+        issueId: z.coerce.number(),
+    }),
+    query: z.object({
+        token: z.string().min(1),
+    })
+});
+
 export const deleteIssueSchema = z.object({
     params: z.object({
         issueId: z.coerce.number(),

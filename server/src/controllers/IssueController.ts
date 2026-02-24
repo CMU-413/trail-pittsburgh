@@ -19,6 +19,7 @@ export class IssueController {
         this.getIssuesByTrail = this.getIssuesByTrail.bind(this);
         this.getIssuesByUrgency = this.getIssuesByUrgency.bind(this);
         this.updateIssue = this.updateIssue.bind(this);
+        this.unsubscribeReporterNotifications = this.unsubscribeReporterNotifications.bind(this);
     }
 
     public async createIssue(req: express.Request, res: express.Response) {
@@ -152,6 +153,35 @@ export class IssueController {
         } catch (error) {
             logger.error(`Error updating issue ${issueId}`, error);
             res.status(500).json({ message: 'Failed to update issue' });
+        }
+    }
+
+    public async unsubscribeReporterNotifications(req: express.Request, res: express.Response) {
+        const issueId = Number(req.params.issueId);
+        const token = String(req.query.token ?? '');
+
+        try {
+            const result = await this.issueService.unsubscribeReporter(issueId, token);
+
+            if (result === 'issue-not-found') {
+                res.status(404).json({ message: 'Issue not found' });
+                return;
+            }
+
+            if (result === 'invalid-token') {
+                res.status(400).json({ message: 'Invalid or expired unsubscribe token' });
+                return;
+            }
+
+            if (result === 'already-unsubscribed') {
+                res.status(200).json({ message: 'Notifications are already unsubscribed for this issue' });
+                return;
+            }
+
+            res.status(200).json({ message: 'You have been unsubscribed from issue updates' });
+        } catch (error) {
+            logger.error(`Error unsubscribing issue ${issueId}`, error);
+            res.status(500).json({ message: 'Failed to unsubscribe from notifications' });
         }
     }
 }

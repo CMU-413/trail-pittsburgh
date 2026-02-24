@@ -128,11 +128,34 @@ export class IssueRepository {
                 data: {
                     status: status,
                     resolvedAt: new Date()
+                },
+                include: {
+                    park: true,
+                    trail: true
                 }
             });
         } catch (error) {
             if (isNotFoundError(error)) {return null;}
             console.error('Error resolving issue:', error);
+            throw error;
+        }
+    }
+
+    public async disableReporterNotifications(issueId: number, reporterEmail: string) {
+        try {
+            const result = await prisma.issue.updateMany({
+                where: {
+                    issueId,
+                    reporterEmail
+                },
+                data: {
+                    notifyReporter: false
+                }
+            });
+
+            return result.count > 0;
+        } catch (error) {
+            console.error('Error unsubscribing reporter notifications:', error);
             throw error;
         }
     }

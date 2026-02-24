@@ -26,7 +26,9 @@ import {
     issueUrgencyEnumToFrontend
 } from '../../utils/issueUrgencyUtils';
 import { issueTypeFrontendToEnum } from '../../utils/issueTypeUtils';
-import { IssueUrgencyEnum, IssueTypeEnum } from '../../types/index';
+import {
+    IssueUrgencyEnum, IssueTypeEnum, UserRoleEnum
+} from '../../types/index';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -240,10 +242,39 @@ export const IssueDetailPage: React.FC = () => {
             setIsSaving(false);
         }
     };
+
+    const handleSetInProgress = async () => {
+        if (!issue || !issueId) {
+            return;
+        }
+
+        try {
+            const id = parseInt(issueId, 10);
+
+            const updatedIssue = await issueApi.updateIssueStatus(id, IssueStatusEnum.IN_PROGRESS);
+
+            if (updatedIssue) {
+                setIssue(updatedIssue);
+            }
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('Error setting issue to in progress:', err);
+            alert('Failed to update issue status. Please try again.');
+        }
+    };
     
     // Grant all user with edit access for now
     const canEditIssue = user !== null;
-    const canResolveIssue = user !== null;
+    const canManageIssueStatus = user?.role === UserRoleEnum.ROLE_ADMIN || user?.role === UserRoleEnum.ROLE_SUPERADMIN;
+    const canResolveIssue = canManageIssueStatus;
+
+    const resetEditedFields = () => {
+        setEditedDescription(issue?.description || '');
+        setEditedUrgency(issueUrgencyEnumToFrontend(issue?.urgency || IssueUrgencyEnum.LOW));
+        setEditedIssueType(issue?.issueType.toLowerCase() || 'other');
+        setEditedParkId(issue?.parkId || 0);
+        setEditedTrailId(issue?.trailId || 0);
+    };
 
     // Format issue type for display
     const formatIssueType = (type: string): string => {
@@ -276,39 +307,36 @@ export const IssueDetailPage: React.FC = () => {
             <PageHeader
                 title={`${formatIssueType(issue.issueType)}`}
                 subtitle={`#${issue.issueId} • ${park && trail ? `${park.name} • ${trail.name}` : 'Loading location...'}`}
-                action={
-                    <div className="flex gap-3">
-                        {/* Edit button - only shown when not editing and issue is not resolved */}
+            />
+
+            {canManageIssueStatus && (
+                <Card className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Issue Actions</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                        Manage editing and work status for this issue.
+                    </p>
+
+                    <div className="space-y-3">
                         {canEditIssue && !isEditing && issue.status !== IssueStatusEnum.RESOLVED && (
                             <Button
                                 variant="secondary"
                                 onClick={() => {
                                     setIsEditing(true);
-                                    // Reset fields to original values
-                                    setEditedDescription(issue.description || '');
-                                    setEditedUrgency(issueUrgencyEnumToFrontend(issue.urgency));
-                                    setEditedIssueType(issue.issueType.toLowerCase());
-                                    setEditedParkId(issue.parkId);
-                                    setEditedTrailId(issue.trailId || 0);
+                                    resetEditedFields();
                                 }}
+                                className="w-full sm:w-auto"
                             >
                                 Edit Issue
                             </Button>
                         )}
-                        
-                        {/* Cancel and Save buttons - only shown when editing */}
+
                         {isEditing && (
-                            <>
+                            <div className="flex flex-wrap gap-2">
                                 <Button
                                     variant="secondary"
                                     onClick={() => {
                                         setIsEditing(false);
-                                        // Reset fields to original values
-                                        setEditedDescription(issue.description || '');
-                                        setEditedUrgency(issueUrgencyEnumToFrontend(issue.urgency));
-                                        setEditedIssueType(issue.issueType.toLowerCase());
-                                        setEditedParkId(issue.parkId);
-                                        setEditedTrailId(issue.trailId || 0);
+                                        resetEditedFields();
                                     }}
                                     disabled={isSaving}
                                 >
@@ -322,22 +350,50 @@ export const IssueDetailPage: React.FC = () => {
                                 >
                                     {isSaving ? 'Saving...' : 'Save Changes'}
                                 </Button>
-                            </>
+                            </div>
                         )}
-                        {/* Resolve button - shown when not editing */}
+
                         {issue.status !== IssueStatusEnum.RESOLVED && canResolveIssue && !isEditing && (
                             <Button
                                 variant="success"
                                 onClick={handleResolveIssue}
                                 isLoading={isResolving}
                                 disabled={isResolving}
+                                className="w-full sm:w-auto"
                             >
                                 {isResolving ? 'Resolving...' : 'Resolve Issue'}
                             </Button>
                         )}
+
+                        <p className="text-sm text-gray-600 pt-2">Work Status</p>
+
+                        {issue.status === IssueStatusEnum.OPEN && (
+                            <Button
+                                variant="primary"
+                                onClick={handleSetInProgress}
+                                className="w-full sm:w-auto"
+                            >
+                                Start Working
+                            </Button>
+                        )}
+
+                        {issue.status === IssueStatusEnum.RESOLVED && (
+                            <Button
+                                variant="secondary"
+                                onClick={handleSetInProgress}
+                                className="w-full sm:w-auto"
+                            >
+                                Unresolve (Set In Progress)
+                            </Button>
+                        )}
+
+                        {issue.status === IssueStatusEnum.IN_PROGRESS && (
+                            <p className="text-sm text-gray-700">This issue is already in progress.</p>
+                        )}
+
                     </div>
-                }
-            />
+                </Card>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <Card className="lg:col-span-2 overflow-hidden">
