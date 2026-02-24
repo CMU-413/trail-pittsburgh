@@ -85,6 +85,10 @@ export type Issue = {
     reporterEmail: string;
     createdAt: string;
     resolvedAt?: string;
+
+	park?: {
+    	name: string;
+  	};
 };  
 
 export type Image = {

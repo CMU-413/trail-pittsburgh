@@ -10,6 +10,7 @@ export { ParkListPage } from './parks/ParkListPage';
 export { ParkDetailPage } from './parks/ParkDetailPage';
 export { ParkCreatePage } from './parks/ParkCreatePage';
 export { ParkEditPage } from './parks/ParkEditPage';
+export { PARKS } from './parks/ParkInfo';
 
 // Trails
 export { TrailDetailPage } from './trails/TrailDetailPage';

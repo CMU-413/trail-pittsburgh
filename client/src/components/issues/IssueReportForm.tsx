@@ -162,10 +162,18 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
         if (file) {
             setFormData((prev) => {
+                const lat = metadata?.latitude ?? metadata?.Latitude;
+                const lng = metadata?.longitude ?? metadata?.Longitude;
+
+                if (typeof lat === 'number' && typeof lng === 'number') {
+                    setLocationProvided(true);
+                }
                 const newData = {
                     ...prev,
                     image: file,
-                    imageMetadata: metadata || {}
+                    imageMetadata: metadata || {},
+                    latitude: (typeof lat === 'number' ? lat : prev.latitude),
+       				longitude: (typeof lng === 'number' ? lng : prev.longitude),
                 };
                 return newData;
             });
@@ -181,11 +189,15 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
     // Handle location selection
     const handleLocationSelected = (latitude: number, longitude: number) => {
-        setFormData((prev) => ({
-            ...prev,
-            latitude,
-            longitude
-        }));
+        setFormData((prev) => {
+            const exifLat = prev.imageMetadata?.latitude ?? prev.imageMetadata?.Latitude;
+            const exifLng = prev.imageMetadata?.longitude ?? prev.imageMetadata?.Longitude;
+
+            if (typeof exifLat === 'number' && typeof exifLng === 'number')
+            {return prev;}
+			
+            return { ...prev, latitude, longitude };
+        });
         setLocationProvided(true);
     };
 

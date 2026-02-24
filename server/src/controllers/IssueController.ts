@@ -1,4 +1,6 @@
-import { IssueUrgencyEnum, IssueStatusEnum } from '@prisma/client';
+import {
+    IssueUrgencyEnum, IssueStatusEnum, IssueTypeEnum 
+} from '@prisma/client';
 import express from 'express';
 
 import { IssueService } from '@/services/IssueService';
@@ -19,6 +21,7 @@ export class IssueController {
         this.getIssuesByTrail = this.getIssuesByTrail.bind(this);
         this.getIssuesByUrgency = this.getIssuesByUrgency.bind(this);
         this.updateIssue = this.updateIssue.bind(this);
+        this.getMapPins = this.getMapPins.bind(this);
     }
 
     public async createIssue(req: express.Request, res: express.Response) {
@@ -90,6 +93,52 @@ export class IssueController {
         } catch (error) {
             logger.error(`Error getting issues by urgency ${req.params.urgency}:`, error);
             res.status(500).json({ message: 'Failed to retrieve issues by urgency' });
+        }
+    }
+
+    public async getMapPins(req: express.Request, res: express.Response) {
+        try {
+            const { bbox, issueTypes } = req.query as unknown as{
+				bbox: string;
+				issueTypes: IssueTypeEnum[];
+			};
+
+            // Parse bbox: "minLat,minLng,maxLat,maxLng"
+            const parts = bbox.split(',').map((s) => Number(s.trim()));
+            if (parts.length !== 4 || parts.some((n) => Number.isNaN(n))) {
+                res.status(400).json({ message: 'Invalid bbox format. Expected: minLat,minLng,maxLat,maxLng' });
+                return;
+            }
+			
+            // Store parsed values in corresponding variables
+            const [minLat, minLng, maxLat, maxLng] = parts;
+
+            // Basic bounds checks
+            const inLatRange = (x: number) => x >= -90 && x <= 90;
+            const inLngRange = (x: number) => x >= -180 && x <= 180;
+            if (!inLatRange(minLat) || !inLatRange(maxLat) 
+				|| !inLngRange(minLng) || !inLngRange(maxLng)) {
+                res.status(400).json({ message: 'bbox values out of range' });
+                return;
+            }
+            if (minLat > maxLat || minLng > maxLng) {
+                res.status(400).json({ message: 'bbox min values must be <= max values' });
+                return;
+            }
+			
+            const pins = await this.issueService.getMapPins(
+                minLat, 
+                minLng, 
+                maxLat, 
+                maxLng,
+                issueTypes,
+                IssueStatusEnum.OPEN
+            );
+
+		    res.json({ pins });
+        } catch (error) {
+            logger.error(`Error getting map pins`, error);
+            res.status(500).json({ message: 'Failed to retrieve map pins' });
         }
     }
 

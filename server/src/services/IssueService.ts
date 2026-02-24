@@ -61,6 +61,15 @@ export class IssueService {
         return this.issueRepository.getAllIssues();
     }
 
+    public async getMapPins(minLat: number, 
+        minLng: number, 
+        maxLat: number, 
+        maxLng: number,
+        issueTypes: IssueTypeEnum[],
+        status: IssueStatusEnum) {
+        return this.issueRepository.getMapPins(minLat, minLng, maxLat, maxLng, issueTypes, status);
+    }
+
     public async createIssue(data: CreateIssueInput) {
         const { imageMetadata } = data;
         let key: string | undefined;

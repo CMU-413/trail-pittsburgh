@@ -1,269 +1,273 @@
 // src/pages/issues/IssueListPage.tsx
 import React, {
-    useState, useEffect, useCallback 
+    useState, useEffect, useRef
 } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import {
-    Issue, Park, Trail, IssueStatusEnum
-} from '../../types';
+
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
-import { Card } from '../../components/ui/Card';
-import { Select } from '../../components/ui/Select';
+
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
-import { IssueList } from '../../components/issues/IssueList';
-import { subDays } from 'date-fns/subDays';
-import { subMonths } from 'date-fns/subMonths';
-import { subYears } from 'date-fns/subYears';
-import { parseISO } from 'date-fns/parseISO';
-import { 
-    parkApi, trailApi, issueApi
-} from '../../services/api';
-import { getUrgencyLevelIndex } from '../../utils/issueUrgencyUtils';
 
-// Define filter and sort options
-type DateFilter = 'all' | 'week' | 'month' | '3months' | 'year';
-type SortOption = 'newest' | 'oldest' | 'urgency-high' | 'urgency-low';
+import { LeafletMap, LeafletMarker } from '../../types/leaflet';
+import { PARKS } from '../parks/ParkInfo';
+import {
+    IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
+} from '../../types';
+import { IssueDetailCard } from './IssueDetailCard';
+
+type IssuePin = {
+	issueId: number;
+	latitude: number;
+	longitude: number;
+	issueType: IssueTypeEnum;
+	urgency: IssueUrgencyEnum;
+	status: IssueStatusEnum ;
+	createdAt: string;
+}
+
+const fetchPinsByBbox = async (
+    minLat: number,
+    minLng: number,
+    maxLat: number,
+    maxLng: number,
+    types: IssueTypeEnum[] = []
+): Promise<IssuePin[]> => {
+    const bbox = `${minLat},${minLng},${maxLat},${maxLng}`;
+    const params = new URLSearchParams({ bbox });
+    for (const t of types) 
+    {params.append('issueTypes', t);}
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/issues/map?${params.toString()}`);
+    if (!res.ok) 
+    {return [];}
+    const data = await res.json();
+    return Array.isArray(data?.pins) ? data.pins : [];
+};
+
+const PinLegend: React.FC<{ color: string }> = ({ color }) => (
+    <span
+        aria-hidden="true"
+        className="inline-block relative"
+        style={{ width: 12, height: 18 }}
+    >
+        {/* head */}
+        <span
+	  className="absolute left-1/2"
+	  style={{
+                top: 0,
+                width: 10,
+                height: 10,
+                transform: 'translateX(-50%)',
+                background: color,
+                borderRadius: '50%',
+	  }}
+        />
+        {/* inner dot */}
+        <span
+	  className="absolute left-1/2"
+	  style={{
+                top: 3,
+                width: 3,
+                height: 3,
+                transform: 'translateX(-50%)',
+                background: 'white',
+                borderRadius: '50%',
+                opacity: 0.95,
+	  }}
+        />
+        {/* tail */}
+        <span
+	  className="absolute left-1/2"
+	  style={{
+                top: 9,
+                width: 0,
+                height: 0,
+                transform: 'translateX(-50%)',
+                borderLeft: '4px solid transparent',
+                borderRight: '4px solid transparent',
+                borderTop: `8px solid ${color}`,
+	  }}
+        />
+    </span>
+);
+
+const makePinIcon = (color: string) =>
+    window.L.divIcon({
+        className: '',
+        html: `
+	  <div style="position: relative; width: 22px; height: 34px;">
+		<!-- head -->
+		<div style="
+		  position: absolute;
+		  top: 0; left: 50%;
+		  width: 18px; height: 18px;
+		  transform: translateX(-50%);
+		  background: ${color};
+		  border-radius: 50%;
+		  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+		"></div>
+
+		<!-- inner dot -->
+		<div style="
+		  position: absolute;
+		  top: 6px; left: 50%;
+		  width: 6px; height: 6px;
+		  transform: translateX(-50%);
+		  background: white;
+		  border-radius: 50%;
+		  opacity: 0.95;
+		"></div>
+
+		<!-- tail -->
+		<div style="
+		  position: absolute;
+		  top: 16px; left: 50%;
+		  transform: translateX(-50%);
+		  width: 0; height: 0;
+		  border-left: 7px solid transparent;
+		  border-right: 7px solid transparent;
+		  border-top: 16px solid ${color};
+		"></div>
+	  </div>
+	`,
+        iconSize: [22, 34],
+        iconAnchor: [11, 34],
+    });
+
+const iconForType = (t: IssueTypeEnum) => {
+    if (t === 'OBSTRUCTION') 
+    {return makePinIcon('green');}
+    if (t === 'FLOODING') 
+    {return makePinIcon('blue');}
+    return makePinIcon('black');
+};
 
 export const IssueListPage: React.FC = () => {
-    const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
-    const initialParkId = queryParams.get('parkId') ? parseInt(queryParams.get('parkId')!, 10) : undefined;
-    const initialTrailId = queryParams.get('trailId') ? parseInt(queryParams.get('trailId')!, 10) : undefined;
-    const initialStatus = queryParams.get('status') as IssueStatusEnum | undefined || undefined;
+    const mapRef = useRef<HTMLDivElement>(null);
+    const leafletMap = useRef<LeafletMap | null>(null);
+    const issueMarkersRef = useRef<LeafletMarker[]>([]);
 
-    const [issues, setIssues] = useState<Issue[]>([]);
-    const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
-    const [parks, setParks] = useState<Record<number, Park>>({});
-    const [trails, setTrails] = useState<Record<number, Trail>>({});
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [selectedPark, setSelectedPark] = useState<string>('');
+    const [selectedTypes, setSelectedTypes] = useState<IssueTypeEnum[]>([]);
+    const selectedTypesRef = useRef<IssueTypeEnum[]>([]);
+    const [isLoading, setIsLoading] = useState(true); const [error, setError] = useState<string | null>(null);
+    const [selectedIssueId, setSelectedIssueId] = useState<number | null>(null);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-    // Filters
-    const [selectedParkId, setSelectedParkId] = useState<number | undefined>(initialParkId);
-    const [selectedTrailId, setSelectedTrailId] = useState<number | undefined>(initialTrailId);
-    const [selectedStatus, setSelectedStatus] = useState<IssueStatusEnum | 'all'>(initialStatus || IssueStatusEnum.OPEN);
-    const [dateFilter, setDateFilter] = useState<DateFilter>('all');
-    const [sortBy, setSortBy] = useState<SortOption>('newest');
+    const clearIssueMarkers = () => {
+        issueMarkersRef.current.forEach((m) => m.remove());
+        issueMarkersRef.current = [];
+    };
 
-    // Apply date filter and sorting
-    const applyFiltersAndSort = useCallback((issuesData: Issue[]) => {
-        let result = [...issuesData];
+    const openIssueDetail = (id: number) => {
+        setSelectedIssueId(id);
+        setIsDetailOpen(true);
+    };
 
-        // Apply date filter
-        if (dateFilter !== 'all') {
-            const now = new Date();
-            let cutoffDate: Date;
+    const closeIssueDetail = () => {
+        setIsDetailOpen(false);
+        setSelectedIssueId(null);
+    };
 
-            switch (dateFilter) {
-            case 'week':
-                cutoffDate = subDays(now, 7);
-                break;
-            case 'month':
-                cutoffDate = subMonths(now, 1);
-                break;
-            case '3months':
-                cutoffDate = subMonths(now, 3);
-                break;
-            case 'year':
-                cutoffDate = subYears(now, 1);
-                break;
-            default:
-                cutoffDate = new Date(0); // Beginning of time
+    const refreshPinsForView = async () => {
+        if (!leafletMap.current || typeof window.L === 'undefined') {return;}
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const bounds = leafletMap.current.getBounds();
+            const sw = bounds.getSouthWest();
+            const ne = bounds.getNorthEast();
+
+            clearIssueMarkers();
+
+            const pins = await fetchPinsByBbox(sw.lat, sw.lng, ne.lat, ne.lng, selectedTypesRef.current);
+
+            for (const pin of pins) {
+                if (typeof pin.latitude !== 'number' || typeof pin.longitude !== 'number') {continue;}
+
+                const marker = window.L
+                    .marker([pin.latitude, pin.longitude], { icon: iconForType(pin.issueType) })
+                    .addTo(leafletMap.current);
+
+                marker.on('click', () => {
+                    const id = pin.issueId;
+                    openIssueDetail(id);
+                    // console.log("Issue clicked:", id, pin);
+                });
+                issueMarkersRef.current.push(marker);
             }
-
-            result = result.filter((issue) => {
-                const issueDate = parseISO(issue.createdAt);
-                return issueDate >= cutoffDate;
-            });
+        } catch (err) {
+            console.error('Error fetching issues:', err);
+            setError('Failed to load issues. Please try again later.');
+        } finally {
+            setIsLoading(false);
         }
-
-        // Apply sorting
-        result.sort((a, b) => {
-            switch (sortBy) {
-            case 'newest':
-                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-            case 'oldest':
-                return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-            case 'urgency-high':
-                return getUrgencyLevelIndex(b.urgency) - getUrgencyLevelIndex(a.urgency);
-            case 'urgency-low':
-                return getUrgencyLevelIndex(a.urgency) - getUrgencyLevelIndex(b.urgency);
-            default:
-                return 0;
-            }
-        });
-
-        setFilteredIssues(result);
-    }, [dateFilter, sortBy]);
-
+    };
+	
+    const toggleType = (t: IssueTypeEnum) => {
+        setSelectedTypes((prev) =>
+            prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
+    };
+	
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Fetch parks for lookup and filtering
-                const parksData = await parkApi.getParks();
-                const parksMap: Record<number, Park> = {};
-                parksData.forEach((park: Park) => {
-                    parksMap[park.parkId] = park;
-                });
-                setParks(parksMap);
-
-                // Fetch trails for lookup and filtering
-                const trailsData = await trailApi.getAllTrails();
-                const trailsMap: Record<number, Trail> = {};
-                trailsData.forEach((trail) => {
-                    trailsMap[trail.trailId] = trail;
-                });
-                setTrails(trailsMap);
-
-                // Fetch issues based on filters
-                let issuesData: Issue[] = [];
-
-                if (selectedTrailId) {
-                    // If trail is selected, fetch issues for that trail
-                    issuesData = await issueApi.getIssuesByTrail(selectedTrailId);
-                } else if (selectedParkId) {
-                    // If only park is selected, fetch issues for that park
-                    issuesData = await issueApi.getIssuesByPark(selectedParkId);
-                } else {
-                    // No filters, get all issues
-                    issuesData = await issueApi.getAllIssues();
-                }
-
-                // Filter by public status (for non-admins)
-                issuesData = issuesData.filter((issue) => issue.isPublic);
-
-                // Apply status filter if selected
-                if (selectedStatus !== 'all') {
-                    issuesData = issuesData.filter((issue) => issue.status === selectedStatus);
-                }
-
-                setIssues(issuesData);
-                applyFiltersAndSort(issuesData);
-            } catch (err) {
-                // eslint-disable-next-line no-console
-                console.error('Error fetching issues:', err);
-                setError('Failed to load issues. Please try again later.');
-            } finally {
-                setIsLoading(false);
-            }
+        const init = () => {
+            if (!mapRef.current || leafletMap.current) 
+            {return;} 
+            leafletMap.current = window.L.map(mapRef.current!).setView([40.4406, -79.9959], 12 );
+            refreshPinsForView();
+            window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 22,
+                attribution: '&copy; OpenStreetMap contributors',
+            }).addTo(leafletMap.current!);
+            leafletMap.current.on('moveend', refreshPinsForView);
         };
-
-        fetchData();
-    }, [selectedParkId, selectedTrailId, selectedStatus, applyFiltersAndSort]);
-
-    // Apply filters and sort when these values change
-    useEffect(() => {
-        if (issues.length > 0) {
-            applyFiltersAndSort(issues);
+	
+        if (typeof window.L === 'undefined') {
+            // CSS
+            const cssLink = document.createElement('link');
+            cssLink.rel = 'stylesheet';
+            cssLink.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            document.head.appendChild(cssLink);
+	
+            // JS
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            script.async = true;
+            script.onload = init;
+            document.body.appendChild(script);
+        } else {
+            init();
         }
-    }, [issues, applyFiltersAndSort]);
+	
+        return () => {
+            leafletMap.current?.remove();
+            leafletMap.current = null;
+        };
+    }, []);
+	
+    useEffect(() => {
+        if (!leafletMap.current || !selectedPark) 
+        {return;}
 
-    // Handle filter changes
-    const handleParkChange = (value: string) => {
-        const parkId = value ? parseInt(value, 10) : undefined;
-        setSelectedParkId(parkId);
-        setSelectedTrailId(undefined); // Reset trail selection when park changes
-    };
+        const park = PARKS.find((p) => p.id === selectedPark);
+        if (!park) {return;}
 
-    const handleTrailChange = (value: string) => {
-        const trailId = value ? parseInt(value, 10) : undefined;
-        setSelectedTrailId(trailId);
-    };
+        const bounds: [[number, number], [number, number]] = [park.bounds.sw, park.bounds.ne];
+        leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
+    }, [selectedPark]);
 
-    const handleStatusChange = (value: string) => {
-        setSelectedStatus(value as IssueStatusEnum | 'all');
-    };
-
-    const handleDateFilterChange = (value: string) => {
-        setDateFilter(value as DateFilter);
-    };
-
-    // Filter trails based on selected park
-    const filteredTrails = Object.values(trails).filter(
-        (trail) => !selectedParkId || trail.parkId === selectedParkId
-    );
-
-    if (isLoading) {
-        return <LoadingSpinner />;
-    }
-
+    useEffect(() => {
+        selectedTypesRef.current = selectedTypes;
+        refreshPinsForView();
+    }, [selectedTypes]);
     return (
         <div>
             <PageHeader
                 title="Trail Issues"
                 subtitle="View and manage reported trail issues"
-                action={
-                    <Link to="/issues/report">
-                        <Button variant="primary">Report Issue</Button>
-                    </Link>
-                }
             />
-
-            <Card className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Issues</h3>
-
-                {/* Filter controls */}
-                <div id="filter-controls" className="p-1">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-2">
-                        <Select
-                            label="Park"
-                            options={[
-                                { value: '', label: 'All Parks' },
-                                ...Object.values(parks)
-                                    .sort((a, b) => a.name.localeCompare(b.name))
-                                    .map((park) => ({ value: park.parkId.toString(), label: park.name }))
-                            ]}
-                            value={selectedParkId?.toString() || ''}
-                            onChange={handleParkChange}
-                            fullWidth
-                        />
-
-                        <Select
-                            label="Trail"
-                            options={[
-                                { value: '', label: selectedParkId ? 'All Trails in Selected Park' : 'All Trails' },
-                                ...filteredTrails
-                                    .sort((a, b) => a.name.localeCompare(b.name))
-                                    .map((trail) => ({ value: trail.trailId.toString(), label: trail.name }))
-                            ]}
-                            value={selectedTrailId?.toString() || ''}
-                            onChange={handleTrailChange}
-                            disabled={filteredTrails.length === 0}
-                            fullWidth
-                        />
-
-                        <Select
-                            label="Status"
-                            options={[
-                                { value: 'all', label: 'All Statuses' },
-                                { value: IssueStatusEnum.OPEN, label: 'Open' },
-                                { value: IssueStatusEnum.IN_PROGRESS, label: 'In Progress' },
-                                { value: IssueStatusEnum.RESOLVED, label: 'Resolved' },
-                                { value: IssueStatusEnum.CLOSED, label: 'Closed' }
-                            ]}
-                            value={selectedStatus}
-                            onChange={handleStatusChange}
-                            fullWidth
-                        />
-
-                        <Select
-                            label="Time Period"
-                            options={[
-                                { value: 'all', label: 'All Time' },
-                                { value: 'week', label: 'Past Week' },
-                                { value: 'month', label: 'Past Month' },
-                                { value: '3months', label: 'Past 3 Months' },
-                                { value: 'year', label: 'Past Year' }
-                            ]}
-                            value={dateFilter}
-                            onChange={handleDateFilterChange}
-                            fullWidth
-                        />
-                    </div>
-                </div>
-            </Card>
 
             {error ? (
                 <EmptyState
@@ -276,51 +280,95 @@ export const IssueListPage: React.FC = () => {
                     }
                 />
             ) : (
-                <div>
-                    {/* Responsive header and sort section */}
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
-                        <h2 className="text-xl font-semibold text-gray-900">
-                            {filteredIssues.length} {filteredIssues.length === 1 ? 'Issue' : 'Issues'} Found
-                        </h2>
-                        <div className="flex items-center self-stretch sm:self-auto w-full sm:w-auto">
-                            <span className="text-sm text-gray-600 mr-2 whitespace-nowrap">Sort by:</span>
-                            <div className="relative flex-grow sm:w-48">
-                                <select
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value as SortOption)}
-                                    className="appearance-none block w-full rounded-md py-2 px-3 pr-10 text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm cursor-pointer"
-                                    aria-label="Sort issues by"
-                                >
-                                    <option value="newest">Newest First</option>
-                                    <option value="oldest">Oldest First</option>
-                                    <option value="urgency-high">Highest Urgency</option>
-                                    <option value="urgency-low">Lowest Urgency</option>
-                                </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-                                    <svg
+                <>
+                    <div className="relative w-full rounded-lg overflow-hidden border border-gray-300 shadow-md md:col-span-3">
+                        {/* Controls toolbar */}
+                        <div className="flex flex-wrap items-center gap-3 md:gap-6 p-3 bg-white">
+                            {/* Park select */}
+                            <select
+                                value={selectedPark}
+                                onChange={(e) => setSelectedPark(e.target.value)}
+                                className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white"
+                            >
+                                <option value="">Select a Park</option>
+                                {PARKS.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.name}
+                                    </option>
+                                ))}
+                            </select>
+
+                            {/* Filters */}
+                            <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:gap-4">
+                                <label className="flex items-center gap-2 text-sm cursor-pointer rounded-md border border-gray-300 px-3 py-2 select-none">
+                                    <input
+                                        type="checkbox"
                                         className="h-5 w-5"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                            clipRule="evenodd"
-                                        />
-                                    </svg>
-                                </div>
+                                        checked={selectedTypes.includes(IssueTypeEnum.OBSTRUCTION)}
+                                        onChange={() => toggleType(IssueTypeEnum.OBSTRUCTION)}
+                                    />
+                                    <span className="flex items-center gap-2">
+                                        <PinLegend color="green" />
+								        Obstruction
+                                    </span>
+                                </label>
+
+                                <label className="flex items-center gap-2 text-sm cursor-pointer rounded-md border border-gray-300 px-3 py-2 select-none">
+                                    <input
+                                        type="checkbox"
+                                        className="h-5 w-5"
+                                        checked={selectedTypes.includes(IssueTypeEnum.FLOODING)}
+                                        onChange={() => toggleType(IssueTypeEnum.FLOODING)}
+                                    />
+                                    <span className="flex items-center gap-2">
+                                        <PinLegend color="blue" />
+							            Standing Water/Mud
+                                    </span>
+                                </label>
+
+                                <label className="flex items-center gap-2 text-sm cursor-pointer rounded-md border border-gray-300 px-3 py-2 select-none">
+                                    <input
+                                        type="checkbox"
+                                        className="h-5 w-5"
+                                        checked={selectedTypes.includes(IssueTypeEnum.OTHER)}
+                                        onChange={() => toggleType(IssueTypeEnum.OTHER)}
+                                    />
+                                    <span className="flex items-center gap-2">
+                                        <PinLegend color="black" />
+								        Other
+                                    </span>
+                                </label>
                             </div>
+
+                            {/* Spacer pushes clear button to the right on wide screens */}
+                            <div className="w-full md:w-auto" />
+
+                            <button
+                                className="text-sm underline text-gray-600 whitespace-nowrap md:ml-auto"
+                                onClick={() => setSelectedTypes([])}
+                                type="button"
+                            >
+							Clear filters
+                            </button>
                         </div>
+
+                        {/* Map */}
+                        <div
+                            ref={mapRef}
+                            className="h-[520px] w-full bg-gray-100"
+                            aria-label="Trail map showing issue location"
+                        />
+                        {isLoading && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-white/70">
+                                <LoadingSpinner />
+                            </div>
+                        )}
                     </div>
 
-                    <IssueList
-                        issues={filteredIssues}
-                        parks={parks}
-                        trails={trails}
-                        emptyStateMessage="No issues match the selected filters"
-                    />
-                </div>
+                    {isDetailOpen && selectedIssueId !== null && (
+                        <IssueDetailCard issueId={selectedIssueId} onClose={closeIssueDetail} />
+                    )}
+                </>
             )}
         </div>
     );
