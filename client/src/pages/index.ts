@@ -21,6 +21,8 @@ export { TrailEditPage } from './trails/TrailEditPage';
 export { IssueListPage } from './issues/IssueListPage';
 export { IssueDetailPage } from './issues/IssueDetailPage';
 export { IssueReportPage } from './issues/IssueReportPage';
+export { IssueDetailCard } from './issues/IssueDetailCard';
+export { IssueFilterDropdown } from './issues/IssueFilterDropdown';
 
 // Users
 export { UserDetailPage } from './users/UserDetailPage';
