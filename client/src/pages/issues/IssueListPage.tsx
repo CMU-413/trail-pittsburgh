@@ -46,53 +46,6 @@ const fetchPinsByBbox = async (
     return Array.isArray(data?.pins) ? data.pins : [];
 };
 
-const PinLegend: React.FC<{ color: string }> = ({ color }) => (
-    <span
-        aria-hidden="true"
-        className="inline-block relative"
-        style={{ width: 12, height: 18 }}
-    >
-        {/* head */}
-        <span
-	  className="absolute left-1/2"
-	  style={{
-                top: 0,
-                width: 10,
-                height: 10,
-                transform: 'translateX(-50%)',
-                background: color,
-                borderRadius: '50%',
-	  }}
-        />
-        {/* inner dot */}
-        <span
-	  className="absolute left-1/2"
-	  style={{
-                top: 3,
-                width: 3,
-                height: 3,
-                transform: 'translateX(-50%)',
-                background: 'white',
-                borderRadius: '50%',
-                opacity: 0.95,
-	  }}
-        />
-        {/* tail */}
-        <span
-	  className="absolute left-1/2"
-	  style={{
-                top: 9,
-                width: 0,
-                height: 0,
-                transform: 'translateX(-50%)',
-                borderLeft: '4px solid transparent',
-                borderRight: '4px solid transparent',
-                borderTop: `8px solid ${color}`,
-	  }}
-        />
-    </span>
-);
-
 const makePinIcon = (color: string) =>
     window.L.divIcon({
         className: '',
@@ -267,15 +220,15 @@ export const IssueListPage: React.FC = () => {
     return (
         <div>
             <div className="flex items-start justify-between gap-4">
-				<PageHeader
-					title="Trail Issues"
-					subtitle="View and manage reported trail issues"
-				/>
+                <PageHeader
+                    title="Trail Issues"
+                    subtitle="View and manage reported trail issues"
+                />
 
-				<Link to="/issues/report" className="shrink-0">
-					<Button variant="primary">Report Issue</Button>
-				</Link>
-			</div>
+                <Link to="/issues/report" className="shrink-0">
+                    <Button variant="primary">Report Issue</Button>
+                </Link>
+            </div>
 
             {error ? (
                 <EmptyState
@@ -290,48 +243,48 @@ export const IssueListPage: React.FC = () => {
             ) : (
                 <>
                     <div className="flex items-center justify-between gap-4 mb-3">
-						{/* Park selection - dropdown menu */}
-						<div className="flex items-center gap-3">
-							<label className="text-sm font-medium text-gray-700">Select Park:</label>
-							<select
-								value={selectedPark}
-								onChange={(e) => setSelectedPark(e.target.value)}
-								className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white"
-							>
-								<option value="">Current Location</option>
-								{PARKS.map((p) => (
-									<option key={p.id} value={p.id}>
-									{p.name}
-									</option>
-								))}
-							</select>
-						</div>
-					</div>
+                        {/* Park selection - dropdown menu */}
+                        <div className="flex items-center gap-3">
+                            <label className="text-sm font-medium text-gray-700">Select Park:</label>
+                            <select
+                                value={selectedPark}
+                                onChange={(e) => setSelectedPark(e.target.value)}
+                                className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white"
+                            >
+                                <option value="">Current Location</option>
+                                {PARKS.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
 
-					<div className="relative w-full rounded-lg overflow-hidden border border-gray-300 shadow-md">
-						{/* Map */}
-						<div
-							ref={mapRef}
-							className="h-[520px] w-full bg-gray-100"
-							aria-label="Trail map showing issue location"
-						/>
+                    <div className="relative w-full rounded-lg overflow-hidden border border-gray-300 shadow-md">
+                        {/* Map */}
+                        <div
+                            ref={mapRef}
+                            className="h-[520px] w-full bg-gray-100"
+                            aria-label="Trail map showing issue location"
+                        />
 
-						{/* Loading overlay */}
-						{isLoading && (
-							<div className="absolute inset-0 flex items-center justify-center bg-white/70 z-30">
-							<LoadingSpinner />
-							</div>
-						)}
+                        {/* Loading overlay */}
+                        {isLoading && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-30">
+                                <LoadingSpinner />
+                            </div>
+                        )}
 
-						{/* Filters dropdown - multiselect */}
-						<div className="absolute top-3 right-3 z-20">
-							<IssueFilterDropdown
-								selectedTypes={selectedTypes}
-								toggleType={toggleType}
-								clear={() => setSelectedTypes([])}
-							/>
-						</div>
-					</div>
+                        {/* Filters dropdown - multiselect */}
+                        <div className="absolute top-3 right-3 z-20">
+                            <IssueFilterDropdown
+                                selectedTypes={selectedTypes}
+                                toggleType={toggleType}
+                                clear={() => setSelectedTypes([])}
+                            />
+                        </div>
+                    </div>
 
                     {isDetailOpen && selectedIssueId !== null && (
                         <IssueDetailCard issueId={selectedIssueId} onClose={closeIssueDetail} />
