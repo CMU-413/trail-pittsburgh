@@ -14,6 +14,7 @@ import { issueTypeFrontendToEnum } from '../../utils/issueTypeUtils';
 import { issueUrgencyEnumToFrontend, issueUrgencyFrontendToEnum } from '../../utils/issueUrgencyUtils';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../providers/AuthProvider';
+import { iconForType } from './IssueMapPage';
 
 export const IssueDetailCard: React.FC<{ 
 	issueId: number; 
@@ -163,7 +164,9 @@ export const IssueDetailCard: React.FC<{
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(leafletMap.current!);
 
-        markerRef.current = window.L.marker([latitude, longitude], { draggable: isEditing }).addTo(leafletMap.current!);
+        markerRef.current = window.L
+            .marker([latitude, longitude], { draggable: isEditing, icon: iconForType(issue.issueType) })
+            .addTo(leafletMap.current!);
         markerRef.current.on('drag', (e: LeafletMarkerDragEvent) => {
             const newPos = e.target.getLatLng();
             if (!newPos) 
@@ -204,7 +207,12 @@ export const IssueDetailCard: React.FC<{
 
             {/* modal */}
             <div className="absolute inset-0 flex items-start justify-center p-3 md:p-6">
-                <div className="relative w-full max-w-6xl bg-white rounded-xl shadow-xl overflow-hidden max-h-[90vh] md:max-h-[85vh] flex flex-col">
+                <div 
+                    className={[
+                        'relative w-full bg-white rounded-xl shadow-xl overflow-hidden max-h-[90vh] md:max-h-[85vh] flex flex-col',
+                        canViewImage ? 'max-w-6xl' : 'max-w-3xl',
+                    ].join(' ')}
+                >
                     {/* close */}
                     <Button
                         onClick={onClose}
@@ -225,9 +233,9 @@ export const IssueDetailCard: React.FC<{
                             <div className="text-red-600">{error}</div>
                         </div>
                     ) : !issue ? null : (
-                        <div className="p-4 md:p-8 overflow-y-auto">
+                        <div className="p-4 md:p-8 pr-14 md:pr-16 overflow-y-auto">
                             {/* header row */}
-                            <div className="flex items-start justify-between gap-6">
+                            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6">
                                 <div>
                                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                                         {isEditing ? (
@@ -251,45 +259,33 @@ export const IssueDetailCard: React.FC<{
 											#{issue.issueId ?? issueId}
                                         </span>
 	
-                                        {/* {isEditing ? (
-											<select
-												className="border rounded px-2 py-1 text-base font-semibold"
-												value={editedUrgency}
-												onChange={(e) => setEditedUrgency(Number(e.target.value))}
-											>
-												{[1, 2, 3, 4, 5].map((level) => (
-													<option key={level} value={level}>
-														{level} - {['Low', 'Medium-Low', 'Medium', 'Medium-High', 'High'][level - 1]}
-													</option>
-												))}
-											</select>
-										) : (
-											<span>- {issue.urgency}</span>
-										)}{' '} */}
+                                        <span className="basis-full md:hidden" />
 
-                                        {/* separator dot */}
-  										<span 
-                                            aria-hidden="true"
-  											className="text-black text-lg md:text-xl font-extrabold leading-none"
-                                        >
-												•				
-                                        </span>
-
-                                        {isEditing ? (
-                                            <select
-                                                className="border rounded-md px-2 py-1 text-sm font-semibold"
-                                                value={editedParkId}
-                                                onChange={(e) => setEditedParkId(Number(e.target.value))}
+                                        <span className="inline-flex items-baseline gap-x-3">
+                                            {/* separator dot */}
+                                            <span 
+                                                aria-hidden="true"
+                                                className="text-black text-lg md:text-xl font-extrabold leading-none"
                                             >
-                                                {parks.map((p) => (
-                                                    <option key={p.parkId} value={p.parkId}>{p.name}</option>
-                                                ))}
-                                            </select>
-                                        ) : (
-                                            <span className="text-lg md:text-xl font-semibold text-gray-900 underline underline-offset-4">
-                                                {issue.park?.name ?? ''}
-                                            </span>		
-                                        )}
+													•				
+                                            </span>
+
+                                            {isEditing ? (
+                                                <select
+                                                    className="border rounded-md px-2 py-1 text-sm font-semibold"
+                                                    value={editedParkId}
+                                                    onChange={(e) => setEditedParkId(Number(e.target.value))}
+                                                >
+                                                    {parks.map((p) => (
+                                                        <option key={p.parkId} value={p.parkId}>{p.name}</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <span className="text-lg md:text-xl font-semibold text-gray-900 underline underline-offset-4">
+                                                    {issue.park?.name ?? ''}
+                                                </span>		
+                                            )}
+                                        </span>
                                     </div>
 
                                     <div className="mt-2 text-sm md:text-base text-gray-600">
@@ -297,7 +293,7 @@ export const IssueDetailCard: React.FC<{
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-2 shrink-0">
+                                <div className="flex w-full flex-wrap gap-2 md:w-auto md:shrink-0 md:justify-end">
                                     {/* Edit button - only shown when not editing and issue is not resolved */}
                                     {canEditIssue && !isEditing && issue.status !== IssueStatusEnum.RESOLVED && (
                                         <Button
@@ -371,7 +367,12 @@ export const IssueDetailCard: React.FC<{
                             </div>
 
                             {/* main grid */}
-                            <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-10">
+                            <div 
+                                className={[
+                                    'mt-10 grid gap-10',
+                                    canViewImage ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1',
+                                ].join(' ')}
+                            >
                                 {/* left: location */}
                                 <div>
                                     <div className="text-xl font-bold">Location</div>
@@ -415,7 +416,9 @@ export const IssueDetailCard: React.FC<{
                                                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                                     </svg>
-													Open in Google Maps
+                                                    <span className="leading-tight text-center">
+  														Open in <span className="block md:inline">Google Maps</span>
+                                                    </span>
                                                 </a>
                                             </div>
                                         </>
@@ -423,27 +426,29 @@ export const IssueDetailCard: React.FC<{
                                 </div>
 
                                 {/* images */}
-                                <div>
-                                    <div className="text-xl font-bold">User Submitted Image</div>
-                                    <div className="mt-4 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 h-[340px] flex items-center justify-center relative">
-                                        {canViewImage && issue.image ? (
-                                            <div className="text-gray-500">
-                                                <img
-                                                    src={issue.image.url}
-                                                    alt={'Issue'}
-                                                    className="max-h-[340px] w-full object-contain"
-                                                />
-                                                {issue.imageMetadata && (
-                                                    <ImageMetadataDisplay
-                                                        metadata={issue.imageMetadata}
-                                                        className="mt-3"
+                                {canViewImage ? (
+                                    <div>
+                                        <div className="text-xl font-bold">User Submitted Image</div>
+                                        <div className="mt-4 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 h-[340px] flex items-center justify-center relative">
+                                            {issue.image ? (
+                                                <div className="text-gray-500">
+                                                    <img
+                                                        src={issue.image.url}
+                                                        alt={'Issue'}
+                                                        className="max-h-[340px] w-full object-contain"
                                                     />
-                                                )}
-                                            </div>
+                                                    {issue.imageMetadata && (
+                                                        <ImageMetadataDisplay
+                                                            metadata={issue.imageMetadata}
+                                                            className="mt-3"
+                                                        />
+                                                    )}
+                                                </div>
 
-                                        ) : 'No image ◡̈'}
+                                            ) : 'No image ◡̈'}
+                                        </div>
                                     </div>
-                                </div>
+                                ) : null}
                             </div>
                         </div>
                     )}

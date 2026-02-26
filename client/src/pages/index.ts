@@ -18,7 +18,7 @@ export { TrailCreatePage } from './trails/TrailCreatePage';
 export { TrailEditPage } from './trails/TrailEditPage';
 
 // Issues
-export { IssueListPage } from './issues/IssueListPage';
+export { IssueMapPage } from './issues/IssueMapPage';
 export { IssueDetailPage } from './issues/IssueDetailPage';
 export { IssueReportPage } from './issues/IssueReportPage';
 export { IssueDetailCard } from './issues/IssueDetailCard';

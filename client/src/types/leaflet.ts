@@ -1,10 +1,9 @@
 // src/types/leaflet.ts
 
-export type LeafletDivIcon = object
+export type LeafletIcon = object;
 
-export type LeafletDivIconOptions = {
-  className?: string;
-  html?: string;
+export type LeafletIconOptions = {
+  iconUrl: string;
   iconSize?: [number, number];
   iconAnchor?: [number, number];
   popupAnchor?: [number, number];
@@ -51,7 +50,7 @@ export interface LeafletStatic {
     tileLayer: (url: string, options: Record<string, unknown>) => LeafletTileLayer;
     marker: (latlng: [number, number], options: Record<string, unknown>) => LeafletMarker;
     circle: (latlng: [number, number], options: Record<string, unknown>) => LeafletCircle;
-	divIcon: (options: LeafletDivIconOptions) => LeafletDivIcon;
+	icon: (options: LeafletIconOptions) => LeafletIcon;
 }
 
 // Extend the Window interface to include Leaflet
