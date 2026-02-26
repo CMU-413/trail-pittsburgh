@@ -59,7 +59,7 @@ const makePinIcon = (url: string) =>
 
 export const iconForType = (t: IssueTypeEnum) => {
     if (t === 'OBSTRUCTION') 
-    {return makePinIcon(obstuctionPin);}
+    	{return makePinIcon(obstuctionPin);}
     if (t === 'FLOODING') 
     	{return makePinIcon(waterPin);}
     return makePinIcon(otherPin);
@@ -121,6 +121,7 @@ export const IssueMapPage: React.FC = () => {
                 issueMarkersRef.current.push(marker);
             }
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error fetching issues:', err);
             setError('Failed to load issues. Please try again later.');
         } finally {
@@ -132,7 +133,7 @@ export const IssueMapPage: React.FC = () => {
         setSelectedTypes((prev) =>
             prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
     };
-	
+     
     useEffect(() => {
         const init = () => {
             if (!mapRef.current || leafletMap.current) 
@@ -179,7 +180,7 @@ export const IssueMapPage: React.FC = () => {
         const bounds: [[number, number], [number, number]] = [park.bounds.sw, park.bounds.ne];
         leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
     }, [selectedPark]);
-
+     
     useEffect(() => {
         selectedTypesRef.current = selectedTypes;
         refreshPinsForView();

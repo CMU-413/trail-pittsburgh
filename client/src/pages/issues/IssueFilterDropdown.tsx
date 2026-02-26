@@ -2,54 +2,27 @@ import {
     useState, useRef, useEffect 
 } from 'react';
 import { IssueTypeEnum } from '../../types';
+import obstructionPin from '../../assets/obstructionPin.png';
+import waterPin from '../../assets/waterPin.png';
+import otherPin from '../../assets/otherPin.png';
 
-const PinLegend: React.FC<{ color: string }> = ({ color }) => (
-    <span
-        aria-hidden="true"
-        className="inline-block relative"
-        style={{ width: 12, height: 18 }}
-    >
-
-        {/* head */}
-        <span
-            className="absolute left-1/2"
-            style={{
-                top: 0,
-                width: 10,
-                height: 10,
-                transform: 'translateX(-50%)',
-                background: color,
-                borderRadius: '50%',
-            }}
+const iconForType = (t: IssueTypeEnum) => {
+    if (t === 'OBSTRUCTION') 
+    {return obstructionPin;}
+    if (t === 'FLOODING') 
+    {return waterPin;}
+    return otherPin;
+};
+const PinLegend: React.FC<{ type: IssueTypeEnum; label: string }> = ({ type, label }) => (
+    <span className="flex items-center gap-2">
+        <img
+            src={iconForType(type)}
+            alt=""
+            aria-hidden="true"
+            className="shrink-0"
+            style={{ width: 12, height: 18 }}
         />
-
-        {/* inner dot */}
-        <span
-            className="absolute left-1/2"
-            style={{
-                top: 3,
-                width: 3,
-                height: 3,
-                transform: 'translateX(-50%)',
-                background: 'white',
-                borderRadius: '50%',
-                opacity: 0.95,
-            }}
-        />
-
-        {/* tail */}
-        <span
-            className="absolute left-1/2"
-            style={{
-                top: 9,
-                width: 0,
-                height: 0,
-                transform: 'translateX(-50%)',
-                borderLeft: '4px solid transparent',
-                borderRight: '4px solid transparent',
-                borderTop: `8px solid ${color}`,
-            }}
-        />
+        {label}
     </span>
 );
 
@@ -93,8 +66,7 @@ export const IssueFilterDropdown: React.FC<{
                             onChange={() => toggleType(IssueTypeEnum.OBSTRUCTION)}
                         />
                         <span className="flex items-center gap-2">
-                            <PinLegend color="green" />
-              Obstruction
+                            <PinLegend type={IssueTypeEnum.OBSTRUCTION} label="Obstruction" />
                         </span>
                     </label>
 
@@ -105,8 +77,7 @@ export const IssueFilterDropdown: React.FC<{
                             onChange={() => toggleType(IssueTypeEnum.FLOODING)}
                         />
                         <span className="flex items-center gap-2">
-                            <PinLegend color="blue" />
-              Standing Water/Mud
+                            <PinLegend type={IssueTypeEnum.FLOODING} label="Standing Water/Mud" />
                         </span>
                     </label>
 
@@ -117,8 +88,7 @@ export const IssueFilterDropdown: React.FC<{
                             onChange={() => toggleType(IssueTypeEnum.OTHER)}
                         />
                         <span className="flex items-center gap-2">
-                            <PinLegend color="black" />
-              Other
+                            <PinLegend type={IssueTypeEnum.OTHER} label="Other" />
                         </span>
                     </label>
 
