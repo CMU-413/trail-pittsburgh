@@ -45,16 +45,27 @@ export class AuthController {
             });
 
             const redirectTarget = typeof state === 'string' ? state : '/';
-            
-            // eslint-disable-next-line no-console
-            console.log(redirectTarget);
-            
             const url = new URL(redirectTarget, process.env.CLIENT_URL);
 
-            // eslint-disable-next-line no-console
-            console.log(url);
-
-            res.redirect(url.toString());
+            // HTML redirect page — ensures cookie is committed before navigation
+            res.send(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8" />
+                    <title>Redirecting...</title>
+                </head>
+                <body>
+                    <script>
+                    // Wait a tick to ensure the cookie is stored
+                    setTimeout(() => {
+                        window.location.href = "${url.toString()}";
+                    }, 0);
+                    </script>
+                    <p>Redirecting...</p>
+                </body>
+                </html>
+        `);
         } catch (error) {
             logger.error(`Error with OAuth callback`, error);
             res.redirect(`${process.env.CLIENT_URL}/unauthorized`);
