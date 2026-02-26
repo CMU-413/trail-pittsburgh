@@ -3,7 +3,8 @@ import express from 'express';
 import { IssueController } from '@/controllers/';
 import { createBucket, GCSBucket } from '@/lib/GCSBucket';
 import {
-    requireAdmin, requireSuperAdmin, authenticateToken, validateRequest 
+    requireAdmin, requireSuperAdmin, authenticateToken, validateRequest, 
+    requireUser
 } from '@/middlewares/index';
 import { IssueRepository } from '@/repositories';
 import {
@@ -13,6 +14,7 @@ import {
     getIssuesByTrailSchema,
     getIssuesByUrgencySchema,
     getIssueSchema,
+    getIssueMapPinsSchema,
     updateIssueStatusSchema,
     updateIssueSchema
 } from '@/schemas/issueSchema';
@@ -34,8 +36,24 @@ router.post(
     issueController.createIssue
 ); // Create a new issue
 
+router.get('/map', 
+    authenticateToken,
+    validateRequest(getIssueMapPinsSchema),
+    issueController.getMapPins);
+
+router.get('/:issueId', 
+    authenticateToken,
+    validateRequest(getIssueSchema), 
+    issueController.getIssue); // Get a specific issue
+
 // User Routes
-// None for now
+router.put(
+    '/:issueId',
+    authenticateToken,
+    validateRequest(updateIssueSchema),
+    requireUser,
+    issueController.updateIssue
+); // Update an issue
 
 // Admin Routes
 router.get('/', 
@@ -61,12 +79,6 @@ router.get('/urgency/:urgency',
     requireAdmin,
     issueController.getIssuesByUrgency); // Get issues by urgency
 
-router.get('/:issueId', 
-    authenticateToken,
-    validateRequest(getIssueSchema), 
-    requireAdmin,
-    issueController.getIssue); // Get a specific issue
-
 router.put(
     '/:issueId/status',
     authenticateToken,
@@ -74,14 +86,6 @@ router.put(
     requireAdmin,
     issueController.updateIssueStatus
 ); // Update issue status (resolve issue)
-
-router.put(
-    '/:issueId',
-    authenticateToken,
-    validateRequest(updateIssueSchema),
-    requireAdmin,
-    issueController.updateIssue
-); // Update an issue
 
 // Super Admin Routes
 router.delete(

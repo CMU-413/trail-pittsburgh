@@ -13,13 +13,13 @@ export const Footer: React.FC = () => {
     // Public navigation available to all users
     const publicNavigation = [
         { name: 'Home', href: '/' },
+        { name: 'Issues', href: '/issues' },
     ];
 
     // Protected navigation for authenticated users with proper permissions
     const protectedNavigation = [
         { name: 'Dashboard', href: '/dashboard' },
         { name: 'Parks', href: '/parks' },
-        { name: 'Issues', href: '/issues' },
     ];
 
     // Report Issue link (public)

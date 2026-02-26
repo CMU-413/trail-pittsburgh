@@ -1,9 +1,23 @@
 // src/types/leaflet.ts
 
+export type LeafletIcon = object;
+
+export type LeafletIconOptions = {
+  iconUrl: string;
+  iconSize?: [number, number];
+  iconAnchor?: [number, number];
+  popupAnchor?: [number, number];
+};
+
 export interface LeafletMap {
     setView: (center: [number, number], zoom: number) => LeafletMap;
+	fitBounds: (
+		bounds: [[number, number], [number, number]],
+		options?: { padding?: [number, number]; maxZoom?: number }
+	) => LeafletMap;
     on: (event: string, handler: (e: LeafletMouseEvent) => void) => LeafletMap;
     remove: () => void;
+	getBounds: () => { getSouthWest: () => { lat: number; lng: number }; getNorthEast: () => { lat: number; lng: number } };
 }
 
 export interface LeafletMouseEvent {
@@ -36,6 +50,7 @@ export interface LeafletStatic {
     tileLayer: (url: string, options: Record<string, unknown>) => LeafletTileLayer;
     marker: (latlng: [number, number], options: Record<string, unknown>) => LeafletMarker;
     circle: (latlng: [number, number], options: Record<string, unknown>) => LeafletCircle;
+	icon: (options: LeafletIconOptions) => LeafletIcon;
 }
 
 // Extend the Window interface to include Leaflet

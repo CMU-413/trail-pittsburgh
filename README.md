@@ -55,25 +55,48 @@ To get this project up and running on your local machine, follow these steps:
 
     *   **Server:** Create a `.env` file in the `server` directory and configure the following variables (example):
         ```
-        DATABASE_URL="postgresql://user:password@host:port/database"
-        PROJECT_ID="your-gcp-project-id"
-        SERVICE_ACCOUNT_KEY="your-service-account-key-secret-name"
+        DATABASE_URL="postgresql://<username>@localhost:5432/trail_pgh"
+        PROJECT_ID="trail-pgh-issue-tracker"
+        GCS_SERVICE_ACCOUNT_KEY_FILENAME="<full filepath>"
+        TRAIL_ISSUE_IMAGE_BUCKET="trail-pgh-issue-images"
+        CLIENT_URL="http://localhost:5173"
         PORT=3000
         NODE_ENV=development
         ```
-        Ensure you have set up the **PROJECT_ID** and **SERVICE_ACCOUNT_KEY** in Google Cloud Secret Manager.
+        Steps to get `DATABASE_URL` working correctly:
+        ```
+        1. brew install postgresql@16
+        2. brew --prefix postgresql@16
+        3. echo 'export PATH="<output from step 2>/bin:$PATH"' >> ~/.zshrc
+        4. source ~/.zshrc
+        5. createddb trail_pgh
+        6. whoami
+        7 DATABASE_URL="postgresql:/[output from step 6]@localhost:5432/trail_pgh"
+        ```
 
+        Steps to get value for `GCS_SERVICE_ACCOUNT_KEY_FILENAME`:
+        ```
+        1. Go to https://console.cloud.google.com/iam-admin/serviceaccounts?referrer=search&authuser=0&hl=en&project=trail-pgh-issue-tracker
+        2. Click on trailpgh-service-account@trail-pgh-issue-tracker.iam.gserviceaccount.com
+        3. Select `Keys` tab
+        4. Select `Add key` -> `Create new key` -> `JSON` -> `Create`
+        5. Find the file locally (typically in `Downloads` folder), then move the file to safe place
+        6. `GCS_SERVICE_ACCOUNT_KEY_FILENAME="full filepath from step 5"`
+        ```
+
+        Ensure you have access to the **PROJECT_ID** and **SERVICE_ACCOUNT_KEY** in Google Cloud Secret Manager.
+        
     *   **Client:** Create a `.env.local` file in the `client` directory and configure the following variable (example):
         ```
-        VITE_GOOGLE_CLIENT_ID="your-google-oauth-client-id"
-        VITE_API_BASE_URL="http://localhost:3000/api" # Adjust if your server runs on a different port
+        VITE_API_URL="http://localhost:3000"
+        VITE_GOOGLE_CLIENT_ID="100051830254-ql36m1hdj5mo6u75i7if2qqcnus1osb6.apps.googleusercontent.com"
         ```
-        Obtain your **Google OAuth 2.0 Client ID** from the Google Cloud Console.
+        **Google OAuth 2.0 Client ID** was obtained from the Google Cloud Console.
 
 5.  **Set up the Database:**
 
-    *   Create a PostgreSQL database.
-    *   Update the `DATABASE_URL` in your server `.env` file with your database connection details.
+    *   Create a PostgreSQL database. (should be already done in step 4)
+    *   Update the `DATABASE_URL` in your server `.env` file with your database connection details. (should be already done in step 4)
     *   Run Prisma migrations to create the database schema:
         ```bash
         cd server
@@ -113,6 +136,32 @@ To get this project up and running on your local machine, follow these steps:
 
 Open your browser to `http://localhost:5173` to access the Trail Pittsburgh application.
 
+## **Architecture**
+
+* **Client**: Single Page App (Vite + React) — UI components, pages, auth context, API client. Entry: main.tsx → App.tsx.
+* **Server**: Express-like HTTP API — routes → controllers → services → repositories → Prisma (DB). Entry: server.ts / app.ts.
+* **Data flow**: Client `services/api.ts` → HTTP endpoints (`server/routes/*`) → controllers (`server/controllers/*`) → services (`server/services/*`) → repositories (`server/repositories/*`) → Prisma client (prismaClient.ts) → Postgres DB.
+
+## **External services used and how they're used**
+* **Google Cloud Storage (GCS)** — via @google-cloud/storage. Used to store issue/profile images and generate signed URLs for upload/download. Implementation: GCSBucket.ts.
+* **Google OAuth / Google APIs** — used for user authentication/identity: client uses `@react-oauth/google`, server calls Google userinfo endpoint (googleAuth.ts) and has `google-auth-library` in deps.
+* **Google Secret Manager** — dependency (`@google-cloud/secret-manager`) present for storing/retrieving secrets in GCP (server).
+* **Cloud Build + Cloud Run + Container Registry** — CI/CD and deployment pipeline defined in cloudbuild.yaml: builds Docker image for server, pushes to Container Registry, and deploys to Cloud Run. See cloudbuild.yaml.
+* **Cloud SQL (Postgres)** — referenced in cloudbuild.yaml via `--add-cloudsql-instances`, indicating production DB is a Cloud SQL Postgres instance.
+* **Firebase Hosting** — frontend configured for static hosting and SPA rewrites in firebase.json.
+* **Prisma / Postgres** — Postgres DB accessed via Prisma client; migrations under migrations.
+* **Local/other libs**: `multer` for multipart uploads (server), `exifr` + `heic2any` (client) for image metadata and HEIC conversion on upload.
+
+## **Deployment & infra notes**
+* Dockerfile for server builds TypeScript and Prisma client, then runs production image (see Dockerfile).
+* cloudbuild.yaml automates build/push/deploy to Cloud Run with Cloud SQL integration.
+* `deploy` script in package.json calls `gcloud builds submit`.
+
+## **Security & auth**
+* Backend uses JWT tokens (cookie-based) validated in auth.ts.
+* OAuth integration with Google (both client and server sides present).
+* Secrets expected to be provided through environment variables or Google Secret Manager in production.
+
 ## **Contributions**
 
 *   **Xinyi Chen**: xinyic2@andrew.cmu.edu
@@ -120,6 +169,10 @@ Open your browser to `http://localhost:5173` to access the Trail Pittsburgh appl
 *   **Sen Feng**: senf@andrew.cmu.edu
 *   **Matthew Leboffe**: mleboffe@andrew.cmu.edu
 *   **Constantine Westerink**: cwesteri@andrew.cmu.edu
+*   ** Alanna Cao**: alannac@andrew.cmu.edu
+*   ** Alondra Robles**: arobles@andrew.cmu.edu
+*   ** Christina Trinh**: tchristina1607@gmail.com
+*   ** Vicky Zhu**: vickyzhu@andrew.cmu.edu
 
 ### Coding Standards
 

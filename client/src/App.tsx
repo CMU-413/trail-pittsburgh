@@ -24,7 +24,7 @@ import {
     TrailDetailPage,
     TrailCreatePage,
     TrailEditPage,
-    IssueListPage,
+    IssueMapPage,
     IssueDetailPage,
     IssueReportPage,
     UserDetailPage,
@@ -38,6 +38,7 @@ const AppContent: React.FC = () => {
                 <Route element={<PublicRoute />}>
                     <Route index element={<HomePage />} />
                     <Route path="unauthorized" element={<UnauthorizedPage />} />
+                    <Route path="issues" element={<IssueMapPage />} />
                     <Route path="issues/report" element={<IssueReportPage />} />
                 </Route>
 
@@ -67,7 +68,6 @@ const AppContent: React.FC = () => {
 
                         {/* Issues - except report page which is public */}
                         <Route path="issues">
-                            <Route index element={<IssueListPage />} />
                             <Route path=":issueId" element={<IssueDetailPage />} />
                         </Route>
                     </Route>
