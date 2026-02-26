@@ -173,11 +173,12 @@ export class IssueRepository {
     }
 
     public async updateIssue(issueId: number, data: Partial<{
-        parkId?: number;
-        trailId?: number;
         description?: string;
         urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
+		parkId?: number;
+		latitude?: number;
+		longitude?: number;
     }>) {
         try {
             return await prisma.issue.update({
@@ -187,7 +188,8 @@ export class IssueRepository {
                     ...(data.urgency !== undefined && { urgency: data.urgency }),
                     ...(data.issueType !== undefined && { issueType: data.issueType }),
                     ...(data.parkId !== undefined && { parkId: data.parkId }),
-                    ...(data.trailId !== undefined && { trailId: data.trailId }),
+                    ...(data.latitude !== undefined && { latitude: data.latitude }),
+                    ...(data.longitude !== undefined && { longitude: data.longitude }),
                 },
                 include: {
                     park: true,

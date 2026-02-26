@@ -183,13 +183,14 @@ export class IssueController {
         const issueId = Number(req.params.issueId);
         
         try {
-            const { description, urgency, issueType, parkId, trailId } = req.body;
+            const { description, urgency, issueType, parkId, latitude, longitude } = req.body;
             const issue = await this.issueService.updateIssue(issueId, {
                 description,
                 urgency,
                 issueType,
                 parkId,
-                trailId
+                latitude,
+                longitude
             });
             
             if (!issue) {

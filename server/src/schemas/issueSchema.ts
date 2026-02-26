@@ -105,14 +105,16 @@ export const updateIssueSchema = z.object({
         urgency: z.nativeEnum(IssueUrgencyEnum).optional(),
         issueType: z.nativeEnum(IssueTypeEnum).optional(),
         parkId: z.coerce.number().optional(),
-        trailId: z.coerce.number().optional(),
+        latitude: z.number().optional(),
+        longitude: z.number().optional(),
     }).refine((data) => {
         // At least one field must be provided
         return data.description !== undefined ||
                data.urgency !== undefined ||
                data.issueType !== undefined ||
                data.parkId !== undefined ||
-               data.trailId !== undefined;
+			   data.latitude !== undefined ||
+			   data.longitude !== undefined;
     }, {
         message: 'At least one field must be provided for update'
     })
