@@ -45,6 +45,10 @@ export class AuthController {
             });
 
             const redirectTarget = typeof state === 'string' ? state : '/';
+            
+            // eslint-disable-next-line no-console
+            console.log(redirectTarget);
+            
             const url = new URL(redirectTarget, process.env.CLIENT_URL);
 
             res.redirect(url.toString());
