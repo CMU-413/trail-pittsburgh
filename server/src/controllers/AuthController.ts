@@ -45,7 +45,14 @@ export class AuthController {
             });
 
             const redirectTarget = typeof state === 'string' ? state : '/';
+            
+            // eslint-disable-next-line no-console
+            console.log(redirectTarget);
+            
             const url = new URL(redirectTarget, process.env.CLIENT_URL);
+
+            // eslint-disable-next-line no-console
+            console.log(url);
 
             res.redirect(url.toString());
         } catch (error) {
@@ -90,7 +97,7 @@ export class AuthController {
             // Check if it's a Google image and proxy it if needed
             if (pictureUrl && pictureUrl.includes('googleusercontent.com')) {
                 // Use proxy to avoid CORS issues with Google images
-                pictureUrl = `${process.env.SERVER_URL}/api/auth/profile-image-proxy?url=${encodeURIComponent(pictureUrl)}`;
+                pictureUrl = `${process.env.CLIENT_URL}/api/auth/profile-image-proxy?url=${encodeURIComponent(pictureUrl)}`;
             }
 
             res.status(200).json({
