@@ -52,6 +52,9 @@ export class AuthController {
             
             const url = new URL(redirectTarget, process.env.CLIENT_URL);
 
+            // eslint-disable-next-line no-console
+            console.log(url);
+
             res.redirect(url.toString());
         } catch (error) {
             logger.error(`Error with OAuth callback`, error);
