@@ -1,4 +1,4 @@
-// src/pages/issues/IssueListPage.tsx
+// src/pages/issues/IssueMapPage.tsx
 import React, {
     useState, useEffect, useRef
 } from 'react';
@@ -15,6 +15,11 @@ import {
     IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
 } from '../../types';
 import { IssueDetailCard } from './IssueDetailCard';
+import { Link } from 'react-router-dom';
+import { IssueFilterDropdown } from './IssueFilterDropdown';
+import obstuctionPin from '../../assets/obstructionPin.png';
+import waterPin from '../../assets/waterPin.png';
+import otherPin from '../../assets/otherPin.png';
 
 type IssuePin = {
 	issueId: number;
@@ -44,105 +49,23 @@ const fetchPinsByBbox = async (
     return Array.isArray(data?.pins) ? data.pins : [];
 };
 
-const PinLegend: React.FC<{ color: string }> = ({ color }) => (
-    <span
-        aria-hidden="true"
-        className="inline-block relative"
-        style={{ width: 12, height: 18 }}
-    >
-        {/* head */}
-        <span
-	  className="absolute left-1/2"
-	  style={{
-                top: 0,
-                width: 10,
-                height: 10,
-                transform: 'translateX(-50%)',
-                background: color,
-                borderRadius: '50%',
-	  }}
-        />
-        {/* inner dot */}
-        <span
-	  className="absolute left-1/2"
-	  style={{
-                top: 3,
-                width: 3,
-                height: 3,
-                transform: 'translateX(-50%)',
-                background: 'white',
-                borderRadius: '50%',
-                opacity: 0.95,
-	  }}
-        />
-        {/* tail */}
-        <span
-	  className="absolute left-1/2"
-	  style={{
-                top: 9,
-                width: 0,
-                height: 0,
-                transform: 'translateX(-50%)',
-                borderLeft: '4px solid transparent',
-                borderRight: '4px solid transparent',
-                borderTop: `8px solid ${color}`,
-	  }}
-        />
-    </span>
-);
-
-const makePinIcon = (color: string) =>
-    window.L.divIcon({
-        className: '',
-        html: `
-	  <div style="position: relative; width: 22px; height: 34px;">
-		<!-- head -->
-		<div style="
-		  position: absolute;
-		  top: 0; left: 50%;
-		  width: 18px; height: 18px;
-		  transform: translateX(-50%);
-		  background: ${color};
-		  border-radius: 50%;
-		  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-		"></div>
-
-		<!-- inner dot -->
-		<div style="
-		  position: absolute;
-		  top: 6px; left: 50%;
-		  width: 6px; height: 6px;
-		  transform: translateX(-50%);
-		  background: white;
-		  border-radius: 50%;
-		  opacity: 0.95;
-		"></div>
-
-		<!-- tail -->
-		<div style="
-		  position: absolute;
-		  top: 16px; left: 50%;
-		  transform: translateX(-50%);
-		  width: 0; height: 0;
-		  border-left: 7px solid transparent;
-		  border-right: 7px solid transparent;
-		  border-top: 16px solid ${color};
-		"></div>
-	  </div>
-	`,
-        iconSize: [22, 34],
+const makePinIcon = (url: string) =>
+    window.L.icon({
+        iconUrl: url,
+        iconSize: [22, 34],      
         iconAnchor: [11, 34],
+        popupAnchor: [0, -34],
     });
 
-const iconForType = (t: IssueTypeEnum) => {
+export const iconForType = (t: IssueTypeEnum) => {
     if (t === 'OBSTRUCTION') 
-    {return makePinIcon('green');}
+    	{return makePinIcon(obstuctionPin);}
     if (t === 'FLOODING') 
-    {return makePinIcon('blue');}
-    return makePinIcon('black');
+    	{return makePinIcon(waterPin);}
+    return makePinIcon(otherPin);
 };
 
-export const IssueListPage: React.FC = () => {
+export const IssueMapPage: React.FC = () => {
     const mapRef = useRef<HTMLDivElement>(null);
     const leafletMap = useRef<LeafletMap | null>(null);
     const issueMarkersRef = useRef<LeafletMarker[]>([]);
@@ -194,11 +117,11 @@ export const IssueListPage: React.FC = () => {
                 marker.on('click', () => {
                     const id = pin.issueId;
                     openIssueDetail(id);
-                    // console.log("Issue clicked:", id, pin);
                 });
                 issueMarkersRef.current.push(marker);
             }
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error fetching issues:', err);
             setError('Failed to load issues. Please try again later.');
         } finally {
@@ -210,7 +133,7 @@ export const IssueListPage: React.FC = () => {
         setSelectedTypes((prev) =>
             prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
     };
-	
+     
     useEffect(() => {
         const init = () => {
             if (!mapRef.current || leafletMap.current) 
@@ -257,17 +180,23 @@ export const IssueListPage: React.FC = () => {
         const bounds: [[number, number], [number, number]] = [park.bounds.sw, park.bounds.ne];
         leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
     }, [selectedPark]);
-
+     
     useEffect(() => {
         selectedTypesRef.current = selectedTypes;
         refreshPinsForView();
     }, [selectedTypes]);
     return (
         <div>
-            <PageHeader
-                title="Trail Issues"
-                subtitle="View and manage reported trail issues"
-            />
+            <div className="flex items-start justify-between gap-4">
+                <PageHeader
+                    title="Trail Issues"
+                    subtitle="View and manage reported trail issues"
+                />
+
+                <Link to="/issues/report" className="shrink-0">
+                    <Button variant="primary">Report Issue</Button>
+                </Link>
+            </div>
 
             {error ? (
                 <EmptyState
@@ -281,92 +210,56 @@ export const IssueListPage: React.FC = () => {
                 />
             ) : (
                 <>
-                    <div className="relative w-full rounded-lg overflow-hidden border border-gray-300 shadow-md md:col-span-3">
-                        {/* Controls toolbar */}
-                        <div className="flex flex-wrap items-center gap-3 md:gap-6 p-3 bg-white">
-                            {/* Park select */}
+                    <div className="flex items-center justify-between gap-4 mb-3">
+                        {/* Park selection - dropdown menu */}
+                        <div className="flex items-center gap-3">
+                            <label className="text-sm font-medium text-gray-700">Select Park:</label>
                             <select
                                 value={selectedPark}
                                 onChange={(e) => setSelectedPark(e.target.value)}
                                 className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white"
                             >
-                                <option value="">Select a Park</option>
+                                <option value="">Current Location</option>
                                 {PARKS.map((p) => (
                                     <option key={p.id} value={p.id}>
                                         {p.name}
                                     </option>
                                 ))}
                             </select>
-
-                            {/* Filters */}
-                            <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:gap-4">
-                                <label className="flex items-center gap-2 text-sm cursor-pointer rounded-md border border-gray-300 px-3 py-2 select-none">
-                                    <input
-                                        type="checkbox"
-                                        className="h-5 w-5"
-                                        checked={selectedTypes.includes(IssueTypeEnum.OBSTRUCTION)}
-                                        onChange={() => toggleType(IssueTypeEnum.OBSTRUCTION)}
-                                    />
-                                    <span className="flex items-center gap-2">
-                                        <PinLegend color="green" />
-								        Obstruction
-                                    </span>
-                                </label>
-
-                                <label className="flex items-center gap-2 text-sm cursor-pointer rounded-md border border-gray-300 px-3 py-2 select-none">
-                                    <input
-                                        type="checkbox"
-                                        className="h-5 w-5"
-                                        checked={selectedTypes.includes(IssueTypeEnum.FLOODING)}
-                                        onChange={() => toggleType(IssueTypeEnum.FLOODING)}
-                                    />
-                                    <span className="flex items-center gap-2">
-                                        <PinLegend color="blue" />
-							            Standing Water/Mud
-                                    </span>
-                                </label>
-
-                                <label className="flex items-center gap-2 text-sm cursor-pointer rounded-md border border-gray-300 px-3 py-2 select-none">
-                                    <input
-                                        type="checkbox"
-                                        className="h-5 w-5"
-                                        checked={selectedTypes.includes(IssueTypeEnum.OTHER)}
-                                        onChange={() => toggleType(IssueTypeEnum.OTHER)}
-                                    />
-                                    <span className="flex items-center gap-2">
-                                        <PinLegend color="black" />
-								        Other
-                                    </span>
-                                </label>
-                            </div>
-
-                            {/* Spacer pushes clear button to the right on wide screens */}
-                            <div className="w-full md:w-auto" />
-
-                            <button
-                                className="text-sm underline text-gray-600 whitespace-nowrap md:ml-auto"
-                                onClick={() => setSelectedTypes([])}
-                                type="button"
-                            >
-							Clear filters
-                            </button>
                         </div>
+                    </div>
 
+                    <div className="relative w-full rounded-lg overflow-hidden border border-gray-300 shadow-md">
                         {/* Map */}
                         <div
                             ref={mapRef}
                             className="h-[520px] w-full bg-gray-100"
                             aria-label="Trail map showing issue location"
                         />
+
+                        {/* Loading overlay */}
                         {isLoading && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-white/70">
+                            <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-30">
                                 <LoadingSpinner />
                             </div>
                         )}
+
+                        {/* Filters dropdown - multiselect */}
+                        <div className="absolute top-3 right-3 z-20">
+                            <IssueFilterDropdown
+                                selectedTypes={selectedTypes}
+                                toggleType={toggleType}
+                                clear={() => setSelectedTypes([])}
+                            />
+                        </div>
                     </div>
 
                     {isDetailOpen && selectedIssueId !== null && (
-                        <IssueDetailCard issueId={selectedIssueId} onClose={closeIssueDetail} />
+                        <IssueDetailCard 
+                            issueId={selectedIssueId} 
+                            onClose={closeIssueDetail} 
+                            onUpdated={refreshPinsForView}
+                        />
                     )}
                 </>
             )}

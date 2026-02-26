@@ -25,7 +25,7 @@ public async createIssue(req: Request, res: Response)
 - **Purpose**: Create a new issue.
 - **Request Body**: JSON payload with issue fields (e.g., description, trailId, urgency).
 - **Responses**:
-  - `201 Created`:  
+  - `201 Created`:
     ```json
     {
       "issue": { ... },
@@ -155,7 +155,8 @@ public async updateIssue(req: Request, res: Response)
     "urgency": "medium",
     "issueType": "obstruction",
     "parkId": 1,
-    "trailId": 2
+    "latitude": 80,
+    "longitude": 170
   }
   ```
 - **Responses**:
@@ -185,6 +186,7 @@ public async deleteIssue(req: Request, res: Response)
 ## Error Handling
 
 All methods:
+
 - Use `try/catch` for exception handling.
 - Log errors using `logger.error(...)` with contextual messages.
 - Return appropriate status codes (`500`, `404`, etc.) and error messages.

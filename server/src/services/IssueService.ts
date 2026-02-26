@@ -130,7 +130,8 @@ export class IssueService {
         urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
         parkId?: number;
-        trailId?: number;
+		latitude?: number;
+		longitude?: number;
     }) {
         const issue = await this.issueRepository.updateIssue(issueId, data);
 
