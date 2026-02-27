@@ -8,8 +8,6 @@ import { APP_NAME } from '../../constants/config';
 import { UserRoleEnum } from '../../types/index';
 import { formatUserRole } from '../../utils/formatters';
 
-const API_BASE_URL = `/api`;
-
 export const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -55,6 +53,7 @@ export const Header: React.FC = () => {
     const adminNavigation = [
         { name: 'Dashboard', href: '/dashboard', current: location.pathname === '/dashboard' },
         { name: 'Parks', href: '/parks', current: location.pathname.startsWith('/parks') },
+        { name: 'Issues', href: '/issues', current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report' },
     ];
 
     // Navigation links for super admins
@@ -87,7 +86,7 @@ export const Header: React.FC = () => {
 
     async function auth() {
         try {
-            const response = await fetch(`${API_BASE_URL}/auth`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
