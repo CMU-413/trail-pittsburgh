@@ -3,10 +3,8 @@ import {
 } from '@google-cloud/storage';
 
 export function createBucket(bucketName: string): Bucket {
-
+    // In test mode, just return a mock bucket or do nothing.
     if (process.env.NODE_ENV === 'test') {
-        // In test mode, just return a mock bucket or do nothing.
-        // Note: Integration tests should not test bucket behavior.
         return {} as Bucket;
     }
 

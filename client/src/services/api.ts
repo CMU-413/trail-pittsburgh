@@ -5,7 +5,7 @@ import {
     User
 } from '../types';
 
-const API_BASE_URL = `${import.meta.env.VITE_API_URL  }/api`;
+const API_BASE_URL = `/api`;
 
 const handleResponse = async (response: Response) => {
     if (!response.ok) {
@@ -275,7 +275,8 @@ export const issueApi = {
         urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
         parkId?: number;
-        trailId?: number;
+		latitude?: number;
+		longitude?: number;
     }): Promise<Issue> => {
         const response = await fetch(`${API_BASE_URL}/issues/${issueId}`, {
             method: 'PUT',
@@ -290,7 +291,7 @@ export const issueApi = {
 
 export const userApi = {
     getUsers: async (): Promise<User[]> => {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users`, {
+        const response = await fetch(`${API_BASE_URL}/users`, {
             credentials: 'include',
         });
         if (!response.ok) {
@@ -300,7 +301,7 @@ export const userApi = {
     },
 
     updateUserRole: async (userId: string, role: UserRoleEnum): Promise<void> => {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${userId}/role`, {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/role`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

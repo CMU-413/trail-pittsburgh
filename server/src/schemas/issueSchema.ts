@@ -27,6 +27,17 @@ export const getIssueSchema = z.object({
     })
 });
 
+export const getIssueMapPinsSchema = z.object({
+    query: z.object({
+    // required, because map requests need bounds (range of lat and lng)
+        bbox: z.string().min(1),
+        issueTypes:z
+            .union([z.nativeEnum(IssueTypeEnum), z.array(z.nativeEnum(IssueTypeEnum))])
+ 		.transform((v) => (v === undefined ? [] : Array.isArray(v) ? v : [v]))
+  		.default([]),
+    })
+});
+
 export const updateIssueStatusSchema = z.object({
     params: z.object({
         issueId: z.coerce.number(),
@@ -103,14 +114,16 @@ export const updateIssueSchema = z.object({
         urgency: z.nativeEnum(IssueUrgencyEnum).optional(),
         issueType: z.nativeEnum(IssueTypeEnum).optional(),
         parkId: z.coerce.number().optional(),
-        trailId: z.coerce.number().optional(),
+        latitude: z.number().optional(),
+        longitude: z.number().optional(),
     }).refine((data) => {
         // At least one field must be provided
         return data.description !== undefined ||
                data.urgency !== undefined ||
                data.issueType !== undefined ||
                data.parkId !== undefined ||
-               data.trailId !== undefined;
+			   data.latitude !== undefined ||
+			   data.longitude !== undefined;
     }, {
         message: 'At least one field must be provided for update'
     })
