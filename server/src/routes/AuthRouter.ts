@@ -14,7 +14,7 @@ const userService = new UserService(userRepository);
 const oAuth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    `${process.env.CLIENT_URL}/api/auth/google/callback`
+    `${process.env.SERVER_URL}/api/auth/google/callback`
 );
 const authService = new AuthService(userService, oAuth2Client);
 const authController = new AuthController(authService, userService);
