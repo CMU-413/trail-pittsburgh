@@ -46,13 +46,13 @@ export const Header: React.FC = () => {
     // Navigation links for public
     const publicNavigation = [
         { name: 'Home', href: '/', current: location.pathname === '/' },
+        { name: 'Issues', href: '/issues', current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report' },
     ];
 
     // Navigation links for admins
     const adminNavigation = [
         { name: 'Dashboard', href: '/dashboard', current: location.pathname === '/dashboard' },
         { name: 'Parks', href: '/parks', current: location.pathname.startsWith('/parks') },
-        { name: 'Issues', href: '/issues', current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report' },
     ];
 
     // Navigation links for super admins
