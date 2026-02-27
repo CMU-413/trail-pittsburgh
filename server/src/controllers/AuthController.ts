@@ -48,25 +48,7 @@ export class AuthController {
             const redirectTarget = typeof state === 'string' ? state : '/';
             const url = new URL(redirectTarget, process.env.CLIENT_URL);
 
-            // HTML redirect page — ensures cookie is committed before navigation
-            res.send(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="utf-8" />
-                    <title>Redirecting...</title>
-                </head>
-                <body>
-                    <script>
-                    // Wait a tick to ensure the cookie is stored
-                    setTimeout(() => {
-                        window.location.href = "${url.toString()}";
-                    }, 0);
-                    </script>
-                    <p>Redirecting...</p>
-                </body>
-                </html>
-        `);
+            res.redirect(url.toString());
         } catch (error) {
             logger.error(`Error with OAuth callback`, error);
             res.redirect(`${process.env.CLIENT_URL}/unauthorized`);
@@ -109,7 +91,7 @@ export class AuthController {
             // Check if it's a Google image and proxy it if needed
             if (pictureUrl && pictureUrl.includes('googleusercontent.com')) {
                 // Use proxy to avoid CORS issues with Google images
-                pictureUrl = `${process.env.CLIENT_URL}/api/auth/profile-image-proxy?url=${encodeURIComponent(pictureUrl)}`;
+                pictureUrl = `${process.env.SERVER_URL}/api/auth/profile-image-proxy?url=${encodeURIComponent(pictureUrl)}`;
             }
 
             res.status(200).json({
