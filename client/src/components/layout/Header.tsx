@@ -53,7 +53,6 @@ export const Header: React.FC = () => {
     const adminNavigation = [
         { name: 'Dashboard', href: '/dashboard', current: location.pathname === '/dashboard' },
         { name: 'Parks', href: '/parks', current: location.pathname.startsWith('/parks') },
-        { name: 'Issues', href: '/issues', current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report' },
     ];
 
     // Navigation links for super admins
