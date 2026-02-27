@@ -40,6 +40,7 @@ export class AuthController {
                 httpOnly: true,
                 secure: isProd,
                 sameSite: isProd ? 'none' : 'lax',
+                domain: isProd ? '.trail-pgh-issue-tracker.web.app' : undefined,
                 maxAge: 24 * 60 * 60 * 1000,
                 path: '/',
             });
