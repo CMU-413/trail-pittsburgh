@@ -15,7 +15,9 @@ import {
     IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
 } from '../../types';
 import { IssueDetailCard } from './IssueDetailCard';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { 
+    Link, useNavigate, useParams 
+} from 'react-router-dom';
 import { IssueFilterDropdown } from './IssueFilterDropdown';
 import obstuctionPin from '../../assets/obstructionPin.png';
 import waterPin from '../../assets/waterPin.png';
