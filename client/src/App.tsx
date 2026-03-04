@@ -39,6 +39,7 @@ const AppContent: React.FC = () => {
                     <Route index element={<HomePage />} />
                     <Route path="unauthorized" element={<UnauthorizedPage />} />
                     <Route path="issues" element={<IssueMapPage />} />
+                    <Route path="issues/card/:issueId" element={<IssueMapPage />} />
                     <Route path="issues/report" element={<IssueReportPage />} />
                 </Route>
 

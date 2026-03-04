@@ -15,7 +15,7 @@ import {
     IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
 } from '../../types';
 import { IssueDetailCard } from './IssueDetailCard';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { IssueFilterDropdown } from './IssueFilterDropdown';
 import obstuctionPin from '../../assets/obstructionPin.png';
 import waterPin from '../../assets/waterPin.png';
@@ -42,6 +42,8 @@ const fetchPinsByBbox = async (
     const params = new URLSearchParams({ bbox });
     for (const t of types) 
     {params.append('issueTypes', t);}
+    params.append('statuses', IssueStatusEnum.OPEN);
+    params.append('statuses', IssueStatusEnum.IN_PROGRESS);
     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/issues/map?${params.toString()}`);
     if (!res.ok) 
     {return [];}
@@ -66,16 +68,23 @@ export const iconForType = (t: IssueTypeEnum) => {
 };
 
 export const IssueMapPage: React.FC = () => {
+    const DEFAULT_PARK_ID = 'alameda-park';
+    const CURRENT_LOCATION_OPTION = 'current-location';
+
     const mapRef = useRef<HTMLDivElement>(null);
     const leafletMap = useRef<LeafletMap | null>(null);
     const issueMarkersRef = useRef<LeafletMarker[]>([]);
+    const parkDropdownRef = useRef<HTMLDivElement>(null);
 
-    const [selectedPark, setSelectedPark] = useState<string>('');
+    const [selectedPark, setSelectedPark] = useState<string>(DEFAULT_PARK_ID);
+    const [isParkDropdownOpen, setIsParkDropdownOpen] = useState(false);
+    const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [canUseCurrentLocation, setCanUseCurrentLocation] = useState(false);
     const [selectedTypes, setSelectedTypes] = useState<IssueTypeEnum[]>([]);
     const selectedTypesRef = useRef<IssueTypeEnum[]>([]);
     const [isLoading, setIsLoading] = useState(true); const [error, setError] = useState<string | null>(null);
-    const [selectedIssueId, setSelectedIssueId] = useState<number | null>(null);
-    const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const navigate = useNavigate();
+    const { issueId } = useParams<{ issueId?: string }>();
 
     const clearIssueMarkers = () => {
         issueMarkersRef.current.forEach((m) => m.remove());
@@ -83,14 +92,15 @@ export const IssueMapPage: React.FC = () => {
     };
 
     const openIssueDetail = (id: number) => {
-        setSelectedIssueId(id);
-        setIsDetailOpen(true);
+        navigate(`/issues/card/${id}`);
     };
 
     const closeIssueDetail = () => {
-        setIsDetailOpen(false);
-        setSelectedIssueId(null);
+        navigate('/issues');
     };
+
+    const selectedIssueId = issueId ? Number(issueId) : null;
+    const isDetailOpen = typeof selectedIssueId === 'number' && Number.isInteger(selectedIssueId) && selectedIssueId > 0;
 
     const refreshPinsForView = async () => {
         if (!leafletMap.current || typeof window.L === 'undefined') {return;}
@@ -174,17 +184,76 @@ export const IssueMapPage: React.FC = () => {
         if (!leafletMap.current || !selectedPark) 
         {return;}
 
+        if (selectedPark === CURRENT_LOCATION_OPTION && currentLocation) {
+            leafletMap.current.setView([currentLocation.lat, currentLocation.lng], 14);
+            return;
+        }
+
         const park = PARKS.find((p) => p.id === selectedPark);
         if (!park) {return;}
 
         const bounds: [[number, number], [number, number]] = [park.bounds.sw, park.bounds.ne];
         leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
-    }, [selectedPark]);
+    }, [selectedPark, currentLocation]);
      
     useEffect(() => {
         selectedTypesRef.current = selectedTypes;
         refreshPinsForView();
     }, [selectedTypes]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (!parkDropdownRef.current) {
+                return;
+            }
+            if (!parkDropdownRef.current.contains(event.target as Node)) {
+                setIsParkDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (!('geolocation' in navigator)) {
+            setCanUseCurrentLocation(false);
+            setSelectedPark(DEFAULT_PARK_ID);
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setCurrentLocation({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                });
+                setCanUseCurrentLocation(true);
+                setSelectedPark(CURRENT_LOCATION_OPTION);
+            },
+            () => {
+                setCanUseCurrentLocation(false);
+                setSelectedPark(DEFAULT_PARK_ID);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+        );
+    }, []);
+
+    useEffect(() => {
+        if (!issueId) {
+            return;
+        }
+        const parsedId = Number(issueId);
+        if (!Number.isInteger(parsedId) || parsedId <= 0) {
+            navigate('/issues', { replace: true });
+        }
+    }, [issueId, navigate]);
+
+    const selectedParkName = selectedPark
+        === CURRENT_LOCATION_OPTION
+        ? 'Current Location'
+        : (PARKS.find((park) => park.id === selectedPark)?.name ?? 'Alameda Park');
+
     return (
         <div>
             <div className="flex items-start justify-between gap-4">
@@ -213,19 +282,61 @@ export const IssueMapPage: React.FC = () => {
                     <div className="flex items-center justify-between gap-4 mb-3">
                         {/* Park selection - dropdown menu */}
                         <div className="flex items-center gap-3">
-                            <label className="text-sm font-medium text-gray-700">Select Park:</label>
-                            <select
-                                value={selectedPark}
-                                onChange={(e) => setSelectedPark(e.target.value)}
-                                className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white"
-                            >
-                                <option value="">Current Location</option>
-                                {PARKS.map((p) => (
-                                    <option key={p.id} value={p.id}>
-                                        {p.name}
-                                    </option>
-                                ))}
-                            </select>
+                            <label className="text-lg font-medium text-gray-900">Focus Map On</label>
+
+                            <div ref={parkDropdownRef} className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsParkDropdownOpen((open) => !open)}
+                                    className="min-w-[220px] bg-white border border-gray-300 rounded-full px-4 py-2 text-md font-medium text-gray-900 shadow-sm flex items-center justify-between gap-2"
+                                >
+                                    <span>{selectedParkName}</span>
+                                    <span className="text-black text-xl leading-none">▾</span>
+                                </button>
+
+                                {isParkDropdownOpen && (
+                                    <div className="absolute left-0 mt-2 w-full min-w-[260px] bg-white border border-gray-200 rounded-2xl shadow-lg p-2 z-30">
+                                        {canUseCurrentLocation && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedPark(CURRENT_LOCATION_OPTION);
+                                                    setIsParkDropdownOpen(false);
+                                                }}
+                                                className={[
+                                                    'w-full flex items-center justify-between px-3 py-2 text-md rounded-xl',
+                                                    selectedPark === CURRENT_LOCATION_OPTION ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-700 hover:bg-gray-50',
+                                                ].join(' ')}
+                                            >
+                                                <span>Current Location</span>
+                                                <span className="text-md text-gray-900" aria-hidden="true">
+                                                    {selectedPark === CURRENT_LOCATION_OPTION ? '✓' : ''}
+                                                </span>
+                                            </button>
+                                        )}
+
+                                        {PARKS.map((park) => (
+                                            <button
+                                                key={park.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedPark(park.id);
+                                                    setIsParkDropdownOpen(false);
+                                                }}
+                                                className={[
+                                                    'w-full flex items-center justify-between px-3 py-2 text-md rounded-xl',
+                                                    selectedPark === park.id ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-700 hover:bg-gray-50',
+                                                ].join(' ')}
+                                            >
+                                                <span>{park.name}</span>
+                                                <span className="text-md text-gray-900" aria-hidden="true">
+                                                    {selectedPark === park.id ? '✓' : ''}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
