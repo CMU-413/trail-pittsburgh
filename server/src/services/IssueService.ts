@@ -74,7 +74,9 @@ export class IssueService {
         maxLng: number,
         issueTypes: IssueTypeEnum[],
         statuses: IssueStatusEnum[]) {
-        return this.issueRepository.getMapPins(minLat, minLng, maxLat, maxLng, issueTypes, statuses);
+        return this.issueRepository.getMapPins(
+            minLat, minLng, maxLat, maxLng, issueTypes, statuses
+        );
     }
 
     public async createIssue(data: CreateIssueInput) {
