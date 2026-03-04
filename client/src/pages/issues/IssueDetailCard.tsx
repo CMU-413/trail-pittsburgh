@@ -1,6 +1,7 @@
 import React, {
     useState, useEffect, useRef 
 } from 'react';
+import { Link } from 'react-router-dom';
 import {
     Issue, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum, UserRoleEnum 
 } from '../../types';
@@ -12,9 +13,13 @@ import { ImageMetadataDisplay } from '../../components/ui/ImageMetadataDisplay';
 import { issueApi, parkApi } from '../../services/api';
 import { issueTypeFrontendToEnum } from '../../utils/issueTypeUtils';
 import { issueUrgencyEnumToFrontend, issueUrgencyFrontendToEnum } from '../../utils/issueUrgencyUtils';
+import { getIssueStatusColor } from '../../utils/issueStatusUtils';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../providers/AuthProvider';
 import { iconForType } from './IssueMapPage';
+import { IssueDetailEditDropdown } from './components/IssueDropdown';
+import { IssueDetailEditHeader } from './components/IssueDetailEditHeader';
+import { IssueDetailStatusActions } from './components/IssueDetailStatusActions';
 
 export const IssueDetailCard: React.FC<{ 
 	issueId: number; 
@@ -34,18 +39,64 @@ export const IssueDetailCard: React.FC<{
     const [editedLatitude, setEditedLatitude] = useState<number | null>(null);
     const [editedLongitude, setEditedLongitude] = useState<number | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [isResolving, setIsResolving] = useState(false);
+    const [isIssueTypeDropdownOpen, setIsIssueTypeDropdownOpen] = useState(false);
+    const [isParkDropdownOpen, setIsParkDropdownOpen] = useState(false);
 
     const mapRef = useRef<HTMLDivElement>(null);
     const leafletMap = useRef<LeafletMap | null>(null);
     const markerRef = useRef<LeafletMarker>(null);
     const latestCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
+    const issueTypeDropdownRef = useRef<HTMLDivElement>(null);
+    const parkDropdownRef = useRef<HTMLDivElement>(null);
 
     const { user } = useAuth();
     const canEditIssue = user?.role === UserRoleEnum.ROLE_USER ||
 						 user?.role === UserRoleEnum.ROLE_ADMIN ||
 						 user?.role === UserRoleEnum.ROLE_SUPERADMIN;
+    const canManageIssueStatus = user?.role === UserRoleEnum.ROLE_ADMIN ||
+									 user?.role === UserRoleEnum.ROLE_SUPERADMIN;
     const canViewImage = user?.role === UserRoleEnum.ROLE_ADMIN ||
 						 user?.role === UserRoleEnum.ROLE_SUPERADMIN;
+
+    const handleResolveIssue = async () => {
+        if (!issue || !issueId)
+        {return;}
+
+        try {
+            setIsResolving(true);
+            const updatedIssue = await issueApi.updateIssueStatus(issueId, IssueStatusEnum.RESOLVED);
+
+            if (updatedIssue) {
+                setIssue(updatedIssue);
+                onUpdated?.();
+            }
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('Error resolving issue:', err);
+            alert('Failed to update issue status. Please try again.');
+        } finally {
+            setIsResolving(false);
+        }
+    };
+
+    const handleSetInProgress = async () => {
+        if (!issue || !issueId)
+        {return;}
+
+        try {
+            const updatedIssue = await issueApi.updateIssueStatus(issueId, IssueStatusEnum.IN_PROGRESS);
+
+            if (updatedIssue) {
+                setIssue(updatedIssue);
+                onUpdated?.();
+            }
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('Error setting issue to in progress:', err);
+            alert('Failed to update issue status. Please try again.');
+        }
+    };
 
     const handleSaveChanges = async () => {
         if (!issue || !issueId)
@@ -142,6 +193,28 @@ export const IssueDetailCard: React.FC<{
     }, [issueId]);
 
     useEffect(() => {
+        const onDown = (e: MouseEvent) => {
+            const target = e.target as Node;
+            if (issueTypeDropdownRef.current && !issueTypeDropdownRef.current.contains(target)) {
+                setIsIssueTypeDropdownOpen(false);
+            }
+            if (parkDropdownRef.current && !parkDropdownRef.current.contains(target)) {
+                setIsParkDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', onDown);
+        return () => document.removeEventListener('mousedown', onDown);
+    }, []);
+
+    useEffect(() => {
+        if (!isEditing) {
+            setIsIssueTypeDropdownOpen(false);
+            setIsParkDropdownOpen(false);
+        }
+    }, [isEditing]);
+
+    useEffect(() => {
         if (!issue || !mapRef.current || typeof window.L === 'undefined')
         {return;}
 
@@ -200,14 +273,48 @@ export const IssueDetailCard: React.FC<{
     const googleMapsUrl = (latitude: number, longitude: number) => 
         `https://www.google.com/maps?q=${latitude},${longitude}`;
 
+    const initializeEditedFields = (sourceIssue: Issue) => {
+        setEditedDescription(sourceIssue.description || '');
+        setEditedUrgency(issueUrgencyEnumToFrontend(sourceIssue.urgency));
+        setEditedIssueType(sourceIssue.issueType.toLowerCase());
+        setEditedParkId(sourceIssue.parkId);
+        setEditedLatitude(sourceIssue.latitude ?? null);
+        setEditedLongitude(sourceIssue.longitude ?? null);
+        latestCoordsRef.current = null;
+    };
+
+    const startEditing = () => {
+        if (!issue) {
+            return;
+        }
+        initializeEditedFields(issue);
+        setIsEditing(true);
+    };
+
+    const cancelEditing = () => {
+        if (!issue) {
+            return;
+        }
+        initializeEditedFields(issue);
+        setIsEditing(false);
+    };
+
+    const editTextareaClass = 'mt-2 w-full border border-gray-300 rounded-2xl p-3 min-h-[110px] text-sm text-gray-900 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300';
+    const issueTypeLabel =
+        editedIssueType === 'obstruction' ? 'Obstruction'
+            : editedIssueType === 'flooding' ? 'Flooding'
+                : 'Other';
+    const selectedParkLabel = parks.find((p) => p.parkId === editedParkId)?.name ?? 'Select Park';
+
     return (
         <div className="fixed inset-0 z-50">
             {/* backdrop */}
             <div className="absolute inset-0 bg-black/30" onClick={onClose} />
 
             {/* modal */}
-            <div className="absolute inset-0 flex items-start justify-center p-3 md:p-6">
+            <div className="absolute inset-0 flex items-start justify-center p-3 md:p-6" onClick={onClose}>
                 <div 
+                    onClick={(e) => e.stopPropagation()}
                     className={[
                         'relative w-full bg-white rounded-xl shadow-xl overflow-hidden max-h-[90vh] md:max-h-[85vh] flex flex-col',
                         canViewImage ? 'max-w-6xl' : 'max-w-3xl',
@@ -216,8 +323,9 @@ export const IssueDetailCard: React.FC<{
                     {/* close */}
                     <Button
                         onClick={onClose}
-                        size="sm"
-                        className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+                        variant="secondary"
+                        size="md"
+                        className="absolute top-4 right-4 text-xl text-gray-500 hover:text-gray-800 bg-transparent hover:bg-transparent shadow-none"
                         aria-label="Close"
                         type="button"
                     >
@@ -234,127 +342,123 @@ export const IssueDetailCard: React.FC<{
                         </div>
                     ) : !issue ? null : (
                         <div className="p-4 md:p-8 pr-14 md:pr-16 overflow-y-auto">
+                            {isEditing && (
+                                <IssueDetailEditHeader
+                                    issueDisplayId={issue.issueId ?? issueId}
+                                    createdAt={issue.createdAt}
+                                    isSaving={isSaving}
+                                    onSave={handleSaveChanges}
+                                    onCancel={cancelEditing}
+                                />
+                            )}
+
                             {/* header row */}
-                            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6">
+                            <div className={[
+                                'flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6',
+                                isEditing ? 'rounded-lg border border-slate-200 bg-white p-3 md:p-4' : '',
+                            ].join(' ')}>
                                 <div>
-                                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                                    <div className="flex flex-wrap items-center gap-2">
                                         {isEditing ? (
-                                            <select
-                                                className="border rounded-md px-2 py-1 text-sm font-semibold"
-                                                value={editedIssueType}
-                                                onChange={(e) => setEditedIssueType(e.target.value)}
-                                            >
-                                                <option value="obstruction">Obstruction</option>
-                                                <option value="flooding">Flooding</option>
-                                                <option value="other">Other</option>
-                                            </select>
-                                        ) : (
-                                            <span className="text-2xl md:text-3xl font-extrabold tracking-tight">
-                                                {issue.issueType}
-                                            </span>
-                                        )}
-	
-                                        {/* #id */}
-                                        <span className="text-base md:text-lg font-semibold text-gray-900">
-											#{issue.issueId ?? issueId}
-                                        </span>
-	
-                                        <span className="basis-full md:hidden" />
-
-                                        <span className="inline-flex items-baseline gap-x-3">
-                                            {/* separator dot */}
-                                            <span 
-                                                aria-hidden="true"
-                                                className="text-black text-lg md:text-xl font-extrabold leading-none"
-                                            >
-													•				
-                                            </span>
-
-                                            {isEditing ? (
-                                                <select
-                                                    className="border rounded-md px-2 py-1 text-sm font-semibold"
-                                                    value={editedParkId}
-                                                    onChange={(e) => setEditedParkId(Number(e.target.value))}
-                                                >
-                                                    {parks.map((p) => (
-                                                        <option key={p.parkId} value={p.parkId}>{p.name}</option>
-                                                    ))}
-                                                </select>
-                                            ) : (
-                                                <span className="text-lg md:text-xl font-semibold text-gray-900 underline underline-offset-4">
-                                                    {issue.park?.name ?? ''}
-                                                </span>		
-                                            )}
-                                        </span>
-                                    </div>
-
-                                    <div className="mt-2 text-sm md:text-base text-gray-600">
-										Reported {new Date(issue.createdAt).toLocaleString()}
-                                    </div>
-                                </div>
-
-                                <div className="flex w-full flex-wrap gap-2 md:w-auto md:shrink-0 md:justify-end">
-                                    {/* Edit button - only shown when not editing and issue is not resolved */}
-                                    {canEditIssue && !isEditing && issue.status !== IssueStatusEnum.RESOLVED && (
-                                        <Button
-                                            variant="primary"
-                                            size="md"
-                                            className="rounded-full px-4 py-2 font-semibold shadow-sm"
-                                            onClick={() => {
-                                                setIsEditing(true);
-                                                // Reset fields to original values
-                                                setEditedDescription(issue.description || '');
-                                                setEditedUrgency(issueUrgencyEnumToFrontend(issue.urgency));
-                                                setEditedIssueType(issue.issueType.toLowerCase());
-                                                setEditedParkId(issue.parkId);
-                                                setEditedLatitude(issue.latitude ?? null);
-                                                setEditedLongitude(issue.longitude ?? null);
-                                            }}
-                                        >
-											✎ Edit Issue
-                                        </Button>
-                                    )}
-		
-                                    {/* Cancel and Save buttons - only shown when editing */}
-                                    {isEditing && (
-                                        <>
-                                            <Button
-                                                variant="secondary"
-                                                size="md"
-                                                className="rounded-full px-4 py-2 font-semibold shadow-sm"
-                                                onClick={() => {
-                                                    setIsEditing(false);
-                                                    // Reset fields to original values
-                                                    setEditedDescription(issue.description || '');
-                                                    setEditedUrgency(issueUrgencyEnumToFrontend(issue.urgency));
-                                                    setEditedIssueType(issue.issueType.toLowerCase());
-                                                    setEditedParkId(issue.parkId);
+                                            <IssueDetailEditDropdown
+                                                label="Issue Type"
+                                                valueLabel={issueTypeLabel}
+                                                isOpen={isIssueTypeDropdownOpen}
+                                                onToggle={() => setIsIssueTypeDropdownOpen((open) => !open)}
+                                                onSelect={(value) => {
+                                                    setEditedIssueType(value);
+                                                    setIsIssueTypeDropdownOpen(false);
                                                 }}
-                                                disabled={isSaving}
-                                            >
-												Cancel
-                                            </Button>
+                                                selectedValue={editedIssueType}
+                                                options={[
+                                                    { value: 'obstruction', label: 'Obstruction' },
+                                                    { value: 'flooding', label: 'Flooding' },
+                                                    { value: 'other', label: 'Other' },
+                                                ]}
+                                                dropdownRef={issueTypeDropdownRef}
+                                                widthClass="w-[220px]"
+                                            />
+                                        ) : (
+                                            <>
+                                                <span className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                                                    {issue.issueType}
+                                                </span>
 
-                                            <Button
-                                                variant="primary"
-                                                size="md"
-                                                className="rounded-full px-4 py-2 font-semibold shadow-sm"
-                                                onClick={handleSaveChanges}
-                                                isLoading={isSaving}
-                                                disabled={isSaving}
-                                            >
-                                                {isSaving ? 'Saving...' : 'Save Changes'}
-                                            </Button>
-                                        </>
-                                    )}
+                                                {canEditIssue && issue.status !== IssueStatusEnum.RESOLVED && (
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        className="h-8 w-8 min-w-8 rounded-full p-0 text-base bg-transparent hover:bg-transparent shadow-none text-black"
+                                                        onClick={startEditing}
+                                                        aria-label="Edit issue"
+                                                        type="button"
+                                                    >
+													✎
+                                                    </Button>
+                                                )}
+
+                                                <span
+                                                    className={[
+                                                        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+                                                        getIssueStatusColor(issue.status),
+                                                    ].join(' ')}
+                                                >
+                                                    {issue.status.replace('_', ' ')}
+                                                </span>
+                                            </>
+                                        )}                                        
+                                    </div>
+
+                                    <div className="mt-2">
+                                        <div className="flex items-center gap-2">
+                                            {isEditing ? (
+                                                <IssueDetailEditDropdown
+                                                    label="Park"
+                                                    valueLabel={selectedParkLabel}
+                                                    isOpen={isParkDropdownOpen}
+                                                    onToggle={() => setIsParkDropdownOpen((open) => !open)}
+                                                    onSelect={(value) => {
+                                                        setEditedParkId(Number(value));
+                                                        setIsParkDropdownOpen(false);
+                                                    }}
+                                                    selectedValue={String(editedParkId)}
+                                                    options={parks.map((p) => ({ value: String(p.parkId), label: p.name }))}
+                                                    dropdownRef={parkDropdownRef}
+                                                    widthClass="w-[300px]"
+                                                />
+                                            ) : (
+                                                <span className="text-lg md:text-xl font-semibold text-gray-900">
+                                                    {issue.park?.name ?? ''}
+                                                </span>
+                                            )}
+
+                                            {!isEditing && (
+                                                <Link
+                                                    to={`/issues/${issue.issueId ?? issueId}`}
+                                                    className="text-lg md:text-xl font-semibold text-black underline underline-offset-2 hover:text-black"
+                                                >
+												#{issue.issueId ?? issueId}
+                                                </Link>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
+
+                                <IssueDetailStatusActions
+                                    canManageIssueStatus={canManageIssueStatus}
+                                    isEditing={isEditing}
+                                    issueStatus={issue.status}
+                                    isResolving={isResolving}
+                                    onResolveIssue={handleResolveIssue}
+                                    onSetInProgress={handleSetInProgress}
+                                />
                             </div>
 
                             <div className="mt-6">
                                 <div className="text-xl font-bold">Description</div>
                                 {isEditing ? (
                                     <textarea
-                                        className="mt-2 w-full border rounded p-3 min-h-[100px]"
+                                        className={editTextareaClass}
                                         value={editedDescription}
                                         onChange={(e) => setEditedDescription(e.target.value)}
                                         placeholder="Describe the issue..."
@@ -376,6 +480,10 @@ export const IssueDetailCard: React.FC<{
                                 {/* left: location */}
                                 <div>
                                     <div className="text-xl font-bold">Location</div>
+
+                                    <div className="mt-1 text-sm text-gray-600">
+                                        Drag the map pin to update the location coordinates.
+                                    </div>
 
                                     <div className="mt-4 rounded-lg overflow-hidden border border-gray-200">
                                         <div ref={mapRef} className="h-[260px] w-full" />
