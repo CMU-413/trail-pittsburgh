@@ -99,9 +99,10 @@ export class IssueController {
 
     public async getMapPins(req: express.Request, res: express.Response) {
         try {
-            const { bbox, issueTypes } = req.query as unknown as{
+            const { bbox, issueTypes, statuses } = req.query as unknown as{
 				bbox: string;
 				issueTypes: IssueTypeEnum[];
+                statuses: IssueStatusEnum[];
 			};
 
             // Parse bbox: "minLat,minLng,maxLat,maxLng"
@@ -133,7 +134,7 @@ export class IssueController {
                 maxLat, 
                 maxLng,
                 issueTypes,
-                IssueStatusEnum.OPEN
+                statuses
             );
 
 		    res.json({ pins });

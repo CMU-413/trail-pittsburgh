@@ -66,9 +66,9 @@ export class IssueRepository {
         maxLat: number, 
         maxLng: number,
         issueTypes: IssueTypeEnum[],
-        status: IssueStatusEnum) {
+        statuses: IssueStatusEnum[]) {
         const whereClause : Prisma.IssueWhereInput = {
-            status,
+            status: { in: statuses },
             latitude: { not: null, gte: minLat, lte: maxLat },
             longitude: { not: null, gte: minLng, lte: maxLng },
         };

@@ -35,6 +35,10 @@ export const getIssueMapPinsSchema = z.object({
             .union([z.nativeEnum(IssueTypeEnum), z.array(z.nativeEnum(IssueTypeEnum))])
  		.transform((v) => (v === undefined ? [] : Array.isArray(v) ? v : [v]))
   		.default([]),
+        statuses: z
+            .union([z.nativeEnum(IssueStatusEnum), z.array(z.nativeEnum(IssueStatusEnum))])
+            .transform((v) => (v === undefined ? [IssueStatusEnum.OPEN, IssueStatusEnum.IN_PROGRESS] : Array.isArray(v) ? v : [v]))
+            .default([IssueStatusEnum.OPEN, IssueStatusEnum.IN_PROGRESS]),
     })
 });
 
