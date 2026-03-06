@@ -26,6 +26,11 @@ export const IssueDetailCard: React.FC<{
 	onClose: () => void;
 	onUpdated?: () => void;
 }> = ({ issueId, onClose, onUpdated }) => {
+export const IssueDetailCard: React.FC<{ 
+	issueId: number; 
+	onClose: () => void;
+	onUpdated?: () => void;
+}> = ({ issueId, onClose, onUpdated }) => {
     const [issue, setIssue] = useState<Issue | null>(null);
     const [parks, setParks] = useState<{ parkId: number; name: string }[]>([]);
     const [loading, setLoading] = useState(true);

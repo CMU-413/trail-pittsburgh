@@ -16,7 +16,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-const API_BASE_URL = `/api`;
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -32,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Fetch current user from backend
     const fetchCurrentUser = async () => {
         try {
-            const res = await fetch(`${API_BASE_URL}/auth/me`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
                 credentials: 'include'
             });
             
@@ -64,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Start OAuth flow
     const login = async () => {
         try {
-            const res = await fetch(`${API_BASE_URL}/auth`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -83,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Logout user
     const logout = async () => {
         try {
-            await fetch(`${API_BASE_URL}/auth/logout`, {
+            await fetch(`${import.meta.env.VITE_API_URL}/api/auth/logout`, {
                 method: 'POST',
                 credentials: 'include'
             });
