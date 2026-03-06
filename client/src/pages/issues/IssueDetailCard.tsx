@@ -26,11 +26,6 @@ export const IssueDetailCard: React.FC<{
 	onClose: () => void;
 	onUpdated?: () => void;
 }> = ({ issueId, onClose, onUpdated }) => {
-export const IssueDetailCard: React.FC<{ 
-	issueId: number; 
-	onClose: () => void;
-	onUpdated?: () => void;
-}> = ({ issueId, onClose, onUpdated }) => {
     const [issue, setIssue] = useState<Issue | null>(null);
     const [parks, setParks] = useState<{ parkId: number; name: string }[]>([]);
     const [loading, setLoading] = useState(true);
@@ -486,9 +481,11 @@ export const IssueDetailCard: React.FC<{
                                 <div>
                                     <div className="text-xl font-bold">Location</div>
 
-                                    <div className="mt-1 text-sm text-gray-600">
-                                        Drag the map pin to update the location coordinates.
-                                    </div>
+                                    {isEditing && (
+                                        <div className="mt-1 text-sm text-gray-600">
+                                            Drag the map pin to update the location coordinates.
+                                        </div>
+                                    )}
 
                                     <div className="mt-4 rounded-lg overflow-hidden border border-gray-200">
                                         <div ref={mapRef} className="h-[260px] w-full" />

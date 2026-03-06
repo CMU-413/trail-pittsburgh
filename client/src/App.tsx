@@ -25,7 +25,6 @@ import {
     TrailCreatePage,
     TrailEditPage,
     IssueMapPage,
-    IssueMapPage,
     IssueDetailPage,
     IssueReportPage,
     UserDetailPage,
