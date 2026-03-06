@@ -166,6 +166,28 @@ public async updateIssue(req: Request, res: Response)
 
 ---
 
+### Method: `unsubscribeReporterNotifications`
+
+```ts
+public async unsubscribeReporterNotifications(req: Request, res: Response)
+```
+
+- **Route**: `GET /api/issues/:issueId/unsubscribe?token=<token>`
+- **Purpose**: Unsubscribe the reporter from future email notifications for a specific issue.
+- **Params**:
+  - `issueId` (path param): Numeric ID of the issue.
+- **Query**:
+  - `token`: Signed unsubscribe token generated for that issue/reporter email.
+- **Responses**:
+  - Browser/email-link click (`Accept: text/html`): Returns an HTML confirmation/error page.
+  - API client (`Accept: application/json`): Returns JSON `{ "message": "..." }`.
+  - `200 OK`: Unsubscribed successfully or already unsubscribed.
+  - `400 Bad Request`: Invalid/expired token.
+  - `404 Not Found`: Issue does not exist.
+  - `500 Internal Server Error`: Unsubscribe processing failed.
+
+---
+
 ### Method: `deleteIssue`
 
 ```ts

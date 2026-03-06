@@ -17,12 +17,14 @@ type UnsubscribeTokenPayload = {
 };
 
 export class IssueNotificationService {
+    private static readonly senderDisplayName = '[TrailPGH] Trail Pittsburgh Issue Tracker';
     private readonly apiKey?: string;
     private readonly domain?: string;
     private readonly fromEmail?: string;
     private readonly replyToEmail?: string;
     private readonly baseUrl: string;
     private readonly unsubscribeSecret?: string;
+    private readonly clientBaseUrl: string;
     private readonly serverBaseUrl: string;
 
     constructor() {
@@ -34,6 +36,7 @@ export class IssueNotificationService {
         this.unsubscribeSecret =
             process.env.ISSUE_NOTIFICATION_UNSUBSCRIBE_SECRET ??
             process.env.JWT_SECRET;
+        this.clientBaseUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
         this.serverBaseUrl = process.env.SERVER_URL ?? 'http://localhost:3000';
     }
 
@@ -91,8 +94,9 @@ export class IssueNotificationService {
 
         await this.sendEmail({
             to: issue.reporterEmail,
-            subject: `Issue #${issue.issueId} created`,
+            subject: 'Trail issue report received',
             text: this.buildCreatedEmailText(issue),
+            html: this.buildCreatedEmailHtml(issue),
         });
     }
 
@@ -103,8 +107,9 @@ export class IssueNotificationService {
 
         await this.sendEmail({
             to: issue.reporterEmail,
-            subject: `Issue #${issue.issueId} is in progress`,
+            subject: 'Your trail issue is in progress',
             text: this.buildStatusUpdateEmailText(issue, 'in progress'),
+            html: this.buildStatusUpdateEmailHtml(issue, 'in progress'),
         });
     }
 
@@ -115,8 +120,9 @@ export class IssueNotificationService {
 
         await this.sendEmail({
             to: issue.reporterEmail,
-            subject: `Issue #${issue.issueId} has been resolved`,
+            subject: 'Your trail issue has been resolved',
             text: this.buildStatusUpdateEmailText(issue, 'resolved'),
+            html: this.buildStatusUpdateEmailHtml(issue, 'resolved'),
         });
     }
 
@@ -129,13 +135,32 @@ export class IssueNotificationService {
         const trailName = issue.trail?.name ?? 'Unknown trail';
 
         return [
-            `Issue ID: ${issue.issueId}`,
             `Park: ${parkName}`,
             `Trail: ${trailName}`,
             `Type: ${issue.issueType}`,
             `Urgency: ${issue.urgency}`,
             issue.description ? `Description: ${issue.description}` : undefined
         ].filter(Boolean).join('\n');
+    }
+
+    private buildIssueSummaryHtml(issue: IssueWithRelations) {
+        const parkName = this.escapeHtml(issue.park?.name ?? 'Unknown park');
+        const trailName = this.escapeHtml(issue.trail?.name ?? 'Unknown trail');
+        const issueType = this.escapeHtml(issue.issueType);
+        const urgency = this.escapeHtml(issue.urgency);
+        const description = issue.description
+            ? `<li><strong>Description:</strong> ${this.escapeHtml(issue.description)}</li>`
+            : '';
+
+        return [
+            '<ul>',
+            `<li><strong>Park:</strong> ${parkName}</li>`,
+            `<li><strong>Trail:</strong> ${trailName}</li>`,
+            `<li><strong>Type:</strong> ${issueType}</li>`,
+            `<li><strong>Urgency:</strong> ${urgency}</li>`,
+            description,
+            '</ul>'
+        ].join('');
     }
 
     private buildCreatedEmailText(issue: IssueWithRelations) {
@@ -145,8 +170,23 @@ export class IssueNotificationService {
             'We received your report:',
             this.buildIssueSummary(issue),
             '',
+            `Track or edit your report here: ${this.buildIssueCardUrl(issue.issueId)}`,
+            '',
+            `If you no longer want updates for this issue, unsubscribe here: ${this.buildUnsubscribeUrl(issue.issueId, issue.reporterEmail)}`,
+            '',
             'You will receive additional updates as the issue status changes.'
         ].join('\n');
+    }
+
+    private buildCreatedEmailHtml(issue: IssueWithRelations) {
+        return [
+            '<p>Thanks for reporting a trail issue.</p>',
+            '<p>We received your report:</p>',
+            this.buildIssueSummaryHtml(issue),
+            `<p><a href="${this.escapeHtml(this.buildIssueCardUrl(issue.issueId))}">Track or edit your report</a></p>`,
+            `<p>If you no longer want updates for this issue, <a href="${this.escapeHtml(this.buildUnsubscribeUrl(issue.issueId, issue.reporterEmail))}">unsubscribe here</a>.</p>`,
+            '<p>You will receive additional updates as the issue status changes.</p>'
+        ].join('');
     }
 
     private buildStatusUpdateEmailText(issue: IssueWithRelations, statusLabel: 'in progress' | 'resolved' ) {
@@ -155,8 +195,23 @@ export class IssueNotificationService {
             '',
             this.buildIssueSummary(issue),
             '',
+            `Track or edit your report here: ${this.buildIssueCardUrl(issue.issueId)}`,
+            '',
             `If you no longer want updates for this issue, unsubscribe here: ${this.buildUnsubscribeUrl(issue.issueId, issue.reporterEmail)}`
         ].join('\n');
+    }
+
+    private buildStatusUpdateEmailHtml(issue: IssueWithRelations, statusLabel: 'in progress' | 'resolved' ) {
+        return [
+            `<p>Your reported issue is now ${this.escapeHtml(statusLabel)}.</p>`,
+            this.buildIssueSummaryHtml(issue),
+            `<p><a href="${this.escapeHtml(this.buildIssueCardUrl(issue.issueId))}">Track or edit your report</a></p>`,
+            `<p>If you no longer want updates for this issue, <a href="${this.escapeHtml(this.buildUnsubscribeUrl(issue.issueId, issue.reporterEmail))}">unsubscribe here</a>.</p>`
+        ].join('');
+    }
+
+    private buildIssueCardUrl(issueId: number) {
+        return `${this.clientBaseUrl}/issues/card/${issueId}`;
     }
 
     private buildUnsubscribeUrl(issueId: number, email: string) {
@@ -173,19 +228,25 @@ export class IssueNotificationService {
         to: string;
         subject: string;
         text: string;
+        html?: string;
     }) {
         if (!this.apiKey || !this.domain) {
             logger.warn('MAILGUN_API_KEY or MAILGUN_DOMAIN missing. Skipping issue notification email.');
             return;
         }
 
-        const from = this.fromEmail ?? `Trail Pittsburgh <postmaster@${this.domain}>`;
+        const senderEmail = this.resolveSenderEmail();
+        const from = `${IssueNotificationService.senderDisplayName} <${senderEmail}>`;
         const body = new URLSearchParams({
             from,
             to: email.to,
             subject: email.subject,
             text: email.text
         });
+
+        if (email.html) {
+            body.append('html', email.html);
+        }
 
         if (this.replyToEmail) {
             body.append('h:Reply-To', this.replyToEmail);
@@ -208,5 +269,29 @@ export class IssueNotificationService {
         } catch (error) {
             logger.error('Failed to send Mailgun notification email', error);
         }
+    }
+
+    private resolveSenderEmail() {
+        const fromEmail = this.fromEmail?.trim();
+
+        if (!fromEmail) {
+            return `postmaster@${this.domain}`;
+        }
+
+        const emailMatch = fromEmail.match(/<([^>]+)>/);
+        if (emailMatch?.[1]) {
+            return emailMatch[1].trim();
+        }
+
+        return fromEmail;
+    }
+
+    private escapeHtml(value: string) {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 }

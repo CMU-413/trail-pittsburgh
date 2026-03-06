@@ -215,24 +215,142 @@ export class IssueController {
             const result = await this.issueService.unsubscribeReporter(issueId, token);
 
             if (result === 'issue-not-found') {
-                res.status(404).json({ message: 'Issue not found' });
+                this.respondForUnsubscribe(req, res, {
+                    statusCode: 404,
+                    title: 'Issue Not Found',
+                    message: 'We could not find that issue. The unsubscribe link may be invalid.',
+                    jsonMessage: 'Issue not found'
+                });
                 return;
             }
 
             if (result === 'invalid-token') {
-                res.status(400).json({ message: 'Invalid or expired unsubscribe token' });
+                this.respondForUnsubscribe(req, res, {
+                    statusCode: 400,
+                    title: 'Invalid Link',
+                    message: 'This unsubscribe link is invalid or has expired.',
+                    jsonMessage: 'Invalid or expired unsubscribe token'
+                });
                 return;
             }
 
             if (result === 'already-unsubscribed') {
-                res.status(200).json({ message: 'Notifications are already unsubscribed for this issue' });
+                this.respondForUnsubscribe(req, res, {
+                    statusCode: 200,
+                    title: 'Already Unsubscribed',
+                    message: 'Email notifications for this issue were already turned off.',
+                    jsonMessage: 'Notifications are already unsubscribed for this issue'
+                });
                 return;
             }
 
-            res.status(200).json({ message: 'You have been unsubscribed from issue updates' });
+            this.respondForUnsubscribe(req, res, {
+                statusCode: 200,
+                title: 'Unsubscribe Successful',
+                message: 'You are unsubscribed from future email updates for this issue.',
+                jsonMessage: 'You have been unsubscribed from issue updates'
+            });
         } catch (error) {
             logger.error(`Error unsubscribing issue ${issueId}`, error);
-            res.status(500).json({ message: 'Failed to unsubscribe from notifications' });
+            this.respondForUnsubscribe(req, res, {
+                statusCode: 500,
+                title: 'Unsubscribe Failed',
+                message: 'Something went wrong while processing your unsubscribe request.',
+                jsonMessage: 'Failed to unsubscribe from notifications'
+            });
         }
+    }
+
+    private respondForUnsubscribe(
+        req: express.Request,
+        res: express.Response,
+        content: {
+            statusCode: number;
+            title: string;
+            message: string;
+            jsonMessage: string;
+        }
+    ) {
+        if (req.accepts('html')) {
+            res.status(content.statusCode).type('html').send(this.buildUnsubscribeHtml(content.title, content.message));
+            return;
+        }
+
+        res.status(content.statusCode).json({ message: content.jsonMessage });
+    }
+
+    private buildUnsubscribeHtml(title: string, message: string) {
+        const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
+        return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${this.escapeHtml(title)}</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      color: #1f2937;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+    }
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+      padding: 1.5rem;
+    }
+    h1 {
+      margin: 0 0 0.75rem;
+      font-size: 1.375rem;
+    }
+    p {
+      margin: 0;
+      line-height: 1.55;
+      font-size: 1rem;
+    }
+        .actions {
+            margin-top: 1rem;
+        }
+        .button {
+            display: inline-block;
+            background: #1d4ed8;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            padding: 0.625rem 0.9rem;
+            font-weight: 600;
+        }
+        .button:hover {
+            background: #1e40af;
+        }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>${this.escapeHtml(title)}</h1>
+    <p>${this.escapeHtml(message)}</p>
+        <div class="actions">
+            <a class="button" href="${this.escapeHtml(clientUrl)}">Back to Trail Pittsburgh</a>
+        </div>
+  </main>
+</body>
+</html>`;
+    }
+
+    private escapeHtml(value: string) {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 }
