@@ -236,6 +236,8 @@ const Location: React.FC<LocationProps> = ({
                         <div className="flex flex-col gap-2">
                             <p className="text-sm text-gray-600">
                                 Providing the exact location helps us find and fix the issue more quickly. Your location data will only be used for this issue report.
+                                If you have already uploaded a photo, we have already extracted its location data. This option allows you to share an additional location
+                                for improved accuracy.
                             </p>
 
                             <Button
