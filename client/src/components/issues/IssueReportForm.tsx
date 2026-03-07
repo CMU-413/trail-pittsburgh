@@ -2,10 +2,9 @@
 
 import React, { useState } from 'react';
 import {
-    ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum, IssuePassibleEnum
+    ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum
 } from '../../types';
-import { getSafetyRiskLabel, getSafetyRiskColor } from '../../utils/issueSafetyRiskUtils';
-import { getPassibleLabel, getPassibleColor } from '../../utils/issuePassibleUtils';
+import { getSafetyRiskLabel } from '../../utils/issueSafetyRiskUtils';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
@@ -24,7 +23,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
         description: '',
         issueType: IssueTypeEnum.OBSTRUCTION,
         safetyRisk: IssueRiskEnum.NO_RISK,
-        passible: IssuePassibleEnum.YES,
+        passible: true,
         notifyReporter: false,
         reporterEmail: '',
         createdAt: new Date().toISOString(),
@@ -84,7 +83,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
         setFormData((prev) => ({ ...prev, safetyRisk: level }));
     };
 
-    const handlePassibleSelect = (level: IssuePassibleEnum) => {
+    const handlePassibleSelect = (level: boolean) => {
         setFormData((prev) => ({ ...prev, passible: level }));
     };
     
@@ -135,6 +134,14 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
         setLocationProvided(true);
     };
 
+    const mapPassibleStringToBool = (option: string) => {
+        if (option == "Yes") {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
     // Get issue type icon
     const getIssueTypeIcon = (type: IssueTypeEnum) => {
         switch (type) {
@@ -147,7 +154,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
         case IssueTypeEnum.STANDINGWATER:
             return (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0M3 19c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0" />
                 </svg>
             );
         case IssueTypeEnum.OTHER:
@@ -218,7 +225,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                 issueType: IssueTypeEnum.OTHER,
                 safetyRisk: IssueRiskEnum.NO_RISK,
                 notifyReporter: false,
-                passible: IssuePassibleEnum.YES,
+                passible: true,
                 reporterEmail: '',
                 createdAt: new Date().toISOString(),
                 longitude: undefined,
@@ -263,19 +270,23 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                 </Alert>
             )}
 
-            {/* Issue Details Section */}
+            {/* Image Upload Section */}
             <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-5">Issue Details</h3>
                 <div className="space-y-6">
                     <ImageUpload
                         label="Add a photo (Required)"
+                        description='By uploading a photo, you agree to share its embedded GPS location data so we can identify the issue’s location.'
                         onChange={handleImageChange}
                         existingImageUrl={imgPreview}
                         existingMetadata={formData.imageMetadata}
-                        className="mt-4"
                         acceptedFormats="image/jpeg,image/png,image/gif,image/heic,image/heif"
                     />
+                </div>
+            </div>
 
+            {/* Issue Type Selection */}
+            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <div className="space-y-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                             What type of issue is it?
@@ -303,8 +314,12 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                         </div>
                         <p className="mt-2 text-xs text-gray-500">Select the category that best describes the issue</p>
                     </div>
+                </div>
+            </div>
 
-                    {/* Risk selector */}
+            {/* Safety Risk Selection */}
+            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <div className="space-y-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                             Safety Risk?
@@ -317,10 +332,10 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                                     type="button"
                                     onClick={() => handleSafetyRiskSelect(level)}
                                     className={`
-                                        p-4 rounded-lg text-center border transition-all cursor-pointer
+                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
                                         ${formData.safetyRisk === level
-                                    ? `${getSafetyRiskColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
-                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                    : 'border-gray-200'
                                 }
                                     `}
                                 >
@@ -337,70 +352,64 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                                     type="button"
                                     onClick={() => handleSafetyRiskSelect(level)}
                                     className={`
-                                        p-4 rounded-lg text-center border transition-all flex justify-between items-center cursor-pointer
+                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
                                         ${formData.safetyRisk === level
-                                    ? `${getSafetyRiskColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
-                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                    : 'border-gray-200'
                                 }
                                     `}
                                 >
                                     <div className="text-sm font-medium">{getSafetyRiskLabel(level)}</div>
-                                    {formData.safetyRisk === level && (
-                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                    )}
                                 </button>
                             ))}
                         </div>
                     </div>
+                </div>
+            </div>
 
-                     {/* Passible selector */}
+            {/* Passible Selection */}
+            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <div className="space-y-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                             Is it passible?
                         </label>
                         {/* For large screens: all options in one row */}
                         <div className="hidden md:grid md:grid-cols-2 gap-3">
-                            {Object.values(IssuePassibleEnum).map((level) => (
+                            {["Yes", "No"].map((option) => (
                                 <button
-                                    key={level}
+                                    key={option}
                                     type="button"
-                                    onClick={() => handlePassibleSelect(level)}
+                                    onClick={() => handlePassibleSelect(mapPassibleStringToBool(option))}
                                     className={`
-                                        p-3 rounded-lg text-center border transition-all cursor-pointer
-                                        ${formData.passible === level
-                                    ? `${getPassibleColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
-                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                        ${formData.passible === mapPassibleStringToBool(option)
+                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                    : 'border-gray-200'
                                 }
                                     `}
                                 >
-                                    <div className="text-sm font-medium">{getPassibleLabel(level)}</div>
+                                    <div className="text-sm font-medium">{option}</div>
                                 </button>
                             ))}
                         </div>
 
                         {/* For mobile: options stacked one per row */}
                         <div className="grid grid-cols-1 gap-3 md:hidden">
-                            {Object.values(IssuePassibleEnum).map((level) => (
+                            {["Yes", "No"].map((option) => (
                                 <button
-                                    key={level}
+                                    key={option}
                                     type="button"
-                                    onClick={() => handlePassibleSelect(level)}
+                                    onClick={() => handlePassibleSelect(mapPassibleStringToBool(option))}
                                     className={`
-                                        p-3 rounded-lg text-center border transition-all flex justify-between items-center cursor-pointer
-                                        ${formData.passible === level
-                                    ? `${getPassibleColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
-                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                        ${formData.passible === mapPassibleStringToBool(option)
+                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                    : 'border-gray-200'
                                 }
                                     `}
                                 >
-                                    <div className="text-sm font-medium">{getPassibleLabel(level)}</div>
-                                    {formData.passible === level && (
-                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                    )}
+                                    <div className="text-sm font-medium">{option}</div>
                                 </button>
                             ))}
                         </div>
@@ -415,6 +424,19 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                 initialLon={formData.longitude}
             />
             {locationProvided}
+            
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                <TextArea
+                    label="Additional Comments (Optional)"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    rows={4}
+                    placeholder="Provide any additional details about this issue (what you saw, where exactly it is located, etc)"
+                    required
+                    fullWidth
+                />
+            </div>
 
             {/* Preferences Section */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -458,19 +480,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                     )}
                 </div>
             </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <TextArea
-                    label="Additional Comments (Optional)"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    rows={4}
-                    placeholder="Provide any additional details about this issue (what you saw, where exactly it is located, etc)"
-                    required
-                    fullWidth
-                />
-            </div>
 
             <div className="flex justify-center mt-8">
                 <Button
@@ -479,6 +488,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                     size="lg"
                     isLoading={isLoading}
                     className="px-14 py-4 text-lg"
+                    disabled={true}
                 >
                     Submit Issue Report
                 </Button>

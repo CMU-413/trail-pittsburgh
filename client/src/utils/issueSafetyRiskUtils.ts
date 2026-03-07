@@ -9,15 +9,6 @@ export const getSafetyRiskLabel = (level: IssueRiskEnum): string => {
     }
 };
 
-export const getSafetyRiskColor = (level: IssueRiskEnum): string => {
-    switch (level) {
-    case IssueRiskEnum.NO_RISK: return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-    case IssueRiskEnum.MINOR_RISK: return 'bg-amber-100 text-amber-800 border-amber-200';
-    case IssueRiskEnum.SERIOUS_RISK: return 'bg-orange-100 text-orange-800 border-orange-200';
-    default: return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-    }
-};
-
 export const getSafetyRiskLevelIndex = (level: IssueRiskEnum): number => {
     const safetyRiskLevels = [
         IssueRiskEnum.NO_RISK,

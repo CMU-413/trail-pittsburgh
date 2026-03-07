@@ -236,6 +236,8 @@ const Location: React.FC<LocationProps> = ({
                         <div className="flex flex-col gap-2">
                             <p className="text-sm text-gray-600">
                                 Providing the exact location helps us find and fix the issue more quickly. Your location data will only be used for this issue report.
+                                If you have already uploaded a photo, we have already extracted its location data. This option allows you to share an additional location
+                                for improved accuracy.
                             </p>
 
                             <Button
@@ -294,12 +296,6 @@ const Location: React.FC<LocationProps> = ({
                         </p>
                     )}
                 </>
-            )}
-
-            {!readOnly && !latitude && !longitude && !loading && !error && (
-                <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600">
-                    Click "Share My Location" to mark the location of the trail issue on the map.
-                </div>
             )}
         </>
     );

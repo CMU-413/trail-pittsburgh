@@ -84,7 +84,7 @@ export type Issue = {
     description?: string;
     issueType: IssueTypeEnum;
     urgency: IssueUrgencyEnum;
-    passible: IssuePassibleEnum;
+    passible: boolean;
     safetyRisk: IssueRiskEnum;
     image?: Image;
     imageMetadata?: ImageMetadata;

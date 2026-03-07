@@ -6,6 +6,7 @@ import { ImageMetadata } from '../../types';
 
 interface ImageUploadProps {
     label?: string;
+    description?: string;
     onChange: (file: File | null, previewUrl: string | null, metadata?: ImageMetadata) => void;
     existingImageUrl?: string;
     existingMetadata?: ImageMetadata;
@@ -16,6 +17,7 @@ interface ImageUploadProps {
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
     label = 'Upload Image',
+    description,
     onChange,
     existingImageUrl,
     existingMetadata,
@@ -152,6 +154,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     {label}
                 </label>
+            )}
+            {description && (
+                <p className="text-xs text-gray-500 mt-1">
+                    {description}
+                </p>
             )}
 
             <div
