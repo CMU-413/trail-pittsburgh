@@ -212,7 +212,7 @@ export class IssueRepository {
                     ...(data.description !== undefined && { description: data.description }),
                     ...(data.urgency !== undefined && { urgency: data.urgency }),
                     ...(data.issueType !== undefined && { issueType: data.issueType }),
-					...(data.isImagePublic !== undefined && { isImagePublic: data.isImagePublic }),
+                    ...(data.isImagePublic !== undefined && { isImagePublic: data.isImagePublic }),
                     ...(data.parkId !== undefined && { parkId: data.parkId }),
                     ...(data.latitude !== undefined && { latitude: data.latitude }),
                     ...(data.longitude !== undefined && { longitude: data.longitude }),
