@@ -72,6 +72,7 @@ export type Issue = {
     parkId: number;
     trailId: number;
     isPublic: boolean;
+    isImagePublic?: boolean;
     status: IssueStatusEnum;
     description?: string;
     issueType: IssueTypeEnum;

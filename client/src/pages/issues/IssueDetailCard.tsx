@@ -1,12 +1,12 @@
 import React, {
-    useState, useEffect, useRef 
+    useState, useEffect, useRef
 } from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Issue, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum, UserRoleEnum 
+    Issue, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum, UserRoleEnum
 } from '../../types';
 import {
-    LeafletMap, LeafletMarker, LeafletMarkerDragEvent 
+    LeafletMap, LeafletMarker, LeafletMarkerDragEvent
 } from '../../types/leaflet';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { ImageMetadataDisplay } from '../../components/ui/ImageMetadataDisplay';
@@ -19,12 +19,11 @@ import { useAuth } from '../../providers/AuthProvider';
 import { iconForType } from './IssueMapPage';
 import { IssueDetailEditDropdown } from './components/IssueDropdown';
 import { IssueDetailEditHeader } from './components/IssueDetailEditHeader';
-import { IssueDetailStatusActions } from './components/IssueDetailStatusActions';
 
-export const IssueDetailCard: React.FC<{ 
-	issueId: number; 
-	onClose: () => void;
-	onUpdated?: () => void;
+export const IssueDetailCard: React.FC<{
+    issueId: number;
+    onClose: () => void;
+    onUpdated?: () => void;
 }> = ({ issueId, onClose, onUpdated }) => {
     const [issue, setIssue] = useState<Issue | null>(null);
     const [parks, setParks] = useState<{ parkId: number; name: string }[]>([]);
@@ -42,6 +41,7 @@ export const IssueDetailCard: React.FC<{
     const [isResolving, setIsResolving] = useState(false);
     const [isIssueTypeDropdownOpen, setIsIssueTypeDropdownOpen] = useState(false);
     const [isParkDropdownOpen, setIsParkDropdownOpen] = useState(false);
+    const [isUpdatingPhotoVisibility, setIsUpdatingPhotoVisibility] = useState(false);
 
     const mapRef = useRef<HTMLDivElement>(null);
     const leafletMap = useRef<LeafletMap | null>(null);
@@ -52,16 +52,18 @@ export const IssueDetailCard: React.FC<{
 
     const { user } = useAuth();
     const canEditIssue = user?.role === UserRoleEnum.ROLE_USER ||
-						 user?.role === UserRoleEnum.ROLE_ADMIN ||
-						 user?.role === UserRoleEnum.ROLE_SUPERADMIN;
+        user?.role === UserRoleEnum.ROLE_ADMIN ||
+        user?.role === UserRoleEnum.ROLE_SUPERADMIN;
     const canManageIssueStatus = user?.role === UserRoleEnum.ROLE_ADMIN ||
-									 user?.role === UserRoleEnum.ROLE_SUPERADMIN;
-    const canViewImage = user?.role === UserRoleEnum.ROLE_ADMIN ||
-						 user?.role === UserRoleEnum.ROLE_SUPERADMIN;
+        user?.role === UserRoleEnum.ROLE_SUPERADMIN;
+    const isImagePublic = issue?.isImagePublic ?? issue?.isPublic ?? false;
+    const canViewImage =
+        user?.role === UserRoleEnum.ROLE_ADMIN ||
+        user?.role === UserRoleEnum.ROLE_SUPERADMIN ||
+        isImagePublic;
 
     const handleResolveIssue = async () => {
-        if (!issue || !issueId)
-        {return;}
+        if (!issue || !issueId) {return;}
 
         try {
             setIsResolving(true);
@@ -81,8 +83,7 @@ export const IssueDetailCard: React.FC<{
     };
 
     const handleSetInProgress = async () => {
-        if (!issue || !issueId)
-        {return;}
+        if (!issue || !issueId) {return;}
 
         try {
             const updatedIssue = await issueApi.updateIssueStatus(issueId, IssueStatusEnum.IN_PROGRESS);
@@ -99,45 +100,48 @@ export const IssueDetailCard: React.FC<{
     };
 
     const handleSaveChanges = async () => {
-        if (!issue || !issueId)
-        {return;}
+        if (!issue || !issueId) {return;}
 
         try {
             setIsSaving(true);
 
             const updateData: {
-				description?: string;
-				urgency?: IssueUrgencyEnum;
-				issueType?: IssueTypeEnum;
-				parkId?: number;
-				latitude?: number;
-				longitude?: number;
-			} = {};
-			
-            // Only include fields that have changed
-            if (editedDescription !== issue.description)
-            {updateData.description = editedDescription;}
-			
+                description?: string;
+                urgency?: IssueUrgencyEnum;
+                issueType?: IssueTypeEnum;
+                parkId?: number;
+                latitude?: number;
+                longitude?: number;
+            } = {};
+
+            if (editedDescription !== (issue.description ?? '')) {
+                updateData.description = editedDescription;
+            }
+
             const editedUrgencyEnum = issueUrgencyFrontendToEnum(editedUrgency);
-            if (editedUrgencyEnum !== issue.urgency)
-            {updateData.urgency = editedUrgencyEnum;}
+            if (editedUrgencyEnum !== issue.urgency) {
+                updateData.urgency = editedUrgencyEnum;
+            }
 
-            // Fix issue type comparison by converting both to the same format
             const editedIssueTypeEnum = issueTypeFrontendToEnum(editedIssueType);
-            if (editedIssueTypeEnum !== issue.issueType)
-            {updateData.issueType = editedIssueTypeEnum;}
+            if (editedIssueTypeEnum !== issue.issueType) {
+                updateData.issueType = editedIssueTypeEnum;
+            }
 
-            if (editedParkId !== issue.parkId)
-            {updateData.parkId = editedParkId;}
+            if (editedParkId !== issue.parkId) {
+                updateData.parkId = editedParkId;
+            }
 
             const latestLat = latestCoordsRef.current?.lat ?? editedLatitude;
             const latestLng = latestCoordsRef.current?.lng ?? editedLongitude;
 
-            if (typeof latestLat === 'number' && latestLat !== issue.latitude)
-            {updateData.latitude = latestLat;}
-			
-            if (typeof latestLng === 'number' && latestLng !== issue.longitude)
-            {updateData.longitude = latestLng;}
+            if (typeof latestLat === 'number' && latestLat !== issue.latitude) {
+                updateData.latitude = latestLat;
+            }
+
+            if (typeof latestLng === 'number' && latestLng !== issue.longitude) {
+                updateData.longitude = latestLng;
+            }
 
             if (Object.keys(updateData).length > 0) {
                 const updatedIssue = await issueApi.updateIssue(issueId, updateData);
@@ -161,7 +165,7 @@ export const IssueDetailCard: React.FC<{
     useEffect(() => {
         const loadParks = async () => {
             try {
-                const res = await parkApi.getParks(); // or whatever your API name is
+                const res = await parkApi.getParks();
                 if (res) {setParks(res);}
             } catch (e) {
                 // eslint-disable-next-line no-console
@@ -215,8 +219,7 @@ export const IssueDetailCard: React.FC<{
     }, [isEditing]);
 
     useEffect(() => {
-        if (!issue || !mapRef.current || typeof window.L === 'undefined')
-        {return;}
+        if (!issue || !mapRef.current || typeof window.L === 'undefined') {return;}
 
         if (leafletMap.current) {
             leafletMap.current.remove();
@@ -227,10 +230,9 @@ export const IssueDetailCard: React.FC<{
         const latitude = issue?.latitude;
         const longitude = issue?.longitude;
 
-        if (typeof latitude !== 'number' || typeof longitude !== 'number')
-        {return;}
+        if (typeof latitude !== 'number' || typeof longitude !== 'number') {return;}
 
-        leafletMap.current = window.L.map(mapRef.current!).setView([latitude,longitude], 15);
+        leafletMap.current = window.L.map(mapRef.current!).setView([latitude, longitude], 15);
 
         window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 22,
@@ -240,13 +242,12 @@ export const IssueDetailCard: React.FC<{
         markerRef.current = window.L
             .marker([latitude, longitude], { draggable: isEditing, icon: iconForType(issue.issueType) })
             .addTo(leafletMap.current!);
+
         markerRef.current.on('drag', (e: LeafletMarkerDragEvent) => {
             const newPos = e.target.getLatLng();
-            if (!newPos) 
-            {return;}
+            if (!newPos) {return;}
 
             latestCoordsRef.current = { lat: newPos.lat, lng: newPos.lng };
-
             setEditedLatitude(newPos.lat);
             setEditedLongitude(newPos.lng);
         });
@@ -261,26 +262,44 @@ export const IssueDetailCard: React.FC<{
     }, [issue, isEditing]);
 
     const copyCoords = async () => {
-        if (!issue) 
-        {return;}
+        if (!issue) {return;}
         const latitude = issue?.latitude;
         const longitude = issue?.longitude;
-        if (typeof latitude !== 'number' || typeof longitude !== 'number') 
-		    {return;}
+        if (typeof latitude !== 'number' || typeof longitude !== 'number') {return;}
         await navigator.clipboard.writeText(`${latitude}, ${longitude}`);
     };
 
-    const googleMapsUrl = (latitude: number, longitude: number) => 
+    const googleMapsUrl = (latitude: number, longitude: number) =>
         `https://www.google.com/maps?q=${latitude},${longitude}`;
 
     const initializeEditedFields = (sourceIssue: Issue) => {
-        setEditedDescription(sourceIssue.description || '');
+        setEditedDescription(sourceIssue.description ?? '');
         setEditedUrgency(issueUrgencyEnumToFrontend(sourceIssue.urgency));
         setEditedIssueType(sourceIssue.issueType.toLowerCase());
         setEditedParkId(sourceIssue.parkId);
         setEditedLatitude(sourceIssue.latitude ?? null);
         setEditedLongitude(sourceIssue.longitude ?? null);
         latestCoordsRef.current = null;
+    };
+
+    const handleTogglePhotoPublic = async () => {
+        if (!issue || !canManageIssueStatus || !issue.image) {
+            return;
+        }
+
+        try {
+            setIsUpdatingPhotoVisibility(true);
+            const updatedIssue = await issueApi.updateIssue(issue.issueId, {
+                isImagePublic: !isImagePublic,
+            });
+            setIssue(updatedIssue);
+            onUpdated?.();
+        } catch (err) {
+            console.error('Error updating photo visibility:', err);
+            alert('Failed to update photo visibility. Please try again.');
+        } finally {
+            setIsUpdatingPhotoVisibility(false);
+        }
     };
 
     const startEditing = () => {
@@ -308,19 +327,16 @@ export const IssueDetailCard: React.FC<{
 
     return (
         <div className="fixed inset-0 z-50">
-            {/* backdrop */}
             <div className="absolute inset-0 bg-black/30" onClick={onClose} />
 
-            {/* modal */}
             <div className="absolute inset-0 flex items-start justify-center p-3 md:p-6" onClick={onClose}>
-                <div 
+                <div
                     onClick={(e) => e.stopPropagation()}
                     className={[
                         'relative w-full bg-white rounded-xl shadow-xl overflow-hidden max-h-[90vh] md:max-h-[85vh] flex flex-col',
                         canViewImage ? 'max-w-6xl' : 'max-w-3xl',
                     ].join(' ')}
                 >
-                    {/* close */}
                     <Button
                         onClick={onClose}
                         variant="secondary"
@@ -329,7 +345,7 @@ export const IssueDetailCard: React.FC<{
                         aria-label="Close"
                         type="button"
                     >
-						✕
+                        ✕
                     </Button>
 
                     {loading ? (
@@ -352,132 +368,208 @@ export const IssueDetailCard: React.FC<{
                                 />
                             )}
 
-                            {/* header row */}
-                            <div className={[
-                                'flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6',
-                                isEditing ? 'rounded-lg border border-slate-200 bg-white p-3 md:p-4' : '',
-                            ].join(' ')}>
-                                <div>
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        {isEditing ? (
-                                            <IssueDetailEditDropdown
-                                                label="Issue Type"
-                                                valueLabel={issueTypeLabel}
-                                                isOpen={isIssueTypeDropdownOpen}
-                                                onToggle={() => setIsIssueTypeDropdownOpen((open) => !open)}
-                                                onSelect={(value) => {
-                                                    setEditedIssueType(value);
-                                                    setIsIssueTypeDropdownOpen(false);
-                                                }}
-                                                selectedValue={editedIssueType}
-                                                options={[
-                                                    { value: 'obstruction', label: 'Obstruction' },
-                                                    { value: 'flooding', label: 'Flooding' },
-                                                    { value: 'other', label: 'Other' },
-                                                ]}
-                                                dropdownRef={issueTypeDropdownRef}
-                                                widthClass="w-[220px]"
-                                            />
-                                        ) : (
-                                            <>
-                                                <span className="text-2xl md:text-3xl font-extrabold tracking-tight">
-                                                    {issue.issueType}
-                                                </span>
+                            <div className="grid grid-cols-1 lg:grid-cols-3 items-start gap-6">
+                                <div className="lg:col-span-2">
+                                    <div className={isEditing ? 'rounded-lg border border-slate-200 bg-white p-3 md:p-4' : ''}>
+                                        <div>
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                {isEditing ? (
+                                                    <IssueDetailEditDropdown
+                                                        label="Issue Type"
+                                                        valueLabel={issueTypeLabel}
+                                                        isOpen={isIssueTypeDropdownOpen}
+                                                        onToggle={() => setIsIssueTypeDropdownOpen((open) => !open)}
+                                                        onSelect={(value) => {
+                                                            setEditedIssueType(value);
+                                                            setIsIssueTypeDropdownOpen(false);
+                                                        }}
+                                                        selectedValue={editedIssueType}
+                                                        options={[
+                                                            { value: 'obstruction', label: 'Obstruction' },
+                                                            { value: 'flooding', label: 'Flooding' },
+                                                            { value: 'other', label: 'Other' },
+                                                        ]}
+                                                        dropdownRef={issueTypeDropdownRef}
+                                                        widthClass="w-[220px]"
+                                                    />
+                                                ) : (
+                                                    <>
+                                                        <span className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                                                            {issue.issueType}
+                                                        </span>
 
-                                                {canEditIssue && issue.status !== IssueStatusEnum.RESOLVED && (
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        className="h-8 w-8 min-w-8 rounded-full p-0 text-base bg-transparent hover:bg-transparent shadow-none text-black"
-                                                        onClick={startEditing}
-                                                        aria-label="Edit issue"
-                                                        type="button"
-                                                    >
-													✎
-                                                    </Button>
+                                                        {canEditIssue && issue.status !== IssueStatusEnum.RESOLVED && (
+                                                            <Button
+                                                                variant="secondary"
+                                                                size="sm"
+                                                                className="h-8 w-8 min-w-8 rounded-full p-0 text-base bg-transparent hover:bg-transparent shadow-none text-black"
+                                                                onClick={startEditing}
+                                                                aria-label="Edit issue"
+                                                                type="button"
+                                                            >
+                                                                ✎
+                                                            </Button>
+                                                        )}
+
+                                                        <span
+                                                            className={[
+                                                                'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+                                                                getIssueStatusColor(issue.status),
+                                                            ].join(' ')}
+                                                        >
+                                                            {issue.status.replace('_', ' ')}
+                                                        </span>
+                                                    </>
                                                 )}
+                                            </div>
 
-                                                <span
-                                                    className={[
-                                                        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
-                                                        getIssueStatusColor(issue.status),
-                                                    ].join(' ')}
-                                                >
-                                                    {issue.status.replace('_', ' ')}
-                                                </span>
-                                            </>
-                                        )}                                        
-                                    </div>
+                                            <div className="mt-2">
+                                                <div className="flex items-center gap-2">
+                                                    {isEditing ? (
+                                                        <IssueDetailEditDropdown
+                                                            label="Park"
+                                                            valueLabel={selectedParkLabel}
+                                                            isOpen={isParkDropdownOpen}
+                                                            onToggle={() => setIsParkDropdownOpen((open) => !open)}
+                                                            onSelect={(value) => {
+                                                                setEditedParkId(Number(value));
+                                                                setIsParkDropdownOpen(false);
+                                                            }}
+                                                            selectedValue={String(editedParkId)}
+                                                            options={parks.map((p) => ({ value: String(p.parkId), label: p.name }))}
+                                                            dropdownRef={parkDropdownRef}
+                                                            widthClass="w-[300px]"
+                                                        />
+                                                    ) : (
+                                                        <span className="text-lg md:text-xl font-semibold text-gray-900">
+                                                            {issue.park?.name ?? ''}
+                                                        </span>
+                                                    )}
 
-                                    <div className="mt-2">
-                                        <div className="flex items-center gap-2">
+                                                    {!isEditing && (
+                                                        <Link
+                                                            to={`/issues/${issue.issueId ?? issueId}`}
+                                                            className="text-lg md:text-xl font-semibold text-black underline underline-offset-2 hover:text-black"
+                                                        >
+                                                            #{issue.issueId ?? issueId}
+                                                        </Link>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-6">
+                                            <div className="text-xl font-bold">Description</div>
                                             {isEditing ? (
-                                                <IssueDetailEditDropdown
-                                                    label="Park"
-                                                    valueLabel={selectedParkLabel}
-                                                    isOpen={isParkDropdownOpen}
-                                                    onToggle={() => setIsParkDropdownOpen((open) => !open)}
-                                                    onSelect={(value) => {
-                                                        setEditedParkId(Number(value));
-                                                        setIsParkDropdownOpen(false);
-                                                    }}
-                                                    selectedValue={String(editedParkId)}
-                                                    options={parks.map((p) => ({ value: String(p.parkId), label: p.name }))}
-                                                    dropdownRef={parkDropdownRef}
-                                                    widthClass="w-[300px]"
+                                                <textarea
+                                                    className={editTextareaClass}
+                                                    value={editedDescription}
+                                                    onChange={(e) => setEditedDescription(e.target.value)}
+                                                    placeholder="Describe the issue..."
                                                 />
                                             ) : (
-                                                <span className="text-lg md:text-xl font-semibold text-gray-900">
-                                                    {issue.park?.name ?? ''}
-                                                </span>
-                                            )}
-
-                                            {!isEditing && (
-                                                <Link
-                                                    to={`/issues/${issue.issueId ?? issueId}`}
-                                                    className="text-lg md:text-xl font-semibold text-black underline underline-offset-2 hover:text-black"
-                                                >
-												#{issue.issueId ?? issueId}
-                                                </Link>
+                                                <div className="mt-2 text-gray-700 whitespace-pre-wrap">
+                                                    {issue.description?.trim() || 'No description'}
+                                                </div>
                                             )}
                                         </div>
                                     </div>
                                 </div>
 
-                                <IssueDetailStatusActions
-                                    canManageIssueStatus={canManageIssueStatus}
-                                    isEditing={isEditing}
-                                    issueStatus={issue.status}
-                                    isResolving={isResolving}
-                                    onResolveIssue={handleResolveIssue}
-                                    onSetInProgress={handleSetInProgress}
-                                />
-                            </div>
+                                {canManageIssueStatus && (
+                                    <div className="lg:col-span-1">
+                                        <div className="rounded-lg border border-gray-200 p-4">
+                                            <div className="text-base font-semibold text-gray-900">Steward Controls</div>
 
-                            <div className="mt-6">
-                                <div className="text-xl font-bold">Description</div>
-                                {isEditing ? (
-                                    <textarea
-                                        className={editTextareaClass}
-                                        value={editedDescription}
-                                        onChange={(e) => setEditedDescription(e.target.value)}
-                                        placeholder="Describe the issue..."
-                                    />
-                                ) : (
-                                    <div className="mt-2 text-gray-700 whitespace-pre-wrap">
-                                        {issue.description?.trim() ? issue.description : 'No description'}
+                                            {!isEditing && (
+                                                <div className="mt-4">
+                                                    <div className="text-sm font-medium text-gray-700">Status</div>
+                                                </div>
+                                            )}
+
+                                            {!isEditing && issue.status === IssueStatusEnum.OPEN && (
+                                                <div className="mt-3 flex flex-wrap items-center gap-2">
+                                                    <Button
+                                                        variant="success"
+                                                        size="sm"
+                                                        onClick={handleSetInProgress}
+                                                    >
+                                                        Start Working
+                                                    </Button>
+
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        onClick={handleResolveIssue}
+                                                        isLoading={isResolving}
+                                                        disabled={isResolving}
+                                                    >
+                                                        {isResolving ? 'Resolving...' : 'Resolve Issue'}
+                                                    </Button>
+                                                </div>
+                                            )}
+
+                                            {!isEditing && issue.status === IssueStatusEnum.IN_PROGRESS && (
+                                                <div className="mt-3">
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        onClick={handleResolveIssue}
+                                                        isLoading={isResolving}
+                                                        disabled={isResolving}
+                                                    >
+                                                        {isResolving ? 'Resolving...' : 'Resolve Issue'}
+                                                    </Button>
+                                                </div>
+                                            )}
+
+                                            {!isEditing && issue.status === IssueStatusEnum.RESOLVED && (
+                                                <div className="mt-3">
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        onClick={handleSetInProgress}
+                                                    >
+                                                        Unresolve (Set In Progress)
+                                                    </Button>
+                                                </div>
+                                            )}
+
+                                            {!isEditing && issue.status === IssueStatusEnum.IN_PROGRESS && (
+                                                <p className="mt-3 text-sm text-gray-700">This issue is already in progress.</p>
+                                            )}
+
+                                            {issue.image && (
+                                                <div className="mt-4">
+                                                    <div className="text-sm font-medium text-gray-700">Photo Visibility</div>
+                                                    <div className="mt-2 text-sm text-gray-600">
+                                                        {isImagePublic ? 'Photo is currently visible to all users.' : 'Photo is currently visible only to stewards/admins.'}
+                                                    </div>
+                                                    <div className="mt-2">
+                                                        <Button
+                                                            variant={isImagePublic ? 'secondary' : 'success'}
+                                                            size="sm"
+                                                            onClick={handleTogglePhotoPublic}
+                                                            isLoading={isUpdatingPhotoVisibility}
+                                                            disabled={isUpdatingPhotoVisibility}
+                                                        >
+                                                            {isImagePublic ? 'Revoke Public Photo Approval' : 'Give Approval to Publicize Photo'}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                        </div>
                                     </div>
                                 )}
                             </div>
 
-                            {/* main grid */}
-                            <div 
+                            <div
                                 className={[
                                     'mt-10 grid gap-10',
                                     canViewImage ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1',
                                 ].join(' ')}
                             >
-                                {/* left: location */}
                                 <div>
                                     <div className="text-xl font-bold">Location</div>
 
@@ -514,7 +606,7 @@ export const IssueDetailCard: React.FC<{
                                                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                                                     </svg>
-													Copy Coordinates
+                                                    Copy Coordinates
                                                 </Button>
 
                                                 <a
@@ -527,7 +619,7 @@ export const IssueDetailCard: React.FC<{
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                                     </svg>
                                                     <span className="leading-tight text-center">
-  														Open in <span className="block md:inline">Google Maps</span>
+                                                        Open in <span className="block md:inline">Google Maps</span>
                                                     </span>
                                                 </a>
                                             </div>
@@ -535,7 +627,6 @@ export const IssueDetailCard: React.FC<{
                                     )}
                                 </div>
 
-                                {/* images */}
                                 {canViewImage ? (
                                     <div>
                                         <div className="text-xl font-bold">User Submitted Image</div>
@@ -544,7 +635,7 @@ export const IssueDetailCard: React.FC<{
                                                 <div className="text-gray-500">
                                                     <img
                                                         src={issue.image.url}
-                                                        alt={'Issue'}
+                                                        alt="Issue"
                                                         className="max-h-[340px] w-full object-contain"
                                                     />
                                                     {issue.imageMetadata && (
@@ -554,7 +645,6 @@ export const IssueDetailCard: React.FC<{
                                                         />
                                                     )}
                                                 </div>
-
                                             ) : 'No image ◡̈'}
                                         </div>
                                     </div>

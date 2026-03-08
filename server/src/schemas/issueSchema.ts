@@ -87,6 +87,7 @@ export const createIssueSchema = z.object({
         issueType: z.nativeEnum(IssueTypeEnum),
         urgency: z.nativeEnum(IssueUrgencyEnum),
         isPublic: z.boolean().default(false),
+        isImagePublic: z.boolean().default(false),
         status: z.nativeEnum(IssueStatusEnum).default(IssueStatusEnum.OPEN),
         latitude: z.number().optional(),
         longitude: z.number().optional(),
@@ -120,6 +121,7 @@ export const updateIssueSchema = z.object({
         description: z.string().optional(),
         urgency: z.nativeEnum(IssueUrgencyEnum).optional(),
         issueType: z.nativeEnum(IssueTypeEnum).optional(),
+        isImagePublic: z.boolean().optional(),
         parkId: z.coerce.number().optional(),
         latitude: z.number().optional(),
         longitude: z.number().optional(),
@@ -128,6 +130,7 @@ export const updateIssueSchema = z.object({
         return data.description !== undefined ||
                data.urgency !== undefined ||
                data.issueType !== undefined ||
+               data.isImagePublic !== undefined ||
                data.parkId !== undefined ||
 			   data.latitude !== undefined ||
 			   data.longitude !== undefined;

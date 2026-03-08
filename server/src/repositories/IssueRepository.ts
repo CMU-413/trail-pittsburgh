@@ -33,6 +33,7 @@ export class IssueRepository {
                     urgency: data.urgency,
                     description: data.description,
                     isPublic: data.isPublic ?? true,
+                    isImagePublic: data.isImagePublic ?? false,
                     status: data.status,
                     latitude: data.latitude,
                     longitude: data.longitude,
@@ -199,6 +200,7 @@ export class IssueRepository {
         description?: string;
         urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
+		isImagePublic?: boolean;
 		parkId?: number;
 		latitude?: number;
 		longitude?: number;
@@ -210,6 +212,7 @@ export class IssueRepository {
                     ...(data.description !== undefined && { description: data.description }),
                     ...(data.urgency !== undefined && { urgency: data.urgency }),
                     ...(data.issueType !== undefined && { issueType: data.issueType }),
+					...(data.isImagePublic !== undefined && { isImagePublic: data.isImagePublic }),
                     ...(data.parkId !== undefined && { parkId: data.parkId }),
                     ...(data.latitude !== undefined && { latitude: data.latitude }),
                     ...(data.longitude !== undefined && { longitude: data.longitude }),

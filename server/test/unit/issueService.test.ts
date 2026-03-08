@@ -27,6 +27,7 @@ describe('IssueService', () => {
         urgency: IssueUrgencyEnum.MEDIUM,
         description: 'Trail is flooded',
         isPublic: true,
+        isImagePublic: false,
         status: IssueStatusEnum.OPEN,
         notifyReporter: true,
         reporterEmail: 'reporter@example.com',
@@ -74,6 +75,7 @@ describe('IssueService', () => {
             latitude: 40.4406,
             longitude: -79.9901,
             isPublic: true,
+            isImagePublic: false,
             status: IssueStatusEnum.OPEN,
             notifyReporter: true,
             imageMetadata: {
@@ -91,6 +93,7 @@ describe('IssueService', () => {
         const fullIssue = {
             ...baseIssue,
             isPublic: false,
+            isImagePublic: false,
             status: IssueStatusEnum.IN_PROGRESS,
             notifyReporter: false,
             longitude: -80.001,
@@ -106,6 +109,7 @@ describe('IssueService', () => {
             urgency: IssueUrgencyEnum.MEDIUM,
             description: 'Very flooded trail',
             isPublic: false,
+            isImagePublic: false,
             status: IssueStatusEnum.IN_PROGRESS,
             notifyReporter: false,
             reporterEmail: 'reporter@example.com',

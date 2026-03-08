@@ -182,6 +182,7 @@ export class IssueService {
         description?: string;
         urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
+        isImagePublic?: boolean;
         parkId?: number;
 		latitude?: number;
 		longitude?: number;
