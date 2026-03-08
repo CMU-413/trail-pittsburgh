@@ -37,18 +37,9 @@ npm install
 
     ```env
     DATABASE_URL="postgresql://postgres:pass1234@localhost:5432/<name of db in pgadmin>"
-    MAILGUN_API_KEY="<your-mailgun-api-key>"
-    MAILGUN_DOMAIN="<your-mailgun-domain>"
-    MAILGUN_FROM_EMAIL="no-reply@<your-mailgun-domain>"
-    MAILGUN_REPLY_TO="alannac@andrew.cmu.edu"
-    CLIENT_URL="http://localhost:5173"
-    SERVER_URL="http://localhost:3000"
-    ISSUE_NOTIFICATION_UNSUBSCRIBE_SECRET="<optional-random-long-secret>"
     ```
 
     Replace `<name of db in pgadmin>` with the actual name of the database you just created.
-
-    `ISSUE_NOTIFICATION_UNSUBSCRIBE_SECRET` is optional. If you leave it unset, the server automatically uses `JWT_SECRET`.
 
 - Run the following commands:
 
