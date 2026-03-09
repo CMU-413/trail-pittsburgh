@@ -32,6 +32,7 @@ export class IssueRepository {
                     issueType: data.issueType,
                     urgency: data.urgency,
                     description: data.description,
+                    safetyRisk: data.safetyRisk,
                     isPublic: data.isPublic ?? true,
                     isImagePublic: data.isImagePublic ?? false,
                     status: data.status,
