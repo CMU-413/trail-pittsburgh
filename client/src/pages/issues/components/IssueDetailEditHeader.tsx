@@ -11,7 +11,6 @@ type IssueDetailEditHeaderProps = {
 
 export const IssueDetailEditHeader: React.FC<IssueDetailEditHeaderProps> = ({
     issueDisplayId,
-    createdAt,
     isSaving,
     onSave,
     onCancel,

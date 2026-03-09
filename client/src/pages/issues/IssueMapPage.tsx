@@ -1,6 +1,6 @@
 // src/pages/issues/IssueMapPage.tsx
 import React, {
-    useState, useEffect, useRef
+    useState, useEffect, useRef, useCallback
 } from 'react';
 
 import { PageHeader } from '../../components/layout/PageHeader';
@@ -19,9 +19,7 @@ import {
     Link, useNavigate, useParams 
 } from 'react-router-dom';
 import { IssueFilterDropdown } from './IssueFilterDropdown';
-import obstuctionPin from '../../assets/obstructionPin.png';
-import waterPin from '../../assets/waterPin.png';
-import otherPin from '../../assets/otherPin.png';
+import { iconForType } from './issuePinIcons';
 
 type IssuePin = {
 	issueId: number;
@@ -53,22 +51,6 @@ const fetchPinsByBbox = async (
     return Array.isArray(data?.pins) ? data.pins : [];
 };
 
-const makePinIcon = (url: string) =>
-    window.L.icon({
-        iconUrl: url,
-        iconSize: [22, 34],      
-        iconAnchor: [11, 34],
-        popupAnchor: [0, -34],
-    });
-
-export const iconForType = (t: IssueTypeEnum) => {
-    if (t === 'OBSTRUCTION') 
-    	{return makePinIcon(obstuctionPin);}
-    if (t === 'FLOODING') 
-    	{return makePinIcon(waterPin);}
-    return makePinIcon(otherPin);
-};
-
 export const IssueMapPage: React.FC = () => {
     const DEFAULT_PARK_ID = 'alameda-park';
 
@@ -85,14 +67,14 @@ export const IssueMapPage: React.FC = () => {
     const navigate = useNavigate();
     const { issueId } = useParams<{ issueId?: string }>();
 
-    const clearIssueMarkers = () => {
+    const clearIssueMarkers = useCallback(() => {
         issueMarkersRef.current.forEach((m) => m.remove());
         issueMarkersRef.current = [];
-    };
+    }, []);
 
-    const openIssueDetail = (id: number) => {
+    const openIssueDetail = useCallback((id: number) => {
         navigate(`/issues/card/${id}`);
-    };
+    }, [navigate]);
 
     const closeIssueDetail = () => {
         navigate('/issues');
@@ -101,7 +83,7 @@ export const IssueMapPage: React.FC = () => {
     const selectedIssueId = issueId ? Number(issueId) : null;
     const isDetailOpen = typeof selectedIssueId === 'number' && Number.isInteger(selectedIssueId) && selectedIssueId > 0;
 
-    const refreshPinsForView = async () => {
+    const refreshPinsForView = useCallback(async () => {
         if (!leafletMap.current || typeof window.L === 'undefined') {return;}
 
         setIsLoading(true);
@@ -123,10 +105,7 @@ export const IssueMapPage: React.FC = () => {
                     .marker([pin.latitude, pin.longitude], { icon: iconForType(pin.issueType) })
                     .addTo(leafletMap.current);
 
-                marker.on('click', () => {
-                    const id = pin.issueId;
-                    openIssueDetail(id);
-                });
+                marker.on('click', () => openIssueDetail(pin.issueId));
                 issueMarkersRef.current.push(marker);
             }
         } catch (err) {
@@ -136,7 +115,7 @@ export const IssueMapPage: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [clearIssueMarkers, openIssueDetail]);
 	
     const toggleType = (t: IssueTypeEnum) => {
         setSelectedTypes((prev) =>
@@ -177,7 +156,7 @@ export const IssueMapPage: React.FC = () => {
             leafletMap.current?.remove();
             leafletMap.current = null;
         };
-    }, []);
+    }, [refreshPinsForView]);
 	
     useEffect(() => {
         if (!leafletMap.current || !selectedPark) 
@@ -193,7 +172,7 @@ export const IssueMapPage: React.FC = () => {
     useEffect(() => {
         selectedTypesRef.current = selectedTypes;
         refreshPinsForView();
-    }, [selectedTypes]);
+    }, [selectedTypes, refreshPinsForView]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

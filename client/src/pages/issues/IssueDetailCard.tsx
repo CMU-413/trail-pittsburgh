@@ -15,7 +15,7 @@ import { issueUrgencyEnumToFrontend, issueUrgencyFrontendToEnum } from '../../ut
 import { getIssueStatusColor } from '../../utils/issueStatusUtils';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../providers/AuthProvider';
-import { iconForType } from './IssueMapPage';
+import { iconForType } from './issuePinIcons';
 import { IssueDetailEditDropdown } from './components/IssueDropdown';
 import { IssueDetailEditHeader } from './components/IssueDetailEditHeader';
 
@@ -293,6 +293,7 @@ export const IssueDetailCard: React.FC<{
             setIssue(updatedIssue);
             onUpdated?.();
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error updating photo visibility:', err);
             alert('Failed to update photo visibility. Please try again.');
         } finally {
