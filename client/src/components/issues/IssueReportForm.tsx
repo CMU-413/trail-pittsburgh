@@ -41,7 +41,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
 
     const issueTypes = [
         { value: IssueTypeEnum.OBSTRUCTION, label: 'Obstruction (tree down, etc.)' },
-        { value: IssueTypeEnum.STANDINGWATER, label: 'Standing Water/Mud' },
+        { value: IssueTypeEnum.FLOODING, label: 'Standing Water/Mud' },
         { value: IssueTypeEnum.OTHER, label: 'Other' }
     ];
 
@@ -151,7 +151,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
             );
-        case IssueTypeEnum.STANDINGWATER:
+        case IssueTypeEnum.FLOODING:
             return (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0M3 19c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0" />
@@ -488,7 +488,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                     size="lg"
                     isLoading={isLoading}
                     className="px-14 py-4 text-lg"
-                    disabled={true}
                 >
                     Submit Issue Report
                 </Button>

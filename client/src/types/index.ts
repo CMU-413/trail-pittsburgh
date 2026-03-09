@@ -29,7 +29,7 @@ export enum IssueStatusEnum {
 
 export enum IssueTypeEnum {
     OBSTRUCTION = 'OBSTRUCTION',
-    STANDINGWATER = 'STANDINGWATER',
+    FLOODING = 'FLOODING',
     OTHER = 'OTHER'
 }
 

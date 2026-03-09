@@ -16,8 +16,14 @@ enum IssueStatusEnum {
 
 enum IssueTypeEnum {
   OBSTRUCTION
-  STANDINGWATER
+  FLOODING
   OTHER
+}
+
+enum IssueRiskEnum {
+  NO_RISK
+  MINOR_RISK
+  SERIOUS_RISK
 }
 
 enum IssueUrgencyEnum {
@@ -65,6 +71,7 @@ model Issue {
   description    String?          @db.VarChar(450)
   issueType      IssueTypeEnum                                    @map("issue_type")
   urgency        IssueUrgencyEnum
+  safetyRisk     IssueRiskEnum
   issueImage     String?          @db.VarChar(150)                @map("issue_image")
   notifyReporter Boolean          @default(false)                 @map("notify_reporter")
   reporterEmail  String           @db.VarChar(150)                @map("reporter_email")

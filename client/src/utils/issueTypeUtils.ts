@@ -4,8 +4,8 @@ export const issueTypeFrontendToEnum = (type: string): IssueTypeEnum => {
     switch (type) {
     case 'obstruction':
         return IssueTypeEnum.OBSTRUCTION;
-    case 'standing_water':
-        return IssueTypeEnum.STANDINGWATER;
+    case 'flooding':
+        return IssueTypeEnum.FLOODING;
     case 'other':
         return IssueTypeEnum.OTHER;
     default:
