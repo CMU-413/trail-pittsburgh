@@ -24,6 +24,7 @@ export class TrailRepository {
             });
             return result;
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error creating trail:', error);
             throw error;
         }

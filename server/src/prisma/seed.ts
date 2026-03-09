@@ -101,6 +101,7 @@ async function main() {
                 urgency: IssueUrgencyEnum.HIGH,
                 description: 'Heavy rainfall caused water pooling on the trail.',
                 isPublic: true,
+                isImagePublic: false,
                 status: IssueStatusEnum.OPEN,
                 notifyReporter: true,
                 reporterEmail: 'john@example.com'
@@ -112,6 +113,7 @@ async function main() {
                 urgency: IssueUrgencyEnum.MEDIUM,
                 description: 'A fallen tree is blocking the path near mile marker 5.',
                 isPublic: true,
+                isImagePublic: false,
                 status: IssueStatusEnum.OPEN,
                 notifyReporter: true,
                 reporterEmail: 'jane@example.com'
@@ -123,6 +125,7 @@ async function main() {
                 urgency: IssueUrgencyEnum.HIGH,
                 description: 'Severe erosion has made the path unsafe for bikers.',
                 isPublic: true,
+                isImagePublic: false,
                 status: IssueStatusEnum.OPEN,
                 notifyReporter: true,
                 reporterEmail: 'mike@example.com'
@@ -152,6 +155,7 @@ async function main() {
 
 main()
     .catch((e) => {
+        // eslint-disable-next-line no-console
         console.error('Fatal error:', e);
         process.exit(1);
     })

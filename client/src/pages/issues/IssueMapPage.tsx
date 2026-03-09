@@ -1,6 +1,6 @@
 // src/pages/issues/IssueMapPage.tsx
 import React, {
-    useState, useEffect, useRef
+    useState, useEffect, useRef, useCallback
 } from 'react';
 
 import { PageHeader } from '../../components/layout/PageHeader';
@@ -15,11 +15,11 @@ import {
     IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
 } from '../../types';
 import { IssueDetailCard } from './IssueDetailCard';
-import { Link } from 'react-router-dom';
+import { 
+    Link, useNavigate, useParams 
+} from 'react-router-dom';
 import { IssueFilterDropdown } from './IssueFilterDropdown';
-import obstuctionPin from '../../assets/obstructionPin.png';
-import waterPin from '../../assets/waterPin.png';
-import otherPin from '../../assets/otherPin.png';
+import { iconForType } from './issuePinIcons';
 
 type IssuePin = {
 	issueId: number;
@@ -42,6 +42,8 @@ const fetchPinsByBbox = async (
     const params = new URLSearchParams({ bbox });
     for (const t of types) 
     {params.append('issueTypes', t);}
+    params.append('statuses', IssueStatusEnum.OPEN);
+    params.append('statuses', IssueStatusEnum.IN_PROGRESS);
     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/issues/map?${params.toString()}`);
     if (!res.ok) 
     {return [];}
@@ -49,50 +51,39 @@ const fetchPinsByBbox = async (
     return Array.isArray(data?.pins) ? data.pins : [];
 };
 
-const makePinIcon = (url: string) =>
-    window.L.icon({
-        iconUrl: url,
-        iconSize: [22, 34],      
-        iconAnchor: [11, 34],
-        popupAnchor: [0, -34],
-    });
-
-export const iconForType = (t: IssueTypeEnum) => {
-    if (t === 'OBSTRUCTION') 
-    	{return makePinIcon(obstuctionPin);}
-    if (t === 'FLOODING') 
-    	{return makePinIcon(waterPin);}
-    return makePinIcon(otherPin);
-};
-
 export const IssueMapPage: React.FC = () => {
+    const DEFAULT_PARK_ID = 'alameda-park';
+
     const mapRef = useRef<HTMLDivElement>(null);
     const leafletMap = useRef<LeafletMap | null>(null);
     const issueMarkersRef = useRef<LeafletMarker[]>([]);
+    const parkDropdownRef = useRef<HTMLDivElement>(null);
 
-    const [selectedPark, setSelectedPark] = useState<string>('');
+    const [selectedPark, setSelectedPark] = useState<string>(DEFAULT_PARK_ID);
+    const [isParkDropdownOpen, setIsParkDropdownOpen] = useState(false);
     const [selectedTypes, setSelectedTypes] = useState<IssueTypeEnum[]>([]);
     const selectedTypesRef = useRef<IssueTypeEnum[]>([]);
     const [isLoading, setIsLoading] = useState(true); const [error, setError] = useState<string | null>(null);
-    const [selectedIssueId, setSelectedIssueId] = useState<number | null>(null);
-    const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const navigate = useNavigate();
+    const { issueId } = useParams<{ issueId?: string }>();
 
-    const clearIssueMarkers = () => {
+    const clearIssueMarkers = useCallback(() => {
         issueMarkersRef.current.forEach((m) => m.remove());
         issueMarkersRef.current = [];
-    };
+    }, []);
 
-    const openIssueDetail = (id: number) => {
-        setSelectedIssueId(id);
-        setIsDetailOpen(true);
-    };
+    const openIssueDetail = useCallback((id: number) => {
+        navigate(`/issues/card/${id}`);
+    }, [navigate]);
 
     const closeIssueDetail = () => {
-        setIsDetailOpen(false);
-        setSelectedIssueId(null);
+        navigate('/issues');
     };
 
-    const refreshPinsForView = async () => {
+    const selectedIssueId = issueId ? Number(issueId) : null;
+    const isDetailOpen = typeof selectedIssueId === 'number' && Number.isInteger(selectedIssueId) && selectedIssueId > 0;
+
+    const refreshPinsForView = useCallback(async () => {
         if (!leafletMap.current || typeof window.L === 'undefined') {return;}
 
         setIsLoading(true);
@@ -114,10 +105,7 @@ export const IssueMapPage: React.FC = () => {
                     .marker([pin.latitude, pin.longitude], { icon: iconForType(pin.issueType) })
                     .addTo(leafletMap.current);
 
-                marker.on('click', () => {
-                    const id = pin.issueId;
-                    openIssueDetail(id);
-                });
+                marker.on('click', () => openIssueDetail(pin.issueId));
                 issueMarkersRef.current.push(marker);
             }
         } catch (err) {
@@ -127,7 +115,7 @@ export const IssueMapPage: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [clearIssueMarkers, openIssueDetail]);
 	
     const toggleType = (t: IssueTypeEnum) => {
         setSelectedTypes((prev) =>
@@ -168,7 +156,7 @@ export const IssueMapPage: React.FC = () => {
             leafletMap.current?.remove();
             leafletMap.current = null;
         };
-    }, []);
+    }, [refreshPinsForView]);
 	
     useEffect(() => {
         if (!leafletMap.current || !selectedPark) 
@@ -184,7 +172,36 @@ export const IssueMapPage: React.FC = () => {
     useEffect(() => {
         selectedTypesRef.current = selectedTypes;
         refreshPinsForView();
-    }, [selectedTypes]);
+    }, [selectedTypes, refreshPinsForView]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (!parkDropdownRef.current) {
+                return;
+            }
+            if (!parkDropdownRef.current.contains(event.target as Node)) {
+                setIsParkDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (!issueId) {
+            return;
+        }
+        const parsedId = Number(issueId);
+        if (!Number.isInteger(parsedId) || parsedId <= 0) {
+            navigate('/issues', { replace: true });
+        }
+    }, [issueId, navigate]);
+
+    const selectedParkName = selectedPark
+        ? (PARKS.find((park) => park.id === selectedPark)?.name ?? 'Alameda Park')
+        : 'Alameda Park';
+
     return (
         <div>
             <div className="flex items-start justify-between gap-4">
@@ -213,19 +230,42 @@ export const IssueMapPage: React.FC = () => {
                     <div className="flex items-center justify-between gap-4 mb-3">
                         {/* Park selection - dropdown menu */}
                         <div className="flex items-center gap-3">
-                            <label className="text-sm font-medium text-gray-700">Select Park:</label>
-                            <select
-                                value={selectedPark}
-                                onChange={(e) => setSelectedPark(e.target.value)}
-                                className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white"
-                            >
-                                <option value="">Current Location</option>
-                                {PARKS.map((p) => (
-                                    <option key={p.id} value={p.id}>
-                                        {p.name}
-                                    </option>
-                                ))}
-                            </select>
+                            <label className="text-lg font-medium text-gray-900">Select Park</label>
+
+                            <div ref={parkDropdownRef} className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsParkDropdownOpen((open) => !open)}
+                                    className="min-w-[220px] bg-white border border-gray-300 rounded-full px-4 py-2 text-md font-medium text-gray-900 shadow-sm flex items-center justify-between gap-2"
+                                >
+                                    <span>{selectedParkName}</span>
+                                    <span className="text-black text-xl leading-none">▾</span>
+                                </button>
+
+                                {isParkDropdownOpen && (
+                                    <div className="absolute left-0 mt-2 w-full min-w-[260px] bg-white border border-gray-200 rounded-2xl shadow-lg p-2 z-30">
+                                        {PARKS.map((park) => (
+                                            <button
+                                                key={park.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedPark(park.id);
+                                                    setIsParkDropdownOpen(false);
+                                                }}
+                                                className={[
+                                                    'w-full flex items-center justify-between px-3 py-2 text-md rounded-xl',
+                                                    selectedPark === park.id ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-700 hover:bg-gray-50',
+                                                ].join(' ')}
+                                            >
+                                                <span>{park.name}</span>
+                                                <span className="text-md text-gray-900" aria-hidden="true">
+                                                    {selectedPark === park.id ? '✓' : ''}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 

@@ -2,6 +2,7 @@ import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
 import { CreateIssueInput } from '@/schemas/issueSchema';
 import { IssueService } from '@/services';
+import { IssueNotificationService } from '@/services/IssueNotificationService';
 import { IssueUrgencyEnum, IssueStatusEnum, IssueTypeEnum } from '@prisma/client';
 
 jest.mock('@/repositories/IssueRepository');
@@ -11,6 +12,7 @@ describe('IssueService', () => {
     let issueService: IssueService;
     let issueRepositoryMock: jest.Mocked<IssueRepository>;
     let issueImageBucketMock: jest.Mocked<GCSBucket>;
+    let issueNotificationServiceMock: jest.Mocked<IssueNotificationService>;
 
     const uploadUrl: SignedUrl = {
         url: 'test.jpg',
@@ -25,6 +27,7 @@ describe('IssueService', () => {
         urgency: IssueUrgencyEnum.MEDIUM,
         description: 'Trail is flooded',
         isPublic: true,
+        isImagePublic: false,
         status: IssueStatusEnum.OPEN,
         notifyReporter: true,
         reporterEmail: 'reporter@example.com',
@@ -44,7 +47,18 @@ describe('IssueService', () => {
             getDownloadUrl: jest.fn().mockReturnValue(uploadUrl),
         } as unknown as jest.Mocked<GCSBucket>;
 
-        issueService = new IssueService(issueRepositoryMock, issueImageBucketMock);
+        issueNotificationServiceMock = {
+            sendIssueCreatedConfirmation: jest.fn(),
+            sendIssueInProgressUpdate: jest.fn(),
+            sendIssueResolvedUpdate: jest.fn(),
+            verifyUnsubscribeToken: jest.fn(),
+        } as unknown as jest.Mocked<IssueNotificationService>;
+
+        issueService = new IssueService(
+            issueRepositoryMock,
+            issueImageBucketMock,
+            issueNotificationServiceMock
+        );
     });
 
     test('should create a new issue with required fields', async () => {
@@ -61,6 +75,7 @@ describe('IssueService', () => {
             latitude: 40.4406,
             longitude: -79.9901,
             isPublic: true,
+            isImagePublic: false,
             status: IssueStatusEnum.OPEN,
             notifyReporter: true,
             imageMetadata: {
@@ -78,6 +93,7 @@ describe('IssueService', () => {
         const fullIssue = {
             ...baseIssue,
             isPublic: false,
+            isImagePublic: false,
             status: IssueStatusEnum.IN_PROGRESS,
             notifyReporter: false,
             longitude: -80.001,
@@ -93,6 +109,7 @@ describe('IssueService', () => {
             urgency: IssueUrgencyEnum.MEDIUM,
             description: 'Very flooded trail',
             isPublic: false,
+            isImagePublic: false,
             status: IssueStatusEnum.IN_PROGRESS,
             notifyReporter: false,
             reporterEmail: 'reporter@example.com',
@@ -165,6 +182,7 @@ describe('IssueService', () => {
 
     test('should update issue status', async () => {
         const updated = { ...baseIssue, status: IssueStatusEnum.RESOLVED, resolvedAt: new Date() };
+        issueRepositoryMock.getIssue.mockResolvedValue(baseIssue);
         issueRepositoryMock.updateIssueStatus.mockResolvedValue(updated);
 
         const result = await issueService.updateIssueStatus(1, IssueStatusEnum.RESOLVED);

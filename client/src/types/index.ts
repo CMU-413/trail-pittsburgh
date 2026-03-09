@@ -24,8 +24,7 @@ export type Trail = {
 export enum IssueStatusEnum {
     OPEN = 'OPEN',
     IN_PROGRESS = 'IN_PROGRESS',
-    RESOLVED = 'RESOLVED',
-    CLOSED = 'CLOSED'
+    RESOLVED = 'RESOLVED'
 }
 
 export enum IssueTypeEnum {
@@ -73,6 +72,7 @@ export type Issue = {
     parkId: number;
     trailId: number;
     isPublic: boolean;
+    isImagePublic?: boolean;
     status: IssueStatusEnum;
     description?: string;
     issueType: IssueTypeEnum;

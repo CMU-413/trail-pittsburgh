@@ -35,6 +35,13 @@ export const getIssueMapPinsSchema = z.object({
             .union([z.nativeEnum(IssueTypeEnum), z.array(z.nativeEnum(IssueTypeEnum))])
  		.transform((v) => (v === undefined ? [] : Array.isArray(v) ? v : [v]))
   		.default([]),
+        statuses: z
+            .union([z.nativeEnum(IssueStatusEnum), z.array(z.nativeEnum(IssueStatusEnum))])
+            .transform((v) => (
+                v === undefined ? [
+                    IssueStatusEnum.OPEN, IssueStatusEnum.IN_PROGRESS
+                ] : Array.isArray(v) ? v : [v]))
+            .default([IssueStatusEnum.OPEN, IssueStatusEnum.IN_PROGRESS]),
     })
 });
 
@@ -44,6 +51,15 @@ export const updateIssueStatusSchema = z.object({
     }),
     body: z.object({
         status: z.nativeEnum(IssueStatusEnum),
+    })
+});
+
+export const unsubscribeIssueNotificationsSchema = z.object({
+    params: z.object({
+        issueId: z.coerce.number(),
+    }),
+    query: z.object({
+        token: z.string().min(1),
     })
 });
 
@@ -71,6 +87,7 @@ export const createIssueSchema = z.object({
         issueType: z.nativeEnum(IssueTypeEnum),
         urgency: z.nativeEnum(IssueUrgencyEnum),
         isPublic: z.boolean().default(false),
+        isImagePublic: z.boolean().default(false),
         status: z.nativeEnum(IssueStatusEnum).default(IssueStatusEnum.OPEN),
         latitude: z.number().optional(),
         longitude: z.number().optional(),
@@ -104,6 +121,7 @@ export const updateIssueSchema = z.object({
         description: z.string().optional(),
         urgency: z.nativeEnum(IssueUrgencyEnum).optional(),
         issueType: z.nativeEnum(IssueTypeEnum).optional(),
+        isImagePublic: z.boolean().optional(),
         parkId: z.coerce.number().optional(),
         latitude: z.number().optional(),
         longitude: z.number().optional(),
@@ -112,6 +130,7 @@ export const updateIssueSchema = z.object({
         return data.description !== undefined ||
                data.urgency !== undefined ||
                data.issueType !== undefined ||
+               data.isImagePublic !== undefined ||
                data.parkId !== undefined ||
 			   data.latitude !== undefined ||
 			   data.longitude !== undefined;

@@ -33,6 +33,7 @@ export class IssueRepository {
                     urgency: data.urgency,
                     description: data.description,
                     isPublic: data.isPublic ?? true,
+                    isImagePublic: data.isImagePublic ?? false,
                     status: data.status,
                     latitude: data.latitude,
                     longitude: data.longitude,
@@ -66,9 +67,9 @@ export class IssueRepository {
         maxLat: number, 
         maxLng: number,
         issueTypes: IssueTypeEnum[],
-        status: IssueStatusEnum) {
+        statuses: IssueStatusEnum[]) {
         const whereClause : Prisma.IssueWhereInput = {
-            status,
+            status: { in: statuses },
             latitude: { not: null, gte: minLat, lte: maxLat },
             longitude: { not: null, gte: minLng, lte: maxLng },
         };
@@ -162,6 +163,10 @@ export class IssueRepository {
                 data: {
                     status: status,
                     resolvedAt: new Date()
+                },
+                include: {
+                    park: true,
+                    trail: true
                 }
             });
         } catch (error) {
@@ -172,10 +177,31 @@ export class IssueRepository {
         }
     }
 
+    public async disableReporterNotifications(issueId: number, reporterEmail: string) {
+        try {
+            const result = await prisma.issue.updateMany({
+                where: {
+                    issueId,
+                    reporterEmail
+                },
+                data: {
+                    notifyReporter: false
+                }
+            });
+
+            return result.count > 0;
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('Error unsubscribing reporter notifications:', error);
+            throw error;
+        }
+    }
+
     public async updateIssue(issueId: number, data: Partial<{
         description?: string;
         urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
+		isImagePublic?: boolean;
 		parkId?: number;
 		latitude?: number;
 		longitude?: number;
@@ -187,6 +213,7 @@ export class IssueRepository {
                     ...(data.description !== undefined && { description: data.description }),
                     ...(data.urgency !== undefined && { urgency: data.urgency }),
                     ...(data.issueType !== undefined && { issueType: data.issueType }),
+                    ...(data.isImagePublic !== undefined && { isImagePublic: data.isImagePublic }),
                     ...(data.parkId !== undefined && { parkId: data.parkId }),
                     ...(data.latitude !== undefined && { latitude: data.latitude }),
                     ...(data.longitude !== undefined && { longitude: data.longitude }),
@@ -198,6 +225,8 @@ export class IssueRepository {
             });
         } catch (error) {
             if (isNotFoundError(error)) {
+                // eslint-disable-next-line no-console
+                console.error('Issue not found');
                 return null;
             }
             throw error;

@@ -274,8 +274,10 @@ export const issueApi = {
         description?: string;
         urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
+        isImagePublic?: boolean;
         parkId?: number;
-        trailId?: number;
+		latitude?: number;
+		longitude?: number;
     }): Promise<Issue> => {
         const response = await fetch(`${API_BASE_URL}/issues/${issueId}`, {
             method: 'PUT',
