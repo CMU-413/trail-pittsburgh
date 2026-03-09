@@ -9,6 +9,7 @@ export class UserRepository {
                 where: { userId: userId }
             });
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error getting user:', error);
             throw error;
         }
@@ -33,6 +34,7 @@ export class UserRepository {
             });
             return result;
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error creating user:', error);
             throw error;
         }
@@ -42,6 +44,7 @@ export class UserRepository {
         try {
             return await prisma.user.findMany();
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error fetching all users:', error);
             throw error;
         }
@@ -53,6 +56,7 @@ export class UserRepository {
             return true;
         } catch (error) {
             if (isNotFoundError(error)) {return false;}
+            // eslint-disable-next-line no-console
             console.error('Error deleting user:', error);
             throw error;
         }
@@ -66,6 +70,7 @@ export class UserRepository {
             });
         } catch (error) {
             if (isNotFoundError(error)) {return null;}
+            // eslint-disable-next-line no-console
             console.error('Error updating user:', error);
             throw error;
         }
@@ -77,6 +82,7 @@ export class UserRepository {
                 where: { email }
             });
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error getting user by email:', error);
             throw error;
         }
@@ -87,6 +93,7 @@ export class UserRepository {
             const user = await this.getUser(userId);
             return user?.role;
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error getting user role:', error);
             throw error;
         }
@@ -99,6 +106,7 @@ export class UserRepository {
                 data: { role }
             });
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error updating user role:', error);
             throw error;
         }

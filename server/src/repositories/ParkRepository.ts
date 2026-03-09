@@ -19,6 +19,7 @@ export class ParkRepository {
             });
             return result;
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error creating park:', error);
             throw error;
         }
@@ -72,6 +73,7 @@ export class ParkRepository {
             });
             return trails;
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Repository: Error getting trails:', error);
             throw error;
         }

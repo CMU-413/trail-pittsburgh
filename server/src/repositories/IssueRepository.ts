@@ -191,6 +191,7 @@ export class IssueRepository {
 
             return result.count > 0;
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error unsubscribing reporter notifications:', error);
             throw error;
         }
@@ -224,6 +225,8 @@ export class IssueRepository {
             });
         } catch (error) {
             if (isNotFoundError(error)) {
+                // eslint-disable-next-line no-console
+                console.error('Issue not found');
                 return null;
             }
             throw error;

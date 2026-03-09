@@ -155,6 +155,7 @@ async function main() {
 
 main()
     .catch((e) => {
+        // eslint-disable-next-line no-console
         console.error('Fatal error:', e);
         process.exit(1);
     })
