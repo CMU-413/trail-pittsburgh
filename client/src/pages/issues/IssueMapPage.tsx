@@ -71,7 +71,6 @@ export const iconForType = (t: IssueTypeEnum) => {
 
 export const IssueMapPage: React.FC = () => {
     const DEFAULT_PARK_ID = 'alameda-park';
-    const CURRENT_LOCATION_OPTION = 'current-location';
 
     const mapRef = useRef<HTMLDivElement>(null);
     const leafletMap = useRef<LeafletMap | null>(null);
@@ -80,8 +79,6 @@ export const IssueMapPage: React.FC = () => {
 
     const [selectedPark, setSelectedPark] = useState<string>(DEFAULT_PARK_ID);
     const [isParkDropdownOpen, setIsParkDropdownOpen] = useState(false);
-    const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
-    const [canUseCurrentLocation, setCanUseCurrentLocation] = useState(false);
     const [selectedTypes, setSelectedTypes] = useState<IssueTypeEnum[]>([]);
     const selectedTypesRef = useRef<IssueTypeEnum[]>([]);
     const [isLoading, setIsLoading] = useState(true); const [error, setError] = useState<string | null>(null);
@@ -186,17 +183,12 @@ export const IssueMapPage: React.FC = () => {
         if (!leafletMap.current || !selectedPark) 
         {return;}
 
-        if (selectedPark === CURRENT_LOCATION_OPTION && currentLocation) {
-            leafletMap.current.setView([currentLocation.lat, currentLocation.lng], 14);
-            return;
-        }
-
         const park = PARKS.find((p) => p.id === selectedPark);
         if (!park) {return;}
 
         const bounds: [[number, number], [number, number]] = [park.bounds.sw, park.bounds.ne];
         leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
-    }, [selectedPark, currentLocation]);
+    }, [selectedPark]);
      
     useEffect(() => {
         selectedTypesRef.current = selectedTypes;
@@ -218,30 +210,6 @@ export const IssueMapPage: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (!('geolocation' in navigator)) {
-            setCanUseCurrentLocation(false);
-            setSelectedPark(DEFAULT_PARK_ID);
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                setCurrentLocation({
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                });
-                setCanUseCurrentLocation(true);
-                setSelectedPark(CURRENT_LOCATION_OPTION);
-            },
-            () => {
-                setCanUseCurrentLocation(false);
-                setSelectedPark(DEFAULT_PARK_ID);
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
-        );
-    }, []);
-
-    useEffect(() => {
         if (!issueId) {
             return;
         }
@@ -252,9 +220,8 @@ export const IssueMapPage: React.FC = () => {
     }, [issueId, navigate]);
 
     const selectedParkName = selectedPark
-        === CURRENT_LOCATION_OPTION
-        ? 'Current Location'
-        : (PARKS.find((park) => park.id === selectedPark)?.name ?? 'Alameda Park');
+        ? (PARKS.find((park) => park.id === selectedPark)?.name ?? 'Alameda Park')
+        : 'Alameda Park';
 
     return (
         <div>
@@ -298,25 +265,6 @@ export const IssueMapPage: React.FC = () => {
 
                                 {isParkDropdownOpen && (
                                     <div className="absolute left-0 mt-2 w-full min-w-[260px] bg-white border border-gray-200 rounded-2xl shadow-lg p-2 z-30">
-                                        {canUseCurrentLocation && (
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setSelectedPark(CURRENT_LOCATION_OPTION);
-                                                    setIsParkDropdownOpen(false);
-                                                }}
-                                                className={[
-                                                    'w-full flex items-center justify-between px-3 py-2 text-md rounded-xl',
-                                                    selectedPark === CURRENT_LOCATION_OPTION ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-700 hover:bg-gray-50',
-                                                ].join(' ')}
-                                            >
-                                                <span>Current Location</span>
-                                                <span className="text-md text-gray-900" aria-hidden="true">
-                                                    {selectedPark === CURRENT_LOCATION_OPTION ? '✓' : ''}
-                                                </span>
-                                            </button>
-                                        )}
-
                                         {PARKS.map((park) => (
                                             <button
                                                 key={park.id}
