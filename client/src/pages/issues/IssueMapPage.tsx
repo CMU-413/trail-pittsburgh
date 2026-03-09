@@ -284,7 +284,7 @@ export const IssueMapPage: React.FC = () => {
                     <div className="flex items-center justify-between gap-4 mb-3">
                         {/* Park selection - dropdown menu */}
                         <div className="flex items-center gap-3">
-                            <label className="text-lg font-medium text-gray-900">Focus Map On</label>
+                            <label className="text-lg font-medium text-gray-900">Select Park</label>
 
                             <div ref={parkDropdownRef} className="relative">
                                 <button

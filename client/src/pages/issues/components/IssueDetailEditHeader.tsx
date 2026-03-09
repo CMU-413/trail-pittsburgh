@@ -23,9 +23,6 @@ export const IssueDetailEditHeader: React.FC<IssueDetailEditHeaderProps> = ({
                     <div className="text-lg font-semibold text-slate-900">
                         Editing Issue #{issueDisplayId} Details
                     </div>
-                    <div className="mt-1 text-sm md:text-base text-slate-600">
-                        Reported {new Date(createdAt).toLocaleString()}
-                    </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">

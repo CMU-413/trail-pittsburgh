@@ -1,7 +1,6 @@
 import React, {
     useState, useEffect, useRef
 } from 'react';
-import { Link } from 'react-router-dom';
 import {
     Issue, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum, UserRoleEnum
 } from '../../types';
@@ -51,8 +50,7 @@ export const IssueDetailCard: React.FC<{
     const parkDropdownRef = useRef<HTMLDivElement>(null);
 
     const { user } = useAuth();
-    const canEditIssue = user?.role === UserRoleEnum.ROLE_USER ||
-        user?.role === UserRoleEnum.ROLE_ADMIN ||
+    const canEditIssue = user?.role === UserRoleEnum.ROLE_ADMIN ||
         user?.role === UserRoleEnum.ROLE_SUPERADMIN;
     const canManageIssueStatus = user?.role === UserRoleEnum.ROLE_ADMIN ||
         user?.role === UserRoleEnum.ROLE_SUPERADMIN;
@@ -337,16 +335,30 @@ export const IssueDetailCard: React.FC<{
                         canViewImage ? 'max-w-6xl' : 'max-w-3xl',
                     ].join(' ')}
                 >
-                    <Button
-                        onClick={onClose}
-                        variant="secondary"
-                        size="md"
-                        className="absolute top-4 right-4 text-xl text-gray-500 hover:text-gray-800 bg-transparent hover:bg-transparent shadow-none"
-                        aria-label="Close"
-                        type="button"
-                    >
-                        ✕
-                    </Button>
+                    <div className="absolute top-4 right-4 flex items-center gap-2">
+                        {!isEditing && canEditIssue && issue?.status !== IssueStatusEnum.RESOLVED && (
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                className="inline-flex items-center gap-2 whitespace-nowrap h-9 px-3 rounded-md text-sm font-medium border border-gray-300 bg-white hover:bg-gray-50 text-black"
+                                onClick={startEditing}
+                                aria-label="Edit issue"
+                                type="button"
+                            >
+                                ✎ Edit
+                            </Button>
+                        )}
+                        <Button
+                            onClick={onClose}
+                            variant="secondary"
+                            size="md"
+                            className="text-xl text-gray-500 hover:text-gray-800 bg-transparent hover:bg-transparent shadow-none"
+                            aria-label="Close"
+                            type="button"
+                        >
+                            ✕
+                        </Button>
+                    </div>
 
                     {loading ? (
                         <div className="p-10">
@@ -398,19 +410,6 @@ export const IssueDetailCard: React.FC<{
                                                             {issue.issueType}
                                                         </span>
 
-                                                        {canEditIssue && issue.status !== IssueStatusEnum.RESOLVED && (
-                                                            <Button
-                                                                variant="secondary"
-                                                                size="sm"
-                                                                className="h-8 w-8 min-w-8 rounded-full p-0 text-base bg-transparent hover:bg-transparent shadow-none text-black"
-                                                                onClick={startEditing}
-                                                                aria-label="Edit issue"
-                                                                type="button"
-                                                            >
-                                                                ✎
-                                                            </Button>
-                                                        )}
-
                                                         <span
                                                             className={[
                                                                 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
@@ -445,15 +444,11 @@ export const IssueDetailCard: React.FC<{
                                                             {issue.park?.name ?? ''}
                                                         </span>
                                                     )}
-
-                                                    {!isEditing && (
-                                                        <Link
-                                                            to={`/issues/${issue.issueId ?? issueId}`}
-                                                            className="text-lg md:text-xl font-semibold text-black underline underline-offset-2 hover:text-black"
-                                                        >
-                                                            #{issue.issueId ?? issueId}
-                                                        </Link>
-                                                    )}
+                                                </div>
+                                                <div className="mt-1 text-sm md:text-base text-slate-600">
+                                                    {issue.status === IssueStatusEnum.RESOLVED && issue.resolvedAt
+                                                        ? `Resolved on ${new Date(issue.resolvedAt).toLocaleString()}`
+                                                        : `Reported on ${new Date(issue.createdAt).toLocaleString()}`}
                                                 </div>
                                             </div>
                                         </div>
@@ -477,12 +472,11 @@ export const IssueDetailCard: React.FC<{
                                 </div>
 
                                 {canManageIssueStatus && (
-                                    <div className="lg:col-span-1">
+                                    <div className="lg:col-span-1 lg:pt-18">
+                                        <div className="mt-6 text-xl font-bold mb-3">Steward Controls</div>
                                         <div className="rounded-lg border border-gray-200 p-4">
-                                            <div className="text-base font-semibold text-gray-900">Steward Controls</div>
-
                                             {!isEditing && (
-                                                <div className="mt-4">
+                                                <div>
                                                     <div className="text-sm font-medium text-gray-700">Status</div>
                                                 </div>
                                             )}
@@ -512,7 +506,7 @@ export const IssueDetailCard: React.FC<{
                                             {!isEditing && issue.status === IssueStatusEnum.IN_PROGRESS && (
                                                 <div className="mt-3">
                                                     <Button
-                                                        variant="secondary"
+                                                        variant="primary"
                                                         size="sm"
                                                         onClick={handleResolveIssue}
                                                         isLoading={isResolving}
@@ -540,25 +534,24 @@ export const IssueDetailCard: React.FC<{
                                             )}
 
                                             {issue.image && (
-                                                <div className="mt-4">
+                                                <div className={isEditing ? '' : 'mt-4'}>
                                                     <div className="text-sm font-medium text-gray-700">Photo Visibility</div>
                                                     <div className="mt-2 text-sm text-gray-600">
                                                         {isImagePublic ? 'Photo is currently visible to all users.' : 'Photo is currently visible only to stewards/admins.'}
                                                     </div>
                                                     <div className="mt-2">
                                                         <Button
-                                                            variant={isImagePublic ? 'secondary' : 'success'}
+                                                            variant={isImagePublic ? 'secondary' : 'primary'}
                                                             size="sm"
                                                             onClick={handleTogglePhotoPublic}
                                                             isLoading={isUpdatingPhotoVisibility}
                                                             disabled={isUpdatingPhotoVisibility}
                                                         >
-                                                            {isImagePublic ? 'Revoke Public Photo Approval' : 'Give Approval to Publicize Photo'}
+                                                            {isImagePublic ? 'Revoke Public Photo Approval' : 'Approve for Public View'}
                                                         </Button>
                                                     </div>
                                                 </div>
                                             )}
-
                                         </div>
                                     </div>
                                 )}
