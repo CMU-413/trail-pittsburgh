@@ -135,7 +135,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
     };
 
     const mapPassibleStringToBool = (option: string) => {
-        if (option == "Yes") {
+        if (option === 'Yes') {
             return true;
         } else {
             return false;
@@ -376,7 +376,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                         </label>
                         {/* For large screens: all options in one row */}
                         <div className="hidden md:grid md:grid-cols-2 gap-3">
-                            {["Yes", "No"].map((option) => (
+                            {['Yes', 'No'].map((option) => (
                                 <button
                                     key={option}
                                     type="button"
@@ -396,7 +396,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
 
                         {/* For mobile: options stacked one per row */}
                         <div className="grid grid-cols-1 gap-3 md:hidden">
-                            {["Yes", "No"].map((option) => (
+                            {['Yes', 'No'].map((option) => (
                                 <button
                                     key={option}
                                     type="button"
