@@ -14,7 +14,7 @@ const iconForType = (t: IssueTypeEnum) => {
     {return waterPin;}
     return otherPin;
 };
-const PinLegend: React.FC<{ type: IssueTypeEnum; label: string }> = ({ type, label }) => (
+export const PinLegend: React.FC<{ type: IssueTypeEnum; label: string }> = ({ type, label }) => (
     <span className="flex items-center gap-2">
         <img
             src={iconForType(type)}
