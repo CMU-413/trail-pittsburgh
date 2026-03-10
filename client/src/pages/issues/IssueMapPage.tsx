@@ -215,7 +215,6 @@ export const IssueMapPage: React.FC = () => {
                 leafletMap.current?.setView([latitude, longitude], 14);
                 setSelectedPark(null);
                 setLocationPreference('allow');
-            	localStorage.setItem(LOCATION_PREF_KEY, 'allow');
 
                 if (fromModal)
                		{setShowLocationModal(false);}
@@ -247,18 +246,24 @@ export const IssueMapPage: React.FC = () => {
         );
     }, [applyFallbackView, refreshPinsForView]);
 
-    const handleAllowLocation = useCallback(() => {
+    const handleAllowOnceLocation = useCallback(() => {
+        sessionStorage.setItem(LOCATION_PREF_KEY, 'allow');
         centerMapOnCurrentLocation(true);
     }, [centerMapOnCurrentLocation]);
 
-    const handleDenyLocation = useCallback(() => {
-        localStorage.setItem(LOCATION_PREF_KEY, 'deny');
+    const handleNotNowLocation = useCallback(() => {
+        sessionStorage.setItem(LOCATION_PREF_KEY, 'deny');
         setLocationPreference('deny');
         setLocationError(null);
         setShowLocationModal(false);
         applyFallbackView();
         refreshPinsForView();
     }, [applyFallbackView, refreshPinsForView]);
+
+    const handleAlwaysAllowLocation = useCallback(() => {
+        localStorage.setItem(LOCATION_PREF_KEY, 'allow');
+        centerMapOnCurrentLocation(true);
+    }, [centerMapOnCurrentLocation]);
 
     const getNearbyIssues = useCallback(async (): Promise<NearByIssueCard[]>=> {
         if (!currentLocation)
@@ -315,7 +320,9 @@ export const IssueMapPage: React.FC = () => {
             }).addTo(leafletMap.current!);
             leafletMap.current.on('moveend', refreshPinsForView);
 
-            const savedPreference = localStorage.getItem(LOCATION_PREF_KEY) as LocationPreference | null;
+            const savedPreference =
+		   		(sessionStorage.getItem(LOCATION_PREF_KEY) ??
+				localStorage.getItem(LOCATION_PREF_KEY)) as LocationPreference | null;
             
             if (savedPreference === 'allow') {
                 setLocationPreference('allow');
@@ -648,12 +655,15 @@ export const IssueMapPage: React.FC = () => {
                             </div>
                         )}
 
-                        <div className="flex items-center justify-center gap-3">
-                            <Button variant="secondary" onClick={handleDenyLocation}>
+                        <div className="flex flex-col justify-center gap-3">
+                            <Button variant="secondary" onClick={handleNotNowLocation}>
 								Not Now
                             </Button>
-                            <Button variant="primary" onClick={handleAllowLocation}>
-								Allow Access
+                            <Button variant="secondary" onClick={handleAllowOnceLocation}>
+								Allow Once
+                            </Button>
+                            <Button variant="primary" onClick={handleAlwaysAllowLocation}>
+								Always Allow
                             </Button>
                         </div>
                     </div>
