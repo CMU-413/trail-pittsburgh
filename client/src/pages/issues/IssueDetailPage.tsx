@@ -20,14 +20,9 @@ import {
     parkApi, trailApi, issueApi
 } from '../../services/api';
 import { useAuth } from '../../providers/AuthProvider';
-import { 
-    getUrgencyLevelIndex,
-    issueUrgencyFrontendToEnum,
-    issueUrgencyEnumToFrontend
-} from '../../utils/issueUrgencyUtils';
 import { issueTypeFrontendToEnum } from '../../utils/issueTypeUtils';
 import {
-    IssueUrgencyEnum, IssueTypeEnum, UserRoleEnum
+    IssueTypeEnum, UserRoleEnum
 } from '../../types/index';
 
 export const IssueDetailPage: React.FC = () => {
@@ -45,7 +40,6 @@ export const IssueDetailPage: React.FC = () => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [editedDescription, setEditedDescription] = useState('');
-    const [editedUrgency, setEditedUrgency] = useState<number>(1);
     const [editedIssueType, setEditedIssueType] = useState('');
     const [editedParkId, setEditedParkId] = useState<number>(0);
     const [editedTrailId, setEditedTrailId] = useState<number>(0);
@@ -94,7 +88,6 @@ export const IssueDetailPage: React.FC = () => {
 
                 setIssue(issueData);
                 setEditedDescription(issueData.description || '');
-                setEditedUrgency(issueUrgencyEnumToFrontend(issueData.urgency || IssueUrgencyEnum.LOW));
                 setEditedIssueType(issueData.issueType.toLowerCase());
                 setEditedParkId(issueData.parkId);
                 setEditedTrailId(issueData.trailId || 0);
@@ -187,7 +180,6 @@ export const IssueDetailPage: React.FC = () => {
             
             const updateData: {
                 description?: string;
-                urgency?: IssueUrgencyEnum;
                 issueType?: IssueTypeEnum;
                 parkId?: number;
                 trailId?: number;
@@ -196,10 +188,6 @@ export const IssueDetailPage: React.FC = () => {
             // Only include fields that have changed
             if (editedDescription !== issue.description) {
                 updateData.description = editedDescription;
-            }
-            const editedUrgencyEnum = issueUrgencyFrontendToEnum(editedUrgency);
-            if (editedUrgencyEnum !== issue.urgency) {
-                updateData.urgency = editedUrgencyEnum;
             }
             // Fix issue type comparison by converting both to the same format
             const editedIssueTypeEnum = issueTypeFrontendToEnum(editedIssueType);
@@ -270,7 +258,6 @@ export const IssueDetailPage: React.FC = () => {
 
     const resetEditedFields = () => {
         setEditedDescription(issue?.description || '');
-        setEditedUrgency(issueUrgencyEnumToFrontend(issue?.urgency || IssueUrgencyEnum.LOW));
         setEditedIssueType(issue?.issueType.toLowerCase() || 'other');
         setEditedParkId(issue?.parkId || 0);
         setEditedTrailId(issue?.trailId || 0);
@@ -521,44 +508,6 @@ export const IssueDetailPage: React.FC = () => {
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Issue Details</h3>
 
                         <div className="space-y-4">
-                            <div>
-                                <p className="text-sm font-medium text-gray-500">Urgency</p>
-                                {isEditing ? (
-                                    <div className="mt-1">
-                                        <select
-                                            value={editedUrgency}
-                                            onChange={(e) => setEditedUrgency(Number(e.target.value))}
-                                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                                        >
-                                            {[1, 2, 3, 4, 5].map((level) => (
-                                                <option key={level} value={level}>
-                                                    {level} - {['Low', 'Medium-Low', 'Medium', 'Medium-High', 'High'][level - 1]}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center mt-1">
-                                        <div className="flex">
-                                            {Array.from({ length: 5 }).map((_, i) => {
-                                                const currentLevel = getUrgencyLevelIndex(issue.urgency || IssueUrgencyEnum.LOW);
-                                                return (
-                                                    <svg
-                                                        key={i}
-                                                        className={`w-4 h-4 ${i <= currentLevel ? 'text-red-500' : 'text-gray-300'}`}
-                                                        fill="currentColor"
-                                                        viewBox="0 0 20 20"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                    >
-                                                        <path d="M10.865 2.23a1 1 0 00-1.73 0L1.322 16.23A1 1 0 002.152 18h15.696a1 1 0 00.83-1.77L10.865 2.23zM10 14a1 1 0 110 2 1 1 0 010-2zm-.75-7.5a.75.75 0 011.5 0v4.5a.75.75 0 01-1.5 0V6.5z" />
-                                                    </svg>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
                             <IssueTimer issue={issue} />
 
                             <div>

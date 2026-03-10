@@ -8,7 +8,7 @@
 
 ## Key Features
 
-*   **Issue Reporting:** Users can easily report new issues they find on trails, including a description, urgency level, and optional image.
+*   **Issue Reporting:** Users can easily report new issues they find on trails, including a description, safety risk, passability, and image.
 *   **Location Awareness:** The application supports geolocation to pinpoint the location of the reported issue on a map.
 *   **Issue Tracking:** Reported issues are tracked with their status (e.g., open, in progress, resolved).
 *   **Park and Trail Management:** Administrators can manage information about parks and the trails within them.

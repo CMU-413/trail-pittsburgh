@@ -75,24 +75,6 @@ Get issues associated with a specific trail.
 
 ---
 
-### `GET /api/issues/urgency/:urgency`
-
-**Description:**  
-Get issues by urgency level.
-
-**Authentication Required:** Yes (Admin)
-
-**Params:**
-- `urgency` (string, required – e.g. `"low"`, `"medium"`, `"high"`)
-
-**Validation:**  
-- Validated using `getIssuesByUrgencySchema`
-
-**Response:**
-- `200 OK`: Filtered list of issues
-
----
-
 ### `POST /api/issues`
 
 **Description:**  
@@ -104,8 +86,7 @@ Create a new issue.
 ```json
 {
   "trailId": 1,
-  "description": "Washed out bridge",
-  "urgency": "high"
+  "description": "Washed out bridge"
 }
 ```
 

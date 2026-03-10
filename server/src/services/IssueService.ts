@@ -1,5 +1,5 @@
 import {
-    IssueUrgencyEnum, IssueTypeEnum, IssueStatusEnum
+    IssueTypeEnum, IssueStatusEnum
 } from '@prisma/client';
 import { v4 as uuid } from 'uuid';
 
@@ -119,10 +119,6 @@ export class IssueService {
         return this.issueRepository.getIssuesByTrail(trailId);
     }
 
-    public async getIssuesByUrgency(urgencyLevel: IssueUrgencyEnum) {
-        return this.issueRepository.getIssuesByUrgency(urgencyLevel);
-    }
-
     public async updateIssueStatus(issueId: number, status: IssueStatusEnum) {
         const existingIssue = await this.issueRepository.getIssue(issueId);
 
@@ -180,7 +176,6 @@ export class IssueService {
 
     public async updateIssue(issueId: number, data: {
         description?: string;
-        urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
         isImagePublic?: boolean;
         parkId?: number;

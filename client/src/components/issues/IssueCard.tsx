@@ -2,9 +2,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Issue, IssueUrgencyEnum, Park, Trail 
+    Issue, Park, Trail 
 } from '../../types';
-import { getUrgencyLevelIndex } from '../../utils/issueUrgencyUtils';
 import { Card } from '../ui/Card';
 import { IssueStatusBadge } from './IssueStatusBadge';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
@@ -81,26 +80,6 @@ export const IssueCard: React.FC<IssueCardProps> = ({
                 </p>
 
                 <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                        <span className="text-xs font-medium text-gray-500 mr-2">Urgency:</span>
-                        <div className="flex">
-                            {Array.from({ length: 5 }).map((_, i) => {
-                                const currentLevel = getUrgencyLevelIndex(issue.urgency || IssueUrgencyEnum.LOW);
-                                return (
-                                    <svg
-                                        key={i}
-                                        className={`w-4 h-4 ${i <= currentLevel ? 'text-red-500' : 'text-gray-300'}`}
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path d="M10.865 2.23a1 1 0 00-1.73 0L1.322 16.23A1 1 0 002.152 18h15.696a1 1 0 00.83-1.77L10.865 2.23zM10 14a1 1 0 110 2 1 1 0 010-2zm-.75-7.5a.75.75 0 011.5 0v4.5a.75.75 0 01-1.5 0V6.5z" />
-                                    </svg>
-                                );
-                            })}
-                        </div>
-                    </div>
-
                     <div className="text-sm text-blue-600 font-medium group-hover:translate-x-1 transition-transform">
                         View details &rarr;
                     </div>

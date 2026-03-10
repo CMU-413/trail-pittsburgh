@@ -33,13 +33,6 @@ export enum IssueTypeEnum {
     OTHER = 'OTHER'
 }
 
-// Need to remove
-export enum IssueUrgencyEnum {
-    LOW = 'LOW',
-    MEDIUM = 'MEDIUM',
-    HIGH = 'HIGH'
-}
-
 export enum IssueRiskEnum {
     NO_RISK = 'NO_RISK',
     MINOR_RISK = 'MINOR_RISK',
@@ -83,7 +76,6 @@ export type Issue = {
     status: IssueStatusEnum;
     description?: string;
     issueType: IssueTypeEnum;
-    urgency?: IssueUrgencyEnum;
     passible: boolean;
     safetyRisk: IssueRiskEnum;
     image?: Image;
