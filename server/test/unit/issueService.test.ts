@@ -3,7 +3,7 @@ import { IssueRepository } from '@/repositories';
 import { CreateIssueInput } from '@/schemas/issueSchema';
 import { IssueService } from '@/services';
 import { IssueNotificationService } from '@/services/IssueNotificationService';
-import { IssueUrgencyEnum, IssueStatusEnum, IssueTypeEnum } from '@prisma/client';
+import { IssueUrgencyEnum, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum } from '@prisma/client';
 
 jest.mock('@/repositories/IssueRepository');
 jest.mock('@/lib/GCSBucket');
@@ -25,6 +25,7 @@ describe('IssueService', () => {
         trailId: 1,
         issueType: IssueTypeEnum.FLOODING,
         urgency: IssueUrgencyEnum.MEDIUM,
+        safetyRisk: IssueRiskEnum.NO_RISK,
         description: 'Trail is flooded',
         isPublic: true,
         isImagePublic: false,
@@ -70,6 +71,7 @@ describe('IssueService', () => {
             trailId: 1,
             issueType: IssueTypeEnum.FLOODING,
             urgency: IssueUrgencyEnum.MEDIUM,
+            safetyRisk: IssueRiskEnum.NO_RISK,
             reporterEmail: 'reporter@example.com',
             description: 'Trail is flooded',
             latitude: 40.4406,
@@ -107,6 +109,7 @@ describe('IssueService', () => {
             trailId: 1,
             issueType: IssueTypeEnum.FLOODING,
             urgency: IssueUrgencyEnum.MEDIUM,
+            safetyRisk: IssueRiskEnum.NO_RISK,
             description: 'Very flooded trail',
             isPublic: false,
             isImagePublic: false,

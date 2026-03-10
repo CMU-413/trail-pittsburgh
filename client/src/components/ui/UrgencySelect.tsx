@@ -27,11 +27,9 @@ export const UrgencySelect: React.FC<UrgencySelectProps> = ({
             )}
             <div className="grid grid-cols-5 gap-2">
                 {([
-                    IssueUrgencyEnum.VERY_LOW,
                     IssueUrgencyEnum.LOW, 
                     IssueUrgencyEnum.MEDIUM, 
-                    IssueUrgencyEnum.HIGH, 
-                    IssueUrgencyEnum.VERY_HIGH
+                    IssueUrgencyEnum.HIGH 
                 ]).map((level) => (
                     <button
                         key={level}

@@ -94,7 +94,7 @@ export const IssueDetailPage: React.FC = () => {
 
                 setIssue(issueData);
                 setEditedDescription(issueData.description || '');
-                setEditedUrgency(issueUrgencyEnumToFrontend(issueData.urgency));
+                setEditedUrgency(issueUrgencyEnumToFrontend(issueData.urgency || IssueUrgencyEnum.LOW));
                 setEditedIssueType(issueData.issueType.toLowerCase());
                 setEditedParkId(issueData.parkId);
                 setEditedTrailId(issueData.trailId || 0);
@@ -104,7 +104,7 @@ export const IssueDetailPage: React.FC = () => {
                 setPark(parkData || null);
 
                 // Fetch related trail
-                const trailData = await trailApi.getTrail(issueData.trailId);
+                const trailData = await trailApi.getTrail(issueData.trailId || 1);
                 setTrail(trailData || null);
 
                 // Fetch all parks for dropdown
@@ -411,10 +411,7 @@ export const IssueDetailPage: React.FC = () => {
                                             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                                         >
                                             <option value="obstruction">Obstruction (tree down, etc.)</option>
-                                            <option value="erosion">Trail Erosion</option>
-                                            <option value="flooding">Flooding</option>
-                                            <option value="signage">Damaged/Missing Signage</option>
-                                            <option value="vandalism">Vandalism</option>
+                                            <option value="flooding">Standing Water/Mud</option>
                                             <option value="other">Other</option>
                                         </select>
                                     </div>
@@ -544,7 +541,7 @@ export const IssueDetailPage: React.FC = () => {
                                     <div className="flex items-center mt-1">
                                         <div className="flex">
                                             {Array.from({ length: 5 }).map((_, i) => {
-                                                const currentLevel = getUrgencyLevelIndex(issue.urgency);
+                                                const currentLevel = getUrgencyLevelIndex(issue.urgency || IssueUrgencyEnum.LOW);
                                                 return (
                                                     <svg
                                                         key={i}

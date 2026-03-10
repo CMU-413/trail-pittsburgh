@@ -1,5 +1,5 @@
 import {
-    PrismaClient, UserRoleEnum, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
+    PrismaClient, UserRoleEnum, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum, IssueRiskEnum
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -97,8 +97,9 @@ async function main() {
             {
                 parkId: parkRecords[0].parkId,
                 trailId: trailRecords[0].trailId,
-                issueType: IssueTypeEnum.FLOODING,
+                issueType: IssueTypeEnum.OBSTRUCTION,
                 urgency: IssueUrgencyEnum.HIGH,
+                safetyRisk: IssueRiskEnum.NO_RISK,
                 description: 'Heavy rainfall caused water pooling on the trail.',
                 isPublic: true,
                 isImagePublic: false,
@@ -111,6 +112,7 @@ async function main() {
                 trailId: trailRecords[1].trailId,
                 issueType: IssueTypeEnum.OBSTRUCTION,
                 urgency: IssueUrgencyEnum.MEDIUM,
+                safetyRisk: IssueRiskEnum.MINOR_RISK,
                 description: 'A fallen tree is blocking the path near mile marker 5.',
                 isPublic: true,
                 isImagePublic: false,
@@ -121,8 +123,9 @@ async function main() {
             {
                 parkId: parkRecords[2].parkId,
                 trailId: trailRecords[2].trailId,
-                issueType: IssueTypeEnum.EROSION,
+                issueType: IssueTypeEnum.OBSTRUCTION,
                 urgency: IssueUrgencyEnum.HIGH,
+                safetyRisk: IssueRiskEnum.SERIOUS_RISK,
                 description: 'Severe erosion has made the path unsafe for bikers.',
                 isPublic: true,
                 isImagePublic: false,
