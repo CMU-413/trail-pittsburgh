@@ -1,8 +1,9 @@
 // src/components/issues/IssueReportForm.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum
+    Park, ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum,
+    IssueUrgencyEnum
 } from '../../types';
 import { getSafetyRiskLabel } from '../../utils/issueSafetyRiskUtils';
 import { Input } from '../ui/Input';
@@ -11,6 +12,8 @@ import { Alert } from '../ui/Alert';
 import { ImageUpload } from '../ui/ImageUpload';
 import Location from '../ui/Location';
 import { TextArea } from '../ui/TextArea';
+import { parkApi } from '../../services/api';
+import { getParkByLatLng } from '../../utils/parkUtils';
 
 interface IssueReportFormProps {
     onSubmit: (data: IssueParams) => Promise<void>;
@@ -19,6 +22,10 @@ interface IssueReportFormProps {
 export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) => {
     const [formData, setFormData] = useState<Partial<IssueParams>>({
         isPublic: true,
+        // Temporary Solution, will remove during cleanup
+        trailId: 1,
+        // Temporary Solution, will remove during cleanup
+        urgency: IssueUrgencyEnum.LOW,
         status: IssueStatusEnum.OPEN,
         description: '',
         issueType: IssueTypeEnum.OBSTRUCTION,
@@ -38,12 +45,32 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
     const [success, setSuccess] = useState(false);
     const [emailError, setEmailError] = useState<string | null>(null);
     const [locationProvided, setLocationProvided] = useState(false);
+    const [locationProvidedByImage, setLocationProvidedByImage] = useState(false);
+    const [parks, setParks] = useState<Park[]>([]);
+    const [atIssueLocation, setAtIssueLocation] = useState(false);
+    const [atGoodLocation, setAtGoodLocation] = useState(true);
+    const [imageDataExtractionErrorMsg, setImageDataExtractionErrorMsg] = useState('There is either no location information from the image.');
 
     const issueTypes = [
         { value: IssueTypeEnum.OBSTRUCTION, label: 'Obstruction (tree down, etc.)' },
         { value: IssueTypeEnum.FLOODING, label: 'Standing Water/Mud' },
         { value: IssueTypeEnum.OTHER, label: 'Other' }
     ];
+
+    useEffect(() => {
+        const fetchParks = async () => {
+            try {
+                const parksData = await parkApi.getParks();
+                setParks(parksData.filter((park) => park.isActive));
+            } catch (err) {
+                // eslint-disable-next-line no-console
+                console.error('Error loading parks:', err);
+                setError('Unable to load parks. Please try again later.');
+            }
+        };
+
+        fetchParks();
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -91,6 +118,9 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
 
         if (previewUrl) {
             setImgPreview(previewUrl);
+        } else {
+            setImageDataExtractionErrorMsg('There is either no location information from the image.');
+            setAtIssueLocation(false);
         }
 
         if (file) {
@@ -99,7 +129,20 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                 const lng = metadata?.longitude ?? metadata?.Longitude;
 
                 if (typeof lat === 'number' && typeof lng === 'number') {
-                    setLocationProvided(true);
+                    // Set ParkId
+                    const park = getParkByLatLng([lat, lng]);
+                    if (park !== null) {
+                        const park_info = parks.find((p) => (p.name === park.name));
+                        if (park_info) {
+                            setFormData((prev) => ({ ...prev, parkId: park_info.parkId }));
+                            setLocationProvided(true);
+                            setLocationProvidedByImage(true);
+                        } else {
+                            setImageDataExtractionErrorMsg('The location extracted from the image you provided does not fall into one of our parks.');
+                        }
+                    } else {
+                        setImageDataExtractionErrorMsg('The location extracted from the image you provided does not fall into one of our parks.');
+                    }
                 }
                 const newData = {
                     ...prev,
@@ -123,18 +166,29 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
     // Handle location selection
     const handleLocationSelected = (latitude: number, longitude: number) => {
         setFormData((prev) => {
-            const exifLat = prev.imageMetadata?.latitude ?? prev.imageMetadata?.Latitude;
-            const exifLng = prev.imageMetadata?.longitude ?? prev.imageMetadata?.Longitude;
 
-            if (typeof exifLat === 'number' && typeof exifLng === 'number')
-            {return prev;}
-			
+            if (typeof latitude === 'number' && typeof longitude === 'number')
+            {
+                const park = getParkByLatLng([latitude, longitude]);
+                if (park !== null) {
+                    const park_info = parks.find((p) => (p.name === park.name));
+                    if (park_info) {
+                        setFormData((prev) => ({ ...prev, parkId: park_info.parkId }));
+                        setLocationProvided(true);
+                        return { ...prev, latitude, longitude };
+                    } else {
+                        setAtGoodLocation(false);
+                    }
+                } else {
+                    setAtGoodLocation(false);
+                }
+            }
+            setAtGoodLocation(false);
             return { ...prev, latitude, longitude };
         });
-        setLocationProvided(true);
     };
 
-    const mapPassibleStringToBool = (option: string) => {
+    const mapStringToBool = (option: string) => {
         if (option === 'Yes') {
             return true;
         } else {
@@ -186,10 +240,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                 throw new Error('Please select an issue type.');
             }
 
-            // if (!formData.description || formData.description.trim() === '') {
-            //     throw new Error('Please provide a description of the issue.');
-            // }
-
             if (!formData.imageMetadata) {
                 throw new Error('Please provide an image of the issue.');
             }
@@ -232,6 +282,9 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                 latitude: undefined
             });
             setLocationProvided(false);
+            setLocationProvidedByImage(false);
+            setImageDataExtractionErrorMsg('There is either no location information from the image.');
+            setAtGoodLocation(true);
 
             // Auto-scroll to top on success
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -284,214 +337,286 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                 </div>
             </div>
 
-            {/* Issue Type Selection */}
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                <div className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
-                            What type of issue is it?
-                        </label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {issueTypes.map((type) => (
-                                <button
-                                    key={type.value}
-                                    type="button"
-                                    onClick={() => handleIssueTypeSelect(type.value)}
-                                    className={`
-                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
-                                        ${formData.issueType === type.value
-                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
-                                    : 'border-gray-200'
-                                }
-                                    `}
-                                >
-                                    <div className={`p-2 rounded-full mr-3 ${formData.issueType === type.value ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
-                                        {getIssueTypeIcon(type.value)}
-                                    </div>
-                                    <span className="font-medium text-sm">{type.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                        <p className="mt-2 text-xs text-gray-500">Select the category that best describes the issue</p>
-                    </div>
-                </div>
-            </div>
+            {/* Check If Action Issue Location Section */}
+            {!locationProvidedByImage && formData.imageMetadata !== undefined &&
+                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                                {imageDataExtractionErrorMsg}
+                            </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                                Are you currently at the location of the issue to provide location of the issue?
+                            </label>
+                            {/* For large screens: all options in one row */}
+                            <div className="hidden md:grid md:grid-cols-2 gap-3">
+                                {['Yes', 'No'].map((option) => (
+                                    <button
+                                        key={option}
+                                        type="button"
+                                        onClick={() => setAtIssueLocation(mapStringToBool(option))}
+                                        className={`
+                                            flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                            ${atIssueLocation === mapStringToBool(option)
+                                        ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                        : 'border-gray-200'
+                                    }
+                                        `}
+                                    >
+                                        <div className="text-sm font-medium">{option}</div>
+                                    </button>
+                                ))}
+                            </div>
 
-            {/* Safety Risk Selection */}
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                <div className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
-                            Safety Risk?
-                        </label>
-                        {/* For large screens: all options in one row */}
-                        <div className="hidden md:grid md:grid-cols-3 gap-3">
-                            {Object.values(IssueRiskEnum).map((level) => (
-                                <button
-                                    key={level}
-                                    type="button"
-                                    onClick={() => handleSafetyRiskSelect(level)}
-                                    className={`
-                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
-                                        ${formData.safetyRisk === level
-                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
-                                    : 'border-gray-200'
-                                }
-                                    `}
-                                >
-                                    <div className="text-sm font-medium">{getSafetyRiskLabel(level)}</div>
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* For mobile: options stacked one per row */}
-                        <div className="grid grid-cols-1 gap-3 md:hidden">
-                            {Object.values(IssueRiskEnum).map((level) => (
-                                <button
-                                    key={level}
-                                    type="button"
-                                    onClick={() => handleSafetyRiskSelect(level)}
-                                    className={`
-                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
-                                        ${formData.safetyRisk === level
-                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
-                                    : 'border-gray-200'
-                                }
-                                    `}
-                                >
-                                    <div className="text-sm font-medium">{getSafetyRiskLabel(level)}</div>
-                                </button>
-                            ))}
+                            {/* For mobile: options stacked one per row */}
+                            <div className="grid grid-cols-1 gap-3 md:hidden">
+                                {['Yes', 'No'].map((option) => (
+                                    <button
+                                        key={option}
+                                        type="button"
+                                        onClick={() => setAtIssueLocation(mapStringToBool(option))}
+                                        className={`
+                                            flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                            ${atIssueLocation === mapStringToBool(option)
+                                        ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                        : 'border-gray-200'
+                                    }
+                                        `}
+                                    >
+                                        <div className="text-sm font-medium">{option}</div>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {/* Passible Selection */}
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                <div className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
-                            Is it passible?
-                        </label>
-                        {/* For large screens: all options in one row */}
-                        <div className="hidden md:grid md:grid-cols-2 gap-3">
-                            {['Yes', 'No'].map((option) => (
-                                <button
-                                    key={option}
-                                    type="button"
-                                    onClick={() => handlePassibleSelect(mapPassibleStringToBool(option))}
-                                    className={`
-                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
-                                        ${formData.passible === mapPassibleStringToBool(option)
-                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
-                                    : 'border-gray-200'
-                                }
-                                    `}
-                                >
-                                    <div className="text-sm font-medium">{option}</div>
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* For mobile: options stacked one per row */}
-                        <div className="grid grid-cols-1 gap-3 md:hidden">
-                            {['Yes', 'No'].map((option) => (
-                                <button
-                                    key={option}
-                                    type="button"
-                                    onClick={() => handlePassibleSelect(mapPassibleStringToBool(option))}
-                                    className={`
-                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
-                                        ${formData.passible === mapPassibleStringToBool(option)
-                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
-                                    : 'border-gray-200'
-                                }
-                                    `}
-                                >
-                                    <div className="text-sm font-medium">{option}</div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Location Picker Section */}
-            <Location
-                onLocationSelected={handleLocationSelected}
-                initialLat={formData.latitude}
-                initialLon={formData.longitude}
-            />
-            {locationProvided}
+            }
             
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <TextArea
-                    label="Additional Comments (Optional)"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    rows={4}
-                    placeholder="Provide any additional details about this issue (what you saw, where exactly it is located, etc)"
-                    required
-                    fullWidth
+            {!locationProvidedByImage && formData.imageMetadata !== undefined && !atIssueLocation && 
+                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div className="space-y-6 block text-sm font-medium text-gray-700 mb-3">
+                        Due to no exact location of issue, this report cannot be completed.
+                    </div>
+                </div>
+            }
+            {/* Location Picker Section */}
+            {!locationProvidedByImage && formData.imageMetadata !== undefined && atIssueLocation && 
+                <Location
+                    onLocationSelected={handleLocationSelected}
                 />
-            </div>
+            }
 
-            {/* Preferences Section */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h3>
-                <div className="space-y-4">
-                    <div className="flex items-center">
-                        <input
-                            id="notifyReporter"
-                            name="notifyReporter"
-                            type="checkbox"
-                            checked={formData.notifyReporter}
-                            onChange={handleChange}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        <label htmlFor="notifyReporter" className="ml-3 block text-sm text-gray-700">
-                            Opt-in for email notification on status updates regarding this issue
-                        </label>
+            {!locationProvidedByImage && formData.imageMetadata !== undefined && atIssueLocation && !atGoodLocation &&
+                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div className="space-y-6 block text-sm font-medium text-gray-700 mb-3">
+                        The location you provided does not fall into one of our parks. Thus, this report cannot be completed.
+                    </div>
+                </div>
+            }
+
+            {locationProvided &&
+                <div>
+                    {/* Issue Type Selection */}
+                    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    What type of issue is it?
+                                </label>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {issueTypes.map((type) => (
+                                        <button
+                                            key={type.value}
+                                            type="button"
+                                            onClick={() => handleIssueTypeSelect(type.value)}
+                                            className={`
+                                                flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                                ${formData.issueType === type.value
+                                            ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                            : 'border-gray-200'
+                                        }
+                                            `}
+                                        >
+                                            <div className={`p-2 rounded-full mr-3 ${formData.issueType === type.value ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
+                                                {getIssueTypeIcon(type.value)}
+                                            </div>
+                                            <span className="font-medium text-sm">{type.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="mt-2 text-xs text-gray-500">Select the category that best describes the issue</p>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Email input field that appears when notifyReporter is checked */}
-                    {formData.notifyReporter && (
-                        <div className="pl-7 mt-3">
-                            <Input
-                                label="Email Address"
-                                name="reporterEmail"
-                                type="email"
-                                value={formData.reporterEmail || ''}
-                                onChange={handleChange}
-                                placeholder="your.email@example.com"
-                                error={emailError || undefined}
-                                helperText="We'll send you an update when on status changes on this issue"
-                                fullWidth
-                                leadingIcon={
-                                    <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                                    </svg>
-                                }
-                            />
-                        </div>
-                    )}
-                </div>
-            </div>
+                    {/* Safety Risk Selection */}
+                    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    Safety Risk?
+                                </label>
+                                {/* For large screens: all options in one row */}
+                                <div className="hidden md:grid md:grid-cols-3 gap-3">
+                                    {Object.values(IssueRiskEnum).map((level) => (
+                                        <button
+                                            key={level}
+                                            type="button"
+                                            onClick={() => handleSafetyRiskSelect(level)}
+                                            className={`
+                                                flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                                ${formData.safetyRisk === level
+                                            ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                            : 'border-gray-200'
+                                        }
+                                            `}
+                                        >
+                                            <div className="text-sm font-medium">{getSafetyRiskLabel(level)}</div>
+                                        </button>
+                                    ))}
+                                </div>
 
-            <div className="flex justify-center mt-8">
-                <Button
-                    type="submit"
-                    variant="primary"
-                    size="lg"
-                    isLoading={isLoading}
-                    className="px-14 py-4 text-lg"
-                >
-                    Submit Issue Report
-                </Button>
-            </div>
+                                {/* For mobile: options stacked one per row */}
+                                <div className="grid grid-cols-1 gap-3 md:hidden">
+                                    {Object.values(IssueRiskEnum).map((level) => (
+                                        <button
+                                            key={level}
+                                            type="button"
+                                            onClick={() => handleSafetyRiskSelect(level)}
+                                            className={`
+                                                flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                                ${formData.safetyRisk === level
+                                            ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                            : 'border-gray-200'
+                                        }
+                                            `}
+                                        >
+                                            <div className="text-sm font-medium">{getSafetyRiskLabel(level)}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Passible Selection */}
+                    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    Is it passible?
+                                </label>
+                                {/* For large screens: all options in one row */}
+                                <div className="hidden md:grid md:grid-cols-2 gap-3">
+                                    {['Yes', 'No'].map((option) => (
+                                        <button
+                                            key={option}
+                                            type="button"
+                                            onClick={() => handlePassibleSelect(mapStringToBool(option))}
+                                            className={`
+                                                flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                                ${formData.passible === mapStringToBool(option)
+                                            ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                            : 'border-gray-200'
+                                        }
+                                            `}
+                                        >
+                                            <div className="text-sm font-medium">{option}</div>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* For mobile: options stacked one per row */}
+                                <div className="grid grid-cols-1 gap-3 md:hidden">
+                                    {['Yes', 'No'].map((option) => (
+                                        <button
+                                            key={option}
+                                            type="button"
+                                            onClick={() => handlePassibleSelect(mapStringToBool(option))}
+                                            className={`
+                                                flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                                ${formData.passible === mapStringToBool(option)
+                                            ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                            : 'border-gray-200'
+                                        }
+                                            `}
+                                        >
+                                            <div className="text-sm font-medium">{option}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                        <TextArea
+                            label="Additional Comments (Optional)"
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            rows={4}
+                            placeholder="Provide any additional details about this issue (what you saw, where exactly it is located, etc)"
+                            fullWidth
+                        />
+                    </div>
+
+                    {/* Preferences Section */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h3>
+                        <div className="space-y-4">
+                            <div className="flex items-center">
+                                <input
+                                    id="notifyReporter"
+                                    name="notifyReporter"
+                                    type="checkbox"
+                                    checked={formData.notifyReporter}
+                                    onChange={handleChange}
+                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                />
+                                <label htmlFor="notifyReporter" className="ml-3 block text-sm text-gray-700">
+                                    Opt-in for email notification on status updates regarding this issue
+                                </label>
+                            </div>
+
+                            {/* Email input field that appears when notifyReporter is checked */}
+                            {formData.notifyReporter && (
+                                <div className="pl-7 mt-3">
+                                    <Input
+                                        label="Email Address"
+                                        name="reporterEmail"
+                                        type="email"
+                                        value={formData.reporterEmail || ''}
+                                        onChange={handleChange}
+                                        placeholder="your.email@example.com"
+                                        error={emailError || undefined}
+                                        helperText="We'll send you an update when on status changes on this issue"
+                                        fullWidth
+                                        leadingIcon={
+                                            <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                            </svg>
+                                        }
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    
+                    <div className="flex justify-center mt-8">
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            size="lg"
+                            isLoading={isLoading}
+                            className="px-14 py-4 text-lg"
+                        >
+                            Submit Issue Report
+                        </Button>
+                    </div>
+                </div>
+            }
         </form>
     );
 };

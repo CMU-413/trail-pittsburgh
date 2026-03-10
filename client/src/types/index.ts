@@ -77,13 +77,13 @@ export interface ImageMetadata {
 export type Issue = {
     issueId: number;
     parkId: number;
-    trailId: number;
+    trailId?: number;
     isPublic: boolean;
     isImagePublic?: boolean;
     status: IssueStatusEnum;
     description?: string;
     issueType: IssueTypeEnum;
-    urgency: IssueUrgencyEnum;
+    urgency?: IssueUrgencyEnum;
     passible: boolean;
     safetyRisk: IssueRiskEnum;
     image?: Image;
