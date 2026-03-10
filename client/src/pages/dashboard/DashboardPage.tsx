@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Issue, Park, Trail, IssueStatusEnum 
+    Issue, Park, IssueStatusEnum 
 } from '../../types';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -11,14 +11,13 @@ import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { getIssueStatusDotColor } from '../../utils/issueStatusUtils';
 import { 
-    parkApi, trailApi, issueApi
+    parkApi, issueApi
 } from '../../services/api';
 
 export const DashboardPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [issues, setIssues] = useState<Issue[]>([]);
     const [parks, setParks] = useState<Record<number, Park>>({});
-    const [trails, setTrails] = useState<Record<number, Trail>>({});
 
     // Statistics
     const [totalIssues, setTotalIssues] = useState(0);
@@ -46,12 +45,6 @@ export const DashboardPage: React.FC = () => {
                 });
                 setParks(parksMap);
 
-                const trailsData = await trailApi.getAllTrails();
-                const trailsMap: Record<number, Trail> = {};
-                trailsData.forEach((trail) => {
-                    trailsMap[trail.trailId] = trail;
-                });
-                setTrails(trailsMap);
             } catch (err) {
                 // eslint-disable-next-line no-console
                 console.error('Error fetching dashboard data:', err);
@@ -145,7 +138,7 @@ export const DashboardPage: React.FC = () => {
                                         <p className="text-sm text-gray-600 mt-1 line-clamp-2">{issue.description}</p>
                                         <p className="text-xs text-gray-500 mt-1 flex items-center">
                                             <span className={`inline-block w-2 h-2 rounded-full mr-2 ${getIssueStatusDotColor(issue.status)}`}></span>
-                                            {parks[issue.parkId]?.name} &bull; {trails[issue.trailId]?.name}
+                                            {parks[issue.parkId]?.name}
                                         </p>
                                     </div>
                                 </div>

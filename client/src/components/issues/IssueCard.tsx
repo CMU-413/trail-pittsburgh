@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Issue, Park, Trail 
+    Issue, IssueUrgencyEnum, Park, Trail 
 } from '../../types';
 import { getUrgencyLevelIndex } from '../../utils/issueUrgencyUtils';
 import { Card } from '../ui/Card';
@@ -85,7 +85,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
                         <span className="text-xs font-medium text-gray-500 mr-2">Urgency:</span>
                         <div className="flex">
                             {Array.from({ length: 5 }).map((_, i) => {
-                                const currentLevel = getUrgencyLevelIndex(issue.urgency);
+                                const currentLevel = getUrgencyLevelIndex(issue.urgency || IssueUrgencyEnum.LOW);
                                 return (
                                     <svg
                                         key={i}

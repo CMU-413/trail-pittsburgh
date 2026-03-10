@@ -94,7 +94,7 @@ export const IssueDetailPage: React.FC = () => {
 
                 setIssue(issueData);
                 setEditedDescription(issueData.description || '');
-                setEditedUrgency(issueUrgencyEnumToFrontend(issueData.urgency));
+                setEditedUrgency(issueUrgencyEnumToFrontend(issueData.urgency || IssueUrgencyEnum.LOW));
                 setEditedIssueType(issueData.issueType.toLowerCase());
                 setEditedParkId(issueData.parkId);
                 setEditedTrailId(issueData.trailId || 0);
@@ -104,7 +104,7 @@ export const IssueDetailPage: React.FC = () => {
                 setPark(parkData || null);
 
                 // Fetch related trail
-                const trailData = await trailApi.getTrail(issueData.trailId);
+                const trailData = await trailApi.getTrail(issueData.trailId || 1);
                 setTrail(trailData || null);
 
                 // Fetch all parks for dropdown
@@ -541,7 +541,7 @@ export const IssueDetailPage: React.FC = () => {
                                     <div className="flex items-center mt-1">
                                         <div className="flex">
                                             {Array.from({ length: 5 }).map((_, i) => {
-                                                const currentLevel = getUrgencyLevelIndex(issue.urgency);
+                                                const currentLevel = getUrgencyLevelIndex(issue.urgency || IssueUrgencyEnum.LOW);
                                                 return (
                                                     <svg
                                                         key={i}

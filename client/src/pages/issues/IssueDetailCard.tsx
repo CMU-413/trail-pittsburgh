@@ -272,7 +272,7 @@ export const IssueDetailCard: React.FC<{
 
     const initializeEditedFields = (sourceIssue: Issue) => {
         setEditedDescription(sourceIssue.description ?? '');
-        setEditedUrgency(issueUrgencyEnumToFrontend(sourceIssue.urgency));
+        setEditedUrgency(issueUrgencyEnumToFrontend(sourceIssue.urgency || IssueUrgencyEnum.LOW));
         setEditedIssueType(sourceIssue.issueType.toLowerCase());
         setEditedParkId(sourceIssue.parkId);
         setEditedLatitude(sourceIssue.latitude ?? null);

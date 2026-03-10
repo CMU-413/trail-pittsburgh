@@ -358,7 +358,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                                         className={`
                                             flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
                                             ${atIssueLocation === mapStringToBool(option)
-                                        ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                        ? 'border-blue-600 bg-blue-50'
                                         : 'border-gray-200'
                                     }
                                         `}
@@ -378,7 +378,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                                         className={`
                                             flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
                                             ${atIssueLocation === mapStringToBool(option)
-                                        ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                        ? 'border-blue-600 bg-blue-50'
                                         : 'border-gray-200'
                                     }
                                         `}
@@ -432,7 +432,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                                             className={`
                                                 flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
                                                 ${formData.issueType === type.value
-                                            ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                            ? 'border-blue-600 bg-blue-50'
                                             : 'border-gray-200'
                                         }
                                             `}
@@ -466,7 +466,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                                             className={`
                                                 flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
                                                 ${formData.safetyRisk === level
-                                            ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                            ? 'border-blue-600 bg-blue-50'
                                             : 'border-gray-200'
                                         }
                                             `}
@@ -486,7 +486,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                                             className={`
                                                 flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
                                                 ${formData.safetyRisk === level
-                                            ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                            ? 'border-blue-600 bg-blue-50'
                                             : 'border-gray-200'
                                         }
                                             `}
@@ -516,7 +516,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                                             className={`
                                                 flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
                                                 ${formData.passible === mapStringToBool(option)
-                                            ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                            ? 'border-blue-600 bg-blue-50'
                                             : 'border-gray-200'
                                         }
                                             `}
@@ -536,7 +536,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                                             className={`
                                                 flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
                                                 ${formData.passible === mapStringToBool(option)
-                                            ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
+                                            ? 'border-blue-600 bg-blue-50'
                                             : 'border-gray-200'
                                         }
                                             `}
