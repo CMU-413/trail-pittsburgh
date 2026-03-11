@@ -1,5 +1,5 @@
 import {
-    Prisma , IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum, IssueRiskEnum
+    Prisma , IssueStatusEnum, IssueTypeEnum, IssueRiskEnum
 } from '@prisma/client';
 import { z } from 'zod';
 
@@ -12,12 +12,6 @@ export const getIssuesByParkSchema = z.object({
 export const getIssuesByTrailSchema = z.object({
     params: z.object({
         trailId: z.coerce.number(),
-    })
-});
-
-export const getIssuesByUrgencySchema = z.object({
-    params: z.object({
-        urgency: z.nativeEnum(IssueUrgencyEnum),
     })
 });
 
@@ -85,8 +79,8 @@ export const createIssueSchema = z.object({
         parkId: z.coerce.number(),
         trailId: z.coerce.number(),
         issueType: z.nativeEnum(IssueTypeEnum),
-        urgency: z.nativeEnum(IssueUrgencyEnum),
         safetyRisk: z.nativeEnum(IssueRiskEnum),
+        passible: z.boolean().default(false),
         isPublic: z.boolean().default(false),
         isImagePublic: z.boolean().default(false),
         status: z.nativeEnum(IssueStatusEnum).default(IssueStatusEnum.OPEN),
@@ -120,7 +114,6 @@ export const updateIssueSchema = z.object({
     }),
     body: z.object({
         description: z.string().optional(),
-        urgency: z.nativeEnum(IssueUrgencyEnum).optional(),
         safetyRisk: z.nativeEnum(IssueRiskEnum).optional(),
         issueType: z.nativeEnum(IssueTypeEnum).optional(),
         isImagePublic: z.boolean().optional(),
@@ -130,7 +123,6 @@ export const updateIssueSchema = z.object({
     }).refine((data) => {
         // At least one field must be provided
         return data.description !== undefined ||
-               data.urgency !== undefined ||
                data.safetyRisk !== undefined ||
                data.issueType !== undefined ||
                data.isImagePublic !== undefined ||

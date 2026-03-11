@@ -12,7 +12,7 @@ import { EmptyState } from '../../components/layout/EmptyState';
 import { LeafletMap, LeafletMarker } from '../../types/leaflet';
 import { PARKS } from '../parks/ParkInfo';
 import {
-    IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
+    IssueStatusEnum, IssueTypeEnum 
 } from '../../types';
 import { IssueDetailCard } from './IssueDetailCard';
 import { 
@@ -27,7 +27,6 @@ type IssuePin = {
 	latitude: number;
 	longitude: number;
 	issueType: IssueTypeEnum;
-	urgency: IssueUrgencyEnum;
 	status: IssueStatusEnum ;
 	createdAt: string;
 }

@@ -12,7 +12,6 @@ import {
     deleteIssueSchema,
     getIssuesByParkSchema,
     getIssuesByTrailSchema,
-    getIssuesByUrgencySchema,
     getIssueSchema,
     unsubscribeIssueNotificationsSchema,
     getIssueMapPinsSchema,
@@ -81,12 +80,6 @@ router.get('/trail/:trailId',
     validateRequest(getIssuesByTrailSchema), 
     requireAdmin,
     issueController.getIssuesByTrail); // Get issues by trail
-
-router.get('/urgency/:urgency', 
-    authenticateToken,
-    validateRequest(getIssuesByUrgencySchema), 
-    requireAdmin,
-    issueController.getIssuesByUrgency); // Get issues by urgency
 
 router.put(
     '/:issueId/status',

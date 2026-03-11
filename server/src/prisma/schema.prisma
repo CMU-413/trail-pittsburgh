@@ -26,12 +26,6 @@ enum IssueRiskEnum {
   SERIOUS_RISK
 }
 
-enum IssueUrgencyEnum {
-  LOW
-  MEDIUM
-  HIGH
-}
-
 enum UserRoleEnum {
   ROLE_USER
   ROLE_ADMIN
@@ -70,8 +64,8 @@ model Issue {
   status         IssueStatusEnum  @default(OPEN)
   description    String?          @db.VarChar(450)
   issueType      IssueTypeEnum                                    @map("issue_type")
-  urgency        IssueUrgencyEnum
   safetyRisk     IssueRiskEnum
+  passible       Boolean
   issueImage     String?          @db.VarChar(150)                @map("issue_image")
   notifyReporter Boolean          @default(false)                 @map("notify_reporter")
   reporterEmail  String           @db.VarChar(150)                @map("reporter_email")

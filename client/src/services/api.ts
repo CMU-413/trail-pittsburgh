@@ -1,5 +1,5 @@
 import {
-    Park, Trail, Issue, IssueParams, IssueStatusEnum, IssueUrgencyEnum,
+    Park, Trail, Issue, IssueParams, IssueStatusEnum,
     IssueTypeEnum,
     UserRoleEnum,
     User
@@ -157,11 +157,6 @@ export const issueApi = {
         return response.issues;
     },
 
-    getIssuesByUrgency: async (urgency: IssueUrgencyEnum): Promise<Issue[]> => {
-        const response = await fetch(`${API_BASE_URL}/issues/urgency/${urgency}`);
-        return handleResponse(response);
-    },
-
     createIssue: async (issueData: IssueParams): Promise<string | undefined> => {
         const { image, imageMetadata, ...payload } = issueData;
 
@@ -272,7 +267,6 @@ export const issueApi = {
 
     updateIssue: async (issueId: number, data: {
         description?: string;
-        urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
         isImagePublic?: boolean;
         parkId?: number;

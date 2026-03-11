@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-    Park, ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum,
-    IssueUrgencyEnum
+    Park, ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum
 } from '../../types';
 import { getSafetyRiskLabel } from '../../utils/issueSafetyRiskUtils';
 import { Input } from '../ui/Input';
@@ -24,8 +23,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
         isPublic: true,
         // Temporary Solution, will remove during cleanup
         trailId: 1,
-        // Temporary Solution, will remove during cleanup
-        urgency: IssueUrgencyEnum.LOW,
         status: IssueStatusEnum.OPEN,
         description: '',
         issueType: IssueTypeEnum.OBSTRUCTION,
