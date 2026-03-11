@@ -121,12 +121,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
 
         if (file) {
             setFormData((prev) => {
-                // const lat = metadata?.latitude ?? metadata?.Latitude;
-                // const lng = metadata?.longitude ?? metadata?.Longitude;
-
-                const lat = 40.91;
-                const lng = -80.1;
-
+                const lat = metadata?.latitude ?? metadata?.Latitude;
+                const lng = metadata?.longitude ?? metadata?.Longitude;
 
                 if (typeof lat === 'number' && typeof lng === 'number') {
                     setLocationProvidedByImage(true);
