@@ -67,7 +67,6 @@ Create a new issue.
 **Request Body:**
 ```json
 {
-  "trailId": 1,
   "description": "Washed out bridge"
 }
 ```

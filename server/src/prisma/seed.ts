@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 async function main() {
     await prisma.$executeRawUnsafe(`
         TRUNCATE TABLE 
-            "Issue", "Park", "Trail", "User", "Notification" 
+            "Issue", "Park", "User", "Notification" 
         RESTART IDENTITY CASCADE;
     `);
 
@@ -76,27 +76,12 @@ async function main() {
 
     const parkRecords = await prisma.park.findMany();
 
-    // Create Trails
-    //eslint-disable-next-line
-    const trails = await prisma.trail.createMany({
-        data: [
-            { name: 'Great Allegheny Passage', parkId: parkRecords[0].parkId, isOpen: true },
-            { name: 'Three Rivers Heritage Trail', parkId: parkRecords[1].parkId, isOpen: true },
-            { name: 'Frick Park Trails', parkId: parkRecords[2].parkId, isOpen: true },
-            { name: 'Schenley Park Trails', parkId: parkRecords[3].parkId, isOpen: true },
-            { name: 'Highland Park Trails', parkId: parkRecords[4].parkId, isOpen: true }
-        ]
-    });
-
-    const trailRecords = await prisma.trail.findMany();
-
     // Create Issues
     //eslint-disable-next-line
     const issues = await prisma.issue.createMany({
         data: [
             {
                 parkId: parkRecords[0].parkId,
-                trailId: trailRecords[0].trailId,
                 issueType: IssueTypeEnum.OBSTRUCTION,
                 safetyRisk: IssueRiskEnum.NO_RISK,
                 passible: true,
@@ -111,7 +96,6 @@ async function main() {
             },
             {
                 parkId: parkRecords[1].parkId,
-                trailId: trailRecords[1].trailId,
                 issueType: IssueTypeEnum.OBSTRUCTION,
                 safetyRisk: IssueRiskEnum.MINOR_RISK,
                 passible: false,
@@ -126,7 +110,6 @@ async function main() {
             },
             {
                 parkId: parkRecords[2].parkId,
-                trailId: trailRecords[2].trailId,
                 issueType: IssueTypeEnum.OBSTRUCTION,
                 safetyRisk: IssueRiskEnum.SERIOUS_RISK,
                 passible: false,

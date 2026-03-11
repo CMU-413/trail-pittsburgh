@@ -27,14 +27,12 @@ describe('Park Routes', () => {
         await prisma.$executeRaw`BEGIN`;
         await prisma.notification.deleteMany();
         await prisma.issue.deleteMany();
-        await prisma.trail.deleteMany();
         await prisma.park.deleteMany();
     });
 
     afterEach(async () => {
         await prisma.notification.deleteMany();
         await prisma.issue.deleteMany();
-        await prisma.trail.deleteMany();
         await prisma.park.deleteMany();
     });
 

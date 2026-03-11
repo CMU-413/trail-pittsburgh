@@ -6,7 +6,6 @@ import { logger } from '@/utils/logger';
 type IssueWithRelations = Prisma.IssueGetPayload<{
     include: {
         park: true,
-        trail: true
     }
 }>;
 
@@ -132,11 +131,9 @@ export class IssueNotificationService {
 
     private buildIssueSummary(issue: IssueWithRelations) {
         const parkName = issue.park?.name ?? 'Unknown park';
-        const trailName = issue.trail?.name ?? 'Unknown trail';
 
         return [
             `Park: ${parkName}`,
-            `Trail: ${trailName}`,
             `Type: ${issue.issueType}`,
             `Safety Risk: ${issue.safetyRisk}`,
             issue.description ? `Description: ${issue.description}` : undefined
@@ -145,7 +142,6 @@ export class IssueNotificationService {
 
     private buildIssueSummaryHtml(issue: IssueWithRelations) {
         const parkName = this.escapeHtml(issue.park?.name ?? 'Unknown park');
-        const trailName = this.escapeHtml(issue.trail?.name ?? 'Unknown trail');
         const issueType = this.escapeHtml(issue.issueType);
         const safetyRisk = this.escapeHtml(issue.safetyRisk);
         const description = issue.description
@@ -155,7 +151,6 @@ export class IssueNotificationService {
         return [
             '<ul>',
             `<li><strong>Park:</strong> ${parkName}</li>`,
-            `<li><strong>Trail:</strong> ${trailName}</li>`,
             `<li><strong>Type:</strong> ${issueType}</li>`,
             `<li><strong>Safety Risk:</strong> ${safetyRisk}</li>`,
             description,

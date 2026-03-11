@@ -115,10 +115,6 @@ export class IssueService {
         return this.issueRepository.getIssuesByPark(parkId);
     }
 
-    public async getIssuesByTrail(trailId: number) {
-        return this.issueRepository.getIssuesByTrail(trailId);
-    }
-
     public async updateIssueStatus(issueId: number, status: IssueStatusEnum) {
         const existingIssue = await this.issueRepository.getIssue(issueId);
 

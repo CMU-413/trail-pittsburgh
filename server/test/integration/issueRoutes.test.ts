@@ -8,7 +8,6 @@ import { Response, NextFunction } from 'express';
 /// <reference types="jest" />
 
 let parkId: number;
-let trailId: number;
 let createdIssueId: number | undefined;
 
 jest.mock('../../src/middlewares/index', () => ({
@@ -32,7 +31,6 @@ describe('Issue API End-to-End', () => {
 
         await prisma.notification.deleteMany();
         await prisma.issue.deleteMany();
-        await prisma.trail.deleteMany();
         await prisma.park.deleteMany();
         await prisma.$disconnect();
     });
@@ -42,24 +40,17 @@ describe('Issue API End-to-End', () => {
 
         await prisma.notification.deleteMany();
         await prisma.issue.deleteMany();
-        await prisma.trail.deleteMany();
         await prisma.park.deleteMany();
 
         const createdPark = await prisma.park.create({
             data: { name: 'Test Park', county: 'Allegheny' }
         });
         parkId = createdPark.parkId;
-
-        const createdTrail = await prisma.trail.create({
-            data: { name: 'Test Trail', parkId: parkId, isActive: true, isOpen: true }
-        });
-        trailId = createdTrail.trailId;
     });
 
     it('POST /api/issues -> should create an issue and return 201 with issue', async () => {
         const payload = {
             parkId,
-            trailId,
             issueType: 'OBSTRUCTION' as IssueTypeEnum,
             safetyRisk: 'NO_RISK' as IssueRiskEnum,
             reporterEmail: 'sample1@example.com',

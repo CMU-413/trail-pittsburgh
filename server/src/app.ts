@@ -11,7 +11,6 @@ import {
     authenticationRouter,
     issueRouter,
     parkRouter,
-    trailRouter,
     userRouter
 } from '@/routes';
 
@@ -46,7 +45,6 @@ app.use('/api/auth', authenticationRouter);
 // Protected routes
 app.use('/api/issues', issueRouter);
 app.use('/api/parks', parkRouter);
-app.use('/api/trails', trailRouter);
 app.use('/api/users', userRouter);
 
 // Health check
