@@ -15,8 +15,6 @@ export function authenticateToken(req: AuthRequest, res: Response, next: NextFun
     const token = req.cookies.token;
     
     // eslint-disable-next-line
-    console.log("req", req);
-    // eslint-disable-next-line
     console.log("req.cookies object:", req.cookies);
     // eslint-disable-next-line
     console.log("cookie keys:", Object.keys(req.cookies || {}));
