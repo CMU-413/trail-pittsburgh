@@ -359,7 +359,7 @@ export const IssueMapPage: React.FC = () => {
             leafletMap.current?.remove();
             leafletMap.current = null;
         };
-    }, [applyFallbackView, centerMapOnCurrentLocation, refreshPinsForView]);
+    }, []);
 	
     useEffect(() => {
         if (!leafletMap.current || !selectedPark) 
