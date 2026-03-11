@@ -9,7 +9,7 @@
 */
 -- AlterEnum
 BEGIN;
-CREATE TYPE "Urgency_new" AS ENUM ('VERY_LOW', 'LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH');
+CREATE TYPE "Urgency_new" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
 ALTER TABLE "Issue" ALTER COLUMN "urgency" DROP DEFAULT;
 ALTER TABLE "Issue" ALTER COLUMN "urgency" TYPE "Urgency_new" USING ("urgency"::text::"Urgency_new");
 ALTER TYPE "Urgency" RENAME TO "Urgency_old";

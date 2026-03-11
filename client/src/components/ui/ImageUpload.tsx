@@ -6,6 +6,7 @@ import { ImageMetadata } from '../../types';
 
 interface ImageUploadProps {
     label?: string;
+    description?: string;
     onChange: (file: File | null, previewUrl: string | null, metadata?: ImageMetadata) => void;
     existingImageUrl?: string;
     existingMetadata?: ImageMetadata;
@@ -16,6 +17,7 @@ interface ImageUploadProps {
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
     label = 'Upload Image',
+    description,
     onChange,
     existingImageUrl,
     existingMetadata,
@@ -153,6 +155,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                     {label}
                 </label>
             )}
+            {description && (
+                <p className="text-xs text-gray-500 mt-1">
+                    {description}
+                </p>
+            )}
 
             <div
                 className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md 
@@ -187,7 +194,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                                 strokeLinejoin="round"
                             />
                         </svg>
-                        <div className="flex text-sm text-gray-600">
+                        <div className="flex text-lg text-gray-600 ">
                             <label
                                 htmlFor="file-upload"
                                 className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"

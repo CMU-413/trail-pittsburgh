@@ -1,6 +1,5 @@
 import {
-    IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum, 
-    Prisma
+    IssueStatusEnum, IssueTypeEnum, Prisma
 } from '@prisma/client';
 
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
@@ -30,8 +29,9 @@ export class IssueRepository {
                     parkId: data.parkId,
                     trailId: data.trailId,
                     issueType: data.issueType,
-                    urgency: data.urgency,
                     description: data.description,
+                    safetyRisk: data.safetyRisk,
+                    passible: data.passible,
                     isPublic: data.isPublic ?? true,
                     isImagePublic: data.isImagePublic ?? false,
                     status: data.status,
@@ -85,7 +85,6 @@ export class IssueRepository {
                 latitude: true,
                 longitude: true,
                 issueType: true,
-                urgency: true,
                 status: true,
                 createdAt: true,
             },
@@ -146,16 +145,6 @@ export class IssueRepository {
         });
     }
 
-    public async getIssuesByUrgency(urgencyLevel: IssueUrgencyEnum) {
-        return prisma.issue.findMany({
-            where: { urgency: urgencyLevel },
-            include: {
-                park: true,
-                trail: true
-            }
-        });
-    }
-
     public async updateIssueStatus(issueId: number, status: IssueStatusEnum) {
         try {
             return await prisma.issue.update({
@@ -199,7 +188,6 @@ export class IssueRepository {
 
     public async updateIssue(issueId: number, data: Partial<{
         description?: string;
-        urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
 		isImagePublic?: boolean;
 		parkId?: number;
@@ -211,7 +199,6 @@ export class IssueRepository {
                 where: { issueId: issueId },
                 data: {
                     ...(data.description !== undefined && { description: data.description }),
-                    ...(data.urgency !== undefined && { urgency: data.urgency }),
                     ...(data.issueType !== undefined && { issueType: data.issueType }),
                     ...(data.isImagePublic !== undefined && { isImagePublic: data.isImagePublic }),
                     ...(data.parkId !== undefined && { parkId: data.parkId }),

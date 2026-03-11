@@ -2,39 +2,32 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-    Park, Trail, ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum
+    Park, ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum
 } from '../../types';
-import { getUrgencyLabel, getUrgencyColor } from '../../utils/issueUrgencyUtils';
+import { getSafetyRiskLabel } from '../../utils/issueSafetyRiskUtils';
 import { Input } from '../ui/Input';
-import { TextArea } from '../ui/TextArea';
-import { Select } from '../ui/Select';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
 import { ImageUpload } from '../ui/ImageUpload';
 import Location from '../ui/Location';
-import { 
-    parkApi, trailApi 
-} from '../../services/api';
+import { TextArea } from '../ui/TextArea';
+import { parkApi } from '../../services/api';
+import { getParkByLatLng } from '../../utils/parkUtils';
 
 interface IssueReportFormProps {
     onSubmit: (data: IssueParams) => Promise<void>;
-    initialParkId?: number;
-    initialTrailId?: number;
 }
 
-export const IssueReportForm: React.FC<IssueReportFormProps> = ({
-    onSubmit,
-    initialParkId,
-    initialTrailId
-}) => {
+export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) => {
     const [formData, setFormData] = useState<Partial<IssueParams>>({
-        parkId: initialParkId || 0,
-        trailId: initialTrailId || 0,
         isPublic: true,
+        // Temporary Solution, will remove during cleanup
+        trailId: 1,
         status: IssueStatusEnum.OPEN,
         description: '',
-        issueType: IssueTypeEnum.OTHER,
-        urgency: IssueUrgencyEnum.MEDIUM,
+        issueType: IssueTypeEnum.OBSTRUCTION,
+        safetyRisk: IssueRiskEnum.NO_RISK,
+        passible: true,
         notifyReporter: false,
         reporterEmail: '',
         createdAt: new Date().toISOString(),
@@ -44,35 +37,28 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     });
 
     const [imgPreview, setImgPreview] = useState<string>();
-    const [parks, setParks] = useState<Park[]>([]);
-    const [trails, setTrails] = useState<Trail[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [emailError, setEmailError] = useState<string | null>(null);
     const [locationProvided, setLocationProvided] = useState(false);
+    const [locationProvidedByImage, setLocationProvidedByImage] = useState(false);
+    const [parks, setParks] = useState<Park[]>([]);
+    const [atIssueLocation, setAtIssueLocation] = useState(false);
+    const [atGoodLocation, setAtGoodLocation] = useState(true);
+    const [imageDataExtractionErrorMsg, setImageDataExtractionErrorMsg] = useState('There is either no location information from the image.');
 
     const issueTypes = [
         { value: IssueTypeEnum.OBSTRUCTION, label: 'Obstruction (tree down, etc.)' },
-        { value: IssueTypeEnum.EROSION, label: 'Trail Erosion' },
-        { value: IssueTypeEnum.FLOODING, label: 'Flooding' },
-        { value: IssueTypeEnum.SIGNAGE, label: 'Damaged/Missing Signage' },
-        { value: IssueTypeEnum.VANDALISM, label: 'Vandalism' },
+        { value: IssueTypeEnum.FLOODING, label: 'Standing Water/Mud' },
         { value: IssueTypeEnum.OTHER, label: 'Other' }
     ];
 
-    // Load parks and trails
     useEffect(() => {
         const fetchParks = async () => {
             try {
                 const parksData = await parkApi.getParks();
                 setParks(parksData.filter((park) => park.isActive));
-
-                // If we have a park ID, load its trails
-                if (formData.parkId) {
-                    const trailsData = await trailApi.getTrailsByPark(formData.parkId);
-                    setTrails(trailsData.filter((trail) => trail.isActive));
-                }
             } catch (err) {
                 // eslint-disable-next-line no-console
                 console.error('Error loading parks:', err);
@@ -81,36 +67,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         };
 
         fetchParks();
-    }, [formData.parkId]);
-
-    // When park changes, update trails
-    useEffect(() => {
-        const fetchTrails = async () => {
-            if (formData.parkId) {
-                try {
-                    const trailsData = await trailApi.getTrailsByPark(formData.parkId);
-                    setTrails(trailsData.filter((trail) => trail.isActive));
-
-                    // If current trail doesn't belong to selected park, reset it
-                    if (formData.trailId) {
-                        const trailExists = trailsData.some((t) => t.trailId === formData.trailId);
-                        if (!trailExists) {
-                            setFormData((prev) => ({ ...prev, trailId: 0 }));
-                        }
-                    }
-                } catch (err) {
-                    // eslint-disable-next-line no-console
-                    console.error('Error loading trails:', err);
-                    setError('Unable to load trails. Please try again later.');
-                }
-            } else {
-                setTrails([]);
-                setFormData((prev) => ({ ...prev, trailId: 0 }));
-            }
-        };
-
-        fetchTrails();
-    }, [formData.parkId, formData.trailId]);
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -142,22 +99,25 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSelectChange = (name: string) => (value: string) => {
-        setFormData((prev) => ({ ...prev, [name]: Number(value) || value }));
-    };
-
     const handleIssueTypeSelect = (type: IssueTypeEnum) => {
         setFormData((prev) => ({ ...prev, issueType: type }));
     };
 
-    const handleUrgencySelect = (level: IssueUrgencyEnum) => {
-        setFormData((prev) => ({ ...prev, urgency: level }));
+    const handleSafetyRiskSelect = (level: IssueRiskEnum) => {
+        setFormData((prev) => ({ ...prev, safetyRisk: level }));
+    };
+
+    const handlePassibleSelect = (level: boolean) => {
+        setFormData((prev) => ({ ...prev, passible: level }));
     };
     
     const handleImageChange = (file: File | null, previewUrl: string | null, metadata?: ImageMetadata) => {
 
         if (previewUrl) {
             setImgPreview(previewUrl);
+        } else {
+            setImageDataExtractionErrorMsg('There is either no location information from the image.');
+            setAtIssueLocation(false);
         }
 
         if (file) {
@@ -166,7 +126,20 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 const lng = metadata?.longitude ?? metadata?.Longitude;
 
                 if (typeof lat === 'number' && typeof lng === 'number') {
-                    setLocationProvided(true);
+                    // Set ParkId
+                    const park = getParkByLatLng([lat, lng]);
+                    if (park !== null) {
+                        const park_info = parks.find((p) => (p.name === park.name));
+                        if (park_info) {
+                            setFormData((prev) => ({ ...prev, parkId: park_info.parkId }));
+                            setLocationProvided(true);
+                            setLocationProvidedByImage(true);
+                        } else {
+                            setImageDataExtractionErrorMsg('The location extracted from the image you provided does not fall into one of our parks.');
+                        }
+                    } else {
+                        setImageDataExtractionErrorMsg('The location extracted from the image you provided does not fall into one of our parks.');
+                    }
                 }
                 const newData = {
                     ...prev,
@@ -190,15 +163,34 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
     // Handle location selection
     const handleLocationSelected = (latitude: number, longitude: number) => {
         setFormData((prev) => {
-            const exifLat = prev.imageMetadata?.latitude ?? prev.imageMetadata?.Latitude;
-            const exifLng = prev.imageMetadata?.longitude ?? prev.imageMetadata?.Longitude;
 
-            if (typeof exifLat === 'number' && typeof exifLng === 'number')
-            {return prev;}
-			
+            if (typeof latitude === 'number' && typeof longitude === 'number')
+            {
+                const park = getParkByLatLng([latitude, longitude]);
+                if (park !== null) {
+                    const park_info = parks.find((p) => (p.name === park.name));
+                    if (park_info) {
+                        setFormData((prev) => ({ ...prev, parkId: park_info.parkId }));
+                        setLocationProvided(true);
+                        return { ...prev, latitude, longitude };
+                    } else {
+                        setAtGoodLocation(false);
+                    }
+                } else {
+                    setAtGoodLocation(false);
+                }
+            }
+            setAtGoodLocation(false);
             return { ...prev, latitude, longitude };
         });
-        setLocationProvided(true);
+    };
+
+    const mapStringToBool = (option: string) => {
+        if (option === 'Yes') {
+            return true;
+        } else {
+            return false;
+        }
     };
 
     // Get issue type icon
@@ -210,28 +202,10 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
             );
-        case IssueTypeEnum.EROSION:
-            return (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-            );
         case IssueTypeEnum.FLOODING:
             return (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                </svg>
-            );
-        case IssueTypeEnum.SIGNAGE:
-            return (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-            );
-        case IssueTypeEnum.VANDALISM:
-            return (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0M3 19c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0" />
                 </svg>
             );
         case IssueTypeEnum.OTHER:
@@ -259,20 +233,12 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
         try {
             // Make sure all required fields are present
-            if (!formData.parkId) {
-                throw new Error('Please select a park.');
-            }
-
-            if (!formData.trailId) {
-                throw new Error('Please select a trail.');
-            }
-
             if (!formData.issueType) {
                 throw new Error('Please select an issue type.');
             }
 
-            if (!formData.description || formData.description.trim() === '') {
-                throw new Error('Please provide a description of the issue.');
+            if (!formData.imageMetadata) {
+                throw new Error('Please provide an image of the issue.');
             }
 
             // Check email if notification is enabled
@@ -300,20 +266,22 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
 
             // Reset form
             setFormData({
-                parkId: 0,
-                trailId: 0,
                 isPublic: true,
                 status: IssueStatusEnum.OPEN,
-                description: '',
+                // description: '',
                 issueType: IssueTypeEnum.OTHER,
-                urgency: IssueUrgencyEnum.MEDIUM,
+                safetyRisk: IssueRiskEnum.NO_RISK,
                 notifyReporter: false,
+                passible: true,
                 reporterEmail: '',
                 createdAt: new Date().toISOString(),
                 longitude: undefined,
                 latitude: undefined
             });
             setLocationProvided(false);
+            setLocationProvidedByImage(false);
+            setImageDataExtractionErrorMsg('There is either no location information from the image.');
+            setAtGoodLocation(true);
 
             // Auto-scroll to top on success
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -352,207 +320,300 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({
                 </Alert>
             )}
 
-            {/* Location Section */}
+            {/* Image Upload Section */}
             <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-5">Location Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Select
-                        label="Which park is the issue in?"
-                        options={[
-                            { value: '', label: 'Select a park' },
-                            ...parks.map((park) => ({ value: park.parkId.toString(), label: park.name }))
-                        ]}
-                        value={formData.parkId?.toString() || ''}
-                        onChange={handleSelectChange('parkId')}
-                        required
-                        fullWidth
-                        helperText="Select the park where you found the issue"
-                    />
-
-                    <Select
-                        label="Which trail is affected?"
-                        options={[
-                            { value: '', label: formData.parkId ? 'Select a trail' : 'Select a park first' },
-                            ...trails.map((trail) => ({ value: trail.trailId.toString(), label: trail.name }))
-                        ]}
-                        value={formData.trailId?.toString() || ''}
-                        onChange={handleSelectChange('trailId')}
-                        required
-                        fullWidth
-                        disabled={!formData.parkId}
-                        helperText="Select the specific trail with the issue"
-                    />
-                </div>
-            </div>
-
-            {/* Issue Details Section */}
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-5">Issue Details</h3>
                 <div className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
-                            What type of issue is it?
-                        </label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {issueTypes.map((type) => (
-                                <button
-                                    key={type.value}
-                                    type="button"
-                                    onClick={() => handleIssueTypeSelect(type.value)}
-                                    className={`
-                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
-                                        ${formData.issueType === type.value
-                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-offset-2 ring-blue-500'
-                                    : 'border-gray-200'
-                                }
-                                    `}
-                                >
-                                    <div className={`p-2 rounded-full mr-3 ${formData.issueType === type.value ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
-                                        {getIssueTypeIcon(type.value)}
-                                    </div>
-                                    <span className="font-medium text-sm">{type.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                        <p className="mt-2 text-xs text-gray-500">Select the category that best describes the issue</p>
-                    </div>
-
-                    {/* Urgency selector */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
-                            How urgent is this issue?
-                        </label>
-                        {/* For large screens: all options in one row */}
-                        <div className="hidden md:grid md:grid-cols-5 gap-3">
-                            {Object.values(IssueUrgencyEnum).map((level) => (
-                                <button
-                                    key={level}
-                                    type="button"
-                                    onClick={() => handleUrgencySelect(level)}
-                                    className={`
-                                        p-3 rounded-lg text-center border transition-all cursor-pointer
-                                        ${formData.urgency === level
-                                    ? `${getUrgencyColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
-                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-                                }
-                                    `}
-                                >
-                                    <div className="text-sm font-medium">{getUrgencyLabel(level)}</div>
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* For mobile: options stacked one per row */}
-                        <div className="grid grid-cols-1 gap-3 md:hidden">
-                            {Object.values(IssueUrgencyEnum).map((level) => (
-                                <button
-                                    key={level}
-                                    type="button"
-                                    onClick={() => handleUrgencySelect(level)}
-                                    className={`
-                                        p-3 rounded-lg text-center border transition-all flex justify-between items-center cursor-pointer
-                                        ${formData.urgency === level
-                                    ? `${getUrgencyColor(level)} ring-2 ring-offset-2 ring-blue-500 font-medium`
-                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-                                }
-                                    `}
-                                >
-                                    <div className="text-sm font-medium">{getUrgencyLabel(level)}</div>
-                                    {formData.urgency === level && (
-                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-                        <p className="mt-2 text-xs text-gray-500">Select the urgency level based on safety risk and trail usability impact</p>
-                    </div>
-
-                    <TextArea
-                        label="Describe the issue and location"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        rows={4}
-                        placeholder="Please provide details about the issue (what you saw, where exactly it is located, etc.)..."
-                        required
-                        fullWidth
-                    />
-
                     <ImageUpload
-                        label="Add a photo (optional)"
+                        label="Add a photo (Required)"
+                        description='By uploading a photo, you agree to share its embedded GPS location data so we can identify the issue’s location.'
                         onChange={handleImageChange}
                         existingImageUrl={imgPreview}
                         existingMetadata={formData.imageMetadata}
-                        className="mt-4"
                         acceptedFormats="image/jpeg,image/png,image/gif,image/heic,image/heif"
                     />
                 </div>
             </div>
 
-            {/* Location Picker Section */}
-            <Location
-                onLocationSelected={handleLocationSelected}
-                initialLat={formData.latitude}
-                initialLon={formData.longitude}
-            />
-            {locationProvided}
+            {/* Check If Action Issue Location Section */}
+            {!locationProvidedByImage && formData.imageMetadata !== undefined &&
+                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                                {imageDataExtractionErrorMsg}
+                            </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                                Are you currently at the location of the issue to provide location of the issue?
+                            </label>
+                            {/* For large screens: all options in one row */}
+                            <div className="hidden md:grid md:grid-cols-2 gap-3">
+                                {['Yes', 'No'].map((option) => (
+                                    <button
+                                        key={option}
+                                        type="button"
+                                        onClick={() => setAtIssueLocation(mapStringToBool(option))}
+                                        className={`
+                                            flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                            ${atIssueLocation === mapStringToBool(option)
+                                        ? 'border-blue-600 bg-blue-50'
+                                        : 'border-gray-200'
+                                    }
+                                        `}
+                                    >
+                                        <div className="text-sm font-medium">{option}</div>
+                                    </button>
+                                ))}
+                            </div>
 
-            {/* Preferences Section */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h3>
-                <div className="space-y-4">
-                    <div className="flex items-center">
-                        <input
-                            id="notifyReporter"
-                            name="notifyReporter"
-                            type="checkbox"
-                            checked={formData.notifyReporter}
-                            onChange={handleChange}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        <label htmlFor="notifyReporter" className="ml-3 block text-sm text-gray-700">
-                            Notify me when this issue is resolved
-                        </label>
+                            {/* For mobile: options stacked one per row */}
+                            <div className="grid grid-cols-1 gap-3 md:hidden">
+                                {['Yes', 'No'].map((option) => (
+                                    <button
+                                        key={option}
+                                        type="button"
+                                        onClick={() => setAtIssueLocation(mapStringToBool(option))}
+                                        className={`
+                                            flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                            ${atIssueLocation === mapStringToBool(option)
+                                        ? 'border-blue-600 bg-blue-50'
+                                        : 'border-gray-200'
+                                    }
+                                        `}
+                                    >
+                                        <div className="text-sm font-medium">{option}</div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            
+            {!locationProvidedByImage && formData.imageMetadata !== undefined && !atIssueLocation && 
+                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div className="space-y-6 block text-sm font-medium text-gray-700 mb-3">
+                        Due to no exact location of issue, this report cannot be completed.
+                    </div>
+                </div>
+            }
+            {/* Location Picker Section */}
+            {!locationProvidedByImage && formData.imageMetadata !== undefined && atIssueLocation && 
+                <Location
+                    onLocationSelected={handleLocationSelected}
+                />
+            }
+
+            {!locationProvidedByImage && formData.imageMetadata !== undefined && atIssueLocation && !atGoodLocation &&
+                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div className="space-y-6 block text-sm font-medium text-gray-700 mb-3">
+                        The location you provided does not fall into one of our parks. Thus, this report cannot be completed.
+                    </div>
+                </div>
+            }
+
+            {locationProvided &&
+                <div>
+                    {/* Issue Type Selection */}
+                    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    What type of issue is it?
+                                </label>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {issueTypes.map((type) => (
+                                        <button
+                                            key={type.value}
+                                            type="button"
+                                            onClick={() => handleIssueTypeSelect(type.value)}
+                                            className={`
+                                                flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                                ${formData.issueType === type.value
+                                            ? 'border-blue-600 bg-blue-50'
+                                            : 'border-gray-200'
+                                        }
+                                            `}
+                                        >
+                                            <div className={`p-2 rounded-full mr-3 ${formData.issueType === type.value ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
+                                                {getIssueTypeIcon(type.value)}
+                                            </div>
+                                            <span className="font-medium text-sm">{type.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="mt-2 text-xs text-gray-500">Select the category that best describes the issue</p>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Email input field that appears when notifyReporter is checked */}
-                    {formData.notifyReporter && (
-                        <div className="pl-7 mt-3">
-                            <Input
-                                label="Email Address"
-                                name="reporterEmail"
-                                type="email"
-                                value={formData.reporterEmail || ''}
-                                onChange={handleChange}
-                                placeholder="your.email@example.com"
-                                error={emailError || undefined}
-                                helperText="We'll send you an update when this issue is resolved"
-                                fullWidth
-                                leadingIcon={
-                                    <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                                    </svg>
-                                }
-                            />
-                        </div>
-                    )}
-                </div>
-            </div>
+                    {/* Safety Risk Selection */}
+                    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    Safety Risk?
+                                </label>
+                                {/* For large screens: all options in one row */}
+                                <div className="hidden md:grid md:grid-cols-3 gap-3">
+                                    {Object.values(IssueRiskEnum).map((level) => (
+                                        <button
+                                            key={level}
+                                            type="button"
+                                            onClick={() => handleSafetyRiskSelect(level)}
+                                            className={`
+                                                flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                                ${formData.safetyRisk === level
+                                            ? 'border-blue-600 bg-blue-50'
+                                            : 'border-gray-200'
+                                        }
+                                            `}
+                                        >
+                                            <div className="text-sm font-medium">{getSafetyRiskLabel(level)}</div>
+                                        </button>
+                                    ))}
+                                </div>
 
-            <div className="flex justify-center mt-8">
-                <Button
-                    type="submit"
-                    variant="primary"
-                    size="md"
-                    isLoading={isLoading}
-                    className="px-10 sm:px-12"
-                >
-                    Submit Issue Report
-                </Button>
-            </div>
+                                {/* For mobile: options stacked one per row */}
+                                <div className="grid grid-cols-1 gap-3 md:hidden">
+                                    {Object.values(IssueRiskEnum).map((level) => (
+                                        <button
+                                            key={level}
+                                            type="button"
+                                            onClick={() => handleSafetyRiskSelect(level)}
+                                            className={`
+                                                flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                                ${formData.safetyRisk === level
+                                            ? 'border-blue-600 bg-blue-50'
+                                            : 'border-gray-200'
+                                        }
+                                            `}
+                                        >
+                                            <div className="text-sm font-medium">{getSafetyRiskLabel(level)}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Passible Selection */}
+                    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    Is it passible?
+                                </label>
+                                {/* For large screens: all options in one row */}
+                                <div className="hidden md:grid md:grid-cols-2 gap-3">
+                                    {['Yes', 'No'].map((option) => (
+                                        <button
+                                            key={option}
+                                            type="button"
+                                            onClick={() => handlePassibleSelect(mapStringToBool(option))}
+                                            className={`
+                                                flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                                ${formData.passible === mapStringToBool(option)
+                                            ? 'border-blue-600 bg-blue-50'
+                                            : 'border-gray-200'
+                                        }
+                                            `}
+                                        >
+                                            <div className="text-sm font-medium">{option}</div>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* For mobile: options stacked one per row */}
+                                <div className="grid grid-cols-1 gap-3 md:hidden">
+                                    {['Yes', 'No'].map((option) => (
+                                        <button
+                                            key={option}
+                                            type="button"
+                                            onClick={() => handlePassibleSelect(mapStringToBool(option))}
+                                            className={`
+                                                flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                                ${formData.passible === mapStringToBool(option)
+                                            ? 'border-blue-600 bg-blue-50'
+                                            : 'border-gray-200'
+                                        }
+                                            `}
+                                        >
+                                            <div className="text-sm font-medium">{option}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                        <TextArea
+                            label="Additional Comments (Optional)"
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            rows={4}
+                            placeholder="Provide any additional details about this issue (what you saw, where exactly it is located, etc)"
+                            fullWidth
+                        />
+                    </div>
+
+                    {/* Preferences Section */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h3>
+                        <div className="space-y-4">
+                            <div className="flex items-center">
+                                <input
+                                    id="notifyReporter"
+                                    name="notifyReporter"
+                                    type="checkbox"
+                                    checked={formData.notifyReporter}
+                                    onChange={handleChange}
+                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                />
+                                <label htmlFor="notifyReporter" className="ml-3 block text-sm text-gray-700">
+                                    Opt-in for email notification on status updates regarding this issue
+                                </label>
+                            </div>
+
+                            {/* Email input field that appears when notifyReporter is checked */}
+                            {formData.notifyReporter && (
+                                <div className="pl-7 mt-3">
+                                    <Input
+                                        label="Email Address"
+                                        name="reporterEmail"
+                                        type="email"
+                                        value={formData.reporterEmail || ''}
+                                        onChange={handleChange}
+                                        placeholder="your.email@example.com"
+                                        error={emailError || undefined}
+                                        helperText="We'll send you an update when on status changes on this issue"
+                                        fullWidth
+                                        leadingIcon={
+                                            <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                            </svg>
+                                        }
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    
+                    <div className="flex justify-center mt-8">
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            size="lg"
+                            isLoading={isLoading}
+                            className="px-14 py-4 text-lg"
+                        >
+                            Submit Issue Report
+                        </Button>
+                    </div>
+                </div>
+            }
         </form>
     );
 };

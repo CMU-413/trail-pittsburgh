@@ -3,7 +3,7 @@ import { IssueRepository } from '@/repositories';
 import { CreateIssueInput } from '@/schemas/issueSchema';
 import { IssueService } from '@/services';
 import { IssueNotificationService } from '@/services/IssueNotificationService';
-import { IssueUrgencyEnum, IssueStatusEnum, IssueTypeEnum } from '@prisma/client';
+import { IssueStatusEnum, IssueTypeEnum, IssueRiskEnum } from '@prisma/client';
 
 jest.mock('@/repositories/IssueRepository');
 jest.mock('@/lib/GCSBucket');
@@ -24,7 +24,8 @@ describe('IssueService', () => {
         parkId: 1,
         trailId: 1,
         issueType: IssueTypeEnum.FLOODING,
-        urgency: IssueUrgencyEnum.MEDIUM,
+        safetyRisk: IssueRiskEnum.NO_RISK,
+        passible: true,
         description: 'Trail is flooded',
         isPublic: true,
         isImagePublic: false,
@@ -69,7 +70,8 @@ describe('IssueService', () => {
             parkId: 1,
             trailId: 1,
             issueType: IssueTypeEnum.FLOODING,
-            urgency: IssueUrgencyEnum.MEDIUM,
+            safetyRisk: IssueRiskEnum.NO_RISK,
+            passible: true,
             reporterEmail: 'reporter@example.com',
             description: 'Trail is flooded',
             latitude: 40.4406,
@@ -106,7 +108,8 @@ describe('IssueService', () => {
             parkId: 1,
             trailId: 1,
             issueType: IssueTypeEnum.FLOODING,
-            urgency: IssueUrgencyEnum.MEDIUM,
+            safetyRisk: IssueRiskEnum.NO_RISK,
+            passible: true,
             description: 'Very flooded trail',
             isPublic: false,
             isImagePublic: false,
@@ -167,16 +170,6 @@ describe('IssueService', () => {
         const result = await issueService.getIssuesByTrail(1);
 
         expect(issueRepositoryMock.getIssuesByTrail).toHaveBeenCalledWith(1);
-        expect(result).toEqual(issues);
-    });
-
-    test('should get issues by urgency level', async () => {
-        const issues = [baseIssue];
-        issueRepositoryMock.getIssuesByUrgency.mockResolvedValue(issues);
-
-        const result = await issueService.getIssuesByUrgency(IssueUrgencyEnum.MEDIUM);
-
-        expect(issueRepositoryMock.getIssuesByUrgency).toHaveBeenCalledWith(IssueUrgencyEnum.MEDIUM);
         expect(result).toEqual(issues);
     });
 

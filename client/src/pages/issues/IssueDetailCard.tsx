@@ -2,7 +2,7 @@ import React, {
     useState, useEffect, useRef
 } from 'react';
 import {
-    Issue, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum, UserRoleEnum
+    Issue, IssueStatusEnum, IssueTypeEnum, UserRoleEnum
 } from '../../types';
 import {
     LeafletMap, LeafletMarker, LeafletMarkerDragEvent
@@ -11,7 +11,6 @@ import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { ImageMetadataDisplay } from '../../components/ui/ImageMetadataDisplay';
 import { issueApi, parkApi } from '../../services/api';
 import { issueTypeFrontendToEnum } from '../../utils/issueTypeUtils';
-import { issueUrgencyEnumToFrontend, issueUrgencyFrontendToEnum } from '../../utils/issueUrgencyUtils';
 import { getIssueStatusColor } from '../../utils/issueStatusUtils';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../providers/AuthProvider';
@@ -31,7 +30,6 @@ export const IssueDetailCard: React.FC<{
 
     const [isEditing, setIsEditing] = useState(false);
     const [editedDescription, setEditedDescription] = useState('');
-    const [editedUrgency, setEditedUrgency] = useState<number>(1);
     const [editedIssueType, setEditedIssueType] = useState('');
     const [editedParkId, setEditedParkId] = useState<number>(0);
     const [editedLatitude, setEditedLatitude] = useState<number | null>(null);
@@ -105,7 +103,6 @@ export const IssueDetailCard: React.FC<{
 
             const updateData: {
                 description?: string;
-                urgency?: IssueUrgencyEnum;
                 issueType?: IssueTypeEnum;
                 parkId?: number;
                 latitude?: number;
@@ -114,11 +111,6 @@ export const IssueDetailCard: React.FC<{
 
             if (editedDescription !== (issue.description ?? '')) {
                 updateData.description = editedDescription;
-            }
-
-            const editedUrgencyEnum = issueUrgencyFrontendToEnum(editedUrgency);
-            if (editedUrgencyEnum !== issue.urgency) {
-                updateData.urgency = editedUrgencyEnum;
             }
 
             const editedIssueTypeEnum = issueTypeFrontendToEnum(editedIssueType);
@@ -272,7 +264,6 @@ export const IssueDetailCard: React.FC<{
 
     const initializeEditedFields = (sourceIssue: Issue) => {
         setEditedDescription(sourceIssue.description ?? '');
-        setEditedUrgency(issueUrgencyEnumToFrontend(sourceIssue.urgency));
         setEditedIssueType(sourceIssue.issueType.toLowerCase());
         setEditedParkId(sourceIssue.parkId);
         setEditedLatitude(sourceIssue.latitude ?? null);

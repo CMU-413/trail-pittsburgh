@@ -7,6 +7,7 @@ export type ParkInfo = {
     sw: LatLngTuple;
     ne: LatLngTuple;
   };
+  parkId: number;
 };
 
 export const PARKS: ParkInfo[] = [
@@ -17,6 +18,7 @@ export const PARKS: ParkInfo[] = [
             sw: [40.8660, -79.9450],
             ne: [40.8840, -79.9160],
         },
+        parkId: 1,
     },
     {
         id: 'bavington-hillman-state-park',
@@ -25,6 +27,7 @@ export const PARKS: ParkInfo[] = [
             sw: [40.3660, -80.4720],
             ne: [40.4015, -80.4170],
         },
+        parkId: 2,
     },
     {
         id: 'boyce-park',
@@ -33,6 +36,7 @@ export const PARKS: ParkInfo[] = [
             sw: [40.4310, -79.7060],
             ne: [40.4615, -79.6620],
 	    },
+        parkId: 3,
     },
     {
         id: 'deer-lakes-park',
@@ -41,6 +45,7 @@ export const PARKS: ParkInfo[] = [
             sw: [40.5955, -79.7840],
             ne: [40.6315, -79.7350],
 	    },
+        parkId: 4,
     },
     {
         id: 'frick-park',
@@ -49,6 +54,7 @@ export const PARKS: ParkInfo[] = [
             sw: [40.4095, -79.9275],
             ne: [40.4435, -79.8895],
 	    },
+        parkId: 5,
     },
     {
         id: 'hartwood-acres',
@@ -57,6 +63,7 @@ export const PARKS: ParkInfo[] = [
             sw: [40.5555, -79.9385],
             ne: [40.5805, -79.8965]
 	    },
+        parkId: 6,
     },
     {
         id: 'moraine-state-park',
@@ -65,6 +72,7 @@ export const PARKS: ParkInfo[] = [
             sw: [40.9050, -80.1750],
             ne: [40.9950, -80.0300],
         },
+        parkId: 8,
     },
     {
         id: 'north-park',
@@ -73,6 +81,7 @@ export const PARKS: ParkInfo[] = [
             sw: [40.57800, -80.05246],
             ne: [40.62718, -79.97361],
         },
+        parkId: 9,
     },
     {
         id: 'oakmont-trails',
@@ -81,6 +90,7 @@ export const PARKS: ParkInfo[] = [
             sw: [40.5135, -79.8450],
             ne: [40.5325, -79.8155],
 	    },
+        parkId: 10,
     },
     {
         id: 'riverview-park',
@@ -89,6 +99,7 @@ export const PARKS: ParkInfo[] = [
             sw: [40.4795, -80.0225],
             ne: [40.5035, -79.9985],
 	    },
+        parkId: 11,
     },
     { 
         id: 'settlers-cabin-park',
@@ -97,6 +108,7 @@ export const PARKS: ParkInfo[] = [
             sw: [40.4300, -80.2000],
             ne: [40.4755, -80.1400],
 	    },
+        parkId: 12,
     },
     {
         id: 'south-park',
@@ -105,6 +117,7 @@ export const PARKS: ParkInfo[] = [
             sw: [40.2650, -80.0500],
             ne: [40.3300, -79.9750],
 	    },
+        parkId: 13,
     },
     {
         id: 'white-oak-park',
@@ -113,5 +126,6 @@ export const PARKS: ParkInfo[] = [
             sw: [40.3425, -79.8235],
             ne: [40.3695, -79.7925],
 	   },
+        parkId: 14,
     },
 ];

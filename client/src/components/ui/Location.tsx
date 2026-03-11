@@ -295,12 +295,6 @@ const Location: React.FC<LocationProps> = ({
                     )}
                 </>
             )}
-
-            {!readOnly && !latitude && !longitude && !loading && !error && (
-                <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600">
-                    Click "Share My Location" to mark the location of the trail issue on the map.
-                </div>
-            )}
         </>
     );
 

@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { app } from '../../src/app';
 import { prisma } from '../../src/prisma/prismaClient';
-import { IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum, UserRoleEnum } from '@prisma/client';
+import { IssueStatusEnum, IssueTypeEnum, UserRoleEnum, IssueRiskEnum } from '@prisma/client';
 import { AuthRequest } from '../../src/middlewares/auth';
 import { Response, NextFunction } from 'express';
 
@@ -61,7 +61,7 @@ describe('Issue API End-to-End', () => {
             parkId,
             trailId,
             issueType: 'OBSTRUCTION' as IssueTypeEnum,
-            urgency: 'MEDIUM' as IssueUrgencyEnum,
+            safetyRisk: 'NO_RISK' as IssueRiskEnum,
             reporterEmail: 'sample1@example.com',
             status: 'OPEN' as IssueStatusEnum,
             notifyReporter: true,

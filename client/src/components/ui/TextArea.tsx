@@ -32,7 +32,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
                 <textarea
                     id={textareaId}
                     rows={rows}
-                    className={`block w-full rounded-md py-2 px-3 transition-colors duration-200 ease-in-out sm:text-sm
+                    className={`block w-full rounded-md py-2 px-3 transition-colors duration-200 ease-in-out text-sm
                     ${error 
             ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' 
             : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'

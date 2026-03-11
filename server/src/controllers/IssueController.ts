@@ -1,5 +1,5 @@
 import {
-    IssueUrgencyEnum, IssueStatusEnum, IssueTypeEnum 
+    IssueStatusEnum, IssueTypeEnum 
 } from '@prisma/client';
 import express from 'express';
 
@@ -19,7 +19,6 @@ export class IssueController {
         this.deleteIssue = this.deleteIssue.bind(this);
         this.getIssuesByPark = this.getIssuesByPark.bind(this);
         this.getIssuesByTrail = this.getIssuesByTrail.bind(this);
-        this.getIssuesByUrgency = this.getIssuesByUrgency.bind(this);
         this.updateIssue = this.updateIssue.bind(this);
         this.unsubscribeReporterNotifications = this.unsubscribeReporterNotifications.bind(this);
         this.getMapPins = this.getMapPins.bind(this);
@@ -83,17 +82,6 @@ export class IssueController {
         } catch (error) {
             logger.error(`Error getting issues by trail ${req.params.trailId}`, error);
             res.status(500).json({ message: 'Failed to retrieve issues for this trail' });
-        }
-    }
-
-    public async getIssuesByUrgency(req: express.Request, res: express.Response) {
-        try {
-            const urgency = req.params.urgency as IssueUrgencyEnum;
-            const issues = await this.issueService.getIssuesByUrgency(urgency);
-            res.json({ issues });
-        } catch (error) {
-            logger.error(`Error getting issues by urgency ${req.params.urgency}:`, error);
-            res.status(500).json({ message: 'Failed to retrieve issues by urgency' });
         }
     }
 
@@ -186,11 +174,10 @@ export class IssueController {
         
         try {
             const { 
-                description, urgency, issueType, isImagePublic, parkId, latitude, longitude 
+                description, issueType, isImagePublic, parkId, latitude, longitude 
             } = req.body;
             const issue = await this.issueService.updateIssue(issueId, {
                 description,
-                urgency,
                 issueType,
                 isImagePublic,
                 parkId,

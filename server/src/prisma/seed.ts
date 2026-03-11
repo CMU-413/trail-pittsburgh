@@ -1,5 +1,5 @@
 import {
-    PrismaClient, UserRoleEnum, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
+    PrismaClient, UserRoleEnum, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -97,8 +97,11 @@ async function main() {
             {
                 parkId: parkRecords[0].parkId,
                 trailId: trailRecords[0].trailId,
-                issueType: IssueTypeEnum.FLOODING,
-                urgency: IssueUrgencyEnum.HIGH,
+                issueType: IssueTypeEnum.OBSTRUCTION,
+                safetyRisk: IssueRiskEnum.NO_RISK,
+                passible: true,
+                latitude: 40.87,
+                longitude: -79.92,
                 description: 'Heavy rainfall caused water pooling on the trail.',
                 isPublic: true,
                 isImagePublic: false,
@@ -110,7 +113,10 @@ async function main() {
                 parkId: parkRecords[1].parkId,
                 trailId: trailRecords[1].trailId,
                 issueType: IssueTypeEnum.OBSTRUCTION,
-                urgency: IssueUrgencyEnum.MEDIUM,
+                safetyRisk: IssueRiskEnum.MINOR_RISK,
+                passible: false,
+                latitude: 40.37,
+                longitude: -80.42,
                 description: 'A fallen tree is blocking the path near mile marker 5.',
                 isPublic: true,
                 isImagePublic: false,
@@ -121,8 +127,11 @@ async function main() {
             {
                 parkId: parkRecords[2].parkId,
                 trailId: trailRecords[2].trailId,
-                issueType: IssueTypeEnum.EROSION,
-                urgency: IssueUrgencyEnum.HIGH,
+                issueType: IssueTypeEnum.OBSTRUCTION,
+                safetyRisk: IssueRiskEnum.SERIOUS_RISK,
+                passible: false,
+                latitude: 40.44,
+                longitude: -79.68,
                 description: 'Severe erosion has made the path unsafe for bikers.',
                 isPublic: true,
                 isImagePublic: false,

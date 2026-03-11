@@ -19,7 +19,6 @@ interface IssueListProps {
 export const IssueList: React.FC<IssueListProps> = ({
     issues,
     parks = {},
-    trails = {},
     showLocation = true,
     emptyStateMessage = 'No issues found'
 }) => {
@@ -49,7 +48,6 @@ export const IssueList: React.FC<IssueListProps> = ({
                     key={issue.issueId}
                     issue={issue}
                     park={parks[issue.parkId]}
-                    trail={trails[issue.trailId]}
                     showLocation={showLocation}
                 />
             ))}
