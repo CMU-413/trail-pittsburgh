@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ redirectPath: '/dashboard' })
+                body: JSON.stringify({ })
             });
             const data = await res.json();
             if (data.url) {

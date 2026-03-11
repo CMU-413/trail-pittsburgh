@@ -12,7 +12,7 @@ Initiates the Google OAuth 2.0 login process by generating an authorization URL.
 **Request Body:**
 ```json
 {
-  "redirectPath": "/dashboard" // Optional. Defaults to "/"
+  "redirectPath": "/parks" // Optional. Defaults to "/"
 }
 ```
 
