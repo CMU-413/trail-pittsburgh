@@ -12,11 +12,6 @@ export { ParkCreatePage } from './parks/ParkCreatePage';
 export { ParkEditPage } from './parks/ParkEditPage';
 export { PARKS } from './parks/ParkInfo';
 
-// Trails
-export { TrailDetailPage } from './trails/TrailDetailPage';
-export { TrailCreatePage } from './trails/TrailCreatePage';
-export { TrailEditPage } from './trails/TrailEditPage';
-
 // Issues
 export { IssueMapPage } from './issues/IssueMapPage';
 export { IssueDetailPage } from './issues/IssueDetailPage';

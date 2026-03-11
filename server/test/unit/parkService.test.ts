@@ -99,15 +99,4 @@ describe('ParkService', () => {
         expect(parkRepositoryMock.getAllParks).toHaveBeenCalled();
         expect(result).toEqual([mockPark]);
     });
-
-    test('should get trails by park ID', async () => {
-        const mockTrails = [{ trailId: 1, name: 'Trail 1', parkId: 1, isOpen: true, isActive: true, createdAt: new Date() }];
-
-        parkRepositoryMock.getTrailsByPark.mockResolvedValue(mockTrails);
-
-        const result = await parkService.getTrailsByPark(1);
-
-        expect(parkRepositoryMock.getTrailsByPark).toHaveBeenCalledWith(1);
-        expect(result).toEqual(mockTrails);
-    });
 });

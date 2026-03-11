@@ -22,7 +22,6 @@ describe('IssueService', () => {
     const baseIssue = {
         issueId: 1,
         parkId: 1,
-        trailId: 1,
         issueType: IssueTypeEnum.FLOODING,
         safetyRisk: IssueRiskEnum.NO_RISK,
         passible: true,
@@ -38,7 +37,6 @@ describe('IssueService', () => {
         resolvedAt: null,
         issueImage: null,
         park: { parkId: 1, name: 'Test Park', county: 'Allegheny', isActive: true, createdAt: new Date() },
-        trail: { trailId: 1, parkId: 1, name: 'Test Trail', isActive: true, isOpen: true, createdAt: new Date() }
     };
 
     beforeEach(() => {
@@ -68,7 +66,6 @@ describe('IssueService', () => {
 
         const input: CreateIssueInput = {
             parkId: 1,
-            trailId: 1,
             issueType: IssueTypeEnum.FLOODING,
             safetyRisk: IssueRiskEnum.NO_RISK,
             passible: true,
@@ -106,7 +103,6 @@ describe('IssueService', () => {
 
         const input = {
             parkId: 1,
-            trailId: 1,
             issueType: IssueTypeEnum.FLOODING,
             safetyRisk: IssueRiskEnum.NO_RISK,
             passible: true,
@@ -160,16 +156,6 @@ describe('IssueService', () => {
         const result = await issueService.getIssuesByPark(1);
 
         expect(issueRepositoryMock.getIssuesByPark).toHaveBeenCalledWith(1);
-        expect(result).toEqual(issues);
-    });
-
-    test('should get issues by trail ID', async () => {
-        const issues = [baseIssue];
-        issueRepositoryMock.getIssuesByTrail.mockResolvedValue(issues);
-
-        const result = await issueService.getIssuesByTrail(1);
-
-        expect(issueRepositoryMock.getIssuesByTrail).toHaveBeenCalledWith(1);
         expect(result).toEqual(issues);
     });
 

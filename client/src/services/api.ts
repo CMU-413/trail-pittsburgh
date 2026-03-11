@@ -1,5 +1,5 @@
 import {
-    Park, Trail, Issue, IssueParams, IssueStatusEnum,
+    Park, Issue, IssueParams, IssueStatusEnum,
     IssueTypeEnum,
     UserRoleEnum,
     User
@@ -66,64 +66,6 @@ export const parkApi = {
     },
 };
 
-export const trailApi = {
-    getAllTrails: async (): Promise<Trail[]> => {
-        const response = await fetch(`${API_BASE_URL}/trails`, {
-            credentials: 'include'
-        })
-            .then(handleResponse);
-        return response.trails;
-    },
-
-    getTrail: async (trailId: number): Promise<Trail> => {
-        const response = await fetch(`${API_BASE_URL}/trails/${trailId}`, {
-            credentials: 'include'
-        })
-            .then(handleResponse);
-        return response.trail;
-    },
-
-    getTrailsByPark: async (parkId: number): Promise<Trail[]> => {
-        const response = await fetch(`${API_BASE_URL}/trails/park/${parkId}`, {
-            credentials: 'include'
-        }).then(handleResponse);
-        return response.trails;
-    },
-
-    createTrail: async (trailData: Omit<Trail, 'trailId'>): Promise<Trail> => {
-        const response = await fetch(`${API_BASE_URL}/trails`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(trailData),
-            credentials: 'include'
-        })
-            .then(handleResponse);
-        return response.trail;
-    },
-
-    updateTrail: async (trailData: Trail): Promise<Trail> => {
-        const response = await fetch(`${API_BASE_URL}/trails/${trailData.trailId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(trailData),
-            credentials: 'include'
-        }).then(handleResponse);
-        return response.trail;
-    },
-
-    deleteTrail: async (trailId: number): Promise<void> => {
-        const response = await fetch(`${API_BASE_URL}/trails/${trailId}`, {
-            method: 'DELETE',
-            credentials: 'include'
-        });
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            const errorMessage = errorData.message || `Error: ${response.status} ${response.statusText}`;
-            throw new Error(errorMessage);
-        }
-    },
-};
-
 export const issueApi = {
     getAllIssues: async (): Promise<Issue[]> => {
         const response = await fetch(`${API_BASE_URL}/issues`, {
@@ -143,14 +85,6 @@ export const issueApi = {
 
     getIssuesByPark: async (parkId: number): Promise<Issue[]> => {
         const response = await fetch(`${API_BASE_URL}/issues/park/${parkId}`, {
-            credentials: 'include'
-        })
-            .then(handleResponse);
-        return response.issues;
-    },
-
-    getIssuesByTrail: async (trailId: number): Promise<Issue[]> => {
-        const response = await fetch(`${API_BASE_URL}/issues/trail/${trailId}`, {
             credentials: 'include'
         })
             .then(handleResponse);

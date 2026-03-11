@@ -21,9 +21,6 @@ import {
     ParkDetailPage,
     ParkCreatePage,
     ParkEditPage,
-    TrailDetailPage,
-    TrailCreatePage,
-    TrailEditPage,
     IssueMapPage,
     IssueDetailPage,
     IssueReportPage,
@@ -58,13 +55,6 @@ const AppContent: React.FC = () => {
                             <Route path="create" element={<ParkCreatePage />} />
                             <Route path=":parkId" element={<ParkDetailPage />} />
                             <Route path=":parkId/edit" element={<ParkEditPage />} />
-
-                            {/* Trails (nested under parks) */}
-                            <Route path=":parkId/trails">
-                                <Route path="create" element={<TrailCreatePage />} />
-                                <Route path=":trailId" element={<TrailDetailPage />} />
-                                <Route path=":trailId/edit" element={<TrailEditPage />} />
-                            </Route>
                         </Route>
 
                         {/* Issues - except report page which is public */}

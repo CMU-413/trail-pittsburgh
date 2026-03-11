@@ -12,7 +12,6 @@ export class IssueRepository {
                 where: { issueId },
                 include: {
                     park: true,
-                    trail: true
                 }
             });
         } catch (error) {
@@ -27,7 +26,6 @@ export class IssueRepository {
             return await prisma.issue.create({
                 data: {
                     parkId: data.parkId,
-                    trailId: data.trailId,
                     issueType: data.issueType,
                     description: data.description,
                     safetyRisk: data.safetyRisk,
@@ -43,7 +41,6 @@ export class IssueRepository {
                 },
                 include: {
                     park: true,
-                    trail: true
                 }
             });
         } catch (error) {
@@ -57,7 +54,6 @@ export class IssueRepository {
         return prisma.issue.findMany({
             include: {
                 park: true,
-                trail: true
             }
         });
     }
@@ -110,17 +106,6 @@ export class IssueRepository {
             where: { parkId },
             include: {
                 park: true,
-                trail: true
-            }
-        });
-    }
-
-    public async getIssuesByTrail(trailId: number) {
-        return prisma.issue.findMany({
-            where: { trailId },
-            include: {
-                park: true,
-                trail: true
             }
         });
     }
@@ -130,7 +115,6 @@ export class IssueRepository {
             where: { status },
             include: {
                 park: true,
-                trail: true
             }
         });
     }
@@ -140,7 +124,6 @@ export class IssueRepository {
             where: { issueType: type },
             include: {
                 park: true,
-                trail: true
             }
         });
     }
@@ -155,7 +138,6 @@ export class IssueRepository {
                 },
                 include: {
                     park: true,
-                    trail: true
                 }
             });
         } catch (error) {
@@ -207,7 +189,6 @@ export class IssueRepository {
                 },
                 include: {
                     park: true,
-                    trail: true
                 }
             });
         } catch (error) {

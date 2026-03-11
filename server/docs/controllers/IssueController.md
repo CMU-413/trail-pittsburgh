@@ -1,6 +1,6 @@
 # IssueController Documentation
 
-The `IssueController` handles HTTP requests related to `Issue` entities and delegates core logic to the `IssueService`. It includes endpoints to create, retrieve, update, delete, and filter issues by park or trail.
+The `IssueController` handles HTTP requests related to `Issue` entities and delegates core logic to the `IssueService`. It includes endpoints to create, retrieve, update, delete, and filter issues by park.
 
 ## Class: `IssueController`
 
@@ -23,7 +23,7 @@ public async createIssue(req: Request, res: Response)
 
 - **Route**: `POST /api/issues`
 - **Purpose**: Create a new issue.
-- **Request Body**: JSON payload with issue fields (e.g., description, trailId, safetyRisk).
+- **Request Body**: JSON payload with issue fields (e.g., description, safetyRisk).
 - **Responses**:
   - `201 Created`:
     ```json
@@ -77,22 +77,6 @@ public async getIssuesByPark(req: Request, res: Response)
 - **Purpose**: Get issues for a specific park.
 - **Params**:
   - `parkId` (path param): Numeric ID of the park.
-- **Responses**:
-  - `200 OK`: `{ "issues": [ ... ] }`
-  - `500 Internal Server Error`: On error.
-
----
-
-### Method: `getIssuesByTrail`
-
-```ts
-public async getIssuesByTrail(req: Request, res: Response)
-```
-
-- **Route**: `GET /api/issues/trail/:trailId`
-- **Purpose**: Get issues for a specific trail.
-- **Params**:
-  - `trailId` (path param): Numeric ID of the trail.
 - **Responses**:
   - `200 OK`: `{ "issues": [ ... ] }`
   - `500 Internal Server Error`: On error.

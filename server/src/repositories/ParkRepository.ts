@@ -63,19 +63,4 @@ export class ParkRepository {
             throw error;
         }
     }
-
-    public async getTrailsByPark(parkId: number) {
-        try {
-            const trails = await prisma.trail.findMany({
-                where: {
-                    parkId: parkId,
-                }
-            });
-            return trails;
-        } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error('Repository: Error getting trails:', error);
-            throw error;
-        }
-    }
 }

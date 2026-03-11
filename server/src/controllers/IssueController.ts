@@ -18,7 +18,6 @@ export class IssueController {
         this.updateIssueStatus = this.updateIssueStatus.bind(this);
         this.deleteIssue = this.deleteIssue.bind(this);
         this.getIssuesByPark = this.getIssuesByPark.bind(this);
-        this.getIssuesByTrail = this.getIssuesByTrail.bind(this);
         this.updateIssue = this.updateIssue.bind(this);
         this.unsubscribeReporterNotifications = this.unsubscribeReporterNotifications.bind(this);
         this.getMapPins = this.getMapPins.bind(this);
@@ -71,17 +70,6 @@ export class IssueController {
         } catch (error) {
             logger.error(`Error getting issues by park ${req.params.parkId}:`, error);
             res.status(500).json({ message: 'Failed to retrieve issues for this park' });
-        }
-    }
-
-    public async getIssuesByTrail(req: express.Request, res: express.Response) {
-        try {
-            const trailId = Number(req.params.trailId);
-            const issues = await this.issueService.getIssuesByTrail(trailId);
-            res.json({ issues });
-        } catch (error) {
-            logger.error(`Error getting issues by trail ${req.params.trailId}`, error);
-            res.status(500).json({ message: 'Failed to retrieve issues for this trail' });
         }
     }
 
