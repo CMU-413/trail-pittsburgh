@@ -16,7 +16,6 @@ import { SettingsPage } from './pages/auth/SettingsPage';
 // Public and protected pages
 import {
     HomePage,
-    DashboardPage,
     ParkListPage,
     ParkDetailPage,
     ParkCreatePage,
@@ -43,7 +42,6 @@ const AppContent: React.FC = () => {
                 {/* Protected Routes - require authentication */}
                 <Route element={<ProtectedRoute />}>
                     {/* User Routes - available to all authenticated users */}
-                    <Route path="dashboard" element={<DashboardPage />} />
                     <Route path="profile" element={<ProfilePage />} />
                     <Route path="settings" element={<SettingsPage />} />
 
