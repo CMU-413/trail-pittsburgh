@@ -1,9 +1,7 @@
 // src/components/issues/IssueCard.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-    Issue, Park, Trail 
-} from '../../types';
+import { Issue, Park } from '../../types';
 import { Card } from '../ui/Card';
 import { IssueStatusBadge } from './IssueStatusBadge';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
@@ -11,14 +9,12 @@ import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 interface IssueCardProps {
     issue: Issue;
     park?: Park;
-    trail?: Trail;
     showLocation?: boolean;
 }
 
 export const IssueCard: React.FC<IssueCardProps> = ({
     issue,
     park,
-    trail,
     showLocation = true
 }) => {
     // Format date for better display
@@ -70,7 +66,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            {park?.name || 'Unknown Park'}{trail ? ` / ${trail.name}` : ''}
+                            {park?.name || 'Unknown Park'}
                         </p>
                     </div>
                 )}

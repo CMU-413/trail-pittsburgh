@@ -39,26 +39,12 @@ model Park {
   isActive  Boolean  @default(true)                @map("is_active")
   createdAt DateTime @default(now())               @map("created_at")
 
-  trails Trail[]
-  issues Issue[]
-}
-
-model Trail {
-  trailId   Int      @id @default(autoincrement()) @map("trail_id")
-  parkId    Int                                    @map("park_id")
-  name      String   @db.VarChar(100)
-  isActive  Boolean  @default(true)                @map("is_active")
-  isOpen    Boolean  @default(true)                @map("is_open")
-  createdAt DateTime @default(now())               @map("created_at")
-
-  park   Park   @relation(fields: [parkId], references: [parkId])
   issues Issue[]
 }
 
 model Issue {
   issueId        Int              @id @default(autoincrement())   @map("issue_id")
   parkId         Int                                              @map("park_id")
-  trailId        Int                                              @map("trail_id")
   isPublic       Boolean                                          @map("is_public")  
   isImagePublic  Boolean          @default(false)                 @map("is_image_public")
   status         IssueStatusEnum  @default(OPEN)
@@ -75,7 +61,6 @@ model Issue {
   resolvedAt     DateTime?                                        @map("resolved_at")
 
   park           Park             @relation(fields: [parkId], references: [parkId])
-  trail          Trail            @relation(fields: [trailId], references: [trailId])
   notifications  Notification[]
 }
 

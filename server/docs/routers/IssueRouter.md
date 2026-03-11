@@ -57,24 +57,6 @@ Get issues associated with a specific park.
 
 ---
 
-### `GET /api/issues/trail/:trailId`
-
-**Description:**  
-Get issues associated with a specific trail.
-
-**Authentication Required:** Yes (Admin)
-
-**Params:**
-- `trailId` (number, required)
-
-**Validation:**  
-- Validated using `getIssuesByTrailSchema`
-
-**Response:**
-- `200 OK`: List of issues for the trail
-
----
-
 ### `POST /api/issues`
 
 **Description:**  

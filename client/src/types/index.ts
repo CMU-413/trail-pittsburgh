@@ -11,15 +11,6 @@ export type Park = {
     isActive: boolean;
     createdAt: string;
 };
-  
-export type Trail = {
-    trailId: number;
-    parkId: number;
-    name: string;
-    isActive: boolean;
-    isOpen: boolean;
-    createdAt: string;
-};
 
 export enum IssueStatusEnum {
     OPEN = 'OPEN',
@@ -70,7 +61,6 @@ export interface ImageMetadata {
 export type Issue = {
     issueId: number;
     parkId: number;
-    trailId?: number;
     isPublic: boolean;
     isImagePublic?: boolean;
     status: IssueStatusEnum;

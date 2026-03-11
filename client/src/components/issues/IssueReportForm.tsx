@@ -21,8 +21,6 @@ interface IssueReportFormProps {
 export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) => {
     const [formData, setFormData] = useState<Partial<IssueParams>>({
         isPublic: true,
-        // Temporary Solution, will remove during cleanup
-        trailId: 1,
         status: IssueStatusEnum.OPEN,
         description: '',
         issueType: IssueTypeEnum.OBSTRUCTION,

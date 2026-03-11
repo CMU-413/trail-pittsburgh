@@ -9,12 +9,6 @@ export const getIssuesByParkSchema = z.object({
     })
 });
 
-export const getIssuesByTrailSchema = z.object({
-    params: z.object({
-        trailId: z.coerce.number(),
-    })
-});
-
 export const getIssueSchema = z.object({
     params: z.object({
         issueId: z.coerce.number(),
@@ -77,7 +71,6 @@ export const resolveIssueSchema = z.object({
 export const createIssueSchema = z.object({
     body: z.object({
         parkId: z.coerce.number(),
-        trailId: z.coerce.number(),
         issueType: z.nativeEnum(IssueTypeEnum),
         safetyRisk: z.nativeEnum(IssueRiskEnum),
         passible: z.boolean().default(false),
