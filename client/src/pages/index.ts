@@ -1,9 +1,8 @@
 // src/pages/index.ts
 // Export all pages for easy imports
 
-// Home and Dashboard
+// Home
 export { HomePage } from './home/HomePage';
-export { DashboardPage } from './dashboard/DashboardPage';
 
 // Parks
 export { ParkListPage } from './parks/ParkListPage';
