@@ -45,8 +45,8 @@ export class UserService {
         const profileImage = userData.picture || this.DEFAULT_PROFILE_IMAGE;
         
         if (!user) {
-            const email_org = userData.email.split("@").pop();
-            const role = email_org !== 'trailpittsburgh.org' ? UserRoleEnum.ROLE_USER : UserRoleEnum.ROLE_ADMIN
+            const email_org = userData.email.split('@').pop();
+            const role = email_org !== 'trailpittsburgh.org' ? UserRoleEnum.ROLE_USER : UserRoleEnum.ROLE_ADMIN;
             // Create new user
             user = await this.createUser(
                 userData.name,
