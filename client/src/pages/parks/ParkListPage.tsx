@@ -164,7 +164,7 @@ export const ParkListPage: React.FC = () => {
                                                 <p className="text-sm text-gray-600 mt-1 line-clamp-2">{issue.description}</p>
                                                 <p className="text-xs text-gray-500 mt-1 flex items-center">
                                                     <span className={`inline-block w-2 h-2 rounded-full mr-2 ${getIssueStatusDotColor(issue.status)}`}></span>
-                                                    {parks[issue.parkId]?.name}
+                                                    {parks.find(p => p.parkId === issue.parkId)?.name}
                                                 </p>
                                             </div>
                                         </div>
