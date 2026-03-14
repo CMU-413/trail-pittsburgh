@@ -232,19 +232,19 @@ const Location: React.FC<LocationProps> = ({
         <>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Issue Location</h3>
             <div className="space-y-4">
-            <div className="flex flex-col gap-2">
-                <p className="text-sm text-gray-600">{subText}</p>
-                {!readOnly && (
-                    <Button
-                        variant="primary"
-                        size="md"
-                        onClick={getCurrentLocation}
-                        isLoading={loading}
-                        className="self-start mt-2 mb-2 px-4"
-                    >
-                        {latitude && longitude ? 'Update My Location' : 'Share My Location'}
-                    </Button>
-                )}
+                <div className="flex flex-col gap-2">
+                    <p className="text-sm text-gray-600">{subText}</p>
+                    {!readOnly && (
+                        <Button
+                            variant="primary"
+                            size="md"
+                            onClick={getCurrentLocation}
+                            isLoading={loading}
+                            className="self-start mt-2 mb-2 px-4"
+                        >
+                            {latitude && longitude ? 'Update My Location' : 'Share My Location'}
+                        </Button>
+                    )}
                 </div>
 
                 {error && (

@@ -44,8 +44,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
     const [locationProvidedByImage, setLocationProvidedByImage] = useState(false);
     const [parks, setParks] = useState<Park[]>([]);
     const [atIssueLocation, setAtIssueLocation] = useState(false);
-    const [atGoodLocation, setAtGoodLocation] = useState(true);
-    const [imageDataExtractionErrorMsg, setImageDataExtractionErrorMsg] = useState('There is no location information from the image.');
     const [locationConfirmed, setLocationConfirmed] = useState<boolean | null>(null);
 
     const issueTypes = [
@@ -119,9 +117,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
 
         if (previewUrl) {
             setImgPreview(previewUrl);
-        } else {
-            setImageDataExtractionErrorMsg('There is no location information from the image.');
-            setAtIssueLocation(false);
         }
 
         if (file) {
@@ -138,11 +133,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                         if (park_info) {
                             setFormData((prev) => ({ ...prev, parkId: park_info.parkId }));
                             setLocationProvided(true);
-                        } else {
-                            setImageDataExtractionErrorMsg('The location extracted from the image you provided does not fall into one of our parks.');
-                        }
-                    } else {
-                        setImageDataExtractionErrorMsg('The location extracted from the image you provided does not fall into one of our parks.');
+                        } 
                     }
                 }
                 const newData = {
@@ -156,6 +147,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
             });
         } else {
             setLocationConfirmed(null);
+            setAtIssueLocation(false);
             setFormData((prev) => {
                 const newData = { ...prev, latitude: undefined, longitude: undefined };
                 delete newData.image;
@@ -179,14 +171,9 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                         setFormData((prev) => ({ ...prev, parkId: park_info.parkId }));
                         setLocationProvided(true);
                         return { ...prev, latitude, longitude };
-                    } else {
-                        setAtGoodLocation(false);
-                    }
-                } else {
-                    setAtGoodLocation(false);
+                    } 
                 }
             }
-            setAtGoodLocation(false);
             return { ...prev, latitude, longitude };
         });
     };
@@ -290,8 +277,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
             });
             setLocationProvided(false);
             setLocationProvidedByImage(false);
-            setImageDataExtractionErrorMsg('There is no location information from the image.');
-            setAtGoodLocation(true);
             setLocationConfirmed(null);
 
             // Auto-scroll to top on success
@@ -351,7 +336,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                     <div className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-3">
-                                {imageDataExtractionErrorMsg}
+                                There is no location information from the image.
                             </label>
                             <label className="block text-sm font-medium text-gray-700 mb-3">
                                 Are you currently at the location of the issue to provide location of the issue and willing to share your location?  
@@ -410,8 +395,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                     readOnly={!(locationConfirmed === false || (atIssueLocation && locationConfirmed !== true))}
                     subText={
                         (locationProvidedByImage && ((locationConfirmed === null) || locationConfirmed))
-                        ? "This location was automatically extracted from the image you uploaded. Your location data will only be used for this issue report."
-                        : "Providing the exact location helps us find and fix the issue more quickly. Your location data will only be used for this issue report."
+                            ? 'This location was automatically extracted from the image you uploaded. Your location data will only be used for this issue report.'
+                            : 'Providing the exact location helps us find and fix the issue more quickly. Your location data will only be used for this issue report.'
                     }
                 />
             }
@@ -482,8 +467,8 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                     fullWidth
                     helperText={
                         locationProvided
-                            ? "Based on the information you provided, we automatically detected this park. If this looks incorrect, feel free to update it."
-                            : "We weren’t able to detect the park from the information provided. Please select the park where you found the issue."
+                            ? 'Based on the information you provided, we automatically detected this park. If this looks incorrect, feel free to update it.'
+                            : 'We weren’t able to detect the park from the information provided. Please select the park where you found the issue.'
                     }
                 />
             </div>
