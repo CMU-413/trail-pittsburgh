@@ -19,6 +19,7 @@ interface LocationProps {
     readOnly?: boolean;
     className?: string;
     variant?: 'card' | 'plain';
+    subText?: string;
 }
 
 const Location: React.FC<LocationProps> = ({
@@ -27,7 +28,8 @@ const Location: React.FC<LocationProps> = ({
     initialLon,
     readOnly = false, // Default to editing mode
     className = '',
-    variant = 'card' // Default to card appearance
+    variant = 'card', // Default to card appearance
+    subText
 }) => {
     const [latitude, setLat] = useState<number | null>(initialLat || null);
     const [longitude, setLon] = useState<number | null>(initialLon || null);
@@ -228,35 +230,29 @@ const Location: React.FC<LocationProps> = ({
     // Prepare content based on state and props
     const contentJSX = (
         <>
-            {!readOnly && (
-                <>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Issue Location</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Issue Location</h3>
+            <div className="space-y-4">
+            <div className="flex flex-col gap-2">
+                <p className="text-sm text-gray-600">{subText}</p>
+                {!readOnly && (
+                    <Button
+                        variant="primary"
+                        size="md"
+                        onClick={getCurrentLocation}
+                        isLoading={loading}
+                        className="self-start mt-2 mb-2 px-4"
+                    >
+                        {latitude && longitude ? 'Update My Location' : 'Share My Location'}
+                    </Button>
+                )}
+                </div>
 
-                    <div className="space-y-4">
-                        <div className="flex flex-col gap-2">
-                            <p className="text-sm text-gray-600">
-                                Providing the exact location helps us find and fix the issue more quickly. Your location data will only be used for this issue report.
-                            </p>
-
-                            <Button
-                                variant="primary"
-                                size="md"
-                                onClick={getCurrentLocation}
-                                isLoading={loading}
-                                className="self-start mt-2 mb-2 px-4"
-                            >
-                                {latitude && longitude ? 'Update My Location' : 'Share My Location'}
-                            </Button>
-                        </div>
-
-                        {error && (
-                            <Alert variant="danger" onDismiss={() => setError(null)}>
-                                {error}
-                            </Alert>
-                        )}
-                    </div>
-                </>
-            )}
+                {error && (
+                    <Alert variant="danger" onDismiss={() => setError(null)}>
+                        {error}
+                    </Alert>
+                )}
+            </div>
 
             {/* Only show map after coordinates are shared or if in readOnly mode with coords */}
             {((latitude && longitude) || (readOnly && initialLat && initialLon)) && (
