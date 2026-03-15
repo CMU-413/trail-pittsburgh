@@ -54,7 +54,8 @@ export class IssueController {
 
     public async getAllIssues(req: express.Request, res: express.Response) {
         try {
-            const issues = await this.issueService.getAllIssues();
+            const reporterEmail = req.query.reporterEmail as string | undefined;
+            const issues = await this.issueService.getAllIssues(reporterEmail);
             res.json({ issues });
         } catch (error) {
             logger.error(`Error fetching all issues`, error);

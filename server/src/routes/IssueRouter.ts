@@ -12,6 +12,7 @@ import {
     deleteIssueSchema,
     getIssuesByParkSchema,
     getIssueSchema,
+    getIssuesQuerySchema,
     unsubscribeIssueNotificationsSchema,
     getIssueMapPinsSchema,
     updateIssueStatusSchema,
@@ -66,8 +67,9 @@ router.put(
 router.get('/', 
     authenticateToken,
     requireAdmin,
+    validateRequest(getIssuesQuerySchema),
     issueController.getAllIssues); // Get all issues
-
+ 
 router.get('/park/:parkId', 
     authenticateToken,
     validateRequest(getIssuesByParkSchema), 

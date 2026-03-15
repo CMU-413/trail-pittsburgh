@@ -50,8 +50,11 @@ export class IssueRepository {
         }
     }
 
-    public async getAllIssues() {
+    public async getAllIssues(reporterEmail?: string) {
         return prisma.issue.findMany({
+            where: {
+                reporterEmail: reporterEmail
+            },
             include: {
                 park: true,
             }

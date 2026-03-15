@@ -9,6 +9,12 @@ export const getIssuesByParkSchema = z.object({
     })
 });
 
+export const getIssuesQuerySchema = z.object({
+    query: z.object({
+        reporterEmail: z.string().email().optional()
+    })
+});
+
 export const getIssueSchema = z.object({
     params: z.object({
         issueId: z.coerce.number(),

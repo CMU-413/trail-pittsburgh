@@ -64,8 +64,8 @@ export class IssueService {
         };
     }
 
-    public async getAllIssues() {
-        return this.issueRepository.getAllIssues();
+    public async getAllIssues(reporterEmail?: string) {
+        return this.issueRepository.getAllIssues(reporterEmail);
     }
 
     public async getMapPins(minLat: number, 
