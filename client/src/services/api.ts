@@ -67,11 +67,24 @@ export const parkApi = {
 };
 
 export const issueApi = {
-    getAllIssues: async (): Promise<Issue[]> => {
-        const response = await fetch(`${API_BASE_URL}/issues`, {
-            credentials: 'include'
+
+    getAllIssues: async (filters?: { reporterEmail?: string; }): Promise<Issue[]> => {
+        const url = new URL(`${API_BASE_URL}/issues`);
+
+        // Add any provided filters as query params
+        if (filters?.reporterEmail) {
+            url.searchParams.append('reporterEmail', filters.reporterEmail);
+        }
+
+        // if (filters?.status) {
+        //     url.searchParams.append('status', filters.status);
+        // }
+
+        const response = await fetch(url.toString(), { 
+            credentials: 'include' 
         })
             .then(handleResponse);
+
         return response.issues;
     },
 
