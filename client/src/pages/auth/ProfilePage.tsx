@@ -1,21 +1,60 @@
 // src/pages/auth/ProfilePage.tsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../providers/AuthProvider';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
-import { UserRoleEnum } from '../../types';
+import { 
+    Issue, UserRoleEnum, IssueStatusEnum 
+} from '../../types';
 import { APP_NAME } from '../../constants/config';
 import { formatUserRole, hasAccess } from '../../utils/formatters';
+import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
+import { issueApi } from '../../services/api';
+import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 
 export const ProfilePage: React.FC = () => {
     const { user, logout } = useAuth();
+    const [isLoading, setIsLoading] = useState(true);
+    const [issues, setIssues] = useState<Issue[]>([]);
+    const statusColors: Record<IssueStatusEnum, string> = {
+        OPEN: 'bg-yellow-100 text-yellow-800',
+        IN_PROGRESS: 'bg-blue-100 text-blue-800',
+        RESOLVED: 'bg-green-100 text-green-800',
+    };
+
+    useEffect(() => {
+        if (!user?.email) {
+            return;
+        }
+
+        (async () => {
+            setIsLoading(true);
+            try {
+                const issuesData = await issueApi.getAllIssues({ reporterEmail: user.email });
+                setIssues(issuesData);
+            } catch (err) {
+                console.error('Error fetching profile data:', err);
+            } finally {
+                setIsLoading(false);
+            }
+        })(); 
+    }, [user?.email]);
 
     if (!user) {
         return <div>Loading...</div>;
     }
+
+    if (isLoading) {
+        return <LoadingSpinner />;
+    }
+
+    // Get the most recent issues
+    const filteredIssues = [...issues].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 
     return (
         <div>
@@ -81,6 +120,52 @@ export const ProfilePage: React.FC = () => {
                                 <h3 className="text-sm font-medium text-gray-500">Organization</h3>
                                 <p className="mt-1 text-base text-gray-900">{APP_NAME}</p>
                             </div>
+                        </div>
+                    </Card>
+                    
+                    <Card title="My Reported Issues" className="mb-6">
+                        <div className="space-y-4">
+                            {filteredIssues.map((issue) => (
+                                <div
+                                    key={issue.issueId}
+                                    className="bg-white shadow-sm rounded-md p-4 mb-3 border border-gray-100 hover:shadow-md transition"
+                                >
+                                    <div className="flex items-center gap-3">
+
+                                        {/* Status Badge */}
+                                        <span
+                                            className={`px-2 py-1 text-xs font-semibold rounded ${statusColors[issue.status]}`}
+                                        >
+                                            {issue.status.replace('_', ' ')}
+                                        </span>
+
+                                        {/* Issue Type / Title */}
+                                        <Link
+                                            to={`/issues/card/${issue.issueId}`}
+                                            className="font-medium text-blue-600 hover:text-blue-500 truncate"
+                                        >
+                                            {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
+                                        </Link>
+
+                                        {/* Date */}
+                                        <span className="text-sm text-gray-500 ml-auto whitespace-nowrap">
+                                            {formatDistanceToNow(new Date(issue.createdAt), { addSuffix: true })}
+                                        </span>
+                                    </div>
+
+                                    {/* Description */}
+                                    <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                                        {issue.description}
+                                    </p>
+
+                                    {/* Park */}
+                                    {issue.park && (
+                                        <p className="text-xs text-gray-400 mt-2">
+                                            Park: <span className="font-medium">{issue.park.name}</span>
+                                        </p>
+                                    )}
+                                </div>
+                            ))}
                         </div>
                     </Card>
 
