@@ -12,6 +12,9 @@ import {
 import { IssueNotificationService } from '@/services/IssueNotificationService';
 import { logger } from '@/utils/logger';
 
+type RepositoryIssue = Awaited<ReturnType<IssueRepository['getIssue']>>;
+type NotificationIssue = Parameters<IssueNotificationService['sendIssueCreatedConfirmation']>[0];
+
 export class IssueService {
     private readonly issueRepository: IssueRepository;
     private readonly issueImageBucket: GCSBucket;
@@ -53,7 +56,14 @@ export class IssueService {
         }
     }
 
-    private async toIssueResponse(issue: any) {
+    private toNotificationIssue(issue: NonNullable<RepositoryIssue>): NotificationIssue {
+        return {
+            ...issue,
+            issueGroupId: issue.issueGroupId ?? null,
+        };
+    }
+
+    private async toIssueResponse(issue: RepositoryIssue) {
         if (!issue) {
             return null;
         }
@@ -67,7 +77,9 @@ export class IssueService {
         const groupIssues: Array<{ issueId: number }> =
             Array.isArray(issueGroup?.issues) ? issueGroup.issues : [];
 
-        const issueGroupMemberIds = (groupIssues.length > 0 ? groupIssues : [{ issueId: issue.issueId }])
+        const issueGroupMemberIds = (
+            groupIssues.length > 0 ? groupIssues : [{ issueId: issue.issueId }]
+        )
             .map((groupIssue) => groupIssue.issueId)
             .sort((a: number, b: number) => a - b);
 
@@ -121,7 +133,13 @@ export class IssueService {
 
         const issue = await this.issueRepository.createIssue(newIssueInput);
 
-        await this.issueNotificationService.sendIssueCreatedConfirmation(issue);
+        if (!issue) {
+            throw new Error('Failed to create issue');
+        }
+
+        await this.issueNotificationService.sendIssueCreatedConfirmation(
+            this.toNotificationIssue(issue)
+        );
 
         const issueResponse = await this.toIssueResponse(issue);
 
@@ -153,13 +171,14 @@ export class IssueService {
         }
 
         const statusChanged = existingIssue.status !== status;
+        const notificationIssue = this.toNotificationIssue(issue);
 
         if (statusChanged && status === IssueStatusEnum.IN_PROGRESS) {
-            await this.issueNotificationService.sendIssueInProgressUpdate(issue);
+            await this.issueNotificationService.sendIssueInProgressUpdate(notificationIssue);
         }
 
         if (statusChanged && status === IssueStatusEnum.RESOLVED) {
-            await this.issueNotificationService.sendIssueResolvedUpdate(issue);
+            await this.issueNotificationService.sendIssueResolvedUpdate(notificationIssue);
         }
 
         return this.toIssueResponse(issue);
@@ -181,7 +200,9 @@ export class IssueService {
     }
 
     public async setIssueGroup(issueId: number, data: SetIssueGroupInput) {
-        const issue = await this.issueRepository.setIssueGroupMembers(issueId, data.issueGroupMemberIds);
+        const issue = await this.issueRepository.setIssueGroupMembers(
+            issueId, data.issueGroupMemberIds
+        );
         return this.toIssueResponse(issue);
     }
 

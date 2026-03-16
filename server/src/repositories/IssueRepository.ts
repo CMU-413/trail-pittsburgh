@@ -5,24 +5,45 @@ import {
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 import { CreateIssueDbInput } from '@/schemas/issueSchema';
 
+const issueInclude = {
+    park: true,
+    issueGroup: {
+        select: {
+            issueGroupId: true,
+            primaryIssueId: true,
+            status: true,
+            issues: {
+                select: {
+                    issueId: true,
+                }
+            }
+        }
+    }
+} as const;
+
+type IssueWithGroup = Prisma.IssueGetPayload<{
+    include: typeof issueInclude;
+}>;
+
+type IssueWithPark = Prisma.IssueGetPayload<{
+    include: {
+        park: true;
+    };
+}>;
+
+type IssueGroupProjection = IssueWithGroup['issueGroup'];
+
+type RepositoryIssue = Omit<IssueWithPark, 'issueGroupId'> & {
+    issueGroupId?: number | null;
+    issueGroup?: IssueGroupProjection;
+};
+
+type RepositoryIssueOrNull = RepositoryIssue | null;
+
 export class IssueRepository {
 
     private buildIssueInclude() {
-        return {
-            park: true,
-            issueGroup: {
-                select: {
-                    issueGroupId: true,
-                    primaryIssueId: true,
-                    status: true,
-                    issues: {
-                        select: {
-                            issueId: true,
-                        }
-                    }
-                }
-            }
-        } as const;
+        return issueInclude;
     }
 
     private async ensureIssueGroup(
@@ -52,7 +73,7 @@ export class IssueRepository {
         return issueGroup.issueGroupId;
     }
 
-    public async getIssue(issueId: number): Promise<any> {
+    public async getIssue(issueId: number): Promise<RepositoryIssueOrNull> {
         try {
             return await prisma.issue.findUnique({
                 where: { issueId },
@@ -65,7 +86,7 @@ export class IssueRepository {
         }
     }
 
-    public async createIssue(data: CreateIssueDbInput): Promise<any> {
+    public async createIssue(data: CreateIssueDbInput): Promise<RepositoryIssueOrNull> {
         try {
             return await prisma.$transaction(async (tx) => {
                 const issueGroup = await tx.issueGroup.create({
@@ -116,7 +137,7 @@ export class IssueRepository {
         }
     }
 
-    public async getAllIssues(): Promise<any[]> {
+    public async getAllIssues(): Promise<RepositoryIssue[]> {
         return prisma.issue.findMany({
             include: this.buildIssueInclude()
         });
@@ -166,28 +187,28 @@ export class IssueRepository {
         }
     }
 
-    public async getIssuesByPark(parkId: number): Promise<any[]> {
+    public async getIssuesByPark(parkId: number): Promise<RepositoryIssue[]> {
         return prisma.issue.findMany({
             where: { parkId },
             include: this.buildIssueInclude()
         });
     }
 
-    public async getIssuesByStatus(status: IssueStatusEnum): Promise<any[]> {
+    public async getIssuesByStatus(status: IssueStatusEnum): Promise<RepositoryIssue[]> {
         return prisma.issue.findMany({
             where: { status },
             include: this.buildIssueInclude()
         });
     }
 
-    public async getIssuesByType(type: IssueTypeEnum): Promise<any[]> {
+    public async getIssuesByType(type: IssueTypeEnum): Promise<RepositoryIssue[]> {
         return prisma.issue.findMany({
             where: { issueType: type },
             include: this.buildIssueInclude()
         });
     }
 
-    public async getIssuesByGroup(issueGroupId: number): Promise<any[]> {
+    public async getIssuesByGroup(issueGroupId: number): Promise<RepositoryIssue[]> {
         return prisma.issue.findMany({
             where: { issueGroupId },
             include: this.buildIssueInclude(),
@@ -197,7 +218,10 @@ export class IssueRepository {
         });
     }
 
-    public async updateIssueStatus(issueId: number, status: IssueStatusEnum): Promise<any> {
+    public async updateIssueStatus(
+        issueId: number,
+        status: IssueStatusEnum
+    ): Promise<RepositoryIssueOrNull> {
         try {
             return await prisma.$transaction(async (tx) => {
                 const issue = await tx.issue.findUnique({
@@ -248,8 +272,13 @@ export class IssueRepository {
         }
     }
 
-    public async setIssueGroupMembers(issueId: number, issueGroupMemberIds: number[]): Promise<any> {
-        const uniqueMemberIds = Array.from(new Set(issueGroupMemberIds)).filter((id) => id !== issueId);
+    public async setIssueGroupMembers(
+        issueId: number,
+        issueGroupMemberIds: number[]
+    ): Promise<RepositoryIssueOrNull> {
+        const uniqueMemberIds = Array
+            .from(new Set(issueGroupMemberIds))
+            .filter((id) => id !== issueId);
 
         const result = await prisma.$transaction(async (tx) => {
             const sourceIssue = await tx.issue.findUnique({
@@ -290,7 +319,8 @@ export class IssueRepository {
                 .map((groupedIssue) => groupedIssue.issueId)
                 .filter((id) => id !== issueId);
 
-            const memberIdsToRemove = currentMemberIds.filter((id) => !uniqueMemberIds.includes(id));
+            const memberIdsToRemove = currentMemberIds
+                .filter((id) => !uniqueMemberIds.includes(id));
             const memberIdsToAdd = uniqueMemberIds.filter((id) => !currentMemberIds.includes(id));
 
             const targetIssues = uniqueMemberIds.length > 0
@@ -358,7 +388,10 @@ export class IssueRepository {
                     data: {
                         issueGroupId: sourceGroupId,
                         status: sourceGroup.status,
-                        resolvedAt: sourceGroup.status === IssueStatusEnum.RESOLVED ? new Date() : null,
+                        resolvedAt:
+                            sourceGroup.status === IssueStatusEnum.RESOLVED
+                                ? new Date()
+                                : null,
                     }
                 });
 
@@ -373,7 +406,9 @@ export class IssueRepository {
                     } else {
                         await tx.issueGroup.update({
                             where: { issueGroupId: previousGroupId },
-                            data: { primaryIssueId: remainingIssuesInPreviousGroup[0].issueId }
+                            data: {
+                                primaryIssueId: remainingIssuesInPreviousGroup[0].issueId
+                            }
                         });
                     }
                 }
@@ -425,7 +460,7 @@ export class IssueRepository {
 		parkId?: number;
 		latitude?: number;
 		longitude?: number;
-    }>): Promise<any> {
+    }>): Promise<RepositoryIssueOrNull> {
         try {
             return await prisma.issue.update({
                 where: { issueId: issueId },
