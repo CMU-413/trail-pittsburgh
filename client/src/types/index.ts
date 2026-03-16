@@ -60,6 +60,7 @@ export interface ImageMetadata {
   
 export type Issue = {
     issueId: number;
+    issueGroupId?: number | null;
     parkId: number;
     isPublic: boolean;
     isImagePublic?: boolean;
@@ -76,6 +77,7 @@ export type Issue = {
     reporterEmail: string;
     createdAt: string;
     resolvedAt?: string;
+    issueGroupMemberIds?: number[];
 
 	park?: {
     	name: string;
