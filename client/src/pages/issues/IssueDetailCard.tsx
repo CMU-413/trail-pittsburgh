@@ -540,6 +540,36 @@ export const IssueDetailCard: React.FC<{
 																	#{issue.issueId}
                                                                 </span>
                                                             </div>
+                                            {/* <div className="flex flex-wrap items-center gap-2">
+                                                {isEditing ? (
+                                                    <IssueDetailEditDropdown
+                                                        label="Issue Type"
+                                                        valueLabel={issueTypeLabel}
+                                                        isOpen={isIssueTypeDropdownOpen}
+                                                        onToggle={() => setIsIssueTypeDropdownOpen((open) => !open)}
+                                                        onSelect={(value) => {
+                                                            setEditedIssueType(value);
+                                                            setIsIssueTypeDropdownOpen(false);
+                                                        }}
+                                                        selectedValue={editedIssueType}
+                                                        options={[
+                                                            { value: 'obstruction', label: 'Obstruction' },
+                                                            { value: 'flooding', label: 'Flooding' },
+                                                            { value: 'other', label: 'Other' },
+                                                        ]}
+                                                        dropdownRef={issueTypeDropdownRef}
+                                                        widthClass="w-[220px]"
+                                                    />
+                                                ) : (
+                                                    <>
+                                                        <div className="flex items-baseline gap-2">
+                                                            <span className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                                                                {issue.issueType}
+                                                            </span>
+                                                            <span className="text-lg md:text-xl font-semibold text-gray-600">
+                                                                #{issue.issueId}
+                                                            </span>
+                                                        </div> */}
 
                                                             <span className={[
                                                                 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
