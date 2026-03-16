@@ -43,21 +43,7 @@ type RepositoryIssueOrNull = RepositoryIssue | null;
 export class IssueRepository {
 
     private buildIssueInclude() {
-        return {
-            park: true,
-            issueGroup: {
-                select: {
-                    issueGroupId: true,
-                    primaryIssueId: true,
-                    status: true,
-                    issues: {
-                        select: {
-                            issueId: true,
-                        }
-                    }
-                }
-            }
-        } as const;
+        return issueInclude;
     }
 
     private async ensureIssueGroup(
@@ -87,7 +73,7 @@ export class IssueRepository {
         return issueGroup.issueGroupId;
     }
 
-    public async getIssue(issueId: number): Promise<any> {
+    public async getIssue(issueId: number): Promise<RepositoryIssueOrNull> {
         try {
             return await prisma.issue.findUnique({
                 where: { issueId },
@@ -100,7 +86,7 @@ export class IssueRepository {
         }
     }
 
-    public async createIssue(data: CreateIssueDbInput): Promise<any> {
+    public async createIssue(data: CreateIssueDbInput): Promise<RepositoryIssueOrNull> {
         try {
             return await prisma.$transaction(async (tx) => {
                 const issueGroup = await tx.issueGroup.create({

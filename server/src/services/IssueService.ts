@@ -72,8 +72,7 @@ export class IssueService {
         };
     }
 
-    private async toIssueResponse(issue: RepositoryIssue, 
-								  providedImageMetadata?: { contentType: string }) {
+    private async toIssueResponse(issue: RepositoryIssue, providedImageMetadata?: { contentType: string }) {
         if (!issue) {
             return null;
         }
