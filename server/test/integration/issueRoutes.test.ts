@@ -10,7 +10,10 @@ import { Response, NextFunction } from 'express';
 let parkId: number;
 let createdIssueId: number | undefined;
 let secondIssueId: number | undefined;
+<<<<<<< HEAD
 let imagePublicIssueId: number | undefined;
+=======
+>>>>>>> 1332919 (update test case to include end to end grouping test)
 
 jest.mock('../../src/middlewares/index', () => ({
   ...jest.requireActual('../../src/middlewares/index'),
