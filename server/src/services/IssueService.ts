@@ -5,7 +5,10 @@ import { v4 as uuid } from 'uuid';
 
 import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
-import { CreateIssueInput } from '@/schemas/issueSchema';
+import {
+    CreateIssueInput,
+    SetIssueGroupInput
+} from '@/schemas/issueSchema';
 import { IssueNotificationService } from '@/services/IssueNotificationService';
 import { logger } from '@/utils/logger';
 
@@ -50,22 +53,41 @@ export class IssueService {
         }
     }
 
-    public async getIssue(issueId: number) {
-        const issue = await this.issueRepository.getIssue(issueId);
+    private async toIssueResponse(issue: any) {
         if (!issue) {
             return null;
         }
 
-        const { issueImage } = issue;
+        const {
+            issueImage,
+            issueGroup,
+            ...issueData
+        } = issue;
+
+        const groupIssues: Array<{ issueId: number }> =
+            Array.isArray(issueGroup?.issues) ? issueGroup.issues : [];
+
+        const issueGroupMemberIds = (groupIssues.length > 0 ? groupIssues : [{ issueId: issue.issueId }])
+            .map((groupIssue) => groupIssue.issueId)
+            .sort((a: number, b: number) => a - b);
 
         return {
-            ...issue,
+            ...issueData,
+            status: issueGroup?.status ?? issue.status,
+            issueGroupId: issue.issueGroupId ?? issueGroup?.issueGroupId ?? null,
+            issueGroupMemberIds,
             ...(issueImage && { image: await this.getIssueImage(issueImage) })
         };
     }
 
+    public async getIssue(issueId: number) {
+        const issue = await this.issueRepository.getIssue(issueId);
+        return this.toIssueResponse(issue);
+    }
+
     public async getAllIssues() {
-        return this.issueRepository.getAllIssues();
+        const issues = await this.issueRepository.getAllIssues();
+        return Promise.all(issues.map((issue) => this.toIssueResponse(issue)));
     }
 
     public async getMapPins(minLat: number, 
@@ -101,8 +123,10 @@ export class IssueService {
 
         await this.issueNotificationService.sendIssueCreatedConfirmation(issue);
 
+        const issueResponse = await this.toIssueResponse(issue);
+
         return {
-            issue,
+            issue: issueResponse,
             signedUrl,
         };
     }
@@ -112,7 +136,8 @@ export class IssueService {
     }
 
     public async getIssuesByPark(parkId: number) {
-        return this.issueRepository.getIssuesByPark(parkId);
+        const issues = await this.issueRepository.getIssuesByPark(parkId);
+        return Promise.all(issues.map((issue) => this.toIssueResponse(issue)));
     }
 
     public async updateIssueStatus(issueId: number, status: IssueStatusEnum) {
@@ -137,12 +162,27 @@ export class IssueService {
             await this.issueNotificationService.sendIssueResolvedUpdate(issue);
         }
 
-        const { issueImage } = issue;
+        return this.toIssueResponse(issue);
+    }
 
-        return {
-            ...issue,
-            ...(issueImage && { image: await this.getIssueImage(issueImage) })
-        };
+    public async getGroupedIssues(issueId: number) {
+        const issue = await this.issueRepository.getIssue(issueId);
+        if (!issue) {
+            return null;
+        }
+
+        if (!issue.issueGroupId) {
+            const response = await this.toIssueResponse(issue);
+            return response ? [response] : [];
+        }
+
+        const groupedIssues = await this.issueRepository.getIssuesByGroup(issue.issueGroupId);
+        return Promise.all(groupedIssues.map((groupedIssue) => this.toIssueResponse(groupedIssue)));
+    }
+
+    public async setIssueGroup(issueId: number, data: SetIssueGroupInput) {
+        const issue = await this.issueRepository.setIssueGroupMembers(issueId, data.issueGroupMemberIds);
+        return this.toIssueResponse(issue);
     }
 
     public async unsubscribeReporter(issueId: number, token: string) {
@@ -184,11 +224,6 @@ export class IssueService {
             return null;
         }
 
-        const { issueImage } = issue;
-
-        return {
-            ...issue,
-            ...(issueImage && { image: await this.getIssueImage(issueImage) })
-        };
+        return this.toIssueResponse(issue);
     }
 }

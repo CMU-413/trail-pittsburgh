@@ -6,13 +6,57 @@ import { isNotFoundError, prisma } from '@/prisma/prismaClient';
 import { CreateIssueDbInput } from '@/schemas/issueSchema';
 
 export class IssueRepository {
-    public async getIssue(issueId: number) {
+
+    private buildIssueInclude() {
+        return {
+            park: true,
+            issueGroup: {
+                select: {
+                    issueGroupId: true,
+                    primaryIssueId: true,
+                    status: true,
+                    issues: {
+                        select: {
+                            issueId: true,
+                        }
+                    }
+                }
+            }
+        } as const;
+    }
+
+    private async ensureIssueGroup(
+        tx: Prisma.TransactionClient,
+        issueId: number,
+        issueStatus: IssueStatusEnum,
+        currentGroupId?: number | null
+    ) {
+        if (currentGroupId) {
+            return currentGroupId;
+        }
+
+        const issueGroup = await tx.issueGroup.create({
+            data: {
+                status: issueStatus,
+                primaryIssueId: issueId,
+            }
+        });
+
+        await tx.issue.update({
+            where: { issueId },
+            data: {
+                issueGroupId: issueGroup.issueGroupId,
+            }
+        });
+
+        return issueGroup.issueGroupId;
+    }
+
+    public async getIssue(issueId: number): Promise<any> {
         try {
             return await prisma.issue.findUnique({
                 where: { issueId },
-                include: {
-                    park: true,
-                }
+                include: this.buildIssueInclude()
             });
         } catch (error) {
             // eslint-disable-next-line no-console
@@ -21,27 +65,49 @@ export class IssueRepository {
         }
     }
 
-    public async createIssue(data: CreateIssueDbInput) {
+    public async createIssue(data: CreateIssueDbInput): Promise<any> {
         try {
-            return await prisma.issue.create({
-                data: {
-                    parkId: data.parkId,
-                    issueType: data.issueType,
-                    description: data.description,
-                    safetyRisk: data.safetyRisk,
-                    passible: data.passible,
-                    isPublic: data.isPublic ?? true,
-                    isImagePublic: data.isImagePublic ?? false,
-                    status: data.status,
-                    latitude: data.latitude,
-                    longitude: data.longitude,
-                    notifyReporter: data.notifyReporter ?? true,
-                    reporterEmail: data.reporterEmail ?? '',
-                    issueImage: data.issueImageKey,
-                },
-                include: {
-                    park: true,
-                }
+            return await prisma.$transaction(async (tx) => {
+                const issueGroup = await tx.issueGroup.create({
+                    data: {
+                        status: data.status,
+                        primaryIssueId: undefined,
+                    }
+                });
+
+                const createdIssue = await tx.issue.create({
+                    data: {
+                        parkId: data.parkId,
+                        issueGroupId: issueGroup.issueGroupId,
+                        issueType: data.issueType,
+                        description: data.description,
+                        safetyRisk: data.safetyRisk,
+                        passible: data.passible,
+                        isPublic: data.isPublic ?? true,
+                        isImagePublic: data.isImagePublic ?? false,
+                        status: data.status,
+                        latitude: data.latitude,
+                        longitude: data.longitude,
+                        notifyReporter: data.notifyReporter ?? true,
+                        reporterEmail: data.reporterEmail ?? '',
+                        issueImage: data.issueImageKey,
+                    },
+                    include: this.buildIssueInclude()
+                });
+
+                await tx.issueGroup.update({
+                    where: { issueGroupId: issueGroup.issueGroupId },
+                    data: {
+                        primaryIssueId: createdIssue.issueId,
+                    }
+                });
+
+                return tx.issue.findUnique({
+                    where: {
+                        issueId: createdIssue.issueId,
+                    },
+                    include: this.buildIssueInclude()
+                });
             });
         } catch (error) {
             // eslint-disable-next-line no-console
@@ -50,11 +116,9 @@ export class IssueRepository {
         }
     }
 
-    public async getAllIssues() {
+    public async getAllIssues(): Promise<any[]> {
         return prisma.issue.findMany({
-            include: {
-                park: true,
-            }
+            include: this.buildIssueInclude()
         });
     }
 
@@ -78,6 +142,7 @@ export class IssueRepository {
             where: whereClause,
             select: {
                 issueId: true,
+                issueGroupId: true,
                 latitude: true,
                 longitude: true,
                 issueType: true,
@@ -101,44 +166,79 @@ export class IssueRepository {
         }
     }
 
-    public async getIssuesByPark(parkId: number) {
+    public async getIssuesByPark(parkId: number): Promise<any[]> {
         return prisma.issue.findMany({
             where: { parkId },
-            include: {
-                park: true,
-            }
+            include: this.buildIssueInclude()
         });
     }
 
-    public async getIssuesByStatus(status: IssueStatusEnum) {
+    public async getIssuesByStatus(status: IssueStatusEnum): Promise<any[]> {
         return prisma.issue.findMany({
             where: { status },
-            include: {
-                park: true,
-            }
+            include: this.buildIssueInclude()
         });
     }
 
-    public async getIssuesByType(type: IssueTypeEnum) {
+    public async getIssuesByType(type: IssueTypeEnum): Promise<any[]> {
         return prisma.issue.findMany({
             where: { issueType: type },
-            include: {
-                park: true,
+            include: this.buildIssueInclude()
+        });
+    }
+
+    public async getIssuesByGroup(issueGroupId: number): Promise<any[]> {
+        return prisma.issue.findMany({
+            where: { issueGroupId },
+            include: this.buildIssueInclude(),
+            orderBy: {
+                issueId: 'asc',
             }
         });
     }
 
-    public async updateIssueStatus(issueId: number, status: IssueStatusEnum) {
+    public async updateIssueStatus(issueId: number, status: IssueStatusEnum): Promise<any> {
         try {
-            return await prisma.issue.update({
-                where: { issueId },
-                data: {
-                    status: status,
-                    resolvedAt: new Date()
-                },
-                include: {
-                    park: true,
+            return await prisma.$transaction(async (tx) => {
+                const issue = await tx.issue.findUnique({
+                    where: { issueId },
+                    select: {
+                        issueId: true,
+                        issueGroupId: true,
+                        status: true,
+                    }
+                });
+
+                if (!issue) {
+                    return null;
                 }
+
+                const issueGroupId = await this.ensureIssueGroup(
+                    tx,
+                    issue.issueId,
+                    issue.status,
+                    issue.issueGroupId
+                );
+
+                await tx.issueGroup.update({
+                    where: { issueGroupId },
+                    data: {
+                        status,
+                    }
+                });
+
+                await tx.issue.updateMany({
+                    where: { issueGroupId },
+                    data: {
+                        status,
+                        resolvedAt: status === IssueStatusEnum.RESOLVED ? new Date() : null,
+                    }
+                });
+
+                return tx.issue.findUnique({
+                    where: { issueId },
+                    include: this.buildIssueInclude()
+                });
             });
         } catch (error) {
             if (isNotFoundError(error)) {return null;}
@@ -146,6 +246,156 @@ export class IssueRepository {
             console.error('Error resolving issue:', error);
             throw error;
         }
+    }
+
+    public async setIssueGroupMembers(issueId: number, issueGroupMemberIds: number[]): Promise<any> {
+        const uniqueMemberIds = Array.from(new Set(issueGroupMemberIds)).filter((id) => id !== issueId);
+
+        const result = await prisma.$transaction(async (tx) => {
+            const sourceIssue = await tx.issue.findUnique({
+                where: { issueId },
+                select: {
+                    issueId: true,
+                    issueGroupId: true,
+                    status: true,
+                }
+            });
+
+            if (!sourceIssue) {
+                return null;
+            }
+
+            const sourceGroupId = await this.ensureIssueGroup(
+                tx,
+                sourceIssue.issueId,
+                sourceIssue.status,
+                sourceIssue.issueGroupId
+            );
+
+            const sourceGroup = await tx.issueGroup.findUnique({
+                where: { issueGroupId: sourceGroupId },
+                select: { status: true }
+            });
+
+            if (!sourceGroup) {
+                return null;
+            }
+
+            const currentGroupedIssues = await tx.issue.findMany({
+                where: { issueGroupId: sourceGroupId },
+                select: { issueId: true }
+            });
+
+            const currentMemberIds = currentGroupedIssues
+                .map((groupedIssue) => groupedIssue.issueId)
+                .filter((id) => id !== issueId);
+
+            const memberIdsToRemove = currentMemberIds.filter((id) => !uniqueMemberIds.includes(id));
+            const memberIdsToAdd = uniqueMemberIds.filter((id) => !currentMemberIds.includes(id));
+
+            const targetIssues = uniqueMemberIds.length > 0
+                ? await tx.issue.findMany({
+                    where: {
+                        issueId: {
+                            in: uniqueMemberIds,
+                        }
+                    },
+                    select: {
+                        issueId: true,
+                    }
+                })
+                : [];
+
+            if (targetIssues.length !== uniqueMemberIds.length) {
+                return null;
+            }
+
+            for (const memberIssueId of memberIdsToRemove) {
+                const memberIssue = await tx.issue.findUnique({
+                    where: { issueId: memberIssueId },
+                    select: {
+                        issueId: true,
+                        status: true,
+                    }
+                });
+
+                if (!memberIssue) {
+                    continue;
+                }
+
+                const newGroup = await tx.issueGroup.create({
+                    data: {
+                        primaryIssueId: memberIssue.issueId,
+                        status: memberIssue.status,
+                    }
+                });
+
+                await tx.issue.update({
+                    where: { issueId: memberIssue.issueId },
+                    data: {
+                        issueGroupId: newGroup.issueGroupId,
+                    }
+                });
+            }
+
+            for (const memberIssueId of memberIdsToAdd) {
+                const memberIssue = await tx.issue.findUnique({
+                    where: { issueId: memberIssueId },
+                    select: {
+                        issueId: true,
+                        issueGroupId: true,
+                    }
+                });
+
+                if (!memberIssue) {
+                    continue;
+                }
+
+                const previousGroupId = memberIssue.issueGroupId;
+
+                await tx.issue.update({
+                    where: { issueId: memberIssue.issueId },
+                    data: {
+                        issueGroupId: sourceGroupId,
+                        status: sourceGroup.status,
+                        resolvedAt: sourceGroup.status === IssueStatusEnum.RESOLVED ? new Date() : null,
+                    }
+                });
+
+                if (previousGroupId && previousGroupId !== sourceGroupId) {
+                    const remainingIssuesInPreviousGroup = await tx.issue.findMany({
+                        where: { issueGroupId: previousGroupId },
+                        select: { issueId: true }
+                    });
+
+                    if (remainingIssuesInPreviousGroup.length === 0) {
+                        await tx.issueGroup.delete({ where: { issueGroupId: previousGroupId } });
+                    } else {
+                        await tx.issueGroup.update({
+                            where: { issueGroupId: previousGroupId },
+                            data: { primaryIssueId: remainingIssuesInPreviousGroup[0].issueId }
+                        });
+                    }
+                }
+            }
+
+            await tx.issueGroup.update({
+                where: { issueGroupId: sourceGroupId },
+                data: {
+                    primaryIssueId: issueId,
+                }
+            });
+
+            return {
+                issueGroupId: sourceGroupId,
+            };
+        });
+
+        if (!result) {
+            return null;
+        }
+
+        return this.getIssue(issueId);
     }
 
     public async disableReporterNotifications(issueId: number, reporterEmail: string) {
@@ -175,7 +425,7 @@ export class IssueRepository {
 		parkId?: number;
 		latitude?: number;
 		longitude?: number;
-    }>) {
+    }>): Promise<any> {
         try {
             return await prisma.issue.update({
                 where: { issueId: issueId },
@@ -187,9 +437,7 @@ export class IssueRepository {
                     ...(data.latitude !== undefined && { latitude: data.latitude }),
                     ...(data.longitude !== undefined && { longitude: data.longitude }),
                 },
-                include: {
-                    park: true,
-                }
+                include: this.buildIssueInclude()
             });
         } catch (error) {
             if (isNotFoundError(error)) {

@@ -21,6 +21,8 @@ export class IssueController {
         this.updateIssue = this.updateIssue.bind(this);
         this.unsubscribeReporterNotifications = this.unsubscribeReporterNotifications.bind(this);
         this.getMapPins = this.getMapPins.bind(this);
+        this.getGroupedIssues = this.getGroupedIssues.bind(this);
+        this.setIssueGroup = this.setIssueGroup.bind(this);
     }
 
     public async createIssue(req: express.Request, res: express.Response) {
@@ -154,6 +156,42 @@ export class IssueController {
         } catch (error) {
             logger.error(`Error updating issue ${issueId}`, error);
             res.status(500).json({ message: 'Failed to update issue status' });
+        }
+    }
+
+    public async getGroupedIssues(req: express.Request, res: express.Response) {
+        const issueId = Number(req.params.issueId);
+
+        try {
+            const issues = await this.issueService.getGroupedIssues(issueId);
+
+            if (!issues) {
+                res.status(404).json({ message: 'Issue not found' });
+                return;
+            }
+
+            res.json({ issues });
+        } catch (error) {
+            logger.error(`Error loading grouped issues for ${issueId}`, error);
+            res.status(500).json({ message: 'Failed to retrieve grouped issues' });
+        }
+    }
+
+    public async setIssueGroup(req: express.Request, res: express.Response) {
+        const issueId = Number(req.params.issueId);
+
+        try {
+            const issue = await this.issueService.setIssueGroup(issueId, req.body);
+
+            if (!issue) {
+                res.status(404).json({ message: 'Issue not found or invalid group members' });
+                return;
+            }
+
+            res.json({ issue });
+        } catch (error) {
+            logger.error(`Error setting issue group for ${issueId}`, error);
+            res.status(500).json({ message: 'Failed to update issue group' });
         }
     }
 
