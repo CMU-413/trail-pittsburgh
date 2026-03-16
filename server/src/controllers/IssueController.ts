@@ -1,5 +1,5 @@
 import {
-    IssueUrgencyEnum, IssueStatusEnum, IssueTypeEnum 
+    IssueStatusEnum, IssueTypeEnum 
 } from '@prisma/client';
 import express from 'express';
 
@@ -18,10 +18,11 @@ export class IssueController {
         this.updateIssueStatus = this.updateIssueStatus.bind(this);
         this.deleteIssue = this.deleteIssue.bind(this);
         this.getIssuesByPark = this.getIssuesByPark.bind(this);
-        this.getIssuesByTrail = this.getIssuesByTrail.bind(this);
-        this.getIssuesByUrgency = this.getIssuesByUrgency.bind(this);
         this.updateIssue = this.updateIssue.bind(this);
+        this.unsubscribeReporterNotifications = this.unsubscribeReporterNotifications.bind(this);
         this.getMapPins = this.getMapPins.bind(this);
+        this.getGroupedIssues = this.getGroupedIssues.bind(this);
+        this.setIssueGroup = this.setIssueGroup.bind(this);
     }
 
     public async createIssue(req: express.Request, res: express.Response) {
@@ -74,33 +75,12 @@ export class IssueController {
         }
     }
 
-    public async getIssuesByTrail(req: express.Request, res: express.Response) {
-        try {
-            const trailId = Number(req.params.trailId);
-            const issues = await this.issueService.getIssuesByTrail(trailId);
-            res.json({ issues });
-        } catch (error) {
-            logger.error(`Error getting issues by trail ${req.params.trailId}`, error);
-            res.status(500).json({ message: 'Failed to retrieve issues for this trail' });
-        }
-    }
-
-    public async getIssuesByUrgency(req: express.Request, res: express.Response) {
-        try {
-            const urgency = req.params.urgency as IssueUrgencyEnum;
-            const issues = await this.issueService.getIssuesByUrgency(urgency);
-            res.json({ issues });
-        } catch (error) {
-            logger.error(`Error getting issues by urgency ${req.params.urgency}:`, error);
-            res.status(500).json({ message: 'Failed to retrieve issues by urgency' });
-        }
-    }
-
     public async getMapPins(req: express.Request, res: express.Response) {
         try {
-            const { bbox, issueTypes } = req.query as unknown as{
+            const { bbox, issueTypes, statuses } = req.query as unknown as{
 				bbox: string;
 				issueTypes: IssueTypeEnum[];
+                statuses: IssueStatusEnum[];
 			};
 
             // Parse bbox: "minLat,minLng,maxLat,maxLng"
@@ -132,7 +112,7 @@ export class IssueController {
                 maxLat, 
                 maxLng,
                 issueTypes,
-                IssueStatusEnum.OPEN
+                statuses
             );
 
 		    res.json({ pins });
@@ -179,15 +159,53 @@ export class IssueController {
         }
     }
 
+    public async getGroupedIssues(req: express.Request, res: express.Response) {
+        const issueId = Number(req.params.issueId);
+
+        try {
+            const issues = await this.issueService.getGroupedIssues(issueId);
+
+            if (!issues) {
+                res.status(404).json({ message: 'Issue not found' });
+                return;
+            }
+
+            res.json({ issues });
+        } catch (error) {
+            logger.error(`Error loading grouped issues for ${issueId}`, error);
+            res.status(500).json({ message: 'Failed to retrieve grouped issues' });
+        }
+    }
+
+    public async setIssueGroup(req: express.Request, res: express.Response) {
+        const issueId = Number(req.params.issueId);
+
+        try {
+            const issue = await this.issueService.setIssueGroup(issueId, req.body);
+
+            if (!issue) {
+                res.status(404).json({ message: 'Issue not found or invalid group members' });
+                return;
+            }
+
+            res.json({ issue });
+        } catch (error) {
+            logger.error(`Error setting issue group for ${issueId}`, error);
+            res.status(500).json({ message: 'Failed to update issue group' });
+        }
+    }
+
     public async updateIssue(req: express.Request, res: express.Response) {
         const issueId = Number(req.params.issueId);
         
         try {
-            const { description, urgency, issueType, parkId, latitude, longitude } = req.body;
+            const { 
+                description, issueType, isImagePublic, parkId, latitude, longitude 
+            } = req.body;
             const issue = await this.issueService.updateIssue(issueId, {
                 description,
-                urgency,
                 issueType,
+                isImagePublic,
                 parkId,
                 latitude,
                 longitude
@@ -203,5 +221,152 @@ export class IssueController {
             logger.error(`Error updating issue ${issueId}`, error);
             res.status(500).json({ message: 'Failed to update issue' });
         }
+    }
+
+    public async unsubscribeReporterNotifications(req: express.Request, res: express.Response) {
+        const issueId = Number(req.params.issueId);
+        const token = String(req.query.token ?? '');
+
+        try {
+            const result = await this.issueService.unsubscribeReporter(issueId, token);
+
+            if (result === 'issue-not-found') {
+                this.respondForUnsubscribe(req, res, {
+                    statusCode: 404,
+                    title: 'Issue Not Found',
+                    message: 'We could not find that issue. The unsubscribe link may be invalid.',
+                    jsonMessage: 'Issue not found'
+                });
+                return;
+            }
+
+            if (result === 'invalid-token') {
+                this.respondForUnsubscribe(req, res, {
+                    statusCode: 400,
+                    title: 'Invalid Link',
+                    message: 'This unsubscribe link is invalid or has expired.',
+                    jsonMessage: 'Invalid or expired unsubscribe token'
+                });
+                return;
+            }
+
+            if (result === 'already-unsubscribed') {
+                this.respondForUnsubscribe(req, res, {
+                    statusCode: 200,
+                    title: 'Already Unsubscribed',
+                    message: 'Email notifications for this issue were already turned off.',
+                    jsonMessage: 'Notifications are already unsubscribed for this issue'
+                });
+                return;
+            }
+
+            this.respondForUnsubscribe(req, res, {
+                statusCode: 200,
+                title: 'Unsubscribe Successful',
+                message: 'You are unsubscribed from future email updates for this issue.',
+                jsonMessage: 'You have been unsubscribed from issue updates'
+            });
+        } catch (error) {
+            logger.error(`Error unsubscribing issue ${issueId}`, error);
+            this.respondForUnsubscribe(req, res, {
+                statusCode: 500,
+                title: 'Unsubscribe Failed',
+                message: 'Something went wrong while processing your unsubscribe request.',
+                jsonMessage: 'Failed to unsubscribe from notifications'
+            });
+        }
+    }
+
+    private respondForUnsubscribe(
+        req: express.Request,
+        res: express.Response,
+        content: {
+            statusCode: number;
+            title: string;
+            message: string;
+            jsonMessage: string;
+        }
+    ) {
+        if (req.accepts('html')) {
+            res.status(content.statusCode).type('html').send(this.buildUnsubscribeHtml(content.title, content.message));
+            return;
+        }
+
+        res.status(content.statusCode).json({ message: content.jsonMessage });
+    }
+
+    private buildUnsubscribeHtml(title: string, message: string) {
+        const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
+        return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${this.escapeHtml(title)}</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      color: #1f2937;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+    }
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+      padding: 1.5rem;
+    }
+    h1 {
+      margin: 0 0 0.75rem;
+      font-size: 1.375rem;
+    }
+    p {
+      margin: 0;
+      line-height: 1.55;
+      font-size: 1rem;
+    }
+        .actions {
+            margin-top: 1rem;
+        }
+        .button {
+            display: inline-block;
+            background: #1d4ed8;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            padding: 0.625rem 0.9rem;
+            font-weight: 600;
+        }
+        .button:hover {
+            background: #1e40af;
+        }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>${this.escapeHtml(title)}</h1>
+    <p>${this.escapeHtml(message)}</p>
+        <div class="actions">
+            <a class="button" href="${this.escapeHtml(clientUrl)}">Back to Trail Pittsburgh</a>
+        </div>
+  </main>
+</body>
+</html>`;
+    }
+
+    private escapeHtml(value: string) {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 }

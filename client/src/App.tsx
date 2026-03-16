@@ -16,14 +16,10 @@ import { SettingsPage } from './pages/auth/SettingsPage';
 // Public and protected pages
 import {
     HomePage,
-    DashboardPage,
     ParkListPage,
     ParkDetailPage,
     ParkCreatePage,
     ParkEditPage,
-    TrailDetailPage,
-    TrailCreatePage,
-    TrailEditPage,
     IssueMapPage,
     IssueDetailPage,
     IssueReportPage,
@@ -39,13 +35,13 @@ const AppContent: React.FC = () => {
                     <Route index element={<HomePage />} />
                     <Route path="unauthorized" element={<UnauthorizedPage />} />
                     <Route path="issues" element={<IssueMapPage />} />
+                    <Route path="issues/card/:issueId" element={<IssueMapPage />} />
                     <Route path="issues/report" element={<IssueReportPage />} />
                 </Route>
 
                 {/* Protected Routes - require authentication */}
                 <Route element={<ProtectedRoute />}>
                     {/* User Routes - available to all authenticated users */}
-                    <Route path="dashboard" element={<DashboardPage />} />
                     <Route path="profile" element={<ProfilePage />} />
                     <Route path="settings" element={<SettingsPage />} />
 
@@ -57,13 +53,6 @@ const AppContent: React.FC = () => {
                             <Route path="create" element={<ParkCreatePage />} />
                             <Route path=":parkId" element={<ParkDetailPage />} />
                             <Route path=":parkId/edit" element={<ParkEditPage />} />
-
-                            {/* Trails (nested under parks) */}
-                            <Route path=":parkId/trails">
-                                <Route path="create" element={<TrailCreatePage />} />
-                                <Route path=":trailId" element={<TrailDetailPage />} />
-                                <Route path=":trailId/edit" element={<TrailEditPage />} />
-                            </Route>
                         </Route>
 
                         {/* Issues - except report page which is public */}

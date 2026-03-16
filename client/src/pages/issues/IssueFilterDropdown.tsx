@@ -5,6 +5,7 @@ import { IssueTypeEnum } from '../../types';
 import obstructionPin from '../../assets/obstructionPin.png';
 import waterPin from '../../assets/waterPin.png';
 import otherPin from '../../assets/otherPin.png';
+import { IssueDropdown } from './components/IssueDropdown';
 
 const iconForType = (t: IssueTypeEnum) => {
     if (t === 'OBSTRUCTION') 
@@ -13,14 +14,14 @@ const iconForType = (t: IssueTypeEnum) => {
     {return waterPin;}
     return otherPin;
 };
-const PinLegend: React.FC<{ type: IssueTypeEnum; label: string }> = ({ type, label }) => (
+export const PinLegend: React.FC<{ type: IssueTypeEnum; label: string }> = ({ type, label }) => (
     <span className="flex items-center gap-2">
         <img
             src={iconForType(type)}
             alt=""
             aria-hidden="true"
             className="shrink-0"
-            style={{ width: 12, height: 18 }}
+            style={{ width: 15, height: 20 }}
         />
         {label}
     </span>
@@ -44,76 +45,52 @@ export const IssueFilterDropdown: React.FC<{
     }, []);
 
     const label =
-    selectedTypes.length === 0 ? 'All issues' : `${selectedTypes.length} selected`;
+    selectedTypes.length === 0 ? 'All Issues' : `${selectedTypes.length} selected`;
+
+    const options = [
+        { value: IssueTypeEnum.OBSTRUCTION, label: 'Obstruction' },
+        { value: IssueTypeEnum.FLOODING, label: 'Standing Water/Mud' },
+        { value: IssueTypeEnum.OTHER, label: 'Other' },
+    ];
+
+    const selectedTypeValues = selectedTypes.map((type) => String(type));
 
     return (
-        <div ref={boxRef} className="relative">
-            <button
-                type="button"
-                onClick={() => setOpen((v) => !v)}
-                className="bg-white border border-gray-300 rounded-full px-4 py-2 text-sm shadow-sm flex items-center gap-2"
-            >
-                {label}
-                <span className="text-gray-500">▾</span>
-            </button>
+        <IssueDropdown
+            triggerLabel={label}
+            isOpen={open}
+            onToggle={() => setOpen((v) => !v)}
+            onSelect={(value) => toggleType(value as IssueTypeEnum)}
+            selectedValues={selectedTypeValues}
+            options={options}
+            dropdownRef={boxRef}
+            widthClass="w-auto"
+            menuAlign="right"
+            menuWidthClass="w-56"
+            triggerClassName="bg-white border border-gray-300 rounded-full px-4 py-2 text-sm font-semibold shadow-sm flex items-center gap-0.75"
+            renderOptionLabel={(option) => <PinLegend type={option.value as IssueTypeEnum} label={option.label} />}
+            footer={(
+                <div className="flex justify-between items-center px-3 pt-2 pb-1 mt-1 border-t border-gray-100">
+                    <button
+                        type="button"
+                        className="text-sm underline text-gray-600"
+                        onClick={() => {
+                            clear();
+                            setOpen(false);
+                        }}
+                    >
+                        Clear filters
+                    </button>
 
-            {open && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
-                    <label className="flex items-center gap-2 px-2 py-2 text-sm cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={selectedTypes.includes(IssueTypeEnum.OBSTRUCTION)}
-                            onChange={() => toggleType(IssueTypeEnum.OBSTRUCTION)}
-                        />
-                        <span className="flex items-center gap-2">
-                            <PinLegend type={IssueTypeEnum.OBSTRUCTION} label="Obstruction" />
-                        </span>
-                    </label>
-
-                    <label className="flex items-center gap-2 px-2 py-2 text-sm cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={selectedTypes.includes(IssueTypeEnum.FLOODING)}
-                            onChange={() => toggleType(IssueTypeEnum.FLOODING)}
-                        />
-                        <span className="flex items-center gap-2">
-                            <PinLegend type={IssueTypeEnum.FLOODING} label="Standing Water/Mud" />
-                        </span>
-                    </label>
-
-                    <label className="flex items-center gap-2 px-2 py-2 text-sm cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={selectedTypes.includes(IssueTypeEnum.OTHER)}
-                            onChange={() => toggleType(IssueTypeEnum.OTHER)}
-                        />
-                        <span className="flex items-center gap-2">
-                            <PinLegend type={IssueTypeEnum.OTHER} label="Other" />
-                        </span>
-                    </label>
-
-                    <div className="flex justify-between items-center pt-2 mt-2 border-t border-gray-100">
-                        <button
-                            type="button"
-                            className="text-sm underline text-gray-600 px-2"
-                            onClick={() => {
-                                clear();
-                                setOpen(false);
-                            }}
-                        >
-              Clear filters
-                        </button>
-
-                        <button
-                            type="button"
-                            className="text-sm text-gray-700 px-2"
-                            onClick={() => setOpen(false)}
-                        >
-              Done
-                        </button>
-                    </div>
+                    <button
+                        type="button"
+                        className="text-sm text-gray-700"
+                        onClick={() => setOpen(false)}
+                    >
+                        Done
+                    </button>
                 </div>
             )}
-        </div>
+        />
     );
 };

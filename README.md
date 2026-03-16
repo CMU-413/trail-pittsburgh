@@ -8,7 +8,7 @@
 
 ## Key Features
 
-*   **Issue Reporting:** Users can easily report new issues they find on trails, including a description, urgency level, and optional image.
+*   **Issue Reporting:** Users can easily report new issues they find on trails, including a description, safety risk, passability, and image.
 *   **Location Awareness:** The application supports geolocation to pinpoint the location of the reported issue on a map.
 *   **Issue Tracking:** Reported issues are tracked with their status (e.g., open, in progress, resolved).
 *   **Park and Trail Management:** Administrators can manage information about parks and the trails within them.
@@ -60,9 +60,17 @@ To get this project up and running on your local machine, follow these steps:
         GCS_SERVICE_ACCOUNT_KEY_FILENAME="<full filepath>"
         TRAIL_ISSUE_IMAGE_BUCKET="trail-pgh-issue-images"
         CLIENT_URL="http://localhost:5173"
+        SERVER_URL="http://localhost:3000"
         PORT=3000
         NODE_ENV=development
+        MAILGUN_API_KEY="<your-mailgun-api-key>"
+        MAILGUN_DOMAIN="<your-mailgun-domain>"
+        MAILGUN_FROM_EMAIL="no-reply@<your-mailgun-domain>"
+        MAILGUN_REPLY_TO="<your-email>"
+        ISSUE_NOTIFICATION_UNSUBSCRIBE_SECRET="<optional-random-long-secret>"
         ```
+        `ISSUE_NOTIFICATION_UNSUBSCRIBE_SECRET` is optional. If you leave it unset, the server automatically uses `JWT_SECRET`.
+        
         Steps to get `DATABASE_URL` working correctly:
         ```
         1. brew install postgresql@16

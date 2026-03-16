@@ -1,5 +1,5 @@
 import {
-    Prisma , IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum
+    Prisma , IssueStatusEnum, IssueTypeEnum, IssueRiskEnum
 } from '@prisma/client';
 import { z } from 'zod';
 
@@ -9,21 +9,18 @@ export const getIssuesByParkSchema = z.object({
     })
 });
 
-export const getIssuesByTrailSchema = z.object({
-    params: z.object({
-        trailId: z.coerce.number(),
-    })
-});
-
-export const getIssuesByUrgencySchema = z.object({
-    params: z.object({
-        urgency: z.nativeEnum(IssueUrgencyEnum),
-    })
-});
-
 export const getIssueSchema = z.object({
     params: z.object({
         issueId: z.coerce.number(),
+    })
+});
+
+export const setIssueGroupSchema = z.object({
+    params: z.object({
+        issueId: z.coerce.number(),
+    }),
+    body: z.object({
+        issueGroupMemberIds: z.array(z.coerce.number()).default([]),
     })
 });
 
@@ -35,6 +32,13 @@ export const getIssueMapPinsSchema = z.object({
             .union([z.nativeEnum(IssueTypeEnum), z.array(z.nativeEnum(IssueTypeEnum))])
  		.transform((v) => (v === undefined ? [] : Array.isArray(v) ? v : [v]))
   		.default([]),
+        statuses: z
+            .union([z.nativeEnum(IssueStatusEnum), z.array(z.nativeEnum(IssueStatusEnum))])
+            .transform((v) => (
+                v === undefined ? [
+                    IssueStatusEnum.OPEN, IssueStatusEnum.IN_PROGRESS
+                ] : Array.isArray(v) ? v : [v]))
+            .default([IssueStatusEnum.OPEN, IssueStatusEnum.IN_PROGRESS]),
     })
 });
 
@@ -44,6 +48,15 @@ export const updateIssueStatusSchema = z.object({
     }),
     body: z.object({
         status: z.nativeEnum(IssueStatusEnum),
+    })
+});
+
+export const unsubscribeIssueNotificationsSchema = z.object({
+    params: z.object({
+        issueId: z.coerce.number(),
+    }),
+    query: z.object({
+        token: z.string().min(1),
     })
 });
 
@@ -67,10 +80,11 @@ export const resolveIssueSchema = z.object({
 export const createIssueSchema = z.object({
     body: z.object({
         parkId: z.coerce.number(),
-        trailId: z.coerce.number(),
         issueType: z.nativeEnum(IssueTypeEnum),
-        urgency: z.nativeEnum(IssueUrgencyEnum),
+        safetyRisk: z.nativeEnum(IssueRiskEnum),
+        passible: z.boolean().default(false),
         isPublic: z.boolean().default(false),
+        isImagePublic: z.boolean().default(false),
         status: z.nativeEnum(IssueStatusEnum).default(IssueStatusEnum.OPEN),
         latitude: z.number().optional(),
         longitude: z.number().optional(),
@@ -102,16 +116,18 @@ export const updateIssueSchema = z.object({
     }),
     body: z.object({
         description: z.string().optional(),
-        urgency: z.nativeEnum(IssueUrgencyEnum).optional(),
+        safetyRisk: z.nativeEnum(IssueRiskEnum).optional(),
         issueType: z.nativeEnum(IssueTypeEnum).optional(),
+        isImagePublic: z.boolean().optional(),
         parkId: z.coerce.number().optional(),
         latitude: z.number().optional(),
         longitude: z.number().optional(),
     }).refine((data) => {
         // At least one field must be provided
         return data.description !== undefined ||
-               data.urgency !== undefined ||
+               data.safetyRisk !== undefined ||
                data.issueType !== undefined ||
+               data.isImagePublic !== undefined ||
                data.parkId !== undefined ||
 			   data.latitude !== undefined ||
 			   data.longitude !== undefined;
@@ -121,3 +137,5 @@ export const updateIssueSchema = z.object({
 });
 
 export type UpdateIssueInput = z.output<typeof updateIssueSchema>['body'];
+
+export type SetIssueGroupInput = z.output<typeof setIssueGroupSchema>['body'];

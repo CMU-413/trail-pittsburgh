@@ -11,38 +11,28 @@ export type Park = {
     isActive: boolean;
     createdAt: string;
 };
-  
-export type Trail = {
-    trailId: number;
-    parkId: number;
-    name: string;
-    isActive: boolean;
-    isOpen: boolean;
-    createdAt: string;
-};
 
 export enum IssueStatusEnum {
     OPEN = 'OPEN',
     IN_PROGRESS = 'IN_PROGRESS',
-    RESOLVED = 'RESOLVED',
-    CLOSED = 'CLOSED'
+    RESOLVED = 'RESOLVED'
 }
 
 export enum IssueTypeEnum {
     OBSTRUCTION = 'OBSTRUCTION',
-    EROSION = 'EROSION',
     FLOODING = 'FLOODING',
-    SIGNAGE = 'SIGNAGE',
-    VANDALISM = 'VANDALISM',
     OTHER = 'OTHER'
 }
 
-export enum IssueUrgencyEnum {
-    VERY_LOW = 'VERY_LOW',
-    LOW = 'LOW',
-    MEDIUM = 'MEDIUM',
-    HIGH = 'HIGH',
-    VERY_HIGH = 'VERY_HIGH'
+export enum IssueRiskEnum {
+    NO_RISK = 'NO_RISK',
+    MINOR_RISK = 'MINOR_RISK',
+    SERIOUS_RISK = 'SERIOUS_RISK'
+}
+
+export enum IssuePassibleEnum {
+    YES = 'YES',
+    NO = 'NO'
 }
 
 export enum UserRoleEnum {
@@ -70,21 +60,24 @@ export interface ImageMetadata {
   
 export type Issue = {
     issueId: number;
+    issueGroupId?: number | null;
     parkId: number;
-    trailId: number;
     isPublic: boolean;
+    isImagePublic?: boolean;
     status: IssueStatusEnum;
     description?: string;
     issueType: IssueTypeEnum;
-    urgency: IssueUrgencyEnum;
+    passible: boolean;
+    safetyRisk: IssueRiskEnum;
     image?: Image;
     imageMetadata?: ImageMetadata;
-    longitude?: number;
-    latitude?: number;
+    longitude: number;
+    latitude: number;
     notifyReporter: boolean;
     reporterEmail: string;
     createdAt: string;
     resolvedAt?: string;
+    issueGroupMemberIds?: number[];
 
 	park?: {
     	name: string;

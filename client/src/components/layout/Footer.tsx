@@ -18,8 +18,7 @@ export const Footer: React.FC = () => {
 
     // Protected navigation for authenticated users with proper permissions
     const protectedNavigation = [
-        { name: 'Dashboard', href: '/dashboard' },
-        { name: 'Parks', href: '/parks' },
+        { name: 'Dashboard', href: '/parks' },
     ];
 
     // Report Issue link (public)

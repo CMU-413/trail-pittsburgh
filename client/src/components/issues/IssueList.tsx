@@ -1,8 +1,6 @@
 // src/components/issues/IssueList.tsx
 import React from 'react';
-import {
-    Issue, Park, Trail 
-} from '../../types';
+import { Issue, Park } from '../../types';
 import { IssueCard } from './IssueCard';
 import { EmptyState } from '../layout/EmptyState';
 import { Link } from 'react-router-dom';
@@ -11,7 +9,6 @@ import { Button } from '../ui/Button';
 interface IssueListProps {
     issues: Issue[];
     parks?: Record<number, Park>;
-    trails?: Record<number, Trail>;
     showLocation?: boolean;
     emptyStateMessage?: string;
 }
@@ -19,7 +16,6 @@ interface IssueListProps {
 export const IssueList: React.FC<IssueListProps> = ({
     issues,
     parks = {},
-    trails = {},
     showLocation = true,
     emptyStateMessage = 'No issues found'
 }) => {
@@ -49,7 +45,6 @@ export const IssueList: React.FC<IssueListProps> = ({
                     key={issue.issueId}
                     issue={issue}
                     park={parks[issue.parkId]}
-                    trail={trails[issue.trailId]}
                     showLocation={showLocation}
                 />
             ))}

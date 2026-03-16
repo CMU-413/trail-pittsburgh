@@ -1,10 +1,12 @@
 // src/pages/issues/IssueDetailPage.tsx
-import React, { useState, useEffect } from 'react';
+import React, {
+    useState, useEffect, useRef
+} from 'react';
 import { 
     Link, useParams, useNavigate
 } from 'react-router-dom';
 import { 
-    Issue, Park, Trail, IssueStatusEnum
+    Issue, Park, IssueStatusEnum
 } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
@@ -17,16 +19,14 @@ import Location from '../../components/ui/Location';
 import { IssueTimer } from '../../components/issues/IssueTimer';
 import { ImageMetadataDisplay } from '../../components/ui/ImageMetadataDisplay';
 import { 
-    parkApi, trailApi, issueApi
+    parkApi, issueApi
 } from '../../services/api';
 import { useAuth } from '../../providers/AuthProvider';
-import { 
-    getUrgencyLevelIndex,
-    issueUrgencyFrontendToEnum,
-    issueUrgencyEnumToFrontend
-} from '../../utils/issueUrgencyUtils';
 import { issueTypeFrontendToEnum } from '../../utils/issueTypeUtils';
-import { IssueUrgencyEnum, IssueTypeEnum } from '../../types/index';
+import {
+    IssueTypeEnum, UserRoleEnum
+} from '../../types/index';
+import { IssueDropdown } from './components/IssueDropdown';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -34,22 +34,27 @@ export const IssueDetailPage: React.FC = () => {
 
     const [issue, setIssue] = useState<Issue | null>(null);
     const [park, setPark] = useState<Park | null>(null);
-    const [trail, setTrail] = useState<Trail | null>(null);
     const [parks, setParks] = useState<Park[]>([]);
-    const [trails, setTrails] = useState<Trail[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isResolving, setIsResolving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const [isEditing, setIsEditing] = useState(false);
     const [editedDescription, setEditedDescription] = useState('');
-    const [editedUrgency, setEditedUrgency] = useState<number>(1);
     const [editedIssueType, setEditedIssueType] = useState('');
     const [editedParkId, setEditedParkId] = useState<number>(0);
-    const [editedTrailId, setEditedTrailId] = useState<number>(0);
     const [isSaving, setIsSaving] = useState(false);
+    const [selectedGroupIssueIds, setSelectedGroupIssueIds] = useState<string[]>([]);
+    const [linkableIssues, setLinkableIssues] = useState<Issue[]>([]);
+    const [isLinking, setIsLinking] = useState(false);
+    const [isGroupDropdownOpen, setIsGroupDropdownOpen] = useState(false);
+
+    const groupDropdownRef = useRef<HTMLDivElement>(null);
 
     const { user } = useAuth();
+    const canEditIssue = user !== null;
+    const canManageIssueStatus = user?.role === UserRoleEnum.ROLE_ADMIN || user?.role === UserRoleEnum.ROLE_SUPERADMIN;
+    const canResolveIssue = canManageIssueStatus;
 
     const formatDate = (dateString: string, formatStr: string = 'PPP p') => {
         try {
@@ -68,6 +73,27 @@ export const IssueDetailPage: React.FC = () => {
             console.error('Error formatting date:', err, dateString);
             return 'unknown time';
         }
+    };
+
+    const toRadians = (degrees: number) => degrees * (Math.PI / 180);
+    const distanceInMiles = (
+        lat1: number,
+        lng1: number,
+        lat2: number,
+        lng2: number
+    ): number => {
+        const earthRadiusMiles = 3958.8;
+        const dLat = toRadians(lat2 - lat1);
+        const dLng = toRadians(lng2 - lng1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRadians(lat1)) *
+                Math.cos(toRadians(lat2)) *
+                Math.sin(dLng / 2) *
+                Math.sin(dLng / 2);
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return earthRadiusMiles * c;
     };
 
     useEffect(() => {
@@ -92,26 +118,22 @@ export const IssueDetailPage: React.FC = () => {
 
                 setIssue(issueData);
                 setEditedDescription(issueData.description || '');
-                setEditedUrgency(issueUrgencyEnumToFrontend(issueData.urgency));
                 setEditedIssueType(issueData.issueType.toLowerCase());
                 setEditedParkId(issueData.parkId);
-                setEditedTrailId(issueData.trailId || 0);
+                setSelectedGroupIssueIds(
+                    (issueData.issueGroupMemberIds ?? [])
+                        .filter((groupedIssueId) => groupedIssueId !== issueData.issueId)
+                        .map((groupedIssueId) => String(groupedIssueId))
+                );
 
                 // Fetch related park
                 const parkData = await parkApi.getPark(issueData.parkId);
                 setPark(parkData || null);
 
-                // Fetch related trail
-                const trailData = await trailApi.getTrail(issueData.trailId);
-                setTrail(trailData || null);
-
                 // Fetch all parks for dropdown
                 const parksData = await parkApi.getParks();
                 setParks(parksData.filter((p) => p.isActive));
 
-                // Fetch trails for the selected park
-                const trailsData = await trailApi.getTrailsByPark(issueData.parkId);
-                setTrails(trailsData.filter((t) => t.isActive));
             } catch (err) {
                 // eslint-disable-next-line no-console
                 console.error('Error fetching issue details:', err);
@@ -124,33 +146,47 @@ export const IssueDetailPage: React.FC = () => {
         fetchIssueData();
     }, [issueId]);
 
-    // When park changes, update trails
     useEffect(() => {
-        const fetchTrails = async () => {
-            if (editedParkId) {
-                try {
-                    const trailsData = await trailApi.getTrailsByPark(editedParkId);
-                    setTrails(trailsData.filter((trail) => trail.isActive));
+        const fetchLinkableIssues = async () => {
+            if (!issue || !canManageIssueStatus) {
+                setLinkableIssues([]);
+                return;
+            }
 
-                    // If current trail doesn't belong to selected park, reset it
-                    if (editedTrailId) {
-                        const trailExists = trailsData.some((t) => t.trailId === editedTrailId);
-                        if (!trailExists) {
-                            setEditedTrailId(0);
-                        }
-                    }
-                } catch (err) {
-                    // eslint-disable-next-line no-console
-                    console.error('Error loading trails:', err);
-                }
-            } else {
-                setTrails([]);
-                setEditedTrailId(0);
+            try {
+                const allIssues = await issueApi.getAllIssues();
+                const filteredIssues = allIssues.filter((candidate) => candidate.issueId !== issue.issueId);
+
+                const sorted = [...filteredIssues].sort((left, right) => {
+                    const leftDistance =
+                        typeof issue.latitude === 'number' &&
+                        typeof issue.longitude === 'number' &&
+                        typeof left.latitude === 'number' &&
+                        typeof left.longitude === 'number'
+                            ? distanceInMiles(issue.latitude, issue.longitude, left.latitude, left.longitude)
+                            : Number.POSITIVE_INFINITY;
+
+                    const rightDistance =
+                        typeof issue.latitude === 'number' &&
+                        typeof issue.longitude === 'number' &&
+                        typeof right.latitude === 'number' &&
+                        typeof right.longitude === 'number'
+                            ? distanceInMiles(issue.latitude, issue.longitude, right.latitude, right.longitude)
+                            : Number.POSITIVE_INFINITY;
+
+                    return leftDistance - rightDistance;
+                });
+
+                setLinkableIssues(sorted);
+            } catch (fetchError) {
+                // eslint-disable-next-line no-console
+                console.error('Failed to fetch linkable issues', fetchError);
+                setLinkableIssues([]);
             }
         };
 
-        fetchTrails();
-    }, [editedParkId, editedTrailId]);
+        fetchLinkableIssues();
+    }, [issue, canManageIssueStatus]);
 
     const handleResolveIssue = async () => {
         if (!issue || !issueId) {
@@ -185,19 +221,13 @@ export const IssueDetailPage: React.FC = () => {
             
             const updateData: {
                 description?: string;
-                urgency?: IssueUrgencyEnum;
                 issueType?: IssueTypeEnum;
                 parkId?: number;
-                trailId?: number;
             } = {};
             
             // Only include fields that have changed
             if (editedDescription !== issue.description) {
                 updateData.description = editedDescription;
-            }
-            const editedUrgencyEnum = issueUrgencyFrontendToEnum(editedUrgency);
-            if (editedUrgencyEnum !== issue.urgency) {
-                updateData.urgency = editedUrgencyEnum;
             }
             // Fix issue type comparison by converting both to the same format
             const editedIssueTypeEnum = issueTypeFrontendToEnum(editedIssueType);
@@ -207,9 +237,6 @@ export const IssueDetailPage: React.FC = () => {
             if (editedParkId !== issue.parkId) {
                 updateData.parkId = editedParkId;
             }
-            if (editedTrailId !== issue.trailId) {
-                updateData.trailId = editedTrailId;
-            }
     
             if (Object.keys(updateData).length > 0) {
                 const updatedIssue = await issueApi.updateIssue(id, updateData);
@@ -217,14 +244,10 @@ export const IssueDetailPage: React.FC = () => {
                 if (updatedIssue) {
                     setIssue(updatedIssue);
                     
-                    // Update park and trail data if they changed
+                    // Update park data if they changed
                     if (updateData.parkId) {
                         const newPark = await parkApi.getPark(updateData.parkId);
                         setPark(newPark || null);
-                    }
-                    if (updateData.trailId) {
-                        const newTrail = await trailApi.getTrail(updateData.trailId);
-                        setTrail(newTrail || null);
                     }
                     
                     setIsEditing(false);
@@ -240,15 +263,101 @@ export const IssueDetailPage: React.FC = () => {
             setIsSaving(false);
         }
     };
+
+    const handleSetInProgress = async () => {
+        if (!issue || !issueId) {
+            return;
+        }
+
+        try {
+            const id = parseInt(issueId, 10);
+
+            const updatedIssue = await issueApi.updateIssueStatus(id, IssueStatusEnum.IN_PROGRESS);
+
+            if (updatedIssue) {
+                setIssue(updatedIssue);
+            }
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('Error setting issue to in progress:', err);
+            alert('Failed to update issue status. Please try again.');
+        }
+    };
+
+    const handleUpdateGroup = async () => {
+        if (!issue || !issueId) {
+            return;
+        }
+
+        try {
+            setIsLinking(true);
+            const id = parseInt(issueId, 10);
+            const issueGroupMemberIds = selectedGroupIssueIds
+                .map((value) => Number(value))
+                .filter((value) => Number.isInteger(value) && value > 0 && value !== issue.issueId);
+
+            const updatedIssue = await issueApi.setIssueGroup(id, issueGroupMemberIds);
+
+            if (updatedIssue) {
+                setIssue(updatedIssue);
+            }
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('Error updating issue group:', err);
+            alert('Failed to update issue group. Please try again.');
+        } finally {
+            setIsLinking(false);
+        }
+    };
+
+    useEffect(() => {
+        const onDown = (e: MouseEvent) => {
+            if (!groupDropdownRef.current) {
+                return;
+            }
+
+            if (!groupDropdownRef.current.contains(e.target as Node)) {
+                setIsGroupDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', onDown);
+        return () => document.removeEventListener('mousedown', onDown);
+    }, []);
     
-    // Grant all user with edit access for now
-    const canEditIssue = user !== null;
-    const canResolveIssue = user !== null;
+    const resetEditedFields = () => {
+        setEditedDescription(issue?.description || '');
+        setEditedIssueType(issue?.issueType.toLowerCase() || 'other');
+        setEditedParkId(issue?.parkId || 0);
+    };
 
     // Format issue type for display
     const formatIssueType = (type: string): string => {
         return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
     };
+
+    const selectedGroupLabel = selectedGroupIssueIds.length === 0
+        ? 'No grouped issues'
+        : `${selectedGroupIssueIds.length} selected`;
+
+    const groupOptions = linkableIssues.map((candidateIssue) => {
+        const distanceLabel =
+            issue &&
+            typeof issue.latitude === 'number' &&
+            typeof issue.longitude === 'number' &&
+            typeof candidateIssue.latitude === 'number' &&
+            typeof candidateIssue.longitude === 'number'
+                ? `${distanceInMiles(issue.latitude, issue.longitude, candidateIssue.latitude, candidateIssue.longitude).toFixed(1)} mi`
+                : 'Distance unknown';
+
+        const parkLabel = candidateIssue.park?.name ?? 'Unknown Park';
+        const reportedDate = formatDate(candidateIssue.createdAt, 'MMM d, yyyy');
+
+        return {
+            value: String(candidateIssue.issueId),
+            label: `#${candidateIssue.issueId} • ${parkLabel} • ${reportedDate} • ${distanceLabel}`,
+        };
+    });
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -275,40 +384,37 @@ export const IssueDetailPage: React.FC = () => {
         <div className="container max-w-6xl mx-auto px-4 py-8">
             <PageHeader
                 title={`${formatIssueType(issue.issueType)}`}
-                subtitle={`#${issue.issueId} • ${park && trail ? `${park.name} • ${trail.name}` : 'Loading location...'}`}
-                action={
-                    <div className="flex gap-3">
-                        {/* Edit button - only shown when not editing and issue is not resolved */}
+                subtitle={`#${issue.issueId} • ${park ? `${park.name}` : 'Loading location...'}`}
+            />
+
+            {canManageIssueStatus && (
+                <Card className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Issue Actions</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                        Manage editing and work status for this issue.
+                    </p>
+
+                    <div className="space-y-3">
                         {canEditIssue && !isEditing && issue.status !== IssueStatusEnum.RESOLVED && (
                             <Button
                                 variant="secondary"
                                 onClick={() => {
                                     setIsEditing(true);
-                                    // Reset fields to original values
-                                    setEditedDescription(issue.description || '');
-                                    setEditedUrgency(issueUrgencyEnumToFrontend(issue.urgency));
-                                    setEditedIssueType(issue.issueType.toLowerCase());
-                                    setEditedParkId(issue.parkId);
-                                    setEditedTrailId(issue.trailId || 0);
+                                    resetEditedFields();
                                 }}
+                                className="w-full sm:w-auto"
                             >
                                 Edit Issue
                             </Button>
                         )}
-                        
-                        {/* Cancel and Save buttons - only shown when editing */}
+
                         {isEditing && (
-                            <>
+                            <div className="flex flex-wrap gap-2">
                                 <Button
                                     variant="secondary"
                                     onClick={() => {
                                         setIsEditing(false);
-                                        // Reset fields to original values
-                                        setEditedDescription(issue.description || '');
-                                        setEditedUrgency(issueUrgencyEnumToFrontend(issue.urgency));
-                                        setEditedIssueType(issue.issueType.toLowerCase());
-                                        setEditedParkId(issue.parkId);
-                                        setEditedTrailId(issue.trailId || 0);
+                                        resetEditedFields();
                                     }}
                                     disabled={isSaving}
                                 >
@@ -322,22 +428,98 @@ export const IssueDetailPage: React.FC = () => {
                                 >
                                     {isSaving ? 'Saving...' : 'Save Changes'}
                                 </Button>
-                            </>
+                            </div>
                         )}
-                        {/* Resolve button - shown when not editing */}
+
                         {issue.status !== IssueStatusEnum.RESOLVED && canResolveIssue && !isEditing && (
                             <Button
                                 variant="success"
                                 onClick={handleResolveIssue}
                                 isLoading={isResolving}
                                 disabled={isResolving}
+                                className="w-full sm:w-auto"
                             >
                                 {isResolving ? 'Resolving...' : 'Resolve Issue'}
                             </Button>
                         )}
+
+                        <p className="text-sm text-gray-600 pt-2">Work Status</p>
+
+                        {issue.status === IssueStatusEnum.OPEN && (
+                            <Button
+                                variant="primary"
+                                onClick={handleSetInProgress}
+                                className="w-full sm:w-auto"
+                            >
+                                Start Working
+                            </Button>
+                        )}
+
+                        {issue.status === IssueStatusEnum.RESOLVED && (
+                            <Button
+                                variant="secondary"
+                                onClick={handleSetInProgress}
+                                className="w-full sm:w-auto"
+                            >
+                                Unresolve (Set In Progress)
+                            </Button>
+                        )}
+
+                        {issue.status === IssueStatusEnum.IN_PROGRESS && (
+                            <p className="text-sm text-gray-700">This issue is already in progress.</p>
+                        )}
+
+                        <div className="pt-3 border-t border-gray-100">
+                            <p className="text-sm text-gray-600 mb-2">Duplicate Management</p>
+                            <div className="space-y-2">
+                                <IssueDropdown
+                                    triggerLabel={selectedGroupLabel}
+                                    isOpen={isGroupDropdownOpen}
+                                    onToggle={() => setIsGroupDropdownOpen((isOpen) => !isOpen)}
+                                    onSelect={(value) => {
+                                        setSelectedGroupIssueIds((previous) => (
+                                            previous.includes(value)
+                                                ? previous.filter((selectedValue) => selectedValue !== value)
+                                                : [...previous, value]
+                                        ));
+                                    }}
+                                    selectedValues={selectedGroupIssueIds}
+                                    options={groupOptions}
+                                    dropdownRef={groupDropdownRef}
+                                    widthClass="w-full sm:w-80"
+                                    menuAlign="left"
+                                    menuWidthClass="w-full"
+                                    triggerClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 inline-flex items-center justify-between"
+                                    renderOptionLabel={(option) => (
+                                        <span className="text-xs text-gray-700">{option.label}</span>
+                                    )}
+                                    footer={(
+                                        <div className="flex justify-end px-3 pt-2 pb-1 mt-1 border-t border-gray-100">
+                                            <button
+                                                type="button"
+                                                className="text-sm text-gray-700"
+                                                onClick={() => setIsGroupDropdownOpen(false)}
+                                            >
+                                                Done
+                                            </button>
+                                        </div>
+                                    )}
+                                />
+                                <Button
+                                    variant="secondary"
+                                    onClick={handleUpdateGroup}
+                                    isLoading={isLinking}
+                                    disabled={isLinking}
+                                    className="w-full sm:w-auto"
+                                >
+                                    {isLinking ? 'Updating...' : 'Update Group'}
+                                </Button>
+                            </div>
+                        </div>
+
                     </div>
-                }
-            />
+                </Card>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <Card className="lg:col-span-2 overflow-hidden">
@@ -355,10 +537,7 @@ export const IssueDetailPage: React.FC = () => {
                                             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                                         >
                                             <option value="obstruction">Obstruction (tree down, etc.)</option>
-                                            <option value="erosion">Trail Erosion</option>
-                                            <option value="flooding">Flooding</option>
-                                            <option value="signage">Damaged/Missing Signage</option>
-                                            <option value="vandalism">Vandalism</option>
+                                            <option value="flooding">Standing Water/Mud</option>
                                             <option value="other">Other</option>
                                         </select>
                                     </div>
@@ -468,45 +647,33 @@ export const IssueDetailPage: React.FC = () => {
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Issue Details</h3>
 
                         <div className="space-y-4">
+                            <IssueTimer issue={issue} />
+
                             <div>
-                                <p className="text-sm font-medium text-gray-500">Urgency</p>
-                                {isEditing ? (
-                                    <div className="mt-1">
-                                        <select
-                                            value={editedUrgency}
-                                            onChange={(e) => setEditedUrgency(Number(e.target.value))}
-                                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                                        >
-                                            {[1, 2, 3, 4, 5].map((level) => (
-                                                <option key={level} value={level}>
-                                                    {level} - {['Low', 'Medium-Low', 'Medium', 'Medium-High', 'High'][level - 1]}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center mt-1">
-                                        <div className="flex">
-                                            {Array.from({ length: 5 }).map((_, i) => {
-                                                const currentLevel = getUrgencyLevelIndex(issue.urgency);
-                                                return (
-                                                    <svg
-                                                        key={i}
-                                                        className={`w-4 h-4 ${i <= currentLevel ? 'text-red-500' : 'text-gray-300'}`}
-                                                        fill="currentColor"
-                                                        viewBox="0 0 20 20"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                    >
-                                                        <path d="M10.865 2.23a1 1 0 00-1.73 0L1.322 16.23A1 1 0 002.152 18h15.696a1 1 0 00.83-1.77L10.865 2.23zM10 14a1 1 0 110 2 1 1 0 010-2zm-.75-7.5a.75.75 0 011.5 0v4.5a.75.75 0 01-1.5 0V6.5z" />
-                                                    </svg>
-                                                );
-                                            })}
+                                <p className="text-sm font-medium text-gray-500">Issue Group</p>
+                                {issue.issueGroupMemberIds && issue.issueGroupMemberIds.filter((id) => id !== issue.issueId).length > 0 && (
+                                    <div className="mt-2">
+                                        <div className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-900">
+                                            <span>Grouped with Issue </span>
+                                            <span className="ml-1">
+                                                {issue.issueGroupMemberIds
+                                                    .filter((id) => id !== issue.issueId)
+                                                    .map((groupedIssueId, index, issueGroupMemberIds) => (
+                                                        <span key={groupedIssueId}>
+                                                            <Link
+                                                                to={`/issues/card/${groupedIssueId}`}
+                                                                className="text-blue-600 hover:text-blue-500"
+                                                            >
+                                                                {groupedIssueId}
+                                                            </Link>
+                                                            {index < issueGroupMemberIds.length - 1 ? ', ' : ''}
+                                                        </span>
+                                                    ))}
+                                            </span>
                                         </div>
                                     </div>
                                 )}
                             </div>
-
-                            <IssueTimer issue={issue} />
 
                             <div>
                                 <p className="text-sm font-medium text-gray-500">Location</p>
@@ -530,24 +697,6 @@ export const IssueDetailPage: React.FC = () => {
                                                     ))}
                                                 </select>
                                             </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">
-                                                    Trail
-                                                </label>
-                                                <select
-                                                    value={editedTrailId}
-                                                    onChange={(e) => setEditedTrailId(Number(e.target.value))}
-                                                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                                                    disabled={!editedParkId}
-                                                >
-                                                    <option value="">{editedParkId ? 'Select a trail' : 'Select a park first'}</option>
-                                                    {trails.map((t) => (
-                                                        <option key={t.trailId} value={t.trailId}>
-                                                            {t.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
                                         </div>
                                     ) : (
                                         <>
@@ -557,15 +706,6 @@ export const IssueDetailPage: React.FC = () => {
                                                     className="text-blue-600 hover:text-blue-500 block"
                                                 >
                                                     {park.name}
-                                                </Link>
-                                            )}
-
-                                            {trail && (
-                                                <Link
-                                                    to={`/parks/${park?.parkId}/trails/${trail.trailId}`}
-                                                    className="text-blue-600 hover:text-blue-500 block mt-1"
-                                                >
-                                                    {trail.name}
                                                 </Link>
                                             )}
                                         </>

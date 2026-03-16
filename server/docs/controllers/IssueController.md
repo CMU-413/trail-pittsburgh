@@ -1,6 +1,6 @@
 # IssueController Documentation
 
-The `IssueController` handles HTTP requests related to `Issue` entities and delegates core logic to the `IssueService`. It includes endpoints to create, retrieve, update, delete, and filter issues by park, trail, or urgency.
+The `IssueController` handles HTTP requests related to `Issue` entities and delegates core logic to the `IssueService`. It includes endpoints to create, retrieve, update, delete, and filter issues by park.
 
 ## Class: `IssueController`
 
@@ -23,7 +23,7 @@ public async createIssue(req: Request, res: Response)
 
 - **Route**: `POST /api/issues`
 - **Purpose**: Create a new issue.
-- **Request Body**: JSON payload with issue fields (e.g., description, trailId, urgency).
+- **Request Body**: JSON payload with issue fields (e.g., description, safetyRisk).
 - **Responses**:
   - `201 Created`:
     ```json
@@ -83,38 +83,6 @@ public async getIssuesByPark(req: Request, res: Response)
 
 ---
 
-### Method: `getIssuesByTrail`
-
-```ts
-public async getIssuesByTrail(req: Request, res: Response)
-```
-
-- **Route**: `GET /api/issues/trail/:trailId`
-- **Purpose**: Get issues for a specific trail.
-- **Params**:
-  - `trailId` (path param): Numeric ID of the trail.
-- **Responses**:
-  - `200 OK`: `{ "issues": [ ... ] }`
-  - `500 Internal Server Error`: On error.
-
----
-
-### Method: `getIssuesByUrgency`
-
-```ts
-public async getIssuesByUrgency(req: Request, res: Response)
-```
-
-- **Route**: `GET /api/issues/urgency/:urgency`
-- **Purpose**: Get issues by urgency level.
-- **Params**:
-  - `urgency` (path param): Value from `IssueUrgencyEnum` (e.g., `"low"`, `"medium"`, `"high"`).
-- **Responses**:
-  - `200 OK`: `{ "issues": [ ... ] }`
-  - `500 Internal Server Error`: On error.
-
----
-
 ### Method: `updateIssueStatus`
 
 ```ts
@@ -152,7 +120,6 @@ public async updateIssue(req: Request, res: Response)
   ```json
   {
     "description": "Updated description",
-    "urgency": "medium",
     "issueType": "obstruction",
     "parkId": 1,
     "latitude": 80,
@@ -163,6 +130,28 @@ public async updateIssue(req: Request, res: Response)
   - `200 OK`: `{ "issue": { ... } }`
   - `404 Not Found`: If issue not found.
   - `500 Internal Server Error`: On error.
+
+---
+
+### Method: `unsubscribeReporterNotifications`
+
+```ts
+public async unsubscribeReporterNotifications(req: Request, res: Response)
+```
+
+- **Route**: `GET /api/issues/:issueId/unsubscribe?token=<token>`
+- **Purpose**: Unsubscribe the reporter from future email notifications for a specific issue.
+- **Params**:
+  - `issueId` (path param): Numeric ID of the issue.
+- **Query**:
+  - `token`: Signed unsubscribe token generated for that issue/reporter email.
+- **Responses**:
+  - Browser/email-link click (`Accept: text/html`): Returns an HTML confirmation/error page.
+  - API client (`Accept: application/json`): Returns JSON `{ "message": "..." }`.
+  - `200 OK`: Unsubscribed successfully or already unsubscribed.
+  - `400 Bad Request`: Invalid/expired token.
+  - `404 Not Found`: Issue does not exist.
+  - `500 Internal Server Error`: Unsubscribe processing failed.
 
 ---
 

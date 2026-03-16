@@ -1,6 +1,5 @@
 // src/pages/issues/IssueReportPage.tsx
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { IssueParams } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { IssueReportForm } from '../../components/issues/IssueReportForm';
@@ -10,19 +9,16 @@ import { Card } from '../../components/ui/Card';
 import { issueApi } from '../../services/api';
 
 export const IssueReportPage: React.FC = () => {
-    const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
     const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
-
-    // Get park and trail IDs from query parameters, if available
-    const parkId = queryParams.get('parkId') ? parseInt(queryParams.get('parkId')!, 10) : undefined;
-    const trailId = queryParams.get('trailId') ? parseInt(queryParams.get('trailId')!, 10) : undefined;
 
     const handleSubmit = async (data: IssueParams) => {
         try {
             const errorMsg = await issueApi.createIssue(data);
-            if (errorMsg) { console.error(errorMsg); } // TODO Update UI to display error message
+            if (errorMsg) { 
+                // eslint-disable-next-line no-console
+                console.error(errorMsg); 
+            } // TODO Update UI to display error message
 
             // Set submission state to true to hide the form
             setIsSubmitted(true);
@@ -90,8 +86,6 @@ export const IssueReportPage: React.FC = () => {
                 <>
                     <IssueReportForm
                         onSubmit={handleSubmit}
-                        initialParkId={parkId}
-                        initialTrailId={trailId}
                     />
 
                     <div className="mt-10 max-w-3xl mx-auto bg-gray-50 p-4 rounded-lg border border-gray-100">

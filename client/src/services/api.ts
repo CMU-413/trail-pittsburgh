@@ -1,5 +1,5 @@
 import {
-    Park, Trail, Issue, IssueParams, IssueStatusEnum, IssueUrgencyEnum,
+    Park, Issue, IssueParams, IssueStatusEnum,
     IssueTypeEnum,
     UserRoleEnum,
     User
@@ -66,64 +66,6 @@ export const parkApi = {
     },
 };
 
-export const trailApi = {
-    getAllTrails: async (): Promise<Trail[]> => {
-        const response = await fetch(`${API_BASE_URL}/trails`, {
-            credentials: 'include'
-        })
-            .then(handleResponse);
-        return response.trails;
-    },
-
-    getTrail: async (trailId: number): Promise<Trail> => {
-        const response = await fetch(`${API_BASE_URL}/trails/${trailId}`, {
-            credentials: 'include'
-        })
-            .then(handleResponse);
-        return response.trail;
-    },
-
-    getTrailsByPark: async (parkId: number): Promise<Trail[]> => {
-        const response = await fetch(`${API_BASE_URL}/trails/park/${parkId}`, {
-            credentials: 'include'
-        }).then(handleResponse);
-        return response.trails;
-    },
-
-    createTrail: async (trailData: Omit<Trail, 'trailId'>): Promise<Trail> => {
-        const response = await fetch(`${API_BASE_URL}/trails`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(trailData),
-            credentials: 'include'
-        })
-            .then(handleResponse);
-        return response.trail;
-    },
-
-    updateTrail: async (trailData: Trail): Promise<Trail> => {
-        const response = await fetch(`${API_BASE_URL}/trails/${trailData.trailId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(trailData),
-            credentials: 'include'
-        }).then(handleResponse);
-        return response.trail;
-    },
-
-    deleteTrail: async (trailId: number): Promise<void> => {
-        const response = await fetch(`${API_BASE_URL}/trails/${trailId}`, {
-            method: 'DELETE',
-            credentials: 'include'
-        });
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            const errorMessage = errorData.message || `Error: ${response.status} ${response.statusText}`;
-            throw new Error(errorMessage);
-        }
-    },
-};
-
 export const issueApi = {
     getAllIssues: async (): Promise<Issue[]> => {
         const response = await fetch(`${API_BASE_URL}/issues`, {
@@ -147,19 +89,6 @@ export const issueApi = {
         })
             .then(handleResponse);
         return response.issues;
-    },
-
-    getIssuesByTrail: async (trailId: number): Promise<Issue[]> => {
-        const response = await fetch(`${API_BASE_URL}/issues/trail/${trailId}`, {
-            credentials: 'include'
-        })
-            .then(handleResponse);
-        return response.issues;
-    },
-
-    getIssuesByUrgency: async (urgency: IssueUrgencyEnum): Promise<Issue[]> => {
-        const response = await fetch(`${API_BASE_URL}/issues/urgency/${urgency}`);
-        return handleResponse(response);
     },
 
     createIssue: async (issueData: IssueParams): Promise<string | undefined> => {
@@ -272,10 +201,11 @@ export const issueApi = {
 
     updateIssue: async (issueId: number, data: {
         description?: string;
-        urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
+        isImagePublic?: boolean;
         parkId?: number;
-        trailId?: number;
+		latitude?: number;
+		longitude?: number;
     }): Promise<Issue> => {
         const response = await fetch(`${API_BASE_URL}/issues/${issueId}`, {
             method: 'PUT',
@@ -284,6 +214,25 @@ export const issueApi = {
             credentials: 'include'
         }).then(handleResponse);
         
+        return response.issue;
+    },
+
+    getGroupedIssues: async (issueId: number): Promise<Issue[]> => {
+        const response = await fetch(`${API_BASE_URL}/issues/${issueId}/grouped`, {
+            credentials: 'include'
+        }).then(handleResponse);
+
+        return response.issues;
+    },
+
+    setIssueGroup: async (issueId: number, issueGroupMemberIds: number[]): Promise<Issue> => {
+        const response = await fetch(`${API_BASE_URL}/issues/${issueId}/group`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ issueGroupMemberIds }),
+            credentials: 'include'
+        }).then(handleResponse);
+
         return response.issue;
     },
 };

@@ -19,6 +19,7 @@ export class ParkRepository {
             });
             return result;
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error creating park:', error);
             throw error;
         }
@@ -59,20 +60,6 @@ export class ParkRepository {
         } catch (error) {
             // Park id not found
             if (isNotFoundError(error)) { return false; }
-            throw error;
-        }
-    }
-
-    public async getTrailsByPark(parkId: number) {
-        try {
-            const trails = await prisma.trail.findMany({
-                where: {
-                    parkId: parkId,
-                }
-            });
-            return trails;
-        } catch (error) {
-            console.error('Repository: Error getting trails:', error);
             throw error;
         }
     }

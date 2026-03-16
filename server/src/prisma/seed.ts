@@ -1,5 +1,5 @@
 import {
-    PrismaClient, UserRoleEnum, IssueStatusEnum, IssueTypeEnum, IssueUrgencyEnum 
+    PrismaClient, UserRoleEnum, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 async function main() {
     await prisma.$executeRawUnsafe(`
         TRUNCATE TABLE 
-            "Issue", "Park", "Trail", "User", "Notification" 
+            "Issue", "Park", "User", "Notification" 
         RESTART IDENTITY CASCADE;
     `);
 
@@ -76,53 +76,48 @@ async function main() {
 
     const parkRecords = await prisma.park.findMany();
 
-    // Create Trails
-    //eslint-disable-next-line
-    const trails = await prisma.trail.createMany({
-        data: [
-            { name: 'Great Allegheny Passage', parkId: parkRecords[0].parkId, isOpen: true },
-            { name: 'Three Rivers Heritage Trail', parkId: parkRecords[1].parkId, isOpen: true },
-            { name: 'Frick Park Trails', parkId: parkRecords[2].parkId, isOpen: true },
-            { name: 'Schenley Park Trails', parkId: parkRecords[3].parkId, isOpen: true },
-            { name: 'Highland Park Trails', parkId: parkRecords[4].parkId, isOpen: true }
-        ]
-    });
-
-    const trailRecords = await prisma.trail.findMany();
-
     // Create Issues
     //eslint-disable-next-line
     const issues = await prisma.issue.createMany({
         data: [
             {
                 parkId: parkRecords[0].parkId,
-                trailId: trailRecords[0].trailId,
-                issueType: IssueTypeEnum.FLOODING,
-                urgency: IssueUrgencyEnum.HIGH,
+                issueType: IssueTypeEnum.OBSTRUCTION,
+                safetyRisk: IssueRiskEnum.NO_RISK,
+                passible: true,
+                latitude: 40.87,
+                longitude: -79.92,
                 description: 'Heavy rainfall caused water pooling on the trail.',
                 isPublic: true,
+                isImagePublic: false,
                 status: IssueStatusEnum.OPEN,
                 notifyReporter: true,
                 reporterEmail: 'john@example.com'
             },
             {
                 parkId: parkRecords[1].parkId,
-                trailId: trailRecords[1].trailId,
                 issueType: IssueTypeEnum.OBSTRUCTION,
-                urgency: IssueUrgencyEnum.MEDIUM,
+                safetyRisk: IssueRiskEnum.MINOR_RISK,
+                passible: false,
+                latitude: 40.37,
+                longitude: -80.42,
                 description: 'A fallen tree is blocking the path near mile marker 5.',
                 isPublic: true,
+                isImagePublic: false,
                 status: IssueStatusEnum.OPEN,
                 notifyReporter: true,
                 reporterEmail: 'jane@example.com'
             },
             {
                 parkId: parkRecords[2].parkId,
-                trailId: trailRecords[2].trailId,
-                issueType: IssueTypeEnum.EROSION,
-                urgency: IssueUrgencyEnum.HIGH,
+                issueType: IssueTypeEnum.OBSTRUCTION,
+                safetyRisk: IssueRiskEnum.SERIOUS_RISK,
+                passible: false,
+                latitude: 40.44,
+                longitude: -79.68,
                 description: 'Severe erosion has made the path unsafe for bikers.',
                 isPublic: true,
+                isImagePublic: false,
                 status: IssueStatusEnum.OPEN,
                 notifyReporter: true,
                 reporterEmail: 'mike@example.com'
@@ -152,6 +147,7 @@ async function main() {
 
 main()
     .catch((e) => {
+        // eslint-disable-next-line no-console
         console.error('Fatal error:', e);
         process.exit(1);
     })

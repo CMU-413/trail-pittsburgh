@@ -11,24 +11,32 @@ import {
     createIssueSchema,
     deleteIssueSchema,
     getIssuesByParkSchema,
-    getIssuesByTrailSchema,
-    getIssuesByUrgencySchema,
     getIssueSchema,
+    unsubscribeIssueNotificationsSchema,
     getIssueMapPinsSchema,
     updateIssueStatusSchema,
-    updateIssueSchema
+    updateIssueSchema,
+    setIssueGroupSchema
 } from '@/schemas/issueSchema';
+import { IssueNotificationService } from '@/services/IssueNotificationService';
 import { IssueService } from '@/services/IssueService';
 
 const issueRepository = new IssueRepository();
 const bucket = createBucket(process.env.TRAIL_ISSUE_IMAGE_BUCKET!);
 const issueImageBucket = new GCSBucket(bucket);
-const issueService = new IssueService(issueRepository, issueImageBucket);
+const issueNotificationService = new IssueNotificationService();
+const issueService = new IssueService(issueRepository, issueImageBucket, issueNotificationService);
 const issueController = new IssueController(issueService);
 
 const router = express.Router();
 
 // Public Routes
+router.get(
+    '/:issueId/unsubscribe',
+    validateRequest(unsubscribeIssueNotificationsSchema),
+    issueController.unsubscribeReporterNotifications
+); // Unsubscribe reporter from issue email updates
+
 router.post(
     '/',
     authenticateToken,
@@ -67,18 +75,6 @@ router.get('/park/:parkId',
     requireAdmin,
     issueController.getIssuesByPark); // Get issues by park
 
-router.get('/trail/:trailId', 
-    authenticateToken,
-    validateRequest(getIssuesByTrailSchema), 
-    requireAdmin,
-    issueController.getIssuesByTrail); // Get issues by trail
-
-router.get('/urgency/:urgency', 
-    authenticateToken,
-    validateRequest(getIssuesByUrgencySchema), 
-    requireAdmin,
-    issueController.getIssuesByUrgency); // Get issues by urgency
-
 router.put(
     '/:issueId/status',
     authenticateToken,
@@ -86,6 +82,22 @@ router.put(
     requireAdmin,
     issueController.updateIssueStatus
 ); // Update issue status (resolve issue)
+
+router.get(
+    '/:issueId/grouped',
+    authenticateToken,
+    validateRequest(getIssueSchema),
+    requireAdmin,
+    issueController.getGroupedIssues
+); // Get all issues in same issue group
+
+router.put(
+    '/:issueId/group',
+    authenticateToken,
+    validateRequest(setIssueGroupSchema),
+    requireAdmin,
+    issueController.setIssueGroup
+); // Set grouped issues membership for an issue
 
 // Super Admin Routes
 router.delete(

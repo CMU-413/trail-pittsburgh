@@ -10,17 +10,15 @@ interface IssueStatusBadgeProps {
 
 export const IssueStatusBadge: React.FC<IssueStatusBadgeProps> = ({ status, className = '' }) => {
     const statusVariant = {
-        [IssueStatusEnum.OPEN]: 'danger',
+        [IssueStatusEnum.OPEN]: 'success',
         [IssueStatusEnum.IN_PROGRESS]: 'warning',
-        [IssueStatusEnum.RESOLVED]: 'success',
-        [IssueStatusEnum.CLOSED]: 'secondary'
+        [IssueStatusEnum.RESOLVED]: 'secondary'
     } as const;
 
     const statusLabel = {
         [IssueStatusEnum.OPEN]: 'Open',
         [IssueStatusEnum.IN_PROGRESS]: 'In Progress',
-        [IssueStatusEnum.RESOLVED]: 'Resolved',
-        [IssueStatusEnum.CLOSED]: 'Closed'
+        [IssueStatusEnum.RESOLVED]: 'Resolved'
     };
 
     return (

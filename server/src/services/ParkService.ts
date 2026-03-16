@@ -37,8 +37,4 @@ export class ParkService {
 
         return this.parkRepository.deletePark(parkId);
     }
-
-    public async getTrailsByPark(parkId: number) {
-        return this.parkRepository.getTrailsByPark(parkId);
-    }
 }

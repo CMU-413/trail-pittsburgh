@@ -20,7 +20,11 @@ export const Button: React.FC<ButtonProps> = ({
     disabled,
     ...props
 }) => {
-    const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors cursor-pointer hover:cursor-pointer';
+    const baseClasses ='inline-flex items-center justify-center rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors';
+
+    const disabledClass = (disabled || isLoading)
+        ? 'opacity-50 cursor-not-allowed pointer-events-none'
+        : 'cursor-pointer hover:cursor-pointer';
     
     const variantClasses = {
         primary: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500',
@@ -42,9 +46,9 @@ export const Button: React.FC<ButtonProps> = ({
     
     return (
         <button
-            className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${widthClass} ${loadingClass} ${className}`}
-            disabled={disabled || isLoading}
             {...props}
+            className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${widthClass} ${loadingClass} ${disabledClass} ${className}`}
+            disabled={disabled || isLoading}
         >
             {isLoading && (
                 <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

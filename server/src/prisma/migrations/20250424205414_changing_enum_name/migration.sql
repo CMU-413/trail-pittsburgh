@@ -8,13 +8,13 @@
 
 */
 -- CreateEnum
-CREATE TYPE "IssueStatusEnum" AS ENUM ('OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED');
+CREATE TYPE "IssueStatusEnum" AS ENUM ('OPEN', 'IN_PROGRESS', 'RESOLVED');
 
 -- CreateEnum
-CREATE TYPE "IssueTypeEnum" AS ENUM ('OBSTRUCTION', 'EROSION', 'FLOODING', 'SIGNAGE', 'VANDALISM', 'OTHER');
+CREATE TYPE "IssueTypeEnum" AS ENUM ('OBSTRUCTION', 'FLOODING', 'OTHER');
 
 -- CreateEnum
-CREATE TYPE "IssueUrgencyEnum" AS ENUM ('VERY_LOW', 'LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH');
+CREATE TYPE "IssueUrgencyEnum" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
 
 -- CreateEnum
 CREATE TYPE "UserRoleEnum" AS ENUM ('ROLE_USER', 'ROLE_ADMIN', 'ROLE_SUPERADMIN');

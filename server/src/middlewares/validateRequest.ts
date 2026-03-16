@@ -9,7 +9,7 @@ export const validateRequest = (schema: AnyZodObject) =>
             const resolvedReq = await schema.parseAsync({
                 body: req.body,
                 params: req.params,
-                query: req.query, 
+                query: req.query,
             });
             req.body = resolvedReq.body;
             req.params = resolvedReq.params;

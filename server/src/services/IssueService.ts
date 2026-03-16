@@ -1,20 +1,33 @@
 import {
-    IssueUrgencyEnum, IssueTypeEnum, IssueStatusEnum
+    IssueTypeEnum, IssueStatusEnum
 } from '@prisma/client';
 import { v4 as uuid } from 'uuid';
 
 import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
-import { CreateIssueInput } from '@/schemas/issueSchema';
+import {
+    CreateIssueInput,
+    SetIssueGroupInput
+} from '@/schemas/issueSchema';
+import { IssueNotificationService } from '@/services/IssueNotificationService';
 import { logger } from '@/utils/logger';
+
+type RepositoryIssue = Awaited<ReturnType<IssueRepository['getIssue']>>;
+type NotificationIssue = Parameters<IssueNotificationService['sendIssueCreatedConfirmation']>[0];
 
 export class IssueService {
     private readonly issueRepository: IssueRepository;
     private readonly issueImageBucket: GCSBucket;
+    private readonly issueNotificationService: IssueNotificationService;
 
-    constructor(issueRepository: IssueRepository, imagesBucket: GCSBucket) {
+    constructor(
+        issueRepository: IssueRepository,
+        imagesBucket: GCSBucket,
+        issueNotificationService: IssueNotificationService
+    ) {
         this.issueRepository = issueRepository;
         this.issueImageBucket = imagesBucket;
+        this.issueNotificationService = issueNotificationService;
     }
 
     private async getIssueImage(imageKey: string) {
@@ -43,22 +56,50 @@ export class IssueService {
         }
     }
 
-    public async getIssue(issueId: number) {
-        const issue = await this.issueRepository.getIssue(issueId);
+    private toNotificationIssue(issue: NonNullable<RepositoryIssue>): NotificationIssue {
+        return {
+            ...issue,
+            issueGroupId: issue.issueGroupId ?? null,
+        };
+    }
+
+    private async toIssueResponse(issue: RepositoryIssue) {
         if (!issue) {
             return null;
         }
 
-        const { issueImage } = issue;
+        const {
+            issueImage,
+            issueGroup,
+            ...issueData
+        } = issue;
+
+        const groupIssues: Array<{ issueId: number }> =
+            Array.isArray(issueGroup?.issues) ? issueGroup.issues : [];
+
+        const issueGroupMemberIds = (
+            groupIssues.length > 0 ? groupIssues : [{ issueId: issue.issueId }]
+        )
+            .map((groupIssue) => groupIssue.issueId)
+            .sort((a: number, b: number) => a - b);
 
         return {
-            ...issue,
+            ...issueData,
+            status: issueGroup?.status ?? issue.status,
+            issueGroupId: issue.issueGroupId ?? issueGroup?.issueGroupId ?? null,
+            issueGroupMemberIds,
             ...(issueImage && { image: await this.getIssueImage(issueImage) })
         };
     }
 
+    public async getIssue(issueId: number) {
+        const issue = await this.issueRepository.getIssue(issueId);
+        return this.toIssueResponse(issue);
+    }
+
     public async getAllIssues() {
-        return this.issueRepository.getAllIssues();
+        const issues = await this.issueRepository.getAllIssues();
+        return Promise.all(issues.map((issue) => this.toIssueResponse(issue)));
     }
 
     public async getMapPins(minLat: number, 
@@ -66,8 +107,10 @@ export class IssueService {
         maxLat: number, 
         maxLng: number,
         issueTypes: IssueTypeEnum[],
-        status: IssueStatusEnum) {
-        return this.issueRepository.getMapPins(minLat, minLng, maxLat, maxLng, issueTypes, status);
+        statuses: IssueStatusEnum[]) {
+        return this.issueRepository.getMapPins(
+            minLat, minLng, maxLat, maxLng, issueTypes, statuses
+        );
     }
 
     public async createIssue(data: CreateIssueInput) {
@@ -89,8 +132,19 @@ export class IssueService {
         };
 
         const issue = await this.issueRepository.createIssue(newIssueInput);
+
+        if (!issue) {
+            throw new Error('Failed to create issue');
+        }
+
+        await this.issueNotificationService.sendIssueCreatedConfirmation(
+            this.toNotificationIssue(issue)
+        );
+
+        const issueResponse = await this.toIssueResponse(issue);
+
         return {
-            issue,
+            issue: issueResponse,
             signedUrl,
         };
     }
@@ -100,35 +154,87 @@ export class IssueService {
     }
 
     public async getIssuesByPark(parkId: number) {
-        return this.issueRepository.getIssuesByPark(parkId);
-    }
-
-    public async getIssuesByTrail(trailId: number) {
-        return this.issueRepository.getIssuesByTrail(trailId);
-    }
-
-    public async getIssuesByUrgency(urgencyLevel: IssueUrgencyEnum) {
-        return this.issueRepository.getIssuesByUrgency(urgencyLevel);
+        const issues = await this.issueRepository.getIssuesByPark(parkId);
+        return Promise.all(issues.map((issue) => this.toIssueResponse(issue)));
     }
 
     public async updateIssueStatus(issueId: number, status: IssueStatusEnum) {
+        const existingIssue = await this.issueRepository.getIssue(issueId);
+
+        if (!existingIssue) {
+            return null;
+        }
+
         const issue = await this.issueRepository.updateIssueStatus(issueId, status);
         if (!issue) {
             return null;
         }
 
-        const { issueImage } = issue;
+        const statusChanged = existingIssue.status !== status;
+        const notificationIssue = this.toNotificationIssue(issue);
 
-        return {
-            ...issue,
-            ...(issueImage && { image: await this.getIssueImage(issueImage) })
-        };
+        if (statusChanged && status === IssueStatusEnum.IN_PROGRESS) {
+            await this.issueNotificationService.sendIssueInProgressUpdate(notificationIssue);
+        }
+
+        if (statusChanged && status === IssueStatusEnum.RESOLVED) {
+            await this.issueNotificationService.sendIssueResolvedUpdate(notificationIssue);
+        }
+
+        return this.toIssueResponse(issue);
+    }
+
+    public async getGroupedIssues(issueId: number) {
+        const issue = await this.issueRepository.getIssue(issueId);
+        if (!issue) {
+            return null;
+        }
+
+        if (!issue.issueGroupId) {
+            const response = await this.toIssueResponse(issue);
+            return response ? [response] : [];
+        }
+
+        const groupedIssues = await this.issueRepository.getIssuesByGroup(issue.issueGroupId);
+        return Promise.all(groupedIssues.map((groupedIssue) => this.toIssueResponse(groupedIssue)));
+    }
+
+    public async setIssueGroup(issueId: number, data: SetIssueGroupInput) {
+        const issue = await this.issueRepository.setIssueGroupMembers(
+            issueId, data.issueGroupMemberIds
+        );
+        return this.toIssueResponse(issue);
+    }
+
+    public async unsubscribeReporter(issueId: number, token: string) {
+        const payload = this.issueNotificationService.verifyUnsubscribeToken(token);
+
+        if (!payload || payload.issueId !== issueId) {
+            return 'invalid-token' as const;
+        }
+
+        const issue = await this.issueRepository.getIssue(issueId);
+        if (!issue) {
+            return 'issue-not-found' as const;
+        }
+
+        if (issue.reporterEmail.toLowerCase() !== payload.email.toLowerCase()) {
+            return 'invalid-token' as const;
+        }
+
+        if (!issue.notifyReporter) {
+            return 'already-unsubscribed' as const;
+        }
+
+        const updated = 
+            await this.issueRepository.disableReporterNotifications(issueId, issue.reporterEmail);
+        return updated ? 'unsubscribed' as const : 'invalid-token' as const;
     }
 
     public async updateIssue(issueId: number, data: {
         description?: string;
-        urgency?: IssueUrgencyEnum;
         issueType?: IssueTypeEnum;
+        isImagePublic?: boolean;
         parkId?: number;
 		latitude?: number;
 		longitude?: number;
@@ -139,11 +245,6 @@ export class IssueService {
             return null;
         }
 
-        const { issueImage } = issue;
-
-        return {
-            ...issue,
-            ...(issueImage && { image: await this.getIssueImage(issueImage) })
-        };
+        return this.toIssueResponse(issue);
     }
 }

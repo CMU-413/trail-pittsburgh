@@ -48,6 +48,7 @@ export function requireRole(requiredRole: UserRoleEnum) {
             next();
 
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Authorization error:', error);
             res.status(500).json({ message: 'Internal server error' });
             
