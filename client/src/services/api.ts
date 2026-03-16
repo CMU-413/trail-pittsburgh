@@ -216,6 +216,25 @@ export const issueApi = {
         
         return response.issue;
     },
+
+    getGroupedIssues: async (issueId: number): Promise<Issue[]> => {
+        const response = await fetch(`${API_BASE_URL}/issues/${issueId}/grouped`, {
+            credentials: 'include'
+        }).then(handleResponse);
+
+        return response.issues;
+    },
+
+    setIssueGroup: async (issueId: number, issueGroupMemberIds: number[]): Promise<Issue> => {
+        const response = await fetch(`${API_BASE_URL}/issues/${issueId}/group`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ issueGroupMemberIds }),
+            credentials: 'include'
+        }).then(handleResponse);
+
+        return response.issue;
+    },
 };
 
 export const userApi = {

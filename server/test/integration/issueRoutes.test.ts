@@ -9,6 +9,8 @@ import { Response, NextFunction } from 'express';
 
 let parkId: number;
 let createdIssueId: number | undefined;
+let secondIssueId: number | undefined;
+let imagePublicIssueId: number | undefined;
 
 jest.mock('../../src/middlewares/index', () => ({
   ...jest.requireActual('../../src/middlewares/index'),
@@ -31,6 +33,7 @@ describe('Issue API End-to-End', () => {
 
         await prisma.notification.deleteMany();
         await prisma.issue.deleteMany();
+        await prisma.issueGroup.deleteMany();
         await prisma.park.deleteMany();
         await prisma.$disconnect();
     });
@@ -40,6 +43,7 @@ describe('Issue API End-to-End', () => {
 
         await prisma.notification.deleteMany();
         await prisma.issue.deleteMany();
+        await prisma.issueGroup.deleteMany();
         await prisma.park.deleteMany();
 
         const createdPark = await prisma.park.create({
@@ -86,6 +90,150 @@ describe('Issue API End-to-End', () => {
         expect(createdIssueId).toBeDefined();
     });
 
+    it('POST /api/issues -> should create a second issue for group tests', async () => {
+        const payload = {
+            parkId,
+            issueType: 'FLOODING' as IssueTypeEnum,
+            safetyRisk: 'MINOR_RISK' as IssueRiskEnum,
+            reporterEmail: 'sample2@example.com',
+            status: 'OPEN' as IssueStatusEnum,
+            notifyReporter: true,
+            isPublic: true,
+            description: 'A related flooding report'
+        };
+
+        const res = await request(app)
+            .post('/api/issues')
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send(payload);
+
+        expect(res.status).toBe(201);
+        secondIssueId = res.body.issue.issueId;
+        expect(secondIssueId).toBeDefined();
+    });
+
+    it('PUT /api/issues/:issueId/group -> should set issue group membership', async () => {
+        const res = await request(app)
+            .put(`/api/issues/${createdIssueId}/group`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send({
+                issueGroupMemberIds: [secondIssueId],
+            });
+
+        expect(res.status).toBe(200);
+        expect(res.body.issue.issueGroupMemberIds).toEqual(expect.arrayContaining([createdIssueId, secondIssueId]));
+    });
+
+    it('PUT /api/issues/:issueId/status -> should update status for all grouped issues', async () => {
+        const res = await request(app)
+            .put(`/api/issues/${createdIssueId}/status`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send({ status: 'IN_PROGRESS' as IssueStatusEnum });
+
+        expect(res.status).toBe(200);
+        expect(res.body.issue.status).toBe('IN_PROGRESS');
+
+        const groupedIssueRes = await request(app)
+            .get(`/api/issues/${secondIssueId}`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send();
+
+        expect(groupedIssueRes.status).toBe(200);
+        expect(groupedIssueRes.body.issue.status).toBe('IN_PROGRESS');
+    });
+
+    it('PUT /api/issues/:issueId/group -> should return 404 for invalid group member ids', async () => {
+        const res = await request(app)
+            .put(`/api/issues/${createdIssueId}/group`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send({
+                issueGroupMemberIds: [999999],
+            });
+
+        expect(res.status).toBe(404);
+    });
+
+    it('PUT /api/issues/:issueId/group -> should ungroup and stop status propagation', async () => {
+        const ungroupRes = await request(app)
+            .put(`/api/issues/${createdIssueId}/group`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send({ issueGroupMemberIds: [] });
+
+        expect(ungroupRes.status).toBe(200);
+        expect(ungroupRes.body.issue.issueGroupMemberIds).toEqual([createdIssueId]);
+
+        const reopenRes = await request(app)
+            .put(`/api/issues/${createdIssueId}/status`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send({ status: 'OPEN' as IssueStatusEnum });
+
+        expect(reopenRes.status).toBe(200);
+        expect(reopenRes.body.issue.status).toBe('OPEN');
+
+        const secondIssueRes = await request(app)
+            .get(`/api/issues/${secondIssueId}`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send();
+
+        expect(secondIssueRes.status).toBe(200);
+        expect(secondIssueRes.body.issue.status).toBe('IN_PROGRESS');
+    });
+
+    it('PUT /api/issues/:issueId/group -> should regroup issues again', async () => {
+        const res = await request(app)
+            .put(`/api/issues/${createdIssueId}/group`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send({
+                issueGroupMemberIds: [secondIssueId],
+            });
+
+        expect(res.status).toBe(200);
+        expect(res.body.issue.issueGroupMemberIds).toEqual(
+            expect.arrayContaining([createdIssueId, secondIssueId])
+        );
+    });
+
+    it('POST/GET /api/issues -> should persist isImagePublic flag', async () => {
+        const payload = {
+            parkId,
+            issueType: 'OTHER' as IssueTypeEnum,
+            safetyRisk: 'NO_RISK' as IssueRiskEnum,
+            reporterEmail: 'sample3@example.com',
+            status: 'OPEN' as IssueStatusEnum,
+            notifyReporter: true,
+            isPublic: true,
+            isImagePublic: true,
+            description: 'Image visibility test issue'
+        };
+
+        const createRes = await request(app)
+            .post('/api/issues')
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send(payload);
+
+        expect(createRes.status).toBe(201);
+        expect(createRes.body.issue.isImagePublic).toBe(true);
+
+        imagePublicIssueId = createRes.body.issue.issueId;
+
+        const getRes = await request(app)
+            .get(`/api/issues/${imagePublicIssueId}`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send();
+
+        expect(getRes.status).toBe(200);
+        expect(getRes.body.issue.isImagePublic).toBe(true);
+    });
+
+    it('DELETE /api/issues/:issueId -> should delete image visibility test issue', async () => {
+        const res = await request(app)
+            .delete(`/api/issues/${imagePublicIssueId}`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send();
+
+        expect(res.status).toBe(204);
+    });
+
     it('PUT /api/issues/:issueId/status -> should update status to "resolved"', async () => {
         const res = await request(app)
             .put(`/api/issues/${createdIssueId}/status`)
@@ -94,6 +242,14 @@ describe('Issue API End-to-End', () => {
         
         expect(res.status).toBe(200);
         expect(res.body.issue.status).toBe('RESOLVED');
+
+        const groupedIssueRes = await request(app)
+            .get(`/api/issues/${secondIssueId}`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send();
+
+        expect(groupedIssueRes.status).toBe(200);
+        expect(groupedIssueRes.body.issue.status).toBe('RESOLVED');
     });
 
     it('DELETE /api/issues/:issueId -> should delete the issue', async () => {
@@ -109,5 +265,13 @@ describe('Issue API End-to-End', () => {
             .send();
 
         expect([404, 500]).toContain(getResponse.status); 
+    });
+
+    it('DELETE /api/issues/:issueId -> should delete second issue', async () => {
+        const res = await request(app)
+            .delete(`/api/issues/${secondIssueId}`)
+            .set('Authorization', 'Bearer TEST_TOKEN');
+
+        expect(res.status).toBe(204);
     });
 });

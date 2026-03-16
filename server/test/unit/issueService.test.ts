@@ -39,6 +39,11 @@ describe('IssueService', () => {
         park: { parkId: 1, name: 'Test Park', county: 'Allegheny', isActive: true, createdAt: new Date() },
     };
 
+    const {
+        issueImage: _baseIssueImage,
+        ...baseIssueWithoutImage
+    } = baseIssue;
+
     beforeEach(() => {
         issueRepositoryMock = new IssueRepository() as jest.Mocked<IssueRepository>;
         issueImageBucketMock = {
@@ -85,7 +90,14 @@ describe('IssueService', () => {
         const result = await issueService.createIssue(input);
 
         expect(issueRepositoryMock.createIssue).toHaveBeenCalled();
-        expect(result).toEqual({ signedUrl:uploadUrl, issue: baseIssue });
+        expect(result).toEqual({
+            signedUrl: uploadUrl,
+            issue: {
+                ...baseIssueWithoutImage,
+                issueGroupId: null,
+                issueGroupMemberIds: [baseIssue.issueId],
+            }
+        });
     });
 
     test('should create a new issue with all optional fields', async () => {
@@ -118,8 +130,20 @@ describe('IssueService', () => {
 
         const result = await issueService.createIssue(input);
 
+        const {
+            issueImage: _fullIssueImage,
+            ...fullIssueWithoutImage
+        } = fullIssue;
+
         expect(issueRepositoryMock.createIssue).toHaveBeenCalledWith(input);
-        expect(result).toEqual({ issue: fullIssue });
+        expect(result).toEqual({
+            signedUrl: undefined,
+            issue: {
+                ...fullIssueWithoutImage,
+                issueGroupId: null,
+                issueGroupMemberIds: [fullIssue.issueId],
+            }
+        });
     });
 
     test('should get an issue by ID', async () => {
@@ -128,7 +152,11 @@ describe('IssueService', () => {
         const result = await issueService.getIssue(1);
 
         expect(issueRepositoryMock.getIssue).toHaveBeenCalledWith(1);
-        expect(result).toEqual(baseIssue);
+        expect(result).toEqual({
+            ...baseIssueWithoutImage,
+            issueGroupId: null,
+            issueGroupMemberIds: [baseIssue.issueId],
+        });
     });
 
     test('should return null if issue is not found', async () => {
@@ -156,7 +184,13 @@ describe('IssueService', () => {
         const result = await issueService.getIssuesByPark(1);
 
         expect(issueRepositoryMock.getIssuesByPark).toHaveBeenCalledWith(1);
-        expect(result).toEqual(issues);
+        expect(result).toEqual([
+            {
+                ...baseIssueWithoutImage,
+                issueGroupId: null,
+                issueGroupMemberIds: [baseIssue.issueId],
+            }
+        ]);
     });
 
     test('should update issue status', async () => {
@@ -166,7 +200,16 @@ describe('IssueService', () => {
 
         const result = await issueService.updateIssueStatus(1, IssueStatusEnum.RESOLVED);
 
+        const {
+            issueImage: _updatedIssueImage,
+            ...updatedWithoutImage
+        } = updated;
+
         expect(issueRepositoryMock.updateIssueStatus).toHaveBeenCalledWith(1, IssueStatusEnum.RESOLVED);
-        expect(result).toEqual(updated);
+        expect(result).toEqual({
+            ...updatedWithoutImage,
+            issueGroupId: null,
+            issueGroupMemberIds: [updated.issueId],
+        });
     });
 });
