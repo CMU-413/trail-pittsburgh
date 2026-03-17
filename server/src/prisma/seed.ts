@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 async function main() {
     await prisma.$executeRawUnsafe(`
         TRUNCATE TABLE 
-            "Issue", "Park", "User", "Notification" 
+            "Issue", "IssueGroup", "Park", "User", "Notification" 
         RESTART IDENTITY CASCADE;
     `);
 
@@ -104,56 +104,73 @@ async function main() {
 
     const parkRecords = await prisma.park.findMany();
 
-    // Create Issues
-    //eslint-disable-next-line
-    const issues = await prisma.issue.createMany({
-        data: [
-            {
-                parkId: parkRecords[0].parkId,
-                issueType: IssueTypeEnum.OBSTRUCTION,
-                safetyRisk: IssueRiskEnum.NO_RISK,
-                passible: true,
-                latitude: 40.87,
-                longitude: -79.92,
-                description: 'Heavy rainfall caused water pooling on the trail.',
-                isPublic: true,
-                isImagePublic: false,
-                status: IssueStatusEnum.OPEN,
-                notifyReporter: true,
-                reporterEmail: 'john@example.com',
-                ownerEmail: 'john@example.com'
-            },
-            {
-                parkId: parkRecords[1].parkId,
-                issueType: IssueTypeEnum.OBSTRUCTION,
-                safetyRisk: IssueRiskEnum.MINOR_RISK,
-                passible: false,
-                latitude: 40.37,
-                longitude: -80.42,
-                description: 'A fallen tree is blocking the path near mile marker 5.',
-                isPublic: true,
-                isImagePublic: false,
-                status: IssueStatusEnum.OPEN,
-                notifyReporter: true,
-                reporterEmail: 'jane@example.com',
-                ownerEmail: 'jane@example.com'
-            },
-            {
-                parkId: parkRecords[2].parkId,
-                issueType: IssueTypeEnum.OBSTRUCTION,
-                safetyRisk: IssueRiskEnum.SERIOUS_RISK,
-                passible: false,
-                latitude: 40.44,
-                longitude: -79.68,
-                description: 'Severe erosion has made the path unsafe for bikers.',
-                isPublic: true,
-                isImagePublic: false,
-                status: IssueStatusEnum.OPEN,
-                notifyReporter: true,
-                reporterEmail: 'mike@example.com',
-                ownerEmail: 'mike@example.com'
-            }
-        ]
+    const groupedIssue = await prisma.issueGroup.create({
+        data: {
+            status: IssueStatusEnum.OPEN,
+        }
+    });
+
+    const primaryGroupedIssue = await prisma.issue.create({
+        data: {
+            parkId: parkRecords[0].parkId,
+            issueGroupId: groupedIssue.issueGroupId,
+            issueType: IssueTypeEnum.OBSTRUCTION,
+            safetyRisk: IssueRiskEnum.NO_RISK,
+            passible: true,
+            latitude: 40.87,
+            longitude: -79.92,
+            description: 'Heavy rainfall caused water pooling on the trail.',
+            isPublic: true,
+            isImagePublic: false,
+            status: IssueStatusEnum.OPEN,
+            notifyReporter: true,
+            reporterEmail: 'john@example.com',
+            ownerEmail: 'john@example.com',
+        }
+    });
+
+    await prisma.issue.create({
+        data: {
+            parkId: parkRecords[0].parkId,
+            issueGroupId: groupedIssue.issueGroupId,
+            issueType: IssueTypeEnum.OBSTRUCTION,
+            safetyRisk: IssueRiskEnum.MINOR_RISK,
+            passible: false,
+            latitude: 40.8712,
+            longitude: -79.9211,
+            description: 'A second report of the same obstruction farther along the same park trail.',
+            isPublic: true,
+            isImagePublic: false,
+            status: IssueStatusEnum.OPEN,
+            notifyReporter: true,
+            reporterEmail: 'jane@example.com',
+            ownerEmail: 'jane@example.com',
+        }
+    });
+
+    await prisma.issueGroup.update({
+        where: { issueGroupId: groupedIssue.issueGroupId },
+        data: {
+            primaryIssueId: primaryGroupedIssue.issueId,
+        }
+    });
+
+    await prisma.issue.create({
+        data: {
+            parkId: parkRecords[2].parkId,
+            issueType: IssueTypeEnum.OBSTRUCTION,
+            safetyRisk: IssueRiskEnum.SERIOUS_RISK,
+            passible: false,
+            latitude: 40.44,
+            longitude: -79.68,
+            description: 'Severe erosion has made the path unsafe for bikers.',
+            isPublic: true,
+            isImagePublic: false,
+            status: IssueStatusEnum.OPEN,
+            notifyReporter: true,
+            reporterEmail: 'mike@example.com',
+            ownerEmail: 'mike@example.com'
+        }
     });
 
     const issueRecords = await prisma.issue.findMany();

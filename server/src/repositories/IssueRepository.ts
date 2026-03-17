@@ -416,9 +416,9 @@ export class IssueRepository {
                     });
 
                     if (remainingIssuesInPreviousGroup.length === 0) {
-                        await tx.issueGroup.delete({ where: { issueGroupId: previousGroupId } });
+                        await tx.issueGroup.deleteMany({ where: { issueGroupId: previousGroupId } });
                     } else {
-                        await tx.issueGroup.update({
+                        await tx.issueGroup.updateMany({
                             where: { issueGroupId: previousGroupId },
                             data: {
                                 primaryIssueId: remainingIssuesInPreviousGroup[0].issueId
