@@ -43,7 +43,6 @@ export const IssueDetailCard: React.FC<{
     const [isUpdatingPhotoVisibility, setIsUpdatingPhotoVisibility] = useState(false);
     const [selectedGroupIssueIds, setSelectedGroupIssueIds] = useState<string[]>([]);
     const [linkableIssues, setLinkableIssues] = useState<Issue[]>([]);
-    const [isLinking, setIsLinking] = useState(false);
 
     const mapRef = useRef<HTMLDivElement>(null);
     const leafletMap = useRef<LeafletMap | null>(null);
@@ -63,7 +62,7 @@ export const IssueDetailCard: React.FC<{
         user?.role === UserRoleEnum.ROLE_ADMIN ||
         user?.role === UserRoleEnum.ROLE_SUPERADMIN ||
         isImagePublic || 
-		user?.email === issue?.ownerEmail;
+        user?.email === issue?.ownerEmail;
 
     const handleResolveIssue = async () => {
         if (!issue || !issueId) {return;}
@@ -102,14 +101,13 @@ export const IssueDetailCard: React.FC<{
         }
     };
 
-    const handleUpdateGroup = async () => {
+    const handleUpdateGroup = async (newSelectedIds: string[]) => {
         if (!issue || !issueId) {
             return;
         }
 
         try {
-            setIsLinking(true);
-            const issueGroupMemberIds = selectedGroupIssueIds
+            const issueGroupMemberIds = newSelectedIds
                 .map((value) => Number(value))
                 .filter((value) => Number.isInteger(value) && value > 0 && value !== issue.issueId);
 
@@ -123,8 +121,6 @@ export const IssueDetailCard: React.FC<{
             // eslint-disable-next-line no-console
             console.error('Error updating issue group:', err);
             alert('Failed to update issue group. Please try again.');
-        } finally {
-            setIsLinking(false);
         }
     };
 
@@ -484,6 +480,19 @@ export const IssueDetailCard: React.FC<{
                         canViewImage ? 'max-w-6xl' : 'max-w-3xl',
                     ].join(' ')}
                 >
+                    <div className="absolute top-3 right-3 md:top-4 md:right-4 flex items-center gap-2 z-20">
+                        <Button
+                            onClick={onClose}
+                            variant="secondary"
+                            size="sm"
+                            className="text-xl text-gray-500 hover:text-gray-800 bg-transparent hover:bg-transparent shadow-none"
+                            aria-label="Close"
+                            type="button"
+                        >
+                            ✕
+                        </Button>
+                    </div>
+
                     {loading ? (
                         <div className="p-10">
                             <LoadingSpinner />
@@ -493,7 +502,22 @@ export const IssueDetailCard: React.FC<{
                             <div className="text-red-600">{error}</div>
                         </div>
                     ) : !issue ? null : (
-                        <div className="p-4 md:p-8 overflow-y-auto">
+                        <div className="relative p-4 md:p-8 pr-4 md:pr-16 overflow-y-auto">
+                            {!isEditing && canEditIssue && issue?.status !== IssueStatusEnum.RESOLVED && (
+                                <div className="mt-2 mb-4 md:mt-0 md:mb-0 md:absolute md:top-8 md:right-16 z-10">
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        className="inline-flex items-center justify-center gap-1 whitespace-nowrap h-8 px-2 text-xs rounded-md font-medium bg-gray-50 hover:bg-gray-100 text-black w-auto md:h-9 md:px-3 md:text-sm"
+                                        onClick={startEditing}
+                                        aria-label="Edit issue"
+                                        type="button"
+                                    >
+                                        Edit
+                                    </Button>
+                                </div>
+                            )}
+
                             {isEditing && (
                                 <IssueDetailEditHeader
                                     issueDisplayId={issue.issueId ?? issueId}
@@ -513,7 +537,7 @@ export const IssueDetailCard: React.FC<{
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     {isEditing ? (
                                                         <IssueDetailEditDropdown
-														    label="Issue Type"
+                                                            label="Issue Type"
                                                             valueLabel={issueTypeLabel}
                                                             isOpen={isIssueTypeDropdownOpen}
                                                             onToggle={() => setIsIssueTypeDropdownOpen((open) => !open)}
@@ -537,40 +561,9 @@ export const IssueDetailCard: React.FC<{
                                                                     {issue.issueType}
                                                                 </span>
                                                                 <span className="text-lg md:text-xl font-semibold text-gray-600">
-																	#{issue.issueId}
+                                                                    #{issue.issueId}
                                                                 </span>
                                                             </div>
-                                            {/* <div className="flex flex-wrap items-center gap-2">
-                                                {isEditing ? (
-                                                    <IssueDetailEditDropdown
-                                                        label="Issue Type"
-                                                        valueLabel={issueTypeLabel}
-                                                        isOpen={isIssueTypeDropdownOpen}
-                                                        onToggle={() => setIsIssueTypeDropdownOpen((open) => !open)}
-                                                        onSelect={(value) => {
-                                                            setEditedIssueType(value);
-                                                            setIsIssueTypeDropdownOpen(false);
-                                                        }}
-                                                        selectedValue={editedIssueType}
-                                                        options={[
-                                                            { value: 'obstruction', label: 'Obstruction' },
-                                                            { value: 'flooding', label: 'Flooding' },
-                                                            { value: 'other', label: 'Other' },
-                                                        ]}
-                                                        dropdownRef={issueTypeDropdownRef}
-                                                        widthClass="w-[220px]"
-                                                    />
-                                                ) : (
-                                                    <>
-                                                        <div className="flex items-baseline gap-2">
-                                                            <span className="text-2xl md:text-3xl font-extrabold tracking-tight">
-                                                                {issue.issueType}
-                                                            </span>
-                                                            <span className="text-lg md:text-xl font-semibold text-gray-600">
-                                                                #{issue.issueId}
-                                                            </span>
-                                                        </div> */}
-
                                                             <span className={[
                                                                 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
                                                                 getIssueStatusColor(issue.status),
@@ -604,9 +597,8 @@ export const IssueDetailCard: React.FC<{
 														✕
                                                     </Button>
                                                 </div>
-                                            </div>
 
-                                            <div className="mt-2">
+                                            <div className="mt-3">
                                                 <div className="flex items-center gap-2">
                                                     {isEditing ? (
                                                         <IssueDetailEditDropdown
@@ -624,12 +616,12 @@ export const IssueDetailCard: React.FC<{
                                                             widthClass="w-[300px]"
                                                         />
                                                     ) : (
-                                                        <span className="text-lg md:text-xl font-semibold text-gray-900">
+                                                        <span className="text-base sm:text-lg md:text-xl font-semibold text-gray-900">
                                                             {issue.park?.name ?? ''}
                                                         </span>
                                                     )}
                                                 </div>
-                                                <div className="mt-1 text-sm md:text-base text-slate-600">
+                                                <div className="mt-1 text-xs sm:text-sm md:text-base text-slate-600 leading-relaxed">
                                                     {issue.status === IssueStatusEnum.RESOLVED && issue.resolvedAt
                                                         ? `Resolved on ${new Date(issue.resolvedAt).toLocaleString()}`
                                                         : `Reported on ${new Date(issue.createdAt).toLocaleString()}`}
@@ -742,18 +734,22 @@ export const IssueDetailCard: React.FC<{
 
                                             {!isEditing && (
                                                 <div className="mt-4 border-t border-gray-100 pt-4">
-                                                    <div className="text-sm font-medium text-gray-700">Duplicate Management</div>
+                                                    <div className="text-sm font-medium text-gray-700">Mark as a Duplicate</div>
+                                                    <div className="mt-2 text-sm text-gray-600">Duplicate issues can be grouped together, making it easier to manage their status and resolution.</div>
+
                                                     <div className="mt-2 space-y-2">
                                                         <IssueDropdown
                                                             triggerLabel={selectedGroupLabel}
                                                             isOpen={isGroupDropdownOpen}
                                                             onToggle={() => setIsGroupDropdownOpen((isOpen) => !isOpen)}
                                                             onSelect={(value) => {
-                                                                setSelectedGroupIssueIds((previous) => (
-                                                                    previous.includes(value)
+                                                                setSelectedGroupIssueIds((previous) => {
+                                                                    const next = previous.includes(value)
                                                                         ? previous.filter((selectedValue) => selectedValue !== value)
-                                                                        : [...previous, value]
-                                                                ));
+                                                                        : [...previous, value];
+                                                                    handleUpdateGroup(next);
+                                                                    return next;
+                                                                });
                                                             }}
                                                             selectedValues={selectedGroupIssueIds}
                                                             options={groupOptions}
@@ -777,16 +773,6 @@ export const IssueDetailCard: React.FC<{
                                                                 </div>
                                                             )}
                                                         />
-
-                                                        <Button
-                                                            variant="secondary"
-                                                            size="sm"
-                                                            onClick={handleUpdateGroup}
-                                                            isLoading={isLinking}
-                                                            disabled={isLinking}
-                                                        >
-                                                            {isLinking ? 'Updating...' : 'Update Group'}
-                                                        </Button>
                                                     </div>
                                                 </div>
                                             )}
@@ -836,8 +822,8 @@ export const IssueDetailCard: React.FC<{
 
                                     {typeof issue.latitude === 'number' && typeof issue.longitude === 'number' && (
                                         <>
-                                            <div className="mt-4 flex items-center gap-2 text-gray-700">
-                                                <svg className="w-5 h-5 text-gray-500 flex-shrink-0 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <div className="mt-4 flex items-start gap-2 text-gray-700 text-sm sm:text-base break-all">
+                                                <svg className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 </svg>
@@ -849,10 +835,11 @@ export const IssueDetailCard: React.FC<{
                                                 </span>
                                             </div>
 
-                                            <div className="mt-4 flex gap-3">
+                                            <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:gap-3">
                                                 <Button
                                                     size="sm"
                                                     onClick={copyCoords}
+                                                    className="w-full sm:w-auto justify-center"
                                                 >
                                                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
@@ -861,7 +848,7 @@ export const IssueDetailCard: React.FC<{
                                                 </Button>
 
                                                 <a
-                                                    className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                                    className="inline-flex w-full sm:w-auto items-center justify-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                                                     href={googleMapsUrl(issue.latitude, issue.longitude)}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
@@ -869,9 +856,7 @@ export const IssueDetailCard: React.FC<{
                                                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                                     </svg>
-                                                    <span className="leading-tight text-center">
-                                                        Open in <span className="block md:inline">Google Maps</span>
-                                                    </span>
+                                                    <span className="leading-tight text-center">Open in Google Maps</span>
                                                 </a>
                                             </div>
                                         </>
@@ -881,23 +866,21 @@ export const IssueDetailCard: React.FC<{
                                 {canViewImage ? (
                                     <div>
                                         <div className="text-xl font-bold">User Submitted Image</div>
-                                        <div className="mt-4 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 h-[340px] flex items-center justify-center relative">
+                                        <div className="mt-4 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 h-[240px] sm:h-[340px] flex items-center justify-center relative">
                                             {issue.image ? (
-                                                <div className="text-gray-500">
-                                                    <img
-                                                        src={issue.image.url}
-                                                        alt="Issue"
-                                                        className="max-h-[340px] w-full object-contain"
-                                                    />
-                                                    {issue.imageMetadata && (
-                                                        <ImageMetadataDisplay
-                                                            metadata={issue.imageMetadata}
-                                                            className="mt-3"
-                                                        />
-                                                    )}
-                                                </div>
+                                                <img
+                                                    src={issue.image.url}
+                                                    alt="Issue"
+                                                    className="h-full w-full object-contain"
+                                                />
                                             ) : 'No image ◡̈'}
                                         </div>
+                                        {issue.image && issue.imageMetadata && (
+                                            <ImageMetadataDisplay
+                                                metadata={issue.imageMetadata}
+                                                className="mt-3"
+                                            />
+                                        )}
                                     </div>
                                 ) : null}
                             </div>
@@ -905,6 +888,7 @@ export const IssueDetailCard: React.FC<{
                     )}
                 </div>
             </div>
+        </div>
         </div>
     );
 };
