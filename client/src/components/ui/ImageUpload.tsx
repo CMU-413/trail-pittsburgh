@@ -69,7 +69,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                     
                     // Decode the raw pixel data
                     const { width, height, data } = await heicDecode({ buffer: uint8Buffer });
-                    console.log(width, height, data);
 
                     const canvas = document.createElement('canvas');
                     canvas.width = width;
