@@ -214,13 +214,17 @@ export class IssueService {
 
         if (requestedMemberIds.length > 0) {
             const allIssues = await this.issueRepository.getAllIssues();
-            const requestedIssues = allIssues.filter((candidate) => requestedMemberIds.includes(candidate.issueId));
+            const requestedIssues = allIssues.filter(
+                (candidate) => requestedMemberIds.includes(candidate.issueId)
+            );
 
             if (requestedIssues.length !== requestedMemberIds.length) {
                 return null;
             }
 
-            const hasCrossParkIssue = requestedIssues.some((candidate) => candidate.parkId !== sourceIssue.parkId);
+            const hasCrossParkIssue = requestedIssues.some(
+                (candidate) => candidate.parkId !== sourceIssue.parkId
+            );
 
             if (hasCrossParkIssue) {
                 throw new Error(SAME_PARK_ISSUE_GROUP_ERROR);
