@@ -119,7 +119,7 @@ export const IssueDetailCard: React.FC<{
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Error updating issue group:', err);
-            alert('Failed to update issue group. Please try again.');
+            alert(err instanceof Error ? err.message : 'Failed to update issue group. Please try again.');
         }
     };
 
@@ -248,7 +248,9 @@ export const IssueDetailCard: React.FC<{
 
             try {
                 const allIssues = await issueApi.getAllIssues();
-                const filteredIssues = allIssues.filter((candidate) => candidate.issueId !== issue.issueId);
+                const filteredIssues = allIssues.filter((candidate) => (
+                    candidate.issueId !== issue.issueId && candidate.parkId === issue.parkId
+                ));
 
                 const sortedIssues = [...filteredIssues].sort((left, right) => {
                     const leftDistance =
@@ -427,6 +429,8 @@ export const IssueDetailCard: React.FC<{
     const selectedGroupLabel = selectedGroupIssueIds.length === 0
         ? 'No grouped issues'
         : `${selectedGroupIssueIds.length} selected`;
+    const hasPhotoVisibilityControl = Boolean(issue?.image);
+    const shouldShowStewardControls = canManageIssueStatus && (!isEditing || hasPhotoVisibilityControl);
 
     const groupOptions = linkableIssues.map((candidateIssue) => {
         const toRadians = (degrees: number) => degrees * (Math.PI / 180);
@@ -503,7 +507,7 @@ export const IssueDetailCard: React.FC<{
                     ) : !issue ? null : (
                         <div className="relative p-4 md:p-8 pr-4 md:pr-16 overflow-y-auto">
                             {!isEditing && canEditIssue && issue?.status !== IssueStatusEnum.RESOLVED && (
-                                <div className="mt-2 mb-4 md:mt-0 md:mb-0 md:absolute md:top-8 md:right-16 z-10">
+                                <div className="hidden md:block absolute top-8 right-16 z-10">
                                     <Button
                                         variant="secondary"
                                         size="sm"
@@ -558,8 +562,20 @@ export const IssueDetailCard: React.FC<{
                                                                 <span className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
                                                                     {issue.issueType}
                                                                 </span>
-                                                                <span className="text-base sm:text-lg md:text-xl font-semibold text-gray-600">
-                                                                    #{issue.issueId}
+                                                                <span className="inline-flex items-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-gray-600">
+                                                                    <span>#{issue.issueId}</span>
+                                                                    {!isEditing && canEditIssue && issue.status !== IssueStatusEnum.RESOLVED && (
+                                                                        <Button
+                                                                            variant="secondary"
+                                                                            size="sm"
+                                                                            className="inline-flex md:hidden items-center justify-center gap-1 whitespace-nowrap h-7 px-2 text-[11px] rounded-md font-medium bg-gray-50 hover:bg-gray-100 text-black"
+                                                                            onClick={startEditing}
+                                                                            aria-label="Edit issue"
+                                                                            type="button"
+                                                                        >
+                                                                            Edit
+                                                                        </Button>
+                                                                    )}
                                                                 </span>
                                                             </div>
 
@@ -605,7 +621,7 @@ export const IssueDetailCard: React.FC<{
                                                         : `Reported on ${new Date(issue.createdAt).toLocaleString()}`}
                                                 </div>
 
-                                                {issue.issueGroupMemberIds && issue.issueGroupMemberIds.filter((id) => id !== issue.issueId).length > 0 && (
+                                                {canManageIssueStatus && issue.issueGroupMemberIds && issue.issueGroupMemberIds.filter((id) => id !== issue.issueId).length > 0 && (
                                                     <div className="mt-2">
                                                         <div className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-900">
                                                             <span>Grouped with Issue </span>
@@ -648,7 +664,7 @@ export const IssueDetailCard: React.FC<{
                                     </div>
                                 </div>
 
-                                {canManageIssueStatus && (
+                                {shouldShowStewardControls && (
                                     <div className="lg:pt-18">
                                         <div className="mt-6 text-xl font-bold mb-3">Steward Controls</div>
                                         <div className="rounded-lg border border-gray-200 p-4">
@@ -713,7 +729,7 @@ export const IssueDetailCard: React.FC<{
                                             {!isEditing && (
                                                 <div className="mt-4 border-t border-gray-100 pt-4">
                                                     <div className="text-sm font-medium text-gray-700">Mark as a Duplicate</div>
-                                                    <div className="mt-2 text-sm text-gray-600">Duplicate issues can be grouped together, making it easier to manage their status and resolution.</div>
+                                                    <div className="mt-2 text-sm text-gray-600">Duplicate issues can be grouped together with other issues reported in the same park. Updates made to any issue in a group will be reflected in all related issues.</div>
 
                                                     <div className="mt-2 space-y-2">
                                                         <IssueDropdown

@@ -15,6 +15,8 @@ import { logger } from '@/utils/logger';
 type RepositoryIssue = Awaited<ReturnType<IssueRepository['getIssue']>>;
 type NotificationIssue = Parameters<IssueNotificationService['sendIssueCreatedConfirmation']>[0];
 
+export const SAME_PARK_ISSUE_GROUP_ERROR = 'Duplicate issues can only be grouped within the same park.';
+
 export class IssueService {
     private readonly issueRepository: IssueRepository;
     private readonly issueImageBucket: GCSBucket;
@@ -200,8 +202,33 @@ export class IssueService {
     }
 
     public async setIssueGroup(issueId: number, data: SetIssueGroupInput) {
+        const sourceIssue = await this.issueRepository.getIssue(issueId);
+
+        if (!sourceIssue) {
+            return null;
+        }
+
+        const requestedMemberIds = Array
+            .from(new Set(data.issueGroupMemberIds))
+            .filter((memberId) => memberId !== issueId);
+
+        if (requestedMemberIds.length > 0) {
+            const allIssues = await this.issueRepository.getAllIssues();
+            const requestedIssues = allIssues.filter((candidate) => requestedMemberIds.includes(candidate.issueId));
+
+            if (requestedIssues.length !== requestedMemberIds.length) {
+                return null;
+            }
+
+            const hasCrossParkIssue = requestedIssues.some((candidate) => candidate.parkId !== sourceIssue.parkId);
+
+            if (hasCrossParkIssue) {
+                throw new Error(SAME_PARK_ISSUE_GROUP_ERROR);
+            }
+        }
+
         const issue = await this.issueRepository.setIssueGroupMembers(
-            issueId, data.issueGroupMemberIds
+            issueId, requestedMemberIds
         );
         return this.toIssueResponse(issue);
     }
