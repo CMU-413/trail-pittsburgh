@@ -187,7 +187,7 @@ export const IssueDetailCard: React.FC<{
     useEffect(() => {
         const loadParks = async () => {
             try {
-                const res = await parkApi.getParks();
+                const res = await parkApi.getAllParks();
                 if (res) {setParks(res);}
             } catch (e) {
                 // eslint-disable-next-line no-console

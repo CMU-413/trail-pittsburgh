@@ -33,11 +33,15 @@ enum UserRoleEnum {
 }
 
 model Park {
-  parkId    Int      @id @default(autoincrement()) @map("park_id")
-  name      String   @db.VarChar(50)
-  county    String   @db.VarChar(50)
-  isActive  Boolean  @default(true)                @map("is_active")
-  createdAt DateTime @default(now())               @map("created_at")
+  parkId       Int      @id @default(autoincrement()) @map("park_id")
+  name         String   @db.VarChar(50)
+  county       String   @db.VarChar(50)
+  minLatitude  Float
+  minLongitude Float
+  maxLatitude  Float
+  maxLongitude Float
+  isActive     Boolean  @default(true)                @map("is_active")
+  createdAt    DateTime @default(now())               @map("created_at")
   issues Issue[]
 }
 

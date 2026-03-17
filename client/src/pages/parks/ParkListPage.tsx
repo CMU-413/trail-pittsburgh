@@ -28,8 +28,8 @@ export const ParkListPage: React.FC = () => {
                 const filteredIssues = issuesData.filter((issue) => issue.isPublic);
                 setIssues(filteredIssues);
 
-                // Fetch parks and trails for display
-                const parksData = await parkApi.getParks();
+                // Fetch parks for display
+                const parksData = await parkApi.getAllParks();
                 setParks(parksData);
 
             } catch (err) {

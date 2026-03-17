@@ -52,7 +52,11 @@ export class UserController {
         const { userId } = req.params;
         const { role } = req.body;
         try {
-            const updatedUser = await this.userService.updateUserRole(parseInt(userId), role);
+            const userIdNum = Number(userId);
+            if (Number.isNaN(userIdNum)) {
+                res.status(400).json({ message: 'Invalid userId' });
+            }
+            const updatedUser = await this.userService.updateUserRole(userIdNum, role);
             res.status(200).json(updatedUser);
         } catch (error) {
             logger.error('Error updating user role', error);

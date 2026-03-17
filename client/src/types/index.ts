@@ -8,6 +8,10 @@ export type Park = {
     parkId: number;
     name: string;
     county: string;
+	minLatitude: number;
+	minLongitude: number;
+	maxLatitude: number;
+	maxLongitude: number;
     isActive: boolean;
     createdAt: string;
 };

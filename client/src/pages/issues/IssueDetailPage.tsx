@@ -131,7 +131,7 @@ export const IssueDetailPage: React.FC = () => {
                 setPark(parkData || null);
 
                 // Fetch all parks for dropdown
-                const parksData = await parkApi.getParks();
+                const parksData = await parkApi.getAllParks();
                 setParks(parksData.filter((p) => p.isActive));
 
             } catch (err) {

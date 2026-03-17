@@ -36,7 +36,17 @@ describe('IssueService', () => {
         createdAt: new Date(),
         resolvedAt: null,
         issueImage: null,
-        park: { parkId: 1, name: 'Test Park', county: 'Allegheny', isActive: true, createdAt: new Date() },
+        park: { 
+			parkId: 1, 
+			name: 'Test Park', 
+			county: 'Allegheny', 
+			minLatitude: 40,
+			minLongitude: 40,
+			maxLatitude: 80,
+			maxLongitude: 80,
+			isActive: true, 
+			createdAt: new Date() 
+		},
     };
 
     const {

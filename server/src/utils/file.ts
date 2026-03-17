@@ -1,5 +1,5 @@
 function expressFileToFile(file: Express.Multer.File): File {
-    return new File([file.buffer], file.originalname, { type: file.mimetype });
+    return new File([new Uint8Array(file.buffer)], file.originalname, { type: file.mimetype });
 }
 
 async function imageUrlToFile(filename: string, photoUrl: string) {

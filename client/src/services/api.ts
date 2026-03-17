@@ -17,7 +17,7 @@ const handleResponse = async (response: Response) => {
 };
 
 export const parkApi = {
-    getParks: async (): Promise<Park[]> => {
+    getAllParks: async (): Promise<Park[]> => {
         const response = await fetch(`${API_BASE_URL}/parks`, {
             credentials: 'include'
         }).then(handleResponse);

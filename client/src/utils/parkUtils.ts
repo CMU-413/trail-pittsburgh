@@ -1,19 +1,33 @@
-import {
-    LatLngTuple, ParkInfo, PARKS 
-} from '../pages/parks/ParkInfo';
+import { parkApi } from '../services/api';
+import { Park } from '../types';
 
-export function getParkByLatLng(latLng: LatLngTuple): ParkInfo | null {
-    const [lat, lng] = latLng;
+const fetchParks = async (): Promise<Park[] | undefined> => {
+    try {
+        return await parkApi.getAllParks();
+    } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Error fetching parks:', err);
+        return undefined;
+    } 
+};
+export async function getParkByLatLng(lat: number, lng: number): Promise<Park | null> {
+    const parks = await fetchParks();
 
-    for (const park of PARKS) {
-        const { sw, ne } = park.bounds;
+    if (!parks)
+    {return null;}
+
+    for (const park of parks) {
+        const minLat = park.minLatitude;
+        const minLng = park.minLongitude;
+        const maxLat = park.maxLatitude;
+        const maxLng = park.maxLongitude;
+
         if (
-            lat >= sw[0] && lat <= ne[0] &&
-            lng >= sw[1] && lng <= ne[1]
+            lat >= minLat && lat <= maxLat &&
+            lng >= minLng && lng <= maxLng
         ) {
             return park;
         }
     }
-
-    return null; // no park found
+	 return null; // no park found
 }
