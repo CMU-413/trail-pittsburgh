@@ -11,7 +11,7 @@ import { issueApi } from '../../services/api';
 export const IssueReportPage: React.FC = () => {
     const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
-    const [errorMessage, setErrorMessage] = useState<String>('')
+    const [errorMessage, setErrorMessage] = useState<string>('');
 
     const handleSubmit = async (data: IssueParams) => {
         try {
