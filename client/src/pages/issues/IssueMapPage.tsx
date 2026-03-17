@@ -10,9 +10,9 @@ import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 
 import { LeafletMap, LeafletMarker } from '../../types/leaflet';
-import { PARKS } from '../parks/ParkInfo';
 import {
-    IssueStatusEnum, IssueTypeEnum 
+    IssueStatusEnum, IssueTypeEnum, 
+    Park
 } from '../../types';
 import { IssueDetailCard } from './IssueDetailCard';
 import { 
@@ -20,7 +20,7 @@ import {
 } from 'react-router-dom';
 import { IssueFilterDropdown, PinLegend } from './IssueFilterDropdown';
 import { iconForType } from './issuePinIcons';
-import { issueApi } from '../../services/api';
+import { issueApi, parkApi } from '../../services/api';
 
 type IssuePin = {
 	issueId: number;
@@ -43,7 +43,7 @@ type NearByIssueCard = {
 type LocationPreference = 'unknown' | 'allow' | 'deny';
 
 const LOCATION_PREF_KEY = 'issue-map-location-preference';
-const DEFAULT_PARK_ID = 'alameda-park';
+const DEFAULT_PARK_NAME = 'Alameda Park';
 
 const fetchPinsByBbox = async (
     minLat: number,
@@ -112,6 +112,7 @@ export const IssueMapPage: React.FC = () => {
     const issueMarkersRef = useRef<LeafletMarker[]>([]);
     const parkDropdownRef = useRef<HTMLDivElement>(null);
 
+    const [parks, setParks] = useState<Park[]>([]);
     const [selectedPark, setSelectedPark] = useState<string | null>(null);
     const [locationPreference, setLocationPreference] = useState<LocationPreference>('unknown');
     const [showLocationModal, setShowLocationModal] = useState(false);
@@ -185,19 +186,20 @@ export const IssueMapPage: React.FC = () => {
             return;
         }
 
-        const fallbackPark = PARKS.find((p) => p.id === DEFAULT_PARK_ID);
+        const fallbackPark = parks.find((p) => p.name === DEFAULT_PARK_NAME);
+		
         if (!fallbackPark) {
             leafletMap.current.setView([40.4406, -79.9959], 12); // Pittsburgh center as ultimate fallback
             return;
         }
 
         const bounds: [[number, number], [number, number]] = [
-            fallbackPark.bounds.sw,
-            fallbackPark.bounds.ne,
+            [fallbackPark.minLatitude, fallbackPark.minLongitude],
+		   [fallbackPark.maxLatitude, fallbackPark.maxLongitude]
         ];
 
         leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
-        setSelectedPark(fallbackPark.id);
+        setSelectedPark(fallbackPark.name);
     }, []);
 
     const centerMapOnCurrentLocation = useCallback((fromModal = false) => {
@@ -306,6 +308,22 @@ export const IssueMapPage: React.FC = () => {
             prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
     };
      
+    useEffect(() => { 
+        const fetchParks = async () => {
+            try {
+                const parksData = await parkApi.getAllParks();
+                setParks(parksData.filter((p) => p.isActive));
+            } catch (err) {
+                // eslint-disable-next-line no-console
+                console.error('Error fetching parks:', err);
+                setError('Failed to load parks. Please try again later.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchParks();
+    }, []);
+
     useEffect(() => {
         const init = () => {
             if (!mapRef.current || leafletMap.current)
@@ -365,11 +383,14 @@ export const IssueMapPage: React.FC = () => {
         if (!leafletMap.current || !selectedPark) 
         	{return;}
 
-        const park = PARKS.find((p) => p.id === selectedPark);
+        const park = parks.find((p) => p.name === selectedPark);
         if (!park)
         {return;}
 
-        const bounds: [[number, number], [number, number]] = [park.bounds.sw, park.bounds.ne];
+        const bounds: [[number, number], [number, number]] = 
+		    [[park.minLatitude, park.minLongitude],
+		     [park.maxLatitude, park.maxLongitude]
+		    ];
         leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
     }, [selectedPark]);
      
@@ -403,7 +424,7 @@ export const IssueMapPage: React.FC = () => {
     }, [issueId, navigate]);
 	
     const selectedParkName = selectedPark
-        ? (PARKS.find((park) => park.id === selectedPark)?.name ?? 'Current Location')
+        ? (parks.find((park) => park.name === selectedPark)?.name ?? 'Current Location')
         : 'Current Location';
     
     const shouldShowNearbyIssues = locationPreference === 'allow' && selectedPark === null;
@@ -466,7 +487,7 @@ export const IssueMapPage: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsParkDropdownOpen((open) => !open)}
-                                    className="min-w-[220px] bg-white border border-gray-300 rounded-full px-4 py-2 text-md font-medium text-gray-900 shadow-sm flex items-center justify-between gap-2"
+                                    className="min-w-[320px] bg-white border border-gray-300 rounded-full px-4 py-2 text-md font-medium text-gray-900 shadow-sm flex items-center justify-between gap-2"
                                 >
                                     <span>{selectedParkName}</span>
                                     <span className="text-black text-xl leading-none">▾</span>
@@ -487,28 +508,28 @@ export const IssueMapPage: React.FC = () => {
                                                     : 'text-gray-700 hover:bg-gray-50',
                                             ].join(' ')}
                                         >
-                                            <span>Current Location</span>
+                                            <span className="flex-1 text-left">Current Location</span>
                                             <span className="text-md text-gray-900" aria-hidden="true">
                                                 {selectedPark === null ? '✓' : ''}
                                             </span>
                                         </button>
-                                        {PARKS.map((park) => (
+                                        {parks.map((park) => (
                                             <button
-                                                key={park.id}
+                                                key={park.name}
                                                 type="button"
                                                 onClick={() => {
-                                                    setSelectedPark(park.id);
+                                                    setSelectedPark(park.name);
                                                     setLocationError(null);
                                                     setIsParkDropdownOpen(false);
                                                 }}
                                                 className={[
                                                     'w-full flex items-center justify-between px-3 py-2 text-md rounded-xl',
-                                                    selectedPark === park.id ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-700 hover:bg-gray-50',
+                                                    selectedPark === park.name ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-700 hover:bg-gray-50',
                                                 ].join(' ')}
                                             >
-                                                <span>{park.name}</span>
+                                                <span className="flex-1 text-left">{park.name}</span>
                                                 <span className="text-md text-gray-900" aria-hidden="true">
-                                                    {selectedPark === park.id ? '✓' : ''}
+                                                    {selectedPark === park.name ? '✓' : ''}
                                                 </span>
                                             </button>
                                         ))}

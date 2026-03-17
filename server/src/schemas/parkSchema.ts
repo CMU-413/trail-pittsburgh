@@ -10,6 +10,10 @@ export const createParkSchema = z.object({
     body: z.object({
         name: z.string(),
         county: z.string(),
+        minLatitude: z.number(),
+        minLongitude: z.number(),
+        maxLatitude: z.number(),
+        maxLongitude: z.number(),
         isActive: z.boolean().default(true).optional(),
     })
 });
@@ -19,9 +23,13 @@ export const updateParkSchema = z.object({
         parkId: z.coerce.number(),
     }),
     body: z.object({
-        isActive: z.boolean().optional(),
-        county: z.string().optional(),
         name: z.string().optional(),
+        county: z.string().optional(),
+        minLatitude: z.number().optional(),
+        minLongitude: z.number().optional(),
+        maxLatitude: z.number().optional(),
+        maxLongitude: z.number().optional(),
+        isActive: z.boolean().optional(),
     })
 });
 
