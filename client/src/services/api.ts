@@ -68,17 +68,15 @@ export const parkApi = {
 
 export const issueApi = {
 
-    getAllIssues: async (filters?: { reporterEmail?: string; }): Promise<Issue[]> => {
+    getAllIssues: async (filters?: { reporterEmail?: string; ownerEmail?: string }): Promise<Issue[]> => {
         const url = new URL(`${API_BASE_URL}/issues`);
 
         // Add any provided filters as query params
-        if (filters?.reporterEmail) {
-            url.searchParams.append('reporterEmail', filters.reporterEmail);
-        }
-
-        // if (filters?.status) {
-        //     url.searchParams.append('status', filters.status);
-        // }
+        Object.entries(filters || {}).forEach(([key, value]) => {
+            if (value) {
+                url.searchParams.append(key, value);
+            }
+        });
 
         const response = await fetch(url.toString(), { 
             credentials: 'include' 
