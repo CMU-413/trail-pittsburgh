@@ -37,6 +37,7 @@ export class IssueRepository {
                     longitude: data.longitude,
                     notifyReporter: data.notifyReporter ?? true,
                     reporterEmail: data.reporterEmail ?? '',
+                    ownerEmail: data.ownerEmail ?? '',
                     issueImage: data.issueImageKey,
                 },
                 include: {
@@ -50,10 +51,11 @@ export class IssueRepository {
         }
     }
 
-    public async getAllIssues(reporterEmail?: string) {
+    public async getAllIssues(reporterEmail?: string, ownerEmail?: string) {
         return prisma.issue.findMany({
             where: {
-                reporterEmail: reporterEmail
+                ...(reporterEmail && { reporterEmail }),
+                ...(ownerEmail && { ownerEmail }),
             },
             include: {
                 park: true,

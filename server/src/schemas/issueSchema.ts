@@ -11,7 +11,8 @@ export const getIssuesByParkSchema = z.object({
 
 export const getIssuesQuerySchema = z.object({
     query: z.object({
-        reporterEmail: z.string().email().optional()
+        reporterEmail: z.string().email().optional(),
+        ownerEmail: z.string().email().optional()
     })
 });
 
@@ -86,6 +87,7 @@ export const createIssueSchema = z.object({
         latitude: z.number().optional(),
         longitude: z.number().optional(),
         reporterEmail: z.string().email().optional(),
+        ownerEmail: z.string().email().optional(),
         notifyReporter: z.boolean().default(false),
         description: z.string().max(150).optional(),
         imageMetadata: z.object({
