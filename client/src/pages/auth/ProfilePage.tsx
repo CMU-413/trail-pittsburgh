@@ -33,7 +33,7 @@ export const ProfilePage: React.FC = () => {
         (async () => {
             setIsLoading(true);
             try {
-                const issuesData = await issueApi.getAllIssues({ reporterEmail: user.email });
+                const issuesData = await issueApi.getAllIssues({ reporterEmail: user.email , ownerEmail: user.email });
                 setIssues(issuesData);
             } catch (err) {
                 console.error('Error fetching profile data:', err);
