@@ -52,11 +52,18 @@ export class IssueRepository {
     }
 
     public async getAllIssues(reporterEmail?: string, ownerEmail?: string) {
+        const filters = [];
+
+        if (reporterEmail) {
+            filters.push({ reporterEmail });
+        }
+
+        if (ownerEmail) {
+            filters.push({ ownerEmail });
+        }
+
         return prisma.issue.findMany({
-            where: {
-                ...(reporterEmail && { reporterEmail }),
-                ...(ownerEmail && { ownerEmail }),
-            },
+            where: filters.length > 0 ? { OR: filters } : {},
             include: {
                 park: true,
             }
