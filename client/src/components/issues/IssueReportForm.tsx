@@ -29,7 +29,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
         passible: true,
         notifyReporter: false,
         reporterEmail: '',
-        ownerEmail: '',
+        ownerEmail: undefined,
         createdAt: new Date().toISOString(),
         longitude: undefined,
         latitude: undefined,
@@ -259,7 +259,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
             const dataToSubmit = {
                 ...formData,
                 reporterEmail: formData.notifyReporter ? formData.reporterEmail : undefined,
-                ownerEmail: user?.email ?? '',
+                ownerEmail: user?.email || undefined,
                 reported_at: new Date().toISOString()
             } as IssueParams;
 
