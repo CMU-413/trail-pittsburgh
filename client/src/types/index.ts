@@ -74,6 +74,7 @@ export type Issue = {
     latitude: number;
     notifyReporter: boolean;
     reporterEmail: string;
+    ownerEmail: string;
     createdAt: string;
     resolvedAt?: string;
 

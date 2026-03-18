@@ -13,6 +13,7 @@ import Location from '../ui/Location';
 import { TextArea } from '../ui/TextArea';
 import { parkApi } from '../../services/api';
 import { getParkByLatLng } from '../../utils/parkUtils';
+import { useAuth } from '../../providers/AuthProvider';
 
 interface IssueReportFormProps {
     onSubmit: (data: IssueParams) => Promise<void>;
@@ -28,12 +29,14 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
         passible: true,
         notifyReporter: false,
         reporterEmail: '',
+        ownerEmail: '',
         createdAt: new Date().toISOString(),
         longitude: undefined,
         latitude: undefined,
         imageMetadata: undefined
     });
 
+    const { user } = useAuth();
     const [imgPreview, setImgPreview] = useState<string>();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -256,6 +259,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
             const dataToSubmit = {
                 ...formData,
                 reporterEmail: formData.notifyReporter ? formData.reporterEmail : undefined,
+                ownerEmail: user?.email ?? '',
                 reported_at: new Date().toISOString()
             } as IssueParams;
 
