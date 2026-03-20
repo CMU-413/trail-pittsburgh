@@ -5,7 +5,14 @@ import { UserRoleEnum } from '@prisma/client';
 import { AuthRequest } from '../../src/middlewares/auth';
 import { Response, NextFunction } from 'express';
 
-const newPark = { name: 'Central Park', county: 'Test County' };
+const newPark = { 
+	name: 'Central Park', 
+	county: 'Test County',
+	minLatitude: 40,
+	minLongitude: 40,
+	maxLatitude: 80,
+	maxLongitude: 80, 
+};
 
 jest.mock('../../src/middlewares/index', () => ({
   ...jest.requireActual('../../src/middlewares/index'),

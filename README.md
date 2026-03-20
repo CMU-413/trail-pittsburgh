@@ -158,7 +158,7 @@ Open your browser to `http://localhost:5173` to access the Trail Pittsburgh appl
 * **Cloud SQL (Postgres)** — referenced in cloudbuild.yaml via `--add-cloudsql-instances`, indicating production DB is a Cloud SQL Postgres instance.
 * **Firebase Hosting** — frontend configured for static hosting and SPA rewrites in firebase.json.
 * **Prisma / Postgres** — Postgres DB accessed via Prisma client; migrations under migrations.
-* **Local/other libs**: `multer` for multipart uploads (server), `exifr` + `heic2any` (client) for image metadata and HEIC conversion on upload.
+* **Local/other libs**: `multer` for multipart uploads (server), `exifr` + `heicDecode` (client) for image metadata and HEIC conversion on upload.
 
 ## **Deployment & infra notes**
 * Dockerfile for server builds TypeScript and Prisma client, then runs production image (see Dockerfile).

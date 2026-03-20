@@ -1,6 +1,6 @@
 // src/components/ui/ImageUpload.tsx
 import React, { useState, useRef } from 'react';
-import heic2any from 'heic2any';
+import heicDecode from 'heic-decode';
 import exifr from 'exifr';
 import { ImageMetadata } from '../../types';
 
@@ -57,24 +57,50 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                 // eslint-disable-next-line no-console
                 console.error('Error extracting initial metadata:', metadataError);
             }
-
+            let filePreview = '';
             // Handle HEIC/HEIF conversion
             if (file.type === 'image/heic' || file.type === 'image/heif' ||
                 file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
                 try {
-                    // Convert HEIC to JPEG Blob
-                    const convertedBlob = await heic2any({
-                        blob: file,
-                        toType: 'image/jpeg',
-                        quality: 0.8
-                    }) as Blob;
+                    const rawBuffer = await file.arrayBuffer();
+                    
+                    // Convert the ArrayBuffer to a Uint8Array!
+                    const uint8Buffer = new Uint8Array(rawBuffer);
+                    
+                    // Decode the raw pixel data
+                    const { width, height, data } = await heicDecode({ buffer: uint8Buffer });
 
-                    // Create a new File from the converted Blob
-                    processedFile = new File(
-                        [convertedBlob],
-                        file.name.replace(/\.(heic|heif)$/i, '.jpg'),
-                        { type: 'image/jpeg' }
-                    );
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    
+                    if (ctx) {
+                        // Paint the raw pixel data onto the canvas
+                        const imageData = new ImageData(new Uint8ClampedArray(data), width, height);
+                        ctx.putImageData(imageData, 0, 0);
+                        
+                        // Convert the canvas to a Blob asynchronously
+                        const blob = await new Promise<Blob | null>((resolve) => {
+                            canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.8);
+                        });
+
+                        if (blob) {
+                            // CREATE THE NEW JPEG FILE!
+                            processedFile = new File(
+                                [blob],
+                                file.name.replace(/\.(heic|heif)$/i, '.jpg'),
+                                { type: 'image/jpeg' }
+                            );
+                            
+                            // Generate the preview from our new shiny JPEG file
+                            filePreview = URL.createObjectURL(processedFile);
+                        } else {
+                            throw new Error('Failed to convert canvas to Blob');
+                        }
+                    } else {
+                        throw new Error('Canvas context not supported');
+                    }
 
                     // If no metadata was extracted from original, try from converted
                     if (Object.keys(extractedMetadata).length === 0) {
@@ -94,10 +120,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                     // eslint-disable-next-line no-console
                     console.error('Error converting HEIC/HEIF image:', conversionError);
                 }
+            } else {
+                filePreview = URL.createObjectURL(processedFile);
             }
 
             // Create preview URL
-            const filePreview = URL.createObjectURL(processedFile);
             setPreview(filePreview);
             setMetadata(extractedMetadata);
 
