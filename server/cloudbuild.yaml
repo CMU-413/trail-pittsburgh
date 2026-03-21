@@ -28,7 +28,7 @@ steps:
       - '--set-cloudsql-instances'
       - 'trail-pgh-issue-tracker:us-central1:trail-pgh-prod'
       - '--set-secrets'
-      - 'DATABASE_URL=DATABASE_URL:latest'
+      - 'DATABASE_URL=database_url:latest'
 
   # 4. Run migration
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -59,7 +59,7 @@ steps:
       - '--set-cloudsql-instances'
       - 'trail-pgh-issue-tracker:us-central1:trail-pgh-prod'
       - '--set-secrets'
-      - 'DATABASE_URL=DATABASE_URL:latest'
+      - 'DATABASE_URL=database_url:latest'
 
 options:
   logging: CLOUD_LOGGING_ONLY
