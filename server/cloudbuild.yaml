@@ -1,17 +1,49 @@
 steps:
-  # Build the container image
+  # 1. Build the container image
   - name: 'gcr.io/cloud-builders/docker'
     dir: 'server'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/trail-pgh-server', '.']
 
-  # Push the container image to Container Registry
+  # 2. Push the container image
   - name: 'gcr.io/cloud-builders/docker'
     dir: 'server'
     args: ['push', 'gcr.io/$PROJECT_ID/trail-pgh-server']
 
-  # Deploy container image to Cloud Run
+  # 3. Deploy migration job
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    dir: 'server'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'jobs'
+      - 'deploy'
+      - 'trail-pgh-db-migrate'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/trail-pgh-server'
+      - '--command'
+      - 'npx'
+      - '--args'
+      - 'prisma,migrate,deploy'
+      - '--region'
+      - 'us-central1'
+      - '--add-cloudsql-instances'
+      - 'trail-pgh-issue-tracker:us-central1:trail-pgh-prod'
+      - '--set-secrets'
+      - 'DATABASE_URL=DATABASE_URL:latest'
+
+  # 4. Run migration
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'jobs'
+      - 'execute'
+      - 'trail-pgh-db-migrate'
+      - '--region'
+      - 'us-central1'
+      - '--wait'
+
+  # 5. Deploy app
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - 'run'
@@ -24,7 +56,10 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-      - '--add-cloudsql-instances=trail-pgh-issue-tracker:us-central1:trail-pgh-prod'
+      - '--add-cloudsql-instances'
+      - 'trail-pgh-issue-tracker:us-central1:trail-pgh-prod'
+      - '--set-secrets'
+      - 'DATABASE_URL=DATABASE_URL:latest'
 
 options:
   logging: CLOUD_LOGGING_ONLY
