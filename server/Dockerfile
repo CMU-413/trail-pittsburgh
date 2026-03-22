@@ -41,6 +41,7 @@ RUN npm install --production && npm install --save-dev tsconfig-paths
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/src/prisma ./src/prisma
+COPY --from=builder /app/src/prisma ./prisma
 
 RUN npx prisma generate
 
