@@ -19,7 +19,7 @@ import {
     Link, useNavigate, useParams 
 } from 'react-router-dom';
 import { IssueFilterDropdown, PinLegend } from './IssueFilterDropdown';
-import { iconForType } from './issuePinIcons';
+import { iconForType, iconForCurrentLocation } from './issuePinIcons';
 import { issueApi, parkApi } from '../../services/api';
 
 type IssuePin = {
@@ -172,6 +172,12 @@ export const IssueMapPage: React.FC = () => {
                 marker.on('click', () => openIssueDetail(pin.issueId));
                 issueMarkersRef.current.push(marker);
             }
+
+            if (currentLocation) {
+                const { latitude, longitude } = currentLocation;
+                window.L.marker([latitude, longitude], { icon: iconForCurrentLocation() })
+                    .addTo(leafletMap.current);
+        	}
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Error fetching issues:', err);
@@ -179,7 +185,7 @@ export const IssueMapPage: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [clearIssueMarkers, openIssueDetail]);
+    }, [clearIssueMarkers, openIssueDetail, currentLocation]);
 
     const applyFallbackView = useCallback(() => {
         if (!leafletMap.current) {
@@ -257,9 +263,7 @@ export const IssueMapPage: React.FC = () => {
         setLocationPreference('deny');
         setLocationError(null);
         setShowLocationModal(false);
-        applyFallbackView();
-        refreshPinsForView();
-    }, [applyFallbackView, refreshPinsForView]);
+    }, []);
 
     const handleAlwaysAllowLocation = useCallback(() => {
         localStorage.setItem(LOCATION_PREF_KEY, 'allow');
@@ -307,7 +311,27 @@ export const IssueMapPage: React.FC = () => {
         setSelectedTypes((prev) =>
             prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
     };
-     
+
+    useEffect(() => {
+        if (locationPreference === 'deny' && parks.length > 0) {
+            const fallbackPark = parks.find((p) => p.name === DEFAULT_PARK_NAME);
+
+            if (fallbackPark) {
+                setSelectedPark(fallbackPark.name);
+
+                const bounds: [[number, number], [number, number]] = [
+                    [fallbackPark.minLatitude, fallbackPark.minLongitude],
+                    [fallbackPark.maxLatitude, fallbackPark.maxLongitude]
+                ];
+
+                leafletMap.current?.fitBounds(bounds, {
+                    padding: [20, 20],
+                    maxZoom: 15
+                });
+            }
+        }
+    }, [locationPreference, parks]);
+		
     useEffect(() => { 
         const fetchParks = async () => {
             try {
@@ -487,7 +511,7 @@ export const IssueMapPage: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsParkDropdownOpen((open) => !open)}
-                                    className="min-w-[320px] bg-white border border-gray-300 rounded-full px-4 py-2 text-md font-medium text-gray-900 shadow-sm flex items-center justify-between gap-2"
+                                    className="min-w-[270px] bg-white border border-gray-300 rounded-full px-4 py-2 text-md font-medium text-gray-900 shadow-sm flex items-center justify-between gap-2"
                                 >
                                     <span>{selectedParkName}</span>
                                     <span className="text-black text-xl leading-none">▾</span>
@@ -499,7 +523,9 @@ export const IssueMapPage: React.FC = () => {
                                             type="button"
                                             onClick={() => {
                                                 setIsParkDropdownOpen(false);
-                                                centerMapOnCurrentLocation(false);
+                                                if (locationPreference !== 'deny') {
+                                                    centerMapOnCurrentLocation(false);
+                                                }
                                             }}
                                             className={[
                                                 'w-full flex items-center justify-between px-3 py-2 text-md rounded-xl',
