@@ -259,7 +259,17 @@ describe('IssueService', () => {
             ...baseIssue,
             issueId: 2,
             parkId: 999,
-            park: { parkId: 999, name: 'Other Park', county: 'Allegheny', isActive: true, createdAt: new Date() },
+            park: {
+                parkId: 999,
+                name: 'Other Park',
+                county: 'Allegheny',
+                minLatitude: 40,
+                minLongitude: 40,
+                maxLatitude: 80,
+                maxLongitude: 80,
+                isActive: true,
+                createdAt: new Date(),
+            },
         };
 
         issueRepositoryMock.getIssue.mockResolvedValue(baseIssue);
