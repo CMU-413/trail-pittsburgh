@@ -49,18 +49,26 @@ describe('Issue API End-to-End', () => {
         await prisma.park.deleteMany();
 
         const createdPark = await prisma.park.create({
-            data: { 
-				name: 'Test Park', 
-				county: 'Allegheny',
-				minLatitude: 40,
-				minLongitude: 40,
-				maxLatitude: 80,
-				maxLongitude: 80, }
+                data: {
+                    name: 'Test Park',
+                    county: 'Allegheny',
+                    minLatitude: 40.43,
+                    minLongitude: -80.0,
+                    maxLatitude: 40.46,
+                    maxLongitude: -79.95,
+                }
         });
         parkId = createdPark.parkId;
 
         const secondPark = await prisma.park.create({
-            data: { name: 'Second Test Park', county: 'Allegheny' }
+                data: {
+                    name: 'Second Test Park',
+                    county: 'Allegheny',
+                    minLatitude: 40.5,
+                    minLongitude: -79.95,
+                    maxLatitude: 40.53,
+                    maxLongitude: -79.9,
+                }
         });
         secondParkId = secondPark.parkId;
     });

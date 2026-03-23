@@ -237,6 +237,7 @@ describe('IssueService', () => {
             ...baseIssue,
             issueGroup: {
                 issueGroupId: 10,
+                primaryIssueId: 1,
                 status: IssueStatusEnum.OPEN,
                 issues: [{ issueId: 1 }, { issueId: 2 }],
             },
