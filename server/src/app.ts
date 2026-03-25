@@ -23,7 +23,7 @@ app.use(securityHeaders);
 
 // CORS configuration
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     exposedHeaders: ['Set-Cookie'],
