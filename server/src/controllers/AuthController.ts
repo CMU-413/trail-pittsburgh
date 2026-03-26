@@ -39,7 +39,7 @@ export class AuthController {
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: isProd,
-                sameSite: 'lax',
+                sameSite: isProd ? 'none' : 'lax',
                 maxAge: 24 * 60 * 60 * 1000,
                 path: '/',
             });
