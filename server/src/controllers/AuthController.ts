@@ -36,7 +36,7 @@ export class AuthController {
             const isProd = process.env.NODE_ENV === 'production';
             const { token } = await this.authService.handleGoogleCallback(code as string);
 
-            res.cookie('token', token, {
+            res.cookie('__session', token, {
                 httpOnly: true,
                 secure: isProd,
                 sameSite: isProd ? 'none' : 'lax',
@@ -57,7 +57,7 @@ export class AuthController {
     public logout(req: Request, res: Response) {
         const isProd = process.env.NODE_ENV === 'production';
 
-        res.clearCookie('token', {
+        res.clearCookie('__session', {
             httpOnly: true,
             secure: isProd,
             sameSite: isProd ? 'none' : 'lax',
