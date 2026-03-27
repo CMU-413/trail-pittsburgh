@@ -36,6 +36,8 @@ export class AuthController {
             const isProd = process.env.NODE_ENV === 'production';
             const { token } = await this.authService.handleGoogleCallback(code as string);
 
+            res.setHeader('Cache-Control', 'private');
+            
             res.cookie('__session', token, {
                 httpOnly: true,
                 secure: isProd,
