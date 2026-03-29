@@ -198,14 +198,19 @@ export const IssueMapPage: React.FC = () => {
             leafletMap.current.setView([40.4406, -79.9959], 12); // Pittsburgh center as ultimate fallback
             return;
         }
-
-        const bounds: [[number, number], [number, number]] = [
-            [fallbackPark.minLatitude, fallbackPark.minLongitude],
-		   [fallbackPark.maxLatitude, fallbackPark.maxLongitude]
-        ];
-
-        leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
-        setSelectedPark(fallbackPark.name);
+		
+        if (typeof fallbackPark.minLatitude === 'number' &&
+			typeof fallbackPark.minLongitude === 'number' &&
+			typeof fallbackPark.maxLatitude === 'number' &&
+			typeof fallbackPark.maxLongitude === 'number'
+        ) {
+            const bounds: [[number, number], [number, number]] = [
+                [fallbackPark.minLatitude, fallbackPark.minLongitude],
+                [fallbackPark.maxLatitude, fallbackPark.maxLongitude]
+            ];
+            leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
+            setSelectedPark(fallbackPark.name);
+	   }
     }, []);
 
     const centerMapOnCurrentLocation = useCallback((fromModal = false) => {
@@ -316,7 +321,11 @@ export const IssueMapPage: React.FC = () => {
         if (locationPreference === 'deny' && parks.length > 0) {
             const fallbackPark = parks.find((p) => p.name === DEFAULT_PARK_NAME);
 
-            if (fallbackPark) {
+            if (fallbackPark &&
+				typeof fallbackPark.minLatitude === 'number' &&
+				typeof fallbackPark.minLongitude === 'number' &&
+				typeof fallbackPark.maxLatitude === 'number' &&
+				typeof fallbackPark.maxLongitude === 'number') {
                 setSelectedPark(fallbackPark.name);
 
                 const bounds: [[number, number], [number, number]] = [
@@ -411,11 +420,17 @@ export const IssueMapPage: React.FC = () => {
         if (!park)
         {return;}
 
-        const bounds: [[number, number], [number, number]] = 
-		    [[park.minLatitude, park.minLongitude],
-		     [park.maxLatitude, park.maxLongitude]
-		    ];
-        leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
+        if (typeof park.minLatitude === 'number' &&
+			typeof park.minLongitude === 'number' &&
+			typeof park.maxLatitude === 'number' &&
+			typeof park.maxLongitude === 'number'
+        ) {
+            const bounds: [[number, number], [number, number]] = 
+				[[park.minLatitude, park.minLongitude],
+				    [park.maxLatitude, park.maxLongitude]
+				];
+            leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
+        }
     }, [selectedPark]);
      
     useEffect(() => {

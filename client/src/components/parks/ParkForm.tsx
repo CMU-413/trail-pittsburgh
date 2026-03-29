@@ -19,6 +19,10 @@ export const ParkForm: React.FC<ParkFormProps> = ({
     const [formData, setFormData] = useState<Partial<Park>>({
         name: '',
         county: '',
+        minLatitude: '',
+        maxLatitude: '',
+        minLongitude: '',
+        maxLongitude: '',
         isActive: true,
         ...initialData
     });
@@ -48,8 +52,33 @@ export const ParkForm: React.FC<ParkFormProps> = ({
                 throw new Error('County is required');
             }
 
+            if (formData.minLatitude === '' || formData.maxLatitude === '' ||
+				formData.minLongitude === '' || formData.maxLongitude === ''
+            ) {
+                throw new Error('Latitude and Longitude are required');
+            }
+
+            if (!formData.minLatitude || formData.minLatitude < -90 || formData.minLatitude > 90 ||
+				!formData.maxLatitude || formData.maxLatitude < -90 || formData.maxLatitude > 90
+            ) {
+                throw new Error('Latitude must be between -90 and 90');
+            }
+
+            if (!formData.minLongitude || formData.minLongitude < -180 || formData.minLongitude > 180 ||
+				!formData.maxLongitude || formData.maxLongitude < -180 || formData.maxLongitude > 180
+            ) {
+                throw new Error('Longitude must be between -180 and 180');
+            }
+
             //  We would later upload the image to a server here and get back a URL to store with the park
-            await onSubmit(formData as Omit<Park, 'parkId'>);
+            const cleanedData = {
+                ...formData,
+                minLatitude: Number(formData.minLatitude),
+                maxLatitude: Number(formData.maxLatitude),
+                minLongitude: Number(formData.minLongitude),
+                maxLongitude: Number(formData.maxLongitude),
+            };
+            await onSubmit(cleanedData as Omit<Park, 'parkId'>);
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);
@@ -88,6 +117,46 @@ export const ParkForm: React.FC<ParkFormProps> = ({
                         label="County"
                         name="county"
                         value={formData.county}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <Input
+                        label="Mininimum Latitude"
+                        name="minLatitude"
+                        value={formData.minLatitude}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
+
+                    <Input
+                        label="Maximum Latitude"
+                        name="maxLatitude"
+                        value={formData.maxLatitude}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <Input
+                        label="Minimum Longitude"
+                        name="minLongitude"
+                        value={formData.minLongitude}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
+
+                    <Input
+                        label="Maximum Longitude"
+                        name="maxLongitude"
+                        value={formData.maxLongitude}
                         onChange={handleChange}
                         required
                         fullWidth

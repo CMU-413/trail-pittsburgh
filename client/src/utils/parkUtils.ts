@@ -23,6 +23,8 @@ export async function getParkByLatLng(lat: number, lng: number): Promise<Park | 
         const maxLng = park.maxLongitude;
 
         if (
+            typeof minLat === 'number' && typeof minLng === 'number' &&
+			typeof maxLat === 'number' && typeof maxLng === 'number' &&
             lat >= minLat && lat <= maxLat &&
             lng >= minLng && lng <= maxLng
         ) {
