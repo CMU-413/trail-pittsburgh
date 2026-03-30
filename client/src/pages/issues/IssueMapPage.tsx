@@ -10,26 +10,17 @@ import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 
 import { LeafletMap, LeafletMarker } from '../../types/leaflet';
-import { PARKS } from '../parks/ParkInfo';
 import {
-    IssueStatusEnum, IssueTypeEnum 
+    IssueStatusEnum, IssueTypeEnum, 
+    Park
 } from '../../types';
 import { IssueDetailCard } from './IssueDetailCard';
 import { 
     Link, useNavigate, useParams 
 } from 'react-router-dom';
 import { IssueFilterDropdown, PinLegend } from './IssueFilterDropdown';
-import { iconForType } from './issuePinIcons';
-import { issueApi } from '../../services/api';
-
-type IssuePin = {
-	issueId: number;
-	latitude: number;
-	longitude: number;
-	issueType: IssueTypeEnum;
-	status: IssueStatusEnum ;
-	createdAt: string;
-}
+import { iconForType, iconForCurrentLocation } from './issuePinIcons';
+import { issueApi, parkApi } from '../../services/api';
 
 type NearByIssueCard = {
 	issueType: IssueTypeEnum;
@@ -43,27 +34,7 @@ type NearByIssueCard = {
 type LocationPreference = 'unknown' | 'allow' | 'deny';
 
 const LOCATION_PREF_KEY = 'issue-map-location-preference';
-const DEFAULT_PARK_ID = 'alameda-park';
-
-const fetchPinsByBbox = async (
-    minLat: number,
-    minLng: number,
-    maxLat: number,
-    maxLng: number,
-    types: IssueTypeEnum[] = []
-): Promise<IssuePin[]> => {
-    const bbox = `${minLat},${minLng},${maxLat},${maxLng}`;
-    const params = new URLSearchParams({ bbox });
-    for (const t of types) 
-    {params.append('issueTypes', t);}
-    params.append('statuses', IssueStatusEnum.OPEN);
-    params.append('statuses', IssueStatusEnum.IN_PROGRESS);
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/issues/map?${params.toString()}`);
-    if (!res.ok) 
-    {return [];}
-    const data = await res.json();
-    return Array.isArray(data?.pins) ? data.pins : [];
-};
+const DEFAULT_PARK_NAME = 'Alameda Park';
 
 const toRadians = (degrees: number): number => degrees * (Math.PI / 180);
 
@@ -112,6 +83,7 @@ export const IssueMapPage: React.FC = () => {
     const issueMarkersRef = useRef<LeafletMarker[]>([]);
     const parkDropdownRef = useRef<HTMLDivElement>(null);
 
+    const [parks, setParks] = useState<Park[]>([]);
     const [selectedPark, setSelectedPark] = useState<string | null>(null);
     const [locationPreference, setLocationPreference] = useState<LocationPreference>('unknown');
     const [showLocationModal, setShowLocationModal] = useState(false);
@@ -159,7 +131,7 @@ export const IssueMapPage: React.FC = () => {
 
             clearIssueMarkers();
 
-            const pins = await fetchPinsByBbox(sw.lat, sw.lng, ne.lat, ne.lng, selectedTypesRef.current);
+            const pins = await issueApi.getMapPins(sw.lat, sw.lng, ne.lat, ne.lng, selectedTypesRef.current);
 
             for (const pin of pins) {
                 if (typeof pin.latitude !== 'number' || typeof pin.longitude !== 'number') {continue;}
@@ -171,6 +143,12 @@ export const IssueMapPage: React.FC = () => {
                 marker.on('click', () => openIssueDetail(pin.issueId));
                 issueMarkersRef.current.push(marker);
             }
+
+            if (currentLocation) {
+                const { latitude, longitude } = currentLocation;
+                window.L.marker([latitude, longitude], { icon: iconForCurrentLocation() })
+                    .addTo(leafletMap.current);
+        	}
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Error fetching issues:', err);
@@ -178,26 +156,32 @@ export const IssueMapPage: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [clearIssueMarkers, openIssueDetail]);
+    }, [clearIssueMarkers, openIssueDetail, currentLocation]);
 
     const applyFallbackView = useCallback(() => {
         if (!leafletMap.current) {
             return;
         }
 
-        const fallbackPark = PARKS.find((p) => p.id === DEFAULT_PARK_ID);
+        const fallbackPark = parks.find((p) => p.name === DEFAULT_PARK_NAME);
+		
         if (!fallbackPark) {
             leafletMap.current.setView([40.4406, -79.9959], 12); // Pittsburgh center as ultimate fallback
             return;
         }
-
-        const bounds: [[number, number], [number, number]] = [
-            fallbackPark.bounds.sw,
-            fallbackPark.bounds.ne,
-        ];
-
-        leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
-        setSelectedPark(fallbackPark.id);
+		
+        if (typeof fallbackPark.minLatitude === 'number' &&
+			typeof fallbackPark.minLongitude === 'number' &&
+			typeof fallbackPark.maxLatitude === 'number' &&
+			typeof fallbackPark.maxLongitude === 'number'
+        ) {
+            const bounds: [[number, number], [number, number]] = [
+                [fallbackPark.minLatitude, fallbackPark.minLongitude],
+                [fallbackPark.maxLatitude, fallbackPark.maxLongitude]
+            ];
+            leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
+            setSelectedPark(fallbackPark.name);
+	   }
     }, []);
 
     const centerMapOnCurrentLocation = useCallback((fromModal = false) => {
@@ -255,9 +239,7 @@ export const IssueMapPage: React.FC = () => {
         setLocationPreference('deny');
         setLocationError(null);
         setShowLocationModal(false);
-        applyFallbackView();
-        refreshPinsForView();
-    }, [applyFallbackView, refreshPinsForView]);
+    }, []);
 
     const handleAlwaysAllowLocation = useCallback(() => {
         localStorage.setItem(LOCATION_PREF_KEY, 'allow');
@@ -276,7 +258,7 @@ export const IssueMapPage: React.FC = () => {
         const minLng = currentLocation.longitude - deltaLng;
         const maxLng = currentLocation.longitude + deltaLng;
 
-        const pins = await fetchPinsByBbox(minLat, minLng, maxLat, maxLng, selectedTypesRef.current);
+        const pins = await issueApi.getMapPins(minLat, minLng, maxLat, maxLng, selectedTypesRef.current);
 	    
         const nearbyIssues = await Promise.all(
             pins.map(async (pin) => {
@@ -305,7 +287,47 @@ export const IssueMapPage: React.FC = () => {
         setSelectedTypes((prev) =>
             prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
     };
-     
+
+    useEffect(() => {
+        if (locationPreference === 'deny' && parks.length > 0) {
+            const fallbackPark = parks.find((p) => p.name === DEFAULT_PARK_NAME);
+
+            if (fallbackPark &&
+				typeof fallbackPark.minLatitude === 'number' &&
+				typeof fallbackPark.minLongitude === 'number' &&
+				typeof fallbackPark.maxLatitude === 'number' &&
+				typeof fallbackPark.maxLongitude === 'number') {
+                setSelectedPark(fallbackPark.name);
+
+                const bounds: [[number, number], [number, number]] = [
+                    [fallbackPark.minLatitude, fallbackPark.minLongitude],
+                    [fallbackPark.maxLatitude, fallbackPark.maxLongitude]
+                ];
+
+                leafletMap.current?.fitBounds(bounds, {
+                    padding: [20, 20],
+                    maxZoom: 15
+                });
+            }
+        }
+    }, [locationPreference, parks]);
+		
+    useEffect(() => { 
+        const fetchParks = async () => {
+            try {
+                const parksData = await parkApi.getAllParks();
+                setParks(parksData.filter((p) => p.isActive));
+            } catch (err) {
+                // eslint-disable-next-line no-console
+                console.error('Error fetching parks:', err);
+                setError('Failed to load parks. Please try again later.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchParks();
+    }, []);
+
     useEffect(() => {
         const init = () => {
             if (!mapRef.current || leafletMap.current)
@@ -365,12 +387,21 @@ export const IssueMapPage: React.FC = () => {
         if (!leafletMap.current || !selectedPark) 
         	{return;}
 
-        const park = PARKS.find((p) => p.id === selectedPark);
+        const park = parks.find((p) => p.name === selectedPark);
         if (!park)
         {return;}
 
-        const bounds: [[number, number], [number, number]] = [park.bounds.sw, park.bounds.ne];
-        leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
+        if (typeof park.minLatitude === 'number' &&
+			typeof park.minLongitude === 'number' &&
+			typeof park.maxLatitude === 'number' &&
+			typeof park.maxLongitude === 'number'
+        ) {
+            const bounds: [[number, number], [number, number]] = 
+				[[park.minLatitude, park.minLongitude],
+				    [park.maxLatitude, park.maxLongitude]
+				];
+            leafletMap.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
+        }
     }, [selectedPark]);
      
     useEffect(() => {
@@ -403,7 +434,7 @@ export const IssueMapPage: React.FC = () => {
     }, [issueId, navigate]);
 	
     const selectedParkName = selectedPark
-        ? (PARKS.find((park) => park.id === selectedPark)?.name ?? 'Current Location')
+        ? (parks.find((park) => park.name === selectedPark)?.name ?? 'Current Location')
         : 'Current Location';
     
     const shouldShowNearbyIssues = locationPreference === 'allow' && selectedPark === null;
@@ -466,7 +497,7 @@ export const IssueMapPage: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsParkDropdownOpen((open) => !open)}
-                                    className="min-w-[220px] bg-white border border-gray-300 rounded-full px-4 py-2 text-md font-medium text-gray-900 shadow-sm flex items-center justify-between gap-2"
+                                    className="min-w-[270px] bg-white border border-gray-300 rounded-full px-4 py-2 text-md font-medium text-gray-900 shadow-sm flex items-center justify-between gap-2"
                                 >
                                     <span>{selectedParkName}</span>
                                     <span className="text-black text-xl leading-none">▾</span>
@@ -478,7 +509,9 @@ export const IssueMapPage: React.FC = () => {
                                             type="button"
                                             onClick={() => {
                                                 setIsParkDropdownOpen(false);
-                                                centerMapOnCurrentLocation(false);
+                                                if (locationPreference !== 'deny') {
+                                                    centerMapOnCurrentLocation(false);
+                                                }
                                             }}
                                             className={[
                                                 'w-full flex items-center justify-between px-3 py-2 text-md rounded-xl',
@@ -487,28 +520,28 @@ export const IssueMapPage: React.FC = () => {
                                                     : 'text-gray-700 hover:bg-gray-50',
                                             ].join(' ')}
                                         >
-                                            <span>Current Location</span>
+                                            <span className="flex-1 text-left">Current Location</span>
                                             <span className="text-md text-gray-900" aria-hidden="true">
                                                 {selectedPark === null ? '✓' : ''}
                                             </span>
                                         </button>
-                                        {PARKS.map((park) => (
+                                        {parks.map((park) => (
                                             <button
-                                                key={park.id}
+                                                key={park.name}
                                                 type="button"
                                                 onClick={() => {
-                                                    setSelectedPark(park.id);
+                                                    setSelectedPark(park.name);
                                                     setLocationError(null);
                                                     setIsParkDropdownOpen(false);
                                                 }}
                                                 className={[
                                                     'w-full flex items-center justify-between px-3 py-2 text-md rounded-xl',
-                                                    selectedPark === park.id ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-700 hover:bg-gray-50',
+                                                    selectedPark === park.name ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-700 hover:bg-gray-50',
                                                 ].join(' ')}
                                             >
-                                                <span>{park.name}</span>
+                                                <span className="flex-1 text-left">{park.name}</span>
                                                 <span className="text-md text-gray-900" aria-hidden="true">
-                                                    {selectedPark === park.id ? '✓' : ''}
+                                                    {selectedPark === park.name ? '✓' : ''}
                                                 </span>
                                             </button>
                                         ))}

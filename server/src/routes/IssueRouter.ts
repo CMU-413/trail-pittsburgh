@@ -16,7 +16,8 @@ import {
     unsubscribeIssueNotificationsSchema,
     getIssueMapPinsSchema,
     updateIssueStatusSchema,
-    updateIssueSchema
+    updateIssueSchema,
+    setIssueGroupSchema
 } from '@/schemas/issueSchema';
 import { IssueNotificationService } from '@/services/IssueNotificationService';
 import { IssueService } from '@/services/IssueService';
@@ -83,6 +84,22 @@ router.put(
     requireAdmin,
     issueController.updateIssueStatus
 ); // Update issue status (resolve issue)
+
+router.get(
+    '/:issueId/grouped',
+    authenticateToken,
+    validateRequest(getIssueSchema),
+    requireAdmin,
+    issueController.getGroupedIssues
+); // Get all issues in same issue group
+
+router.put(
+    '/:issueId/group',
+    authenticateToken,
+    validateRequest(setIssueGroupSchema),
+    requireAdmin,
+    issueController.setIssueGroup
+); // Set grouped issues membership for an issue
 
 // Super Admin Routes
 router.delete(

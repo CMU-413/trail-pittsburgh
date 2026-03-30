@@ -17,6 +17,8 @@ export const IssueCard: React.FC<IssueCardProps> = ({
     park,
     showLocation = true
 }) => {
+    const groupedCount = issue.issueGroupMemberIds?.length ?? 0;
+
     // Format date for better display
     const getFormattedDate = () => {
         try {
@@ -74,6 +76,16 @@ export const IssueCard: React.FC<IssueCardProps> = ({
                 <p className="text-gray-700 mb-4 line-clamp-2">
                     {issue.description}
                 </p>
+
+                {groupedCount > 1 && (
+                    <div className="mb-4 flex flex-wrap gap-2">
+                        {groupedCount > 1 && (
+                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+                                Grouped ({groupedCount})
+                            </span>
+                        )}
+                    </div>
+                )}
 
                 <div className="flex justify-between items-center">
                     <div className="text-sm text-blue-600 font-medium group-hover:translate-x-1 transition-transform">

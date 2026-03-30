@@ -8,6 +8,10 @@ export type Park = {
     parkId: number;
     name: string;
     county: string;
+	minLatitude: number | '';
+	minLongitude: number | '';
+	maxLatitude: number | '';
+	maxLongitude: number | '';
     isActive: boolean;
     createdAt: string;
 };
@@ -60,6 +64,7 @@ export interface ImageMetadata {
   
 export type Issue = {
     issueId: number;
+    issueGroupId?: number | null;
     parkId: number;
     isPublic: boolean;
     isImagePublic?: boolean;
@@ -77,11 +82,21 @@ export type Issue = {
     ownerEmail: string;
     createdAt: string;
     resolvedAt?: string;
+    issueGroupMemberIds?: number[];
 
 	park?: {
     	name: string;
   	};
 };  
+
+export type IssuePin = {
+	issueId: number;
+	latitude: number;
+	longitude: number;
+	issueType: IssueTypeEnum;
+	status: IssueStatusEnum ;
+	createdAt: string;
+}
 
 export type Image = {
     key: string;

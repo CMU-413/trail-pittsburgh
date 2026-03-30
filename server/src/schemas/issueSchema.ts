@@ -22,6 +22,15 @@ export const getIssueSchema = z.object({
     })
 });
 
+export const setIssueGroupSchema = z.object({
+    params: z.object({
+        issueId: z.coerce.number(),
+    }),
+    body: z.object({
+        issueGroupMemberIds: z.array(z.coerce.number()).default([]),
+    })
+});
+
 export const getIssueMapPinsSchema = z.object({
     query: z.object({
     // required, because map requests need bounds (range of lat and lng)
@@ -136,3 +145,5 @@ export const updateIssueSchema = z.object({
 });
 
 export type UpdateIssueInput = z.output<typeof updateIssueSchema>['body'];
+
+export type SetIssueGroupInput = z.output<typeof setIssueGroupSchema>['body'];

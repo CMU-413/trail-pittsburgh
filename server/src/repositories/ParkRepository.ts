@@ -15,6 +15,10 @@ export class ParkRepository {
                 data: {
                     name: parkData.name,
                     county: parkData.county,
+                    minLatitude: parkData.minLatitude,
+                    minLongitude: parkData.minLongitude,
+                    maxLatitude: parkData.maxLatitude,
+                    maxLongitude: parkData.maxLongitude,
                 }
             });
             return result;

@@ -209,10 +209,6 @@ export const ProfilePage: React.FC = () => {
                                         <span className="block text-sm font-medium">Parks Management</span>
                                         <span className="block text-xs mt-1">{hasAccess(user.role, UserRoleEnum.ROLE_ADMIN) ? 'Full access' : 'No access'}</span>
                                     </div>
-                                    <div className={`px-3 py-2 rounded-md ${hasAccess(user.role, UserRoleEnum.ROLE_ADMIN) ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
-                                        <span className="block text-sm font-medium">Trails Management</span>
-                                        <span className="block text-xs mt-1">{hasAccess(user.role, UserRoleEnum.ROLE_ADMIN) ? 'Full access' : 'No access'}</span>
-                                    </div>
                                     <div className="px-3 py-2 rounded-md bg-green-50 text-green-700">
                                         <span className="block text-sm font-medium">Issue Reporting</span>
                                         <span className="block text-xs mt-1">Full access</span>

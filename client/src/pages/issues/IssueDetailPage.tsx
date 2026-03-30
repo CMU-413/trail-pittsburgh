@@ -1,5 +1,7 @@
 // src/pages/issues/IssueDetailPage.tsx
-import React, { useState, useEffect } from 'react';
+import React, {
+    useState, useEffect, useRef
+} from 'react';
 import { 
     Link, useParams, useNavigate
 } from 'react-router-dom';
@@ -24,6 +26,7 @@ import { issueTypeFrontendToEnum } from '../../utils/issueTypeUtils';
 import {
     IssueTypeEnum, UserRoleEnum
 } from '../../types/index';
+import { IssueDropdown } from './components/IssueDropdown';
 
 export const IssueDetailPage: React.FC = () => {
     const { issueId } = useParams<{ issueId: string }>();
@@ -41,8 +44,17 @@ export const IssueDetailPage: React.FC = () => {
     const [editedIssueType, setEditedIssueType] = useState('');
     const [editedParkId, setEditedParkId] = useState<number>(0);
     const [isSaving, setIsSaving] = useState(false);
+    const [selectedGroupIssueIds, setSelectedGroupIssueIds] = useState<string[]>([]);
+    const [linkableIssues, setLinkableIssues] = useState<Issue[]>([]);
+    const [isLinking, setIsLinking] = useState(false);
+    const [isGroupDropdownOpen, setIsGroupDropdownOpen] = useState(false);
+
+    const groupDropdownRef = useRef<HTMLDivElement>(null);
 
     const { user } = useAuth();
+    const canEditIssue = user !== null;
+    const canManageIssueStatus = user?.role === UserRoleEnum.ROLE_ADMIN || user?.role === UserRoleEnum.ROLE_SUPERADMIN;
+    const canResolveIssue = canManageIssueStatus;
 
     const formatDate = (dateString: string, formatStr: string = 'PPP p') => {
         try {
@@ -61,6 +73,27 @@ export const IssueDetailPage: React.FC = () => {
             console.error('Error formatting date:', err, dateString);
             return 'unknown time';
         }
+    };
+
+    const toRadians = (degrees: number) => degrees * (Math.PI / 180);
+    const distanceInMiles = (
+        lat1: number,
+        lng1: number,
+        lat2: number,
+        lng2: number
+    ): number => {
+        const earthRadiusMiles = 3958.8;
+        const dLat = toRadians(lat2 - lat1);
+        const dLng = toRadians(lng2 - lng1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRadians(lat1)) *
+                Math.cos(toRadians(lat2)) *
+                Math.sin(dLng / 2) *
+                Math.sin(dLng / 2);
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return earthRadiusMiles * c;
     };
 
     useEffect(() => {
@@ -87,13 +120,18 @@ export const IssueDetailPage: React.FC = () => {
                 setEditedDescription(issueData.description || '');
                 setEditedIssueType(issueData.issueType.toLowerCase());
                 setEditedParkId(issueData.parkId);
+                setSelectedGroupIssueIds(
+                    (issueData.issueGroupMemberIds ?? [])
+                        .filter((groupedIssueId) => groupedIssueId !== issueData.issueId)
+                        .map((groupedIssueId) => String(groupedIssueId))
+                );
 
                 // Fetch related park
                 const parkData = await parkApi.getPark(issueData.parkId);
                 setPark(parkData || null);
 
                 // Fetch all parks for dropdown
-                const parksData = await parkApi.getParks();
+                const parksData = await parkApi.getAllParks();
                 setParks(parksData.filter((p) => p.isActive));
 
             } catch (err) {
@@ -107,6 +145,48 @@ export const IssueDetailPage: React.FC = () => {
 
         fetchIssueData();
     }, [issueId]);
+
+    useEffect(() => {
+        const fetchLinkableIssues = async () => {
+            if (!issue || !canManageIssueStatus) {
+                setLinkableIssues([]);
+                return;
+            }
+
+            try {
+                const allIssues = await issueApi.getAllIssues();
+                const filteredIssues = allIssues.filter((candidate) => candidate.issueId !== issue.issueId);
+
+                const sorted = [...filteredIssues].sort((left, right) => {
+                    const leftDistance =
+                        typeof issue.latitude === 'number' &&
+                        typeof issue.longitude === 'number' &&
+                        typeof left.latitude === 'number' &&
+                        typeof left.longitude === 'number'
+                            ? distanceInMiles(issue.latitude, issue.longitude, left.latitude, left.longitude)
+                            : Number.POSITIVE_INFINITY;
+
+                    const rightDistance =
+                        typeof issue.latitude === 'number' &&
+                        typeof issue.longitude === 'number' &&
+                        typeof right.latitude === 'number' &&
+                        typeof right.longitude === 'number'
+                            ? distanceInMiles(issue.latitude, issue.longitude, right.latitude, right.longitude)
+                            : Number.POSITIVE_INFINITY;
+
+                    return leftDistance - rightDistance;
+                });
+
+                setLinkableIssues(sorted);
+            } catch (fetchError) {
+                // eslint-disable-next-line no-console
+                console.error('Failed to fetch linkable issues', fetchError);
+                setLinkableIssues([]);
+            }
+        };
+
+        fetchLinkableIssues();
+    }, [issue, canManageIssueStatus]);
 
     const handleResolveIssue = async () => {
         if (!issue || !issueId) {
@@ -203,12 +283,48 @@ export const IssueDetailPage: React.FC = () => {
             alert('Failed to update issue status. Please try again.');
         }
     };
-    
-    // Grant all user with edit access for now
-    const canEditIssue = user !== null;
-    const canManageIssueStatus = user?.role === UserRoleEnum.ROLE_ADMIN || user?.role === UserRoleEnum.ROLE_SUPERADMIN;
-    const canResolveIssue = canManageIssueStatus;
 
+    const handleUpdateGroup = async () => {
+        if (!issue || !issueId) {
+            return;
+        }
+
+        try {
+            setIsLinking(true);
+            const id = parseInt(issueId, 10);
+            const issueGroupMemberIds = selectedGroupIssueIds
+                .map((value) => Number(value))
+                .filter((value) => Number.isInteger(value) && value > 0 && value !== issue.issueId);
+
+            const updatedIssue = await issueApi.setIssueGroup(id, issueGroupMemberIds);
+
+            if (updatedIssue) {
+                setIssue(updatedIssue);
+            }
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('Error updating issue group:', err);
+            alert('Failed to update issue group. Please try again.');
+        } finally {
+            setIsLinking(false);
+        }
+    };
+
+    useEffect(() => {
+        const onDown = (e: MouseEvent) => {
+            if (!groupDropdownRef.current) {
+                return;
+            }
+
+            if (!groupDropdownRef.current.contains(e.target as Node)) {
+                setIsGroupDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', onDown);
+        return () => document.removeEventListener('mousedown', onDown);
+    }, []);
+    
     const resetEditedFields = () => {
         setEditedDescription(issue?.description || '');
         setEditedIssueType(issue?.issueType.toLowerCase() || 'other');
@@ -219,6 +335,29 @@ export const IssueDetailPage: React.FC = () => {
     const formatIssueType = (type: string): string => {
         return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
     };
+
+    const selectedGroupLabel = selectedGroupIssueIds.length === 0
+        ? 'No grouped issues'
+        : `${selectedGroupIssueIds.length} selected`;
+
+    const groupOptions = linkableIssues.map((candidateIssue) => {
+        const distanceLabel =
+            issue &&
+            typeof issue.latitude === 'number' &&
+            typeof issue.longitude === 'number' &&
+            typeof candidateIssue.latitude === 'number' &&
+            typeof candidateIssue.longitude === 'number'
+                ? `${distanceInMiles(issue.latitude, issue.longitude, candidateIssue.latitude, candidateIssue.longitude).toFixed(1)} mi`
+                : 'Distance unknown';
+
+        const parkLabel = candidateIssue.park?.name ?? 'Unknown Park';
+        const reportedDate = formatDate(candidateIssue.createdAt, 'MMM d, yyyy');
+
+        return {
+            value: String(candidateIssue.issueId),
+            label: `#${candidateIssue.issueId} • ${parkLabel} • ${reportedDate} • ${distanceLabel}`,
+        };
+    });
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -329,6 +468,54 @@ export const IssueDetailPage: React.FC = () => {
                         {issue.status === IssueStatusEnum.IN_PROGRESS && (
                             <p className="text-sm text-gray-700">This issue is already in progress.</p>
                         )}
+
+                        <div className="pt-3 border-t border-gray-100">
+                            <p className="text-sm text-gray-600 mb-2">Duplicate Management</p>
+                            <div className="space-y-2">
+                                <IssueDropdown
+                                    triggerLabel={selectedGroupLabel}
+                                    isOpen={isGroupDropdownOpen}
+                                    onToggle={() => setIsGroupDropdownOpen((isOpen) => !isOpen)}
+                                    onSelect={(value) => {
+                                        setSelectedGroupIssueIds((previous) => (
+                                            previous.includes(value)
+                                                ? previous.filter((selectedValue) => selectedValue !== value)
+                                                : [...previous, value]
+                                        ));
+                                    }}
+                                    selectedValues={selectedGroupIssueIds}
+                                    options={groupOptions}
+                                    dropdownRef={groupDropdownRef}
+                                    widthClass="w-full sm:w-80"
+                                    menuAlign="left"
+                                    menuWidthClass="w-full"
+                                    triggerClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 inline-flex items-center justify-between"
+                                    renderOptionLabel={(option) => (
+                                        <span className="text-xs text-gray-700">{option.label}</span>
+                                    )}
+                                    footer={(
+                                        <div className="flex justify-end px-3 pt-2 pb-1 mt-1 border-t border-gray-100">
+                                            <button
+                                                type="button"
+                                                className="text-sm text-gray-700"
+                                                onClick={() => setIsGroupDropdownOpen(false)}
+                                            >
+                                                Done
+                                            </button>
+                                        </div>
+                                    )}
+                                />
+                                <Button
+                                    variant="secondary"
+                                    onClick={handleUpdateGroup}
+                                    isLoading={isLinking}
+                                    disabled={isLinking}
+                                    className="w-full sm:w-auto"
+                                >
+                                    {isLinking ? 'Updating...' : 'Update Group'}
+                                </Button>
+                            </div>
+                        </div>
 
                     </div>
                 </Card>
@@ -461,6 +648,32 @@ export const IssueDetailPage: React.FC = () => {
 
                         <div className="space-y-4">
                             <IssueTimer issue={issue} />
+
+                            <div>
+                                <p className="text-sm font-medium text-gray-500">Issue Group</p>
+                                {issue.issueGroupMemberIds && issue.issueGroupMemberIds.filter((id) => id !== issue.issueId).length > 0 && (
+                                    <div className="mt-2">
+                                        <div className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-900">
+                                            <span>Grouped with Issue </span>
+                                            <span className="ml-1">
+                                                {issue.issueGroupMemberIds
+                                                    .filter((id) => id !== issue.issueId)
+                                                    .map((groupedIssueId, index, issueGroupMemberIds) => (
+                                                        <span key={groupedIssueId}>
+                                                            <Link
+                                                                to={`/issues/card/${groupedIssueId}`}
+                                                                className="text-blue-600 hover:text-blue-500"
+                                                            >
+                                                                {groupedIssueId}
+                                                            </Link>
+                                                            {index < issueGroupMemberIds.length - 1 ? ', ' : ''}
+                                                        </span>
+                                                    ))}
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
 
                             <div>
                                 <p className="text-sm font-medium text-gray-500">Location</p>

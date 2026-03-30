@@ -33,17 +33,21 @@ enum UserRoleEnum {
 }
 
 model Park {
-  parkId    Int      @id @default(autoincrement()) @map("park_id")
-  name      String   @db.VarChar(50)
-  county    String   @db.VarChar(50)
-  isActive  Boolean  @default(true)                @map("is_active")
-  createdAt DateTime @default(now())               @map("created_at")
-
+  parkId       Int      @id @default(autoincrement()) @map("park_id")
+  name         String   @db.VarChar(50)
+  county       String   @db.VarChar(50)
+  minLatitude  Float
+  minLongitude Float
+  maxLatitude  Float
+  maxLongitude Float
+  isActive     Boolean  @default(true)                @map("is_active")
+  createdAt    DateTime @default(now())               @map("created_at")
   issues Issue[]
 }
 
 model Issue {
   issueId        Int              @id @default(autoincrement())   @map("issue_id")
+  issueGroupId   Int?                                             @map("issue_group_id")
   parkId         Int                                              @map("park_id")
   isPublic       Boolean                                          @map("is_public")  
   isImagePublic  Boolean          @default(false)                 @map("is_image_public")
@@ -62,7 +66,17 @@ model Issue {
   ownerEmail     String?          @db.VarChar(150)                @map("owner_email")
 
   park           Park             @relation(fields: [parkId], references: [parkId])
+  issueGroup     IssueGroup?      @relation(fields: [issueGroupId], references: [issueGroupId])
   notifications  Notification[]
+}
+
+model IssueGroup {
+  issueGroupId Int              @id @default(autoincrement())   @map("issue_group_id")
+  primaryIssueId Int?                                           @map("primary_issue_id")
+  status       IssueStatusEnum  @default(OPEN)
+  createdAt    DateTime         @default(now())                 @map("created_at")
+  updatedAt    DateTime         @updatedAt                      @map("updated_at")
+  issues       Issue[]
 }
 
 model User {
@@ -82,6 +96,5 @@ model Notification {
   content        String      @db.VarChar(150)
   sentAt         DateTime?                                   @map("sent_at")
   createdAt      DateTime    @default(now())                 @map("created_at")
-
   user Issue @relation(fields: [issueId], references: [issueId])
 }

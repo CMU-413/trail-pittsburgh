@@ -16,9 +16,31 @@ Retrieve all issues.
 **Authentication Required:** Yes (Admin)
 
 **Response:**
+
 - `200 OK`: List of issue objects
 
 ---
+
+### `GET /api/issues/map`
+
+**Description:**
+Retrieve issue pins (filter issue types optional) within a geographic bounding box for map display.
+
+**Authentication Required:** No
+
+**Params:**
+
+- `bbox` (string, required)
+- `issueTypes` (string[], optional)
+- `statuses` (string[], optional)
+
+**Validation:**
+
+- Validated using `getIssueMapPinsSchema`
+
+**Response:**
+
+- `200 OK`: List of IssuePin
 
 ### `GET /api/issues/:issueId`
 
@@ -28,12 +50,15 @@ Retrieve a specific issue by ID.
 **Authentication Required:** Yes (Admin)
 
 **Params:**
+
 - `issueId` (number, required)
 
-**Validation:**  
+**Validation:**
+
 - Validated using `getIssueSchema`
 
 **Response:**
+
 - `200 OK`: Issue object
 - `404 Not Found`: If not found
 
@@ -47,12 +72,15 @@ Get issues associated with a specific park.
 **Authentication Required:** Yes (Admin)
 
 **Params:**
+
 - `parkId` (number, required)
 
-**Validation:**  
+**Validation:**
+
 - Validated using `getIssuesByParkSchema`
 
 **Response:**
+
 - `200 OK`: List of issues for the park
 
 ---
@@ -65,16 +93,23 @@ Create a new issue.
 **Authentication Required:** Yes
 
 **Request Body:**
+
 ```json
 {
-  "description": "Washed out bridge"
+  "description": "Washed out bridge",
+  "issueType": "OBSTRUCTION",
+  "parkId": 1,
+  "latitude": 40.44,
+  "longitude": -79.99
 }
 ```
 
-**Validation:**  
+**Validation:**
+
 - Validated using `createIssueSchema`
 
 **Response:**
+
 - `201 Created`: Created issue object
 - `401 Unauthorized`: If not logged in
 
@@ -88,19 +123,23 @@ Update the status of an issue.
 **Authentication Required:** Yes (Admin)
 
 **Params:**
+
 - `issueId` (number, required)
 
 **Request Body:**
+
 ```json
 {
-  "status": "resolved"
+  "status": "IN_PROGRESS"
 }
 ```
 
-**Validation:**  
+**Validation:**
+
 - Validated using `updateIssueStatusSchema`
 
 **Response:**
+
 - `200 OK`: Updated issue
 - `404 Not Found`: If issue not found
 - `401 Unauthorized`: If not logged in
@@ -115,12 +154,15 @@ Update details of an issue.
 **Authentication Required:** Yes (Admin)
 
 **Params:**
+
 - `issueId` (number, required)
 
-**Validation:**  
+**Validation:**
+
 - Validated using `updateIssueSchema`
 
 **Response:**
+
 - `200 OK`: Updated issue
 - `404 Not Found`: If issue not found
 - `401 Unauthorized`: If not logged in
@@ -135,12 +177,15 @@ Delete an issue by ID.
 **Authentication Required:** Yes (Super Admin)
 
 **Params:**
+
 - `issueId` (number, required)
 
-**Validation:**  
+**Validation:**
+
 - Validated using `deleteIssueSchema`
 
 **Response:**
+
 - `204 No Content`: If deleted
 - `404 Not Found`: If not found
 - `401 Unauthorized`: If not logged in

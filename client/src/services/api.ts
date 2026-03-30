@@ -2,7 +2,8 @@ import {
     Park, Issue, IssueParams, IssueStatusEnum,
     IssueTypeEnum,
     UserRoleEnum,
-    User
+    User,
+    IssuePin
 } from '../types';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL  }/api`;
@@ -17,7 +18,7 @@ const handleResponse = async (response: Response) => {
 };
 
 export const parkApi = {
-    getParks: async (): Promise<Park[]> => {
+    getAllParks: async (): Promise<Park[]> => {
         const response = await fetch(`${API_BASE_URL}/parks`, {
             credentials: 'include'
         }).then(handleResponse);
@@ -100,6 +101,30 @@ export const issueApi = {
         })
             .then(handleResponse);
         return response.issues;
+    },
+
+    getMapPins: async (
+        minLat: number,
+        minLng: number,
+        maxLat: number,
+        maxLng: number,
+        types: IssueTypeEnum[] = []
+    ): Promise<IssuePin[]> => {
+        const bbox = `${minLat},${minLng},${maxLat},${maxLng}`;
+        const params = new URLSearchParams({ bbox });
+
+        for (const t of types) {
+            params.append('issueTypes', t);
+        }
+
+        params.append('statuses', IssueStatusEnum.OPEN);
+        params.append('statuses', IssueStatusEnum.IN_PROGRESS);
+
+        const response = await fetch(`${API_BASE_URL}/issues/map?${params.toString()}`, {
+            credentials: 'include'
+        }).then(handleResponse);
+
+        return Array.isArray(response?.pins) ? response.pins : [];
     },
 
     createIssue: async (issueData: IssueParams): Promise<string | undefined> => {
@@ -224,6 +249,25 @@ export const issueApi = {
             credentials: 'include'
         }).then(handleResponse);
         
+        return response.issue;
+    },
+
+    getGroupedIssues: async (issueId: number): Promise<Issue[]> => {
+        const response = await fetch(`${API_BASE_URL}/issues/${issueId}/grouped`, {
+            credentials: 'include'
+        }).then(handleResponse);
+
+        return response.issues;
+    },
+
+    setIssueGroup: async (issueId: number, issueGroupMemberIds: number[]): Promise<Issue> => {
+        const response = await fetch(`${API_BASE_URL}/issues/${issueId}/group`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ issueGroupMemberIds }),
+            credentials: 'include'
+        }).then(handleResponse);
+
         return response.issue;
     },
 };
