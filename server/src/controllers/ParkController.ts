@@ -51,7 +51,11 @@ export class ParkController {
 				 maxLatitude, maxLongitude, isActive } = req.body;
 
             // Validate required fields
-            if (!name || !county) {
+            if (!name || !county || 
+				minLatitude === undefined ||
+				maxLatitude === undefined ||
+				minLongitude === undefined ||
+				maxLongitude === undefined) {
                 res.status(400).json({ message: 'Name, county, and all latitude/longitude values are required' });
                 return;
             }
