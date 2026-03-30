@@ -22,15 +22,6 @@ import { IssueFilterDropdown, PinLegend } from './IssueFilterDropdown';
 import { iconForType, iconForCurrentLocation } from './issuePinIcons';
 import { issueApi, parkApi } from '../../services/api';
 
-type IssuePin = {
-	issueId: number;
-	latitude: number;
-	longitude: number;
-	issueType: IssueTypeEnum;
-	status: IssueStatusEnum ;
-	createdAt: string;
-}
-
 type NearByIssueCard = {
 	issueType: IssueTypeEnum;
 	park: string;
@@ -44,26 +35,6 @@ type LocationPreference = 'unknown' | 'allow' | 'deny';
 
 const LOCATION_PREF_KEY = 'issue-map-location-preference';
 const DEFAULT_PARK_NAME = 'Alameda Park';
-
-const fetchPinsByBbox = async (
-    minLat: number,
-    minLng: number,
-    maxLat: number,
-    maxLng: number,
-    types: IssueTypeEnum[] = []
-): Promise<IssuePin[]> => {
-    const bbox = `${minLat},${minLng},${maxLat},${maxLng}`;
-    const params = new URLSearchParams({ bbox });
-    for (const t of types) 
-    {params.append('issueTypes', t);}
-    params.append('statuses', IssueStatusEnum.OPEN);
-    params.append('statuses', IssueStatusEnum.IN_PROGRESS);
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/issues/map?${params.toString()}`);
-    if (!res.ok) 
-    {return [];}
-    const data = await res.json();
-    return Array.isArray(data?.pins) ? data.pins : [];
-};
 
 const toRadians = (degrees: number): number => degrees * (Math.PI / 180);
 
@@ -160,7 +131,7 @@ export const IssueMapPage: React.FC = () => {
 
             clearIssueMarkers();
 
-            const pins = await fetchPinsByBbox(sw.lat, sw.lng, ne.lat, ne.lng, selectedTypesRef.current);
+            const pins = await issueApi.getMapPins(sw.lat, sw.lng, ne.lat, ne.lng, selectedTypesRef.current);
 
             for (const pin of pins) {
                 if (typeof pin.latitude !== 'number' || typeof pin.longitude !== 'number') {continue;}
@@ -287,7 +258,7 @@ export const IssueMapPage: React.FC = () => {
         const minLng = currentLocation.longitude - deltaLng;
         const maxLng = currentLocation.longitude + deltaLng;
 
-        const pins = await fetchPinsByBbox(minLat, minLng, maxLat, maxLng, selectedTypesRef.current);
+        const pins = await issueApi.getMapPins(minLat, minLng, maxLat, maxLng, selectedTypesRef.current);
 	    
         const nearbyIssues = await Promise.all(
             pins.map(async (pin) => {
