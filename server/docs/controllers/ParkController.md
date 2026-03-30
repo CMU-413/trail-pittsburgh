@@ -55,11 +55,15 @@ public async createPark(req: Request, res: Response)
 - **Route**: `POST /api/parks`
 - **Purpose**: Create a new park entry.
 - **Request Body**:
-  - `name` *(string)*: **Required** — Name of the park.
-  - `county` *(string)*: **Required** — County where the park is located.
-  - `isActive` *(boolean, optional)*: Whether the park is active (defaults to `true`).
+  - `name` _(string)_: **Required** — Name of the park.
+  - `county` _(string)_: **Required** — County where the park is located.
+  - `minLatitude` _(number)_: **Required** — Minimum latitude of the park boundary.
+  - `maxLatitude` _(number)_: **Required** — Maximum latitude of the park boundary.
+  - `minLongitude` _(number)_: **Required** — Minimum longitude of the park boundary.
+  - `maxLongitude` _(number)_: **Required** — Maximum longitude of the park boundary.
+  - `isActive` _(boolean, optional)_: Whether the park is active (defaults to `true`).
 - **Validations**:
-  - Rejects with `400 Bad Request` if `name` or `county` is missing.
+  - Rejects with `400 Bad Request` if any required field is missing, including name, county, or latitude/longitude values.
 - **Responses**:
   - `201 Created`: Park successfully created, returns the new park.
   - `400 Bad Request`: Missing required fields.
@@ -78,9 +82,13 @@ public async updatePark(req: Request, res: Response)
 - **Path Parameters**:
   - `parkId`: ID of the park to update.
 - **Request Body**:
-  - `name` *(string, optional)*: Updated park name.
-  - `county` *(string, optional)*: Updated park county.
-  - `isActive` *(boolean, optional)*: Updated park status.
+  - `name` _(string, optional)_: Updated park name.
+  - `county` _(string, optional)_: Updated park county.
+  - `isActive` _(boolean, optional)_: Updated park status.
+  - `minLatitude` _(number, optional)_: Updated minimum latitude.
+  - `maxLatitude` _(number, optional)_: Updated maximum latitude.
+  - `minLongitude` _(number, optional)_: Updated minimum longitude.
+  - `maxLongitude` _(number, optional)_: Updated maximum longitude.
 - **Responses**:
   - `200 OK`: Updated park returned.
   - `404 Not Found`: Park not found.
@@ -108,6 +116,7 @@ public async deletePark(req: Request, res: Response)
 ## Error Handling
 
 Each method:
+
 - Uses a `try/catch` block to gracefully handle exceptions.
 - Logs errors using `logger.error(...)` with context-specific messages.
 - Returns proper HTTP status codes and structured JSON error messages.

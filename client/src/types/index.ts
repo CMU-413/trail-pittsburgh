@@ -88,6 +88,15 @@ export type Issue = {
   	};
 };  
 
+export type IssuePin = {
+	issueId: number;
+	latitude: number;
+	longitude: number;
+	issueType: IssueTypeEnum;
+	status: IssueStatusEnum ;
+	createdAt: string;
+}
+
 export type Image = {
     key: string;
     url: string;
