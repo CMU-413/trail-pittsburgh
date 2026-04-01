@@ -14,6 +14,7 @@ import { TextArea } from '../ui/TextArea';
 import { parkApi } from '../../services/api';
 import { getParkByLatLng } from '../../utils/parkUtils';
 import { Select } from '../ui/Select';
+import { useAuth } from '../../providers/AuthProvider';
 
 interface IssueReportFormProps {
     onSubmit: (data: IssueParams) => Promise<void>;
