@@ -92,6 +92,11 @@ export class IssueService {
         };
     }
 
+    public async getIssue(issueId: number) {
+        const issue = await this.issueRepository.getIssue(issueId);
+        return this.toIssueResponse(issue);
+    }
+    
     public async getAllIssues(reporterEmail?: string, ownerEmail?: string) {
         return this.issueRepository.getAllIssues(reporterEmail, ownerEmail);
     }
