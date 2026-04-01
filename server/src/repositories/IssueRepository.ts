@@ -88,47 +88,26 @@ export class IssueRepository {
 
     public async createIssue(data: CreateIssueDbInput): Promise<RepositoryIssueOrNull> {
         try {
-            return await prisma.$transaction(async (tx) => {
-                const issueGroup = await tx.issueGroup.create({
-                    data: {
-                        status: data.status,
-                        primaryIssueId: undefined,
-                    }
-                });
-
-                const createdIssue = await tx.issue.create({
-                    data: {
-                        parkId: data.parkId,
-                        issueGroupId: issueGroup.issueGroupId,
-                        issueType: data.issueType,
-                        description: data.description,
-                        safetyRisk: data.safetyRisk,
-                        passible: data.passible,
-                        isPublic: data.isPublic ?? true,
-                        isImagePublic: data.isImagePublic ?? false,
-                        status: data.status,
-                        latitude: data.latitude,
-                        longitude: data.longitude,
-                        notifyReporter: data.notifyReporter ?? true,
-                        reporterEmail: data.reporterEmail ?? '',
-                        issueImage: data.issueImageKey,
-                    },
-                    include: this.buildIssueInclude()
-                });
-
-                await tx.issueGroup.update({
-                    where: { issueGroupId: issueGroup.issueGroupId },
-                    data: {
-                        primaryIssueId: createdIssue.issueId,
-                    }
-                });
-
-                return tx.issue.findUnique({
-                    where: {
-                        issueId: createdIssue.issueId,
-                    },
-                    include: this.buildIssueInclude()
-                });
+            return await prisma.issue.create({
+                data: {
+                    parkId: data.parkId,
+                    issueType: data.issueType,
+                    description: data.description,
+                    safetyRisk: data.safetyRisk,
+                    passible: data.passible,
+                    isPublic: data.isPublic ?? true,
+                    isImagePublic: data.isImagePublic ?? false,
+                    status: data.status,
+                    latitude: data.latitude,
+                    longitude: data.longitude,
+                    notifyReporter: data.notifyReporter ?? true,
+                    reporterEmail: data.reporterEmail ?? '',
+                    ownerEmail: data.ownerEmail ?? '',
+                    issueImage: data.issueImageKey,
+                },
+                include: {
+                    park: true,
+                }
             });
         } catch (error) {
             // eslint-disable-next-line no-console
@@ -137,9 +116,22 @@ export class IssueRepository {
         }
     }
 
-    public async getAllIssues(): Promise<RepositoryIssue[]> {
+    public async getAllIssues(reporterEmail?: string, ownerEmail?: string) {
+        const filters = [];
+
+        if (reporterEmail) {
+            filters.push({ reporterEmail });
+        }
+
+        if (ownerEmail) {
+            filters.push({ ownerEmail });
+        }
+
         return prisma.issue.findMany({
-            include: this.buildIssueInclude()
+            where: filters.length > 0 ? { OR: filters } : {},
+            include: {
+                park: true,
+            }
         });
     }
 

@@ -68,11 +68,22 @@ export const parkApi = {
 };
 
 export const issueApi = {
-    getAllIssues: async (): Promise<Issue[]> => {
-        const response = await fetch(`${API_BASE_URL}/issues`, {
-            credentials: 'include'
+
+    getAllIssues: async (filters?: { reporterEmail?: string; ownerEmail?: string }): Promise<Issue[]> => {
+        const url = new URL(`${API_BASE_URL}/issues`);
+
+        // Add any provided filters as query params
+        Object.entries(filters || {}).forEach(([key, value]) => {
+            if (value) {
+                url.searchParams.append(key, value);
+            }
+        });
+
+        const response = await fetch(url.toString(), { 
+            credentials: 'include' 
         })
             .then(handleResponse);
+
         return response.issues;
     },
 
@@ -229,8 +240,8 @@ export const issueApi = {
         issueType?: IssueTypeEnum;
         isImagePublic?: boolean;
         parkId?: number;
-		latitude?: number;
-		longitude?: number;
+        latitude?: number;
+        longitude?: number;
     }): Promise<Issue> => {
         const response = await fetch(`${API_BASE_URL}/issues/${issueId}`, {
             method: 'PUT',

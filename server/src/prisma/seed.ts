@@ -120,7 +120,8 @@ async function main() {
                 isImagePublic: false,
                 status: IssueStatusEnum.OPEN,
                 notifyReporter: true,
-                reporterEmail: 'john@example.com'
+                reporterEmail: 'john@example.com',
+                ownerEmail: 'john@example.com'
             },
             {
                 parkId: parkRecords[1].parkId,
@@ -134,7 +135,8 @@ async function main() {
                 isImagePublic: false,
                 status: IssueStatusEnum.OPEN,
                 notifyReporter: true,
-                reporterEmail: 'jane@example.com'
+                reporterEmail: 'jane@example.com',
+                ownerEmail: 'jane@example.com'
             },
             {
                 parkId: parkRecords[2].parkId,
@@ -148,7 +150,8 @@ async function main() {
                 isImagePublic: false,
                 status: IssueStatusEnum.OPEN,
                 notifyReporter: true,
-                reporterEmail: 'mike@example.com'
+                reporterEmail: 'mike@example.com',
+                ownerEmail: 'mike@example.com'
             }
         ]
     });

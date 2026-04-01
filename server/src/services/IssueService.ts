@@ -96,10 +96,9 @@ export class IssueService {
         const issue = await this.issueRepository.getIssue(issueId);
         return this.toIssueResponse(issue);
     }
-
-    public async getAllIssues() {
-        const issues = await this.issueRepository.getAllIssues();
-        return Promise.all(issues.map((issue) => this.toIssueResponse(issue)));
+    
+    public async getAllIssues(reporterEmail?: string, ownerEmail?: string) {
+        return this.issueRepository.getAllIssues(reporterEmail, ownerEmail);
     }
 
     public async getMapPins(minLat: number, 

@@ -31,6 +31,7 @@ describe('IssueService', () => {
         status: IssueStatusEnum.OPEN,
         notifyReporter: true,
         reporterEmail: 'reporter@example.com',
+        ownerEmail: 'reporter@example.com',
         longitude: -79.9901,
         latitude: 40.4406,
         createdAt: new Date(),
