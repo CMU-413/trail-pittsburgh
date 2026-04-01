@@ -9,7 +9,7 @@ export function createBucket(bucketName: string): Bucket {
     // Production uses the default Google Cloud service account.
     // This avoids requiring cloud credentials for local dev.
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'test') {
         // In development mode, just return a mock bucket or do nothing.
         // Note: Integration tests should not test bucket behavior.
         return {} as Bucket;
