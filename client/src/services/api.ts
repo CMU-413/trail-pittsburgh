@@ -240,6 +240,8 @@ export const issueApi = {
         issueType?: IssueTypeEnum;
         isImagePublic?: boolean;
         parkId?: number;
+        latitude?: number;
+        longitude?: number;
     }): Promise<Issue> => {
         const response = await fetch(`${API_BASE_URL}/issues/${issueId}`, {
             method: 'PUT',
