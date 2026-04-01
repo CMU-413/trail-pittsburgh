@@ -30,10 +30,19 @@ export class IssueService {
         this.issueNotificationService = issueNotificationService;
     }
 
-    private async getIssueImage(imageKey: string) {
+    private async getIssueImage(imageKey: string, providedContentType?: string) {
 
         try {
             const signedUrl = await this.issueImageBucket.getDownloadUrl(imageKey);
+
+            // Bypass GCS metadata fetch if we already know it (e.g., during issue creation)
+            if (providedContentType) {
+                return {
+                    ...signedUrl,
+                    contentType: providedContentType,
+                    metadata: {}
+                };
+            }
 
             const {
                 contentType,
@@ -63,7 +72,8 @@ export class IssueService {
         };
     }
 
-    private async toIssueResponse(issue: RepositoryIssue) {
+    private async toIssueResponse(issue: RepositoryIssue, 
+								  providedImageMetadata?: { contentType: string }) {
         if (!issue) {
             return null;
         }
@@ -88,7 +98,8 @@ export class IssueService {
             status: issueGroup?.status ?? issue.status,
             issueGroupId: issue.issueGroupId ?? issueGroup?.issueGroupId ?? null,
             issueGroupMemberIds,
-            ...(issueImage && { image: await this.getIssueImage(issueImage) })
+            ...(issueImage && { image: await this.getIssueImage(issueImage, 
+                providedImageMetadata?.contentType) })
         };
     }
 
@@ -140,7 +151,7 @@ export class IssueService {
             this.toNotificationIssue(issue)
         );
 
-        const issueResponse = await this.toIssueResponse(issue);
+        const issueResponse = await this.toIssueResponse(issue, imageMetadata);
 
         return {
             issue: issueResponse,

@@ -55,14 +55,15 @@ export const IssueDetailCard: React.FC<{
 
     const { user } = useAuth();
     const canEditIssue = user?.role === UserRoleEnum.ROLE_ADMIN ||
-        user?.role === UserRoleEnum.ROLE_SUPERADMIN;
+        user?.role === UserRoleEnum.ROLE_SUPERADMIN || user?.email === issue?.ownerEmail;
     const canManageIssueStatus = user?.role === UserRoleEnum.ROLE_ADMIN ||
         user?.role === UserRoleEnum.ROLE_SUPERADMIN;
     const isImagePublic = issue?.isImagePublic ?? issue?.isPublic ?? false;
     const canViewImage =
         user?.role === UserRoleEnum.ROLE_ADMIN ||
         user?.role === UserRoleEnum.ROLE_SUPERADMIN ||
-        isImagePublic;
+        isImagePublic || 
+		user?.email === issue?.ownerEmail;
 
     const handleResolveIssue = async () => {
         if (!issue || !issueId) {return;}
@@ -483,31 +484,6 @@ export const IssueDetailCard: React.FC<{
                         canViewImage ? 'max-w-6xl' : 'max-w-3xl',
                     ].join(' ')}
                 >
-                    <div className="absolute top-4 right-4 flex items-center gap-2">
-                        {!isEditing && canEditIssue && issue?.status !== IssueStatusEnum.RESOLVED && (
-                            <Button
-                                variant="primary"
-                                size="sm"
-                                className="inline-flex items-center gap-2 whitespace-nowrap h-9 px-3 rounded-md text-sm font-medium border border-gray-300 bg-white hover:bg-gray-50 text-black"
-                                onClick={startEditing}
-                                aria-label="Edit issue"
-                                type="button"
-                            >
-                                ✎ Edit
-                            </Button>
-                        )}
-                        <Button
-                            onClick={onClose}
-                            variant="secondary"
-                            size="md"
-                            className="text-xl text-gray-500 hover:text-gray-800 bg-transparent hover:bg-transparent shadow-none"
-                            aria-label="Close"
-                            type="button"
-                        >
-                            ✕
-                        </Button>
-                    </div>
-
                     {loading ? (
                         <div className="p-10">
                             <LoadingSpinner />
@@ -517,7 +493,7 @@ export const IssueDetailCard: React.FC<{
                             <div className="text-red-600">{error}</div>
                         </div>
                     ) : !issue ? null : (
-                        <div className="p-4 md:p-8 pr-14 md:pr-16 overflow-y-auto">
+                        <div className="p-4 md:p-8 overflow-y-auto">
                             {isEditing && (
                                 <IssueDetailEditHeader
                                     issueDisplayId={issue.issueId ?? issueId}
@@ -532,47 +508,72 @@ export const IssueDetailCard: React.FC<{
                                 <div>
                                     <div className={isEditing ? 'rounded-lg border border-slate-200 bg-white p-3 md:p-4' : ''}>
                                         <div>
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                {isEditing ? (
-                                                    <IssueDetailEditDropdown
-                                                        label="Issue Type"
-                                                        valueLabel={issueTypeLabel}
-                                                        isOpen={isIssueTypeDropdownOpen}
-                                                        onToggle={() => setIsIssueTypeDropdownOpen((open) => !open)}
-                                                        onSelect={(value) => {
-                                                            setEditedIssueType(value);
-                                                            setIsIssueTypeDropdownOpen(false);
-                                                        }}
-                                                        selectedValue={editedIssueType}
-                                                        options={[
-                                                            { value: 'obstruction', label: 'Obstruction' },
-                                                            { value: 'flooding', label: 'Flooding' },
-                                                            { value: 'other', label: 'Other' },
-                                                        ]}
-                                                        dropdownRef={issueTypeDropdownRef}
-                                                        widthClass="w-[220px]"
-                                                    />
-                                                ) : (
-                                                    <>
-                                                        <div className="flex items-baseline gap-2">
-                                                            <span className="text-2xl md:text-3xl font-extrabold tracking-tight">
-                                                                {issue.issueType}
-                                                            </span>
-                                                            <span className="text-lg md:text-xl font-semibold text-gray-600">
-                                                                #{issue.issueId}
-                                                            </span>
-                                                        </div>
+                                            <div className="flex items-start justify-between gap-2">
+                                                {/* LEFT SIDE */}
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    {isEditing ? (
+                                                        <IssueDetailEditDropdown
+														    label="Issue Type"
+                                                            valueLabel={issueTypeLabel}
+                                                            isOpen={isIssueTypeDropdownOpen}
+                                                            onToggle={() => setIsIssueTypeDropdownOpen((open) => !open)}
+                                                            onSelect={(value) => {
+                                                                setEditedIssueType(value);
+                                                                setIsIssueTypeDropdownOpen(false);
+                                                            }}
+                                                            selectedValue={editedIssueType}
+                                                            options={[
+                                                                { value: 'obstruction', label: 'Obstruction' },
+                                                                { value: 'flooding', label: 'Flooding' },
+                                                                { value: 'other', label: 'Other' },
+                                                            ]}
+                                                            dropdownRef={issueTypeDropdownRef}
+                                                            widthClass="w-[220px]"
+                                                        />
+                                                    ) : (
+                                                        <>
+                                                            <div className="flex items-baseline gap-2">
+                                                                <span className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                                                                    {issue.issueType}
+                                                                </span>
+                                                                <span className="text-lg md:text-xl font-semibold text-gray-600">
+																	#{issue.issueId}
+                                                                </span>
+                                                            </div>
 
-                                                        <span
-                                                            className={[
+                                                            <span className={[
                                                                 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
                                                                 getIssueStatusColor(issue.status),
-                                                            ].join(' ')}
+                                                            ].join(' ')}>
+                                                                {issue.status.replace('_', ' ')}
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                </div>
+
+                                                {/* RIGHT SIDE (NEW) */}
+                                                <div className="flex items-center gap-2 flex-shrink-0">
+                                                    {!isEditing && canEditIssue && issue?.status !== IssueStatusEnum.RESOLVED && (
+                                                        <Button
+                                                            variant="primary"
+                                                            size="sm"
+                                                            className="inline-flex items-center gap-2 whitespace-nowrap h-9 px-3 rounded-md text-sm font-medium border border-gray-300 bg-white hover:bg-gray-50 text-black"
+                                                            onClick={startEditing}
+                                                            aria-label="Edit issue"
+                                                            type="button"
                                                         >
-                                                            {issue.status.replace('_', ' ')}
-                                                        </span>
-                                                    </>
-                                                )}
+															✎ Edit
+                                                        </Button>
+                                                    )}
+
+                                                    <Button
+                                                        onClick={onClose}
+                                                        variant="secondary"
+                                                        size="md"
+                                                    >
+														✕
+                                                    </Button>
+                                                </div>
                                             </div>
 
                                             <div className="mt-2">
