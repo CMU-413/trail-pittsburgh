@@ -16,7 +16,7 @@ enum IssueStatusEnum {
 
 enum IssueTypeEnum {
   OBSTRUCTION
-  FLOODING
+  WATER
   OTHER
 }
 

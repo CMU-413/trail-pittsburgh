@@ -125,13 +125,13 @@ describe('Issue API End-to-End', () => {
     it('POST /api/issues -> should create a second issue for group tests', async () => {
         const payload = {
             parkId,
-            issueType: 'FLOODING' as IssueTypeEnum,
+            issueType: 'WATER' as IssueTypeEnum,
             safetyRisk: 'MINOR_RISK' as IssueRiskEnum,
             reporterEmail: 'sample2@example.com',
             status: 'OPEN' as IssueStatusEnum,
             notifyReporter: true,
             isPublic: true,
-            description: 'A related flooding report'
+            description: 'A related water report'
         };
 
         const res = await request(app)

@@ -100,7 +100,7 @@ public async getMapPins(req: Request, res: Response)
 ```md
 bbox=40.44,-80.0,40.50,-79.9
 &issueTypes=OBSTRUCTION
-&issueTypes=FLOODING
+&issueTypes=WATER
 &statuses=OPEN
 &statuses=IN_PROGRESS
 ```

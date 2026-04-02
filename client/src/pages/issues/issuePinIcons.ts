@@ -23,7 +23,7 @@ export const iconForType = (type: IssueTypeEnum) => {
     if (type === IssueTypeEnum.OBSTRUCTION) {
         return makePinIcon(obstuctionPin);
     }
-    if (type === IssueTypeEnum.FLOODING) {
+    if (type === IssueTypeEnum.WATER) {
         return makePinIcon(waterPin);
     }
     return makePinIcon(otherPin);

@@ -24,7 +24,7 @@ export enum IssueStatusEnum {
 
 export enum IssueTypeEnum {
     OBSTRUCTION = 'OBSTRUCTION',
-    FLOODING = 'FLOODING',
+    WATER = 'WATER',
     OTHER = 'OTHER'
 }
 

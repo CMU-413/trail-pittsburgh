@@ -23,7 +23,7 @@ describe('IssueService', () => {
     const baseIssue = {
         issueId: 1,
         parkId: 1,
-        issueType: IssueTypeEnum.FLOODING,
+        issueType: IssueTypeEnum.WATER,
         safetyRisk: IssueRiskEnum.NO_RISK,
         passible: true,
         description: 'Trail is flooded',
@@ -33,6 +33,7 @@ describe('IssueService', () => {
         notifyReporter: true,
         reporterEmail: 'reporter@example.com',
         ownerEmail: 'reporter@example.com',
+        issueGroupId: null,
         longitude: -79.9901,
         latitude: 40.4406,
         createdAt: new Date(),
@@ -83,7 +84,7 @@ describe('IssueService', () => {
 
         const input: CreateIssueInput = {
             parkId: 1,
-            issueType: IssueTypeEnum.FLOODING,
+            issueType: IssueTypeEnum.WATER,
             safetyRisk: IssueRiskEnum.NO_RISK,
             passible: true,
             reporterEmail: 'reporter@example.com',
@@ -127,7 +128,7 @@ describe('IssueService', () => {
 
         const input = {
             parkId: 1,
-            issueType: IssueTypeEnum.FLOODING,
+            issueType: IssueTypeEnum.WATER,
             safetyRisk: IssueRiskEnum.NO_RISK,
             passible: true,
             description: 'Very flooded trail',

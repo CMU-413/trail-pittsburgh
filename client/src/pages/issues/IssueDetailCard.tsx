@@ -424,7 +424,7 @@ export const IssueDetailCard: React.FC<{
     const editTextareaClass = 'mt-2 w-full border border-gray-300 rounded-2xl p-3 min-h-[110px] text-sm text-gray-900 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300';
     const issueTypeLabel =
         editedIssueType === 'obstruction' ? 'Obstruction'
-            : editedIssueType === 'flooding' ? 'Flooding'
+            : editedIssueType === 'water' ? 'Standing Water/Mud'
                 : 'Other';
     const selectedParkLabel = parks.find((p) => p.parkId === editedParkId)?.name ?? 'Select Park';
     const selectedGroupLabel = selectedGroupIssueIds.length === 0
@@ -552,7 +552,7 @@ export const IssueDetailCard: React.FC<{
                                                             selectedValue={editedIssueType}
                                                             options={[
                                                                 { value: 'obstruction', label: 'Obstruction' },
-                                                                { value: 'flooding', label: 'Flooding' },
+                                                                { value: 'water', label: 'Standing Water/Mud' },
                                                                 { value: 'other', label: 'Other' },
                                                             ]}
                                                             dropdownRef={issueTypeDropdownRef}
