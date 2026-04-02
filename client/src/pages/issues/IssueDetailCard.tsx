@@ -554,13 +554,13 @@ export const IssueDetailCard: React.FC<{
                                                         <span>Grouped with Issue </span>
                                                         <span className="ml-1">
                                                             {groupedIssueIds.map((id, i, arr) => (
-                                                                    <span key={id}>
-                                                                        <Link to={`/issues/card/${id}`} className="text-blue-600">
-                                                                            {id}
-                                                                        </Link>
-                                                                        {i < arr.length - 1 ? ', ' : ''}
-                                                                    </span>
-                                                                ))}
+                                                                <span key={id}>
+                                                                    <Link to={`/issues/card/${id}`} className="text-blue-600">
+                                                                        {id}
+                                                                    </Link>
+                                                                    {i < arr.length - 1 ? ', ' : ''}
+                                                                </span>
+                                                            ))}
                                                         </span>
                                                     </div>
                                                 )}
