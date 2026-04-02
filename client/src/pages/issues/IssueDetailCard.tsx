@@ -410,6 +410,7 @@ export const IssueDetailCard: React.FC<{
         : `${selectedGroupIssueIds.length} selected`;
     const hasPhotoVisibilityControl = Boolean(issue?.image);
     const shouldShowStewardControls = canManageIssueStatus && (!isEditing || hasPhotoVisibilityControl);
+    const groupedIssueIds = (issue?.issueGroupMemberIds ?? []).filter((id) => id !== issue?.issueId);
 
     const groupOptions = linkableIssues.map((candidateIssue) => {
         const toRadians = (degrees: number) => degrees * (Math.PI / 180);
@@ -548,13 +549,11 @@ export const IssueDetailCard: React.FC<{
                                                 </div>
 
                                                 {/* GROUP */}
-                                                {canManageIssueStatus && issue.issueGroupMemberIds?.filter((id) => id !== issue.issueId).length > 0 && (
+                                                {canManageIssueStatus && groupedIssueIds.length > 0 && (
                                                     <div className="inline-flex w-fit items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm">
                                                         <span>Grouped with Issue </span>
                                                         <span className="ml-1">
-                                                            {issue.issueGroupMemberIds
-                                                                .filter((id) => id !== issue.issueId)
-                                                                .map((id, i, arr) => (
+                                                            {groupedIssueIds.map((id, i, arr) => (
                                                                     <span key={id}>
                                                                         <Link to={`/issues/card/${id}`} className="text-blue-600">
                                                                             {id}
