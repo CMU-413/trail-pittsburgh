@@ -532,140 +532,62 @@ export const IssueDetailCard: React.FC<{
                                 />
                             )}
 
-                            <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] items-start gap-6">
                                 <div>
-                                    <div className={isEditing ? 'rounded-lg border border-slate-200 bg-white p-3 md:p-4' : ''}>
+                                    <div className={isEditing ? 'p-3 md:p-4' : ''}>
                                         <div>
-                                            <div className="flex items-start justify-between gap-2">
-                                                {/* LEFT SIDE */}
-                                                <div className="flex flex-wrap items-center gap-2">
-                                                    {isEditing ? (
-                                                        <IssueDetailEditDropdown
-                                                            label="Issue Type"
-                                                            valueLabel={issueTypeLabel}
-                                                            isOpen={isIssueTypeDropdownOpen}
-                                                            onToggle={() => setIsIssueTypeDropdownOpen((open) => !open)}
-                                                            onSelect={(value) => {
-                                                                setEditedIssueType(value);
-                                                                setIsIssueTypeDropdownOpen(false);
-                                                            }}
-                                                            selectedValue={editedIssueType}
-                                                            options={[
-                                                                { value: 'obstruction', label: 'Obstruction' },
-                                                                { value: 'water', label: 'Standing Water/Mud' },
-                                                                { value: 'other', label: 'Other' },
-                                                            ]}
-                                                            dropdownRef={issueTypeDropdownRef}
-                                                            widthClass="w-[220px]"
-                                                        />
-                                                    ) : (
-                                                        <>
-                                                            <div className="flex items-baseline gap-2">
-                                                                <span className="text-2xl md:text-3xl font-extrabold tracking-tight">
-                                                                    {issue.issueType}
-                                                                </span>
-                                                                <span className="inline-flex items-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-gray-600">
-                                                                    <span>#{issue.issueId}</span>
-                                                                    {!isEditing && canEditIssue && issue.status !== IssueStatusEnum.RESOLVED && (
-                                                                        <Button
-                                                                            variant="secondary"
-                                                                            size="sm"
-                                                                            className="inline-flex md:hidden items-center justify-center gap-1 whitespace-nowrap h-7 px-2 text-[11px] rounded-md font-medium bg-gray-50 hover:bg-gray-100 text-black"
-                                                                            onClick={startEditing}
-                                                                            aria-label="Edit issue"
-                                                                            type="button"
-                                                                        >
-                                                                            Edit
-                                                                        </Button>
-                                                                    )}
-                                                                </span>
-                                                            </div>
-                                                            <span className={[
-                                                                'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
-                                                                getIssueStatusColor(issue.status),
-                                                            ].join(' ')}>
-                                                                {issue.status.replace('_', ' ')}
-                                                            </span>
-                                                        </>
-                                                    )}
-                                                </div>
+                                        <div className="flex flex-col gap-2">
 
-                                                {/* RIGHT SIDE (NEW) */}
-                                                <div className="flex items-center gap-2 flex-shrink-0">
-                                                    {!isEditing && canEditIssue && issue?.status !== IssueStatusEnum.RESOLVED && (
-                                                        <Button
-                                                            variant="primary"
-                                                            size="sm"
-                                                            className="inline-flex items-center gap-2 whitespace-nowrap h-9 px-3 rounded-md text-sm font-medium border border-gray-300 bg-white hover:bg-gray-50 text-black"
-                                                            onClick={startEditing}
-                                                            aria-label="Edit issue"
-                                                            type="button"
-                                                        >
-															✎ Edit
-                                                        </Button>
-                                                    )}
-
-                                                    <Button
-                                                        onClick={onClose}
-                                                        variant="secondary"
-                                                        size="md"
-                                                    >
-														✕
-                                                    </Button>
-                                                </div>
-
-                                            <div className="mt-3">
-                                                <div className="flex items-center gap-2">
-                                                    {isEditing ? (
-                                                        <IssueDetailEditDropdown
-                                                            label="Park"
-                                                            valueLabel={selectedParkLabel}
-                                                            isOpen={isParkDropdownOpen}
-                                                            onToggle={() => setIsParkDropdownOpen((open) => !open)}
-                                                            onSelect={(value) => {
-                                                                setEditedParkId(Number(value));
-                                                                setIsParkDropdownOpen(false);
-                                                            }}
-                                                            selectedValue={String(editedParkId)}
-                                                            options={parks.map((p) => ({ value: String(p.parkId), label: p.name }))}
-                                                            dropdownRef={parkDropdownRef}
-                                                            widthClass="w-[300px]"
-                                                        />
-                                                    ) : (
-                                                        <span className="text-base sm:text-lg md:text-xl font-semibold text-gray-900">
-                                                            {issue.park?.name ?? ''}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="mt-1 text-xs sm:text-sm md:text-base text-slate-600 leading-relaxed">
-                                                    {issue.status === IssueStatusEnum.RESOLVED && issue.resolvedAt
-                                                        ? `Resolved on ${new Date(issue.resolvedAt).toLocaleString()}`
-                                                        : `Reported on ${new Date(issue.createdAt).toLocaleString()}`}
-                                                </div>
-
-                                                {canManageIssueStatus && issue.issueGroupMemberIds && issue.issueGroupMemberIds.filter((id) => id !== issue.issueId).length > 0 && (
-                                                    <div className="mt-2">
-                                                        <div className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-900">
-                                                            <span>Grouped with Issue </span>
-                                                            <span className="ml-1">
-                                                                {issue.issueGroupMemberIds
-                                                                    .filter((id) => id !== issue.issueId)
-                                                                    .map((groupedIssueId, index, issueGroupMemberIds) => (
-                                                                        <span key={groupedIssueId}>
-                                                                            <Link
-                                                                                to={`/issues/card/${groupedIssueId}`}
-                                                                                className="text-blue-600 hover:text-blue-500"
-                                                                            >
-                                                                                {groupedIssueId}
-                                                                            </Link>
-                                                                            {index < issueGroupMemberIds.length - 1 ? ', ' : ''}
-                                                                        </span>
-                                                                    ))}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                )}
+                                        {/* TITLE + STATUS */}
+                                        <div>
+                                            <div className="flex items-baseline gap-2">
+                                            <span className="text-2xl md:text-3xl font-extrabold">
+                                                {issue.issueType}
+                                            </span>
+                                            <span className="text-gray-500 font-semibold">
+                                                #{issue.issueId}
+                                            </span>
                                             </div>
+
+                                            <span className={[
+                                            'inline-flex mt-1 items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+                                            getIssueStatusColor(issue.status),
+                                            ].join(' ')}>
+                                            {issue.status.replace('_', ' ')}
+                                            </span>
+                                        </div>
+
+                                        {/* PARK */}
+                                        <div className="text-lg font-semibold text-gray-900">
+                                            {issue.park?.name}
+                                        </div>
+
+                                        {/* DATE */}
+                                        <div className="text-sm text-gray-600">
+                                            {issue.status === IssueStatusEnum.RESOLVED && issue.resolvedAt
+                                            ? `Resolved on ${new Date(issue.resolvedAt).toLocaleString()}`
+                                            : `Reported on ${new Date(issue.createdAt).toLocaleString()}`}
+                                        </div>
+
+                                        {/* GROUP */}
+                                        {canManageIssueStatus && issue.issueGroupMemberIds?.filter(id => id !== issue.issueId).length > 0 && (
+                                            <div className="inline-flex w-fit items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm">
+                                            <span>Grouped with Issue </span>
+                                            <span className="ml-1">
+                                                {issue.issueGroupMemberIds
+                                                .filter(id => id !== issue.issueId)
+                                                .map((id, i, arr) => (
+                                                    <span key={id}>
+                                                    <Link to={`/issues/card/${id}`} className="text-blue-600">
+                                                        {id}
+                                                    </Link>
+                                                    {i < arr.length - 1 ? ', ' : ''}
+                                                    </span>
+                                                ))}
+                                            </span>
+                                            </div>
+                                        )}
+
                                         </div>
 
                                         <div className="mt-6">
@@ -817,88 +739,69 @@ export const IssueDetailCard: React.FC<{
                                 )}
                             </div>
 
-                            <div
-                                className={[
-                                    'mt-10 grid gap-10',
-                                    canViewImage ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1',
-                                ].join(' ')}
-                            >
-                                <div>
-                                    <div className="text-xl font-bold">Location</div>
+                            <div className="flex flex-col gap-8">
 
-                                    {isEditing && (
-                                        <div className="mt-1 text-sm text-gray-600">
-                                            Drag the map pin to update the location coordinates.
-                                        </div>
-                                    )}
+                            {/* LOCATION */}
+                            <div>
+                                <div className="text-xl font-bold">Location</div>
 
-                                    <div className="mt-4 rounded-lg overflow-hidden border border-gray-200">
-                                        <div ref={mapRef} className="h-[260px] w-full" />
-                                    </div>
+                                {isEditing && (
+                                <div className="mt-1 text-sm text-gray-600">
+                                    Drag the map pin to update the location coordinates.
+                                </div>
+                                )}
 
-                                    {typeof issue.latitude === 'number' && typeof issue.longitude === 'number' && (
-                                        <>
-                                            <div className="mt-4 flex items-start gap-2 text-gray-700 text-sm sm:text-base break-all">
-                                                <svg className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-
-                                                <span>
-                                                    {isEditing
-                                                        ? `${editedLatitude ?? ''}, ${editedLongitude ?? ''}`
-                                                        : `${issue.latitude}, ${issue.longitude}`}
-                                                </span>
-                                            </div>
-
-                                            <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:gap-3">
-                                                <Button
-                                                    size="sm"
-                                                    onClick={copyCoords}
-                                                    className="w-full sm:w-auto justify-center"
-                                                >
-                                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                    </svg>
-                                                    Copy Coordinates
-                                                </Button>
-
-                                                <a
-                                                    className="inline-flex w-full sm:w-auto items-center justify-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                                                    href={googleMapsUrl(issue.latitude, issue.longitude)}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                >
-                                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                    </svg>
-                                                    <span className="leading-tight text-center">Open in Google Maps</span>
-                                                </a>
-                                            </div>
-                                        </>
-                                    )}
+                                <div className="mt-4 rounded-lg overflow-hidden border border-gray-200">
+                                <div ref={mapRef} className="h-[320px] w-full" />
                                 </div>
 
-                                {canViewImage ? (
-                                    <div>
-                                        <div className="text-xl font-bold">User Submitted Image</div>
-                                        <div className="mt-4 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 h-[240px] sm:h-[340px] flex items-center justify-center relative">
-                                            {issue.image ? (
-                                                <img
-                                                    src={issue.image.url}
-                                                    alt="Issue"
-                                                    className="h-full w-full object-contain"
-                                                />
-                                            ) : 'No image ◡̈'}
-                                        </div>
-                                        {issue.image && issue.imageMetadata && (
-                                            <ImageMetadataDisplay
-                                                metadata={issue.imageMetadata}
-                                                className="mt-3"
-                                            />
-                                        )}
+                                {typeof issue.latitude === 'number' && typeof issue.longitude === 'number' && (
+                                <>
+                                    <div className="mt-4 text-gray-700 text-sm">
+                                    {issue.latitude}, {issue.longitude}
                                     </div>
-                                ) : null}
+
+                                    <div className="mt-3 flex gap-2 flex-wrap">
+                                    <Button size="sm" onClick={copyCoords}>
+                                        Copy Coordinates
+                                    </Button>
+
+                                    <a
+                                        href={googleMapsUrl(issue.latitude, issue.longitude)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 px-3 py-2 border border-slate-200 rounded-md text-sm text-gray-700 hover:bg-gray-50"
+                                    >
+                                        ↗ Open in Google Maps
+                                    </a>
+                                    </div>
+                                </>
+                                )}
+                            </div>
+
+                            {canViewImage && (
+                                <div>
+                                <div className="text-xl font-bold">User Submitted Image</div>
+
+                                <div className="mt-4 rounded-lg border border-slate-200 overflow-hidden bg-gray-50 h-[300px] flex items-center justify-center">
+                                    {issue.image ? (
+                                    <img
+                                        src={issue.image.url}
+                                        alt="Issue"
+                                        className="h-full w-full object-contain"
+                                    />
+                                    ) : 'No image ◡̈'}
+                                </div>
+
+                                {issue.image && issue.imageMetadata && (
+                                    <ImageMetadataDisplay
+                                    metadata={issue.imageMetadata}
+                                    className="mt-3"
+                                    />
+                                )}
+                                </div>
+                            )}
+
                             </div>
                         </div>
                         </div>
