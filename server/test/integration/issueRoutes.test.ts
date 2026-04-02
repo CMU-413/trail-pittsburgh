@@ -7,6 +7,17 @@ import { Response, NextFunction } from 'express';
 
 /// <reference types="jest" />
 
+jest.mock('../../src/services/IssueNotificationService', () => ({
+    IssueNotificationService: jest.fn().mockImplementation(() => ({
+        canSendEmails: jest.fn().mockReturnValue(false),
+        createUnsubscribeToken: jest.fn().mockReturnValue(null),
+        verifyUnsubscribeToken: jest.fn().mockReturnValue(null),
+        sendIssueCreatedConfirmation: jest.fn().mockResolvedValue(undefined),
+        sendIssueInProgressUpdate: jest.fn().mockResolvedValue(undefined),
+        sendIssueResolvedUpdate: jest.fn().mockResolvedValue(undefined),
+    }))
+}));
+
 let parkId: number;
 let secondParkId: number;
 let createdIssueId: number | undefined;
