@@ -1,6 +1,6 @@
-import { logger } from '@/utils/logger';
-
 import { EmailClient, EmailMessage } from './EmailClient';
+
+import { logger } from '@/utils/logger';
 
 export class MailgunEmailClient implements EmailClient {
     private static readonly senderDisplayName = '[TrailPGH] Trail Pittsburgh Issue Tracker';

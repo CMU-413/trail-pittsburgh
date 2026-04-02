@@ -16,7 +16,7 @@ import { getIssueStatusColor } from '../../utils/issueStatusUtils';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../providers/AuthProvider';
 import { iconForType } from './issuePinIcons';
-import { IssueDetailEditDropdown, IssueDropdown } from './components/IssueDropdown';
+import { IssueDropdown } from './components/IssueDropdown';
 import { IssueDetailEditHeader } from './components/IssueDetailEditHeader';
 
 export const IssueDetailCard: React.FC<{
@@ -25,7 +25,7 @@ export const IssueDetailCard: React.FC<{
     onUpdated?: () => void;
 }> = ({ issueId, onClose, onUpdated }) => {
     const [issue, setIssue] = useState<Issue | null>(null);
-    const [parks, setParks] = useState<{ parkId: number; name: string }[]>([]);
+    const [, setParks] = useState<{ parkId: number; name: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -37,8 +37,6 @@ export const IssueDetailCard: React.FC<{
     const [editedLongitude, setEditedLongitude] = useState<number | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isResolving, setIsResolving] = useState(false);
-    const [isIssueTypeDropdownOpen, setIsIssueTypeDropdownOpen] = useState(false);
-    const [isParkDropdownOpen, setIsParkDropdownOpen] = useState(false);
     const [isGroupDropdownOpen, setIsGroupDropdownOpen] = useState(false);
     const [isUpdatingPhotoVisibility, setIsUpdatingPhotoVisibility] = useState(false);
     const [selectedGroupIssueIds, setSelectedGroupIssueIds] = useState<string[]>([]);
@@ -48,8 +46,6 @@ export const IssueDetailCard: React.FC<{
     const leafletMap = useRef<LeafletMap | null>(null);
     const markerRef = useRef<LeafletMarker>(null);
     const latestCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
-    const issueTypeDropdownRef = useRef<HTMLDivElement>(null);
-    const parkDropdownRef = useRef<HTMLDivElement>(null);
     const groupDropdownRef = useRef<HTMLDivElement>(null);
 
     const { user } = useAuth();
@@ -287,12 +283,6 @@ export const IssueDetailCard: React.FC<{
     useEffect(() => {
         const onDown = (e: MouseEvent) => {
             const target = e.target as Node;
-            if (issueTypeDropdownRef.current && !issueTypeDropdownRef.current.contains(target)) {
-                setIsIssueTypeDropdownOpen(false);
-            }
-            if (parkDropdownRef.current && !parkDropdownRef.current.contains(target)) {
-                setIsParkDropdownOpen(false);
-            }
             if (groupDropdownRef.current && !groupDropdownRef.current.contains(target)) {
                 setIsGroupDropdownOpen(false);
             }
@@ -301,13 +291,6 @@ export const IssueDetailCard: React.FC<{
         document.addEventListener('mousedown', onDown);
         return () => document.removeEventListener('mousedown', onDown);
     }, []);
-
-    useEffect(() => {
-        if (!isEditing) {
-            setIsIssueTypeDropdownOpen(false);
-            setIsParkDropdownOpen(false);
-        }
-    }, [isEditing]);
 
     useEffect(() => {
         if (!issue) {
@@ -422,11 +405,6 @@ export const IssueDetailCard: React.FC<{
     };
 
     const editTextareaClass = 'mt-2 w-full border border-gray-300 rounded-2xl p-3 min-h-[110px] text-sm text-gray-900 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300';
-    const issueTypeLabel =
-        editedIssueType === 'obstruction' ? 'Obstruction'
-            : editedIssueType === 'water' ? 'Standing Water/Mud'
-                : 'Other';
-    const selectedParkLabel = parks.find((p) => p.parkId === editedParkId)?.name ?? 'Select Park';
     const selectedGroupLabel = selectedGroupIssueIds.length === 0
         ? 'No grouped issues'
         : `${selectedGroupIssueIds.length} selected`;
@@ -536,274 +514,274 @@ export const IssueDetailCard: React.FC<{
                                 <div>
                                     <div className={isEditing ? 'p-3 md:p-4' : ''}>
                                         <div>
-                                        <div className="flex flex-col gap-2">
+                                            <div className="flex flex-col gap-2">
 
-                                        {/* TITLE + STATUS */}
-                                        <div>
-                                            <div className="flex items-baseline gap-2">
-                                            <span className="text-2xl md:text-3xl font-extrabold">
-                                                {issue.issueType}
-                                            </span>
-                                            <span className="text-gray-500 font-semibold">
+                                                {/* TITLE + STATUS */}
+                                                <div>
+                                                    <div className="flex items-baseline gap-2">
+                                                        <span className="text-2xl md:text-3xl font-extrabold">
+                                                            {issue.issueType}
+                                                        </span>
+                                                        <span className="text-gray-500 font-semibold">
                                                 #{issue.issueId}
-                                            </span>
+                                                        </span>
+                                                    </div>
+
+                                                    <span className={[
+                                                        'inline-flex mt-1 items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+                                                        getIssueStatusColor(issue.status),
+                                                    ].join(' ')}>
+                                                        {issue.status.replace('_', ' ')}
+                                                    </span>
+                                                </div>
+
+                                                {/* PARK */}
+                                                <div className="text-lg font-semibold text-gray-900">
+                                                    {issue.park?.name}
+                                                </div>
+
+                                                {/* DATE */}
+                                                <div className="text-sm text-gray-600">
+                                                    {issue.status === IssueStatusEnum.RESOLVED && issue.resolvedAt
+                                                        ? `Resolved on ${new Date(issue.resolvedAt).toLocaleString()}`
+                                                        : `Reported on ${new Date(issue.createdAt).toLocaleString()}`}
+                                                </div>
+
+                                                {/* GROUP */}
+                                                {canManageIssueStatus && issue.issueGroupMemberIds?.filter((id) => id !== issue.issueId).length > 0 && (
+                                                    <div className="inline-flex w-fit items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm">
+                                                        <span>Grouped with Issue </span>
+                                                        <span className="ml-1">
+                                                            {issue.issueGroupMemberIds
+                                                                .filter((id) => id !== issue.issueId)
+                                                                .map((id, i, arr) => (
+                                                                    <span key={id}>
+                                                                        <Link to={`/issues/card/${id}`} className="text-blue-600">
+                                                                            {id}
+                                                                        </Link>
+                                                                        {i < arr.length - 1 ? ', ' : ''}
+                                                                    </span>
+                                                                ))}
+                                                        </span>
+                                                    </div>
+                                                )}
+
                                             </div>
 
-                                            <span className={[
-                                            'inline-flex mt-1 items-center rounded-full px-2 py-0.5 text-xs font-semibold',
-                                            getIssueStatusColor(issue.status),
-                                            ].join(' ')}>
-                                            {issue.status.replace('_', ' ')}
-                                            </span>
+                                            <div className="mt-6">
+                                                <div className="text-xl font-bold">Description</div>
+                                                {isEditing ? (
+                                                    <textarea
+                                                        className={editTextareaClass}
+                                                        value={editedDescription}
+                                                        onChange={(e) => setEditedDescription(e.target.value)}
+                                                        placeholder="Describe the issue..."
+                                                    />
+                                                ) : (
+                                                    <div className="mt-2 text-gray-700 whitespace-pre-wrap">
+                                                        {issue.description?.trim() || 'No description'}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
+                                    </div>
 
-                                        {/* PARK */}
-                                        <div className="text-lg font-semibold text-gray-900">
-                                            {issue.park?.name}
+                                    {shouldShowStewardControls && (
+                                        <div className="lg:pt-18">
+                                            <div className="mt-6 text-xl font-bold mb-3">Steward Controls</div>
+                                            <div className="rounded-lg border border-gray-200 p-4">
+                                                {!isEditing && (
+                                                    <div>
+                                                        <div className="text-sm font-medium text-gray-700">Status</div>
+                                                    </div>
+                                                )}
+
+                                                {!isEditing && issue.status === IssueStatusEnum.OPEN && (
+                                                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                                                        <Button
+                                                            variant="success"
+                                                            size="sm"
+                                                            onClick={handleSetInProgress}
+                                                        >
+                                                        Start Working
+                                                        </Button>
+
+                                                        <Button
+                                                            variant="secondary"
+                                                            size="sm"
+                                                            onClick={handleResolveIssue}
+                                                            isLoading={isResolving}
+                                                            disabled={isResolving}
+                                                        >
+                                                            {isResolving ? 'Resolving...' : 'Resolve Issue'}
+                                                        </Button>
+                                                    </div>
+                                                )}
+
+                                                {!isEditing && issue.status === IssueStatusEnum.IN_PROGRESS && (
+                                                    <div className="mt-3">
+                                                        <Button
+                                                            variant="primary"
+                                                            size="sm"
+                                                            onClick={handleResolveIssue}
+                                                            isLoading={isResolving}
+                                                            disabled={isResolving}
+                                                        >
+                                                            {isResolving ? 'Resolving...' : 'Resolve Issue'}
+                                                        </Button>
+                                                    </div>
+                                                )}
+
+                                                {!isEditing && issue.status === IssueStatusEnum.RESOLVED && (
+                                                    <div className="mt-3">
+                                                        <Button
+                                                            variant="secondary"
+                                                            size="sm"
+                                                            onClick={handleSetInProgress}
+                                                        >
+                                                        Unresolve (Set In Progress)
+                                                        </Button>
+                                                    </div>
+                                                )}
+
+                                                {!isEditing && issue.status === IssueStatusEnum.IN_PROGRESS && (
+                                                    <p className="mt-3 text-sm text-gray-700">This issue is already in progress.</p>
+                                                )}
+
+                                                {!isEditing && (
+                                                    <div className="mt-4 border-t border-gray-100 pt-4">
+                                                        <div className="text-sm font-medium text-gray-700">Mark as a Duplicate</div>
+                                                        <div className="mt-2 text-sm text-gray-600">Duplicate issues can be grouped together with other issues reported in the same park. Updates made to any issue in a group will be reflected in all related issues.</div>
+
+                                                        <div className="mt-2 space-y-2">
+                                                            <IssueDropdown
+                                                                triggerLabel={selectedGroupLabel}
+                                                                isOpen={isGroupDropdownOpen}
+                                                                onToggle={() => setIsGroupDropdownOpen((isOpen) => !isOpen)}
+                                                                onSelect={(value) => {
+                                                                    setSelectedGroupIssueIds((previous) => {
+                                                                        const next = previous.includes(value)
+                                                                            ? previous.filter((selectedValue) => selectedValue !== value)
+                                                                            : [...previous, value];
+                                                                        handleUpdateGroup(next);
+                                                                        return next;
+                                                                    });
+                                                                }}
+                                                                selectedValues={selectedGroupIssueIds}
+                                                                options={groupOptions}
+                                                                dropdownRef={groupDropdownRef}
+                                                                widthClass="w-full"
+                                                                menuAlign="left"
+                                                                menuWidthClass="w-full"
+                                                                triggerClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 inline-flex items-center justify-between"
+                                                                renderOptionLabel={(option) => (
+                                                                    <span className="text-sm text-gray-700">{option.label}</span>
+                                                                )}
+                                                                footer={(
+                                                                    <div className="flex justify-end px-3 pt-2 pb-1 mt-1 border-t border-gray-100">
+                                                                        <button
+                                                                            type="button"
+                                                                            className="text-sm text-gray-700"
+                                                                            onClick={() => setIsGroupDropdownOpen(false)}
+                                                                        >
+                                                                        Done
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {issue.image && (
+                                                    <div className={isEditing ? '' : 'mt-4'}>
+                                                        <div className="text-sm font-medium text-gray-700">Photo Visibility</div>
+                                                        <div className="mt-2 text-sm text-gray-600">
+                                                            {isImagePublic ? 'Photo is currently visible to all users.' : 'Photo is currently visible only to stewards/admins.'}
+                                                        </div>
+                                                        <div className="mt-2">
+                                                            <Button
+                                                                variant={isImagePublic ? 'secondary' : 'primary'}
+                                                                size="sm"
+                                                                onClick={handleTogglePhotoPublic}
+                                                                isLoading={isUpdatingPhotoVisibility}
+                                                                disabled={isUpdatingPhotoVisibility}
+                                                            >
+                                                                {isImagePublic ? 'Revoke Public Photo Approval' : 'Approve for Public View'}
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
+                                    )}
+                                </div>
 
-                                        {/* DATE */}
-                                        <div className="text-sm text-gray-600">
-                                            {issue.status === IssueStatusEnum.RESOLVED && issue.resolvedAt
-                                            ? `Resolved on ${new Date(issue.resolvedAt).toLocaleString()}`
-                                            : `Reported on ${new Date(issue.createdAt).toLocaleString()}`}
-                                        </div>
+                                <div className="flex flex-col gap-8">
 
-                                        {/* GROUP */}
-                                        {canManageIssueStatus && issue.issueGroupMemberIds?.filter(id => id !== issue.issueId).length > 0 && (
-                                            <div className="inline-flex w-fit items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm">
-                                            <span>Grouped with Issue </span>
-                                            <span className="ml-1">
-                                                {issue.issueGroupMemberIds
-                                                .filter(id => id !== issue.issueId)
-                                                .map((id, i, arr) => (
-                                                    <span key={id}>
-                                                    <Link to={`/issues/card/${id}`} className="text-blue-600">
-                                                        {id}
-                                                    </Link>
-                                                    {i < arr.length - 1 ? ', ' : ''}
-                                                    </span>
-                                                ))}
-                                            </span>
+                                    {/* LOCATION */}
+                                    <div>
+                                        <div className="text-xl font-bold">Location</div>
+
+                                        {isEditing && (
+                                            <div className="mt-1 text-sm text-gray-600">
+                                    Drag the map pin to update the location coordinates.
                                             </div>
                                         )}
 
+                                        <div className="mt-4 rounded-lg overflow-hidden border border-gray-200">
+                                            <div ref={mapRef} className="h-[320px] w-full" />
                                         </div>
 
-                                        <div className="mt-6">
-                                            <div className="text-xl font-bold">Description</div>
-                                            {isEditing ? (
-                                                <textarea
-                                                    className={editTextareaClass}
-                                                    value={editedDescription}
-                                                    onChange={(e) => setEditedDescription(e.target.value)}
-                                                    placeholder="Describe the issue..."
-                                                />
-                                            ) : (
-                                                <div className="mt-2 text-gray-700 whitespace-pre-wrap">
-                                                    {issue.description?.trim() || 'No description'}
+                                        {typeof issue.latitude === 'number' && typeof issue.longitude === 'number' && (
+                                            <>
+                                                <div className="mt-4 text-gray-700 text-sm">
+                                                    {issue.latitude}, {issue.longitude}
                                                 </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
 
-                                {shouldShowStewardControls && (
-                                    <div className="lg:pt-18">
-                                        <div className="mt-6 text-xl font-bold mb-3">Steward Controls</div>
-                                        <div className="rounded-lg border border-gray-200 p-4">
-                                            {!isEditing && (
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-700">Status</div>
-                                                </div>
-                                            )}
-
-                                            {!isEditing && issue.status === IssueStatusEnum.OPEN && (
-                                                <div className="mt-3 flex flex-wrap items-center gap-2">
-                                                    <Button
-                                                        variant="success"
-                                                        size="sm"
-                                                        onClick={handleSetInProgress}
-                                                    >
-                                                        Start Working
-                                                    </Button>
-
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={handleResolveIssue}
-                                                        isLoading={isResolving}
-                                                        disabled={isResolving}
-                                                    >
-                                                        {isResolving ? 'Resolving...' : 'Resolve Issue'}
-                                                    </Button>
-                                                </div>
-                                            )}
-
-                                            {!isEditing && issue.status === IssueStatusEnum.IN_PROGRESS && (
-                                                <div className="mt-3">
-                                                    <Button
-                                                        variant="primary"
-                                                        size="sm"
-                                                        onClick={handleResolveIssue}
-                                                        isLoading={isResolving}
-                                                        disabled={isResolving}
-                                                    >
-                                                        {isResolving ? 'Resolving...' : 'Resolve Issue'}
-                                                    </Button>
-                                                </div>
-                                            )}
-
-                                            {!isEditing && issue.status === IssueStatusEnum.RESOLVED && (
-                                                <div className="mt-3">
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={handleSetInProgress}
-                                                    >
-                                                        Unresolve (Set In Progress)
-                                                    </Button>
-                                                </div>
-                                            )}
-
-                                            {!isEditing && issue.status === IssueStatusEnum.IN_PROGRESS && (
-                                                <p className="mt-3 text-sm text-gray-700">This issue is already in progress.</p>
-                                            )}
-
-                                            {!isEditing && (
-                                                <div className="mt-4 border-t border-gray-100 pt-4">
-                                                    <div className="text-sm font-medium text-gray-700">Mark as a Duplicate</div>
-                                                    <div className="mt-2 text-sm text-gray-600">Duplicate issues can be grouped together with other issues reported in the same park. Updates made to any issue in a group will be reflected in all related issues.</div>
-
-                                                    <div className="mt-2 space-y-2">
-                                                        <IssueDropdown
-                                                            triggerLabel={selectedGroupLabel}
-                                                            isOpen={isGroupDropdownOpen}
-                                                            onToggle={() => setIsGroupDropdownOpen((isOpen) => !isOpen)}
-                                                            onSelect={(value) => {
-                                                                setSelectedGroupIssueIds((previous) => {
-                                                                    const next = previous.includes(value)
-                                                                        ? previous.filter((selectedValue) => selectedValue !== value)
-                                                                        : [...previous, value];
-                                                                    handleUpdateGroup(next);
-                                                                    return next;
-                                                                });
-                                                            }}
-                                                            selectedValues={selectedGroupIssueIds}
-                                                            options={groupOptions}
-                                                            dropdownRef={groupDropdownRef}
-                                                            widthClass="w-full"
-                                                            menuAlign="left"
-                                                            menuWidthClass="w-full"
-                                                            triggerClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 inline-flex items-center justify-between"
-                                                            renderOptionLabel={(option) => (
-                                                                <span className="text-sm text-gray-700">{option.label}</span>
-                                                            )}
-                                                            footer={(
-                                                                <div className="flex justify-end px-3 pt-2 pb-1 mt-1 border-t border-gray-100">
-                                                                    <button
-                                                                        type="button"
-                                                                        className="text-sm text-gray-700"
-                                                                        onClick={() => setIsGroupDropdownOpen(false)}
-                                                                    >
-                                                                        Done
-                                                                    </button>
-                                                                </div>
-                                                            )}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {issue.image && (
-                                                <div className={isEditing ? '' : 'mt-4'}>
-                                                    <div className="text-sm font-medium text-gray-700">Photo Visibility</div>
-                                                    <div className="mt-2 text-sm text-gray-600">
-                                                        {isImagePublic ? 'Photo is currently visible to all users.' : 'Photo is currently visible only to stewards/admins.'}
-                                                    </div>
-                                                    <div className="mt-2">
-                                                        <Button
-                                                            variant={isImagePublic ? 'secondary' : 'primary'}
-                                                            size="sm"
-                                                            onClick={handleTogglePhotoPublic}
-                                                            isLoading={isUpdatingPhotoVisibility}
-                                                            disabled={isUpdatingPhotoVisibility}
-                                                        >
-                                                            {isImagePublic ? 'Revoke Public Photo Approval' : 'Approve for Public View'}
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex flex-col gap-8">
-
-                            {/* LOCATION */}
-                            <div>
-                                <div className="text-xl font-bold">Location</div>
-
-                                {isEditing && (
-                                <div className="mt-1 text-sm text-gray-600">
-                                    Drag the map pin to update the location coordinates.
-                                </div>
-                                )}
-
-                                <div className="mt-4 rounded-lg overflow-hidden border border-gray-200">
-                                <div ref={mapRef} className="h-[320px] w-full" />
-                                </div>
-
-                                {typeof issue.latitude === 'number' && typeof issue.longitude === 'number' && (
-                                <>
-                                    <div className="mt-4 text-gray-700 text-sm">
-                                    {issue.latitude}, {issue.longitude}
-                                    </div>
-
-                                    <div className="mt-3 flex gap-2 flex-wrap">
-                                    <Button size="sm" onClick={copyCoords}>
+                                                <div className="mt-3 flex gap-2 flex-wrap">
+                                                    <Button size="sm" onClick={copyCoords}>
                                         Copy Coordinates
-                                    </Button>
+                                                    </Button>
 
-                                    <a
-                                        href={googleMapsUrl(issue.latitude, issue.longitude)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 px-3 py-2 border border-slate-200 rounded-md text-sm text-gray-700 hover:bg-gray-50"
-                                    >
+                                                    <a
+                                                        href={googleMapsUrl(issue.latitude, issue.longitude)}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-1 px-3 py-2 border border-slate-200 rounded-md text-sm text-gray-700 hover:bg-gray-50"
+                                                    >
                                         ↗ Open in Google Maps
-                                    </a>
+                                                    </a>
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
-                                </>
-                                )}
-                            </div>
 
-                            {canViewImage && (
-                                <div>
-                                <div className="text-xl font-bold">User Submitted Image</div>
+                                    {canViewImage && (
+                                        <div>
+                                            <div className="text-xl font-bold">User Submitted Image</div>
 
-                                <div className="mt-4 rounded-lg border border-slate-200 overflow-hidden bg-gray-50 h-[300px] flex items-center justify-center">
-                                    {issue.image ? (
-                                    <img
-                                        src={issue.image.url}
-                                        alt="Issue"
-                                        className="h-full w-full object-contain"
-                                    />
-                                    ) : 'No image ◡̈'}
+                                            <div className="mt-4 rounded-lg border border-slate-200 overflow-hidden bg-gray-50 h-[300px] flex items-center justify-center">
+                                                {issue.image ? (
+                                                    <img
+                                                        src={issue.image.url}
+                                                        alt="Issue"
+                                                        className="h-full w-full object-contain"
+                                                    />
+                                                ) : 'No image ◡̈'}
+                                            </div>
+
+                                            {issue.image && issue.imageMetadata && (
+                                                <ImageMetadataDisplay
+                                                    metadata={issue.imageMetadata}
+                                                    className="mt-3"
+                                                />
+                                            )}
+                                        </div>
+                                    )}
+
                                 </div>
-
-                                {issue.image && issue.imageMetadata && (
-                                    <ImageMetadataDisplay
-                                    metadata={issue.imageMetadata}
-                                    className="mt-3"
-                                    />
-                                )}
-                                </div>
-                            )}
-
                             </div>
-                        </div>
                         </div>
                     )}
                 </div>
