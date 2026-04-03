@@ -88,26 +88,48 @@ export class IssueRepository {
 
     public async createIssue(data: CreateIssueDbInput): Promise<RepositoryIssueOrNull> {
         try {
-            return await prisma.issue.create({
-                data: {
-                    parkId: data.parkId,
-                    issueType: data.issueType,
-                    description: data.description,
-                    safetyRisk: data.safetyRisk,
-                    passible: data.passible,
-                    isPublic: data.isPublic ?? true,
-                    isImagePublic: data.isImagePublic ?? false,
-                    status: data.status,
-                    latitude: data.latitude,
-                    longitude: data.longitude,
-                    notifyReporter: data.notifyReporter ?? true,
-                    reporterEmail: data.reporterEmail ?? '',
-                    ownerEmail: data.ownerEmail ?? '',
-                    issueImage: data.issueImageKey,
-                },
-                include: {
-                    park: true,
-                }
+            return await prisma.$transaction(async (tx) => {
+                const issueGroup = await tx.issueGroup.create({
+                    data: {
+                        status: data.status,
+                        primaryIssueId: undefined,
+                    }
+                });
+
+                const createdIssue = await tx.issue.create({
+                    data: {
+                        parkId: data.parkId,
+                        issueGroupId: issueGroup.issueGroupId,
+                        issueType: data.issueType,
+                        description: data.description,
+                        safetyRisk: data.safetyRisk,
+                        passible: data.passible,
+                        isPublic: data.isPublic ?? true,
+                        isImagePublic: data.isImagePublic ?? false,
+                        status: data.status,
+                        latitude: data.latitude,
+                        longitude: data.longitude,
+                        notifyReporter: data.notifyReporter ?? true,
+                        reporterEmail: data.reporterEmail ?? '',
+                        ownerEmail: data.ownerEmail ?? '',
+                        issueImage: data.issueImageKey,
+                    },
+                    include: this.buildIssueInclude()
+                });
+
+                await tx.issueGroup.update({
+                    where: { issueGroupId: issueGroup.issueGroupId },
+                    data: {
+                        primaryIssueId: createdIssue.issueId,
+                    }
+                });
+
+                return tx.issue.findUnique({
+                    where: {
+                        issueId: createdIssue.issueId,
+                    },
+                    include: this.buildIssueInclude()
+                });
             });
         } catch (error) {
             // eslint-disable-next-line no-console
@@ -394,9 +416,11 @@ export class IssueRepository {
                     });
 
                     if (remainingIssuesInPreviousGroup.length === 0) {
-                        await tx.issueGroup.delete({ where: { issueGroupId: previousGroupId } });
+                        await tx.issueGroup.deleteMany(
+                            { where: { issueGroupId: previousGroupId } }
+                        );
                     } else {
-                        await tx.issueGroup.update({
+                        await tx.issueGroup.updateMany({
                             where: { issueGroupId: previousGroupId },
                             data: {
                                 primaryIssueId: remainingIssuesInPreviousGroup[0].issueId

@@ -76,7 +76,7 @@ export const IssueDropdown: React.FC<IssueDropdownProps> = ({
                                 type="button"
                                 onClick={() => onSelect(option.value)}
                                 className={[
-                                    'w-full flex items-center justify-between px-3 py-2 text-sm rounded-md',
+                                    'w-full flex items-center justify-between px-3 py-2 text-sm rounded-md text-left',
                                     isSelected ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-700 hover:bg-gray-50',
                                 ].join(' ')}
                             >

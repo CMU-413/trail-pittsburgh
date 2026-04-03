@@ -16,7 +16,7 @@ enum IssueStatusEnum {
 
 enum IssueTypeEnum {
   OBSTRUCTION
-  FLOODING
+  WATER
   OTHER
 }
 
@@ -64,7 +64,6 @@ model Issue {
   createdAt      DateTime         @default(now())                 @map("created_at")
   resolvedAt     DateTime?                                        @map("resolved_at")
   ownerEmail     String?          @db.VarChar(150)                @map("owner_email")
-
   park           Park             @relation(fields: [parkId], references: [parkId])
   issueGroup     IssueGroup?      @relation(fields: [issueGroupId], references: [issueGroupId])
   notifications  Notification[]

@@ -10,7 +10,7 @@ import { IssueDropdown } from './components/IssueDropdown';
 const iconForType = (t: IssueTypeEnum) => {
     if (t === 'OBSTRUCTION') 
     {return obstructionPin;}
-    if (t === 'FLOODING') 
+    if (t === 'WATER') 
     {return waterPin;}
     return otherPin;
 };
@@ -49,7 +49,7 @@ export const IssueFilterDropdown: React.FC<{
 
     const options = [
         { value: IssueTypeEnum.OBSTRUCTION, label: 'Obstruction' },
-        { value: IssueTypeEnum.FLOODING, label: 'Standing Water/Mud' },
+        { value: IssueTypeEnum.WATER, label: 'Standing Water/Mud' },
         { value: IssueTypeEnum.OTHER, label: 'Other' },
     ];
 

@@ -2,6 +2,7 @@ import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
 import { CreateIssueInput } from '@/schemas/issueSchema';
 import { IssueService } from '@/services';
+import { SAME_PARK_ISSUE_GROUP_ERROR } from '@/services/IssueService';
 import { IssueNotificationService } from '@/services/IssueNotificationService';
 import { IssueStatusEnum, IssueTypeEnum, IssueRiskEnum } from '@prisma/client';
 
@@ -22,7 +23,7 @@ describe('IssueService', () => {
     const baseIssue = {
         issueId: 1,
         parkId: 1,
-        issueType: IssueTypeEnum.FLOODING,
+        issueType: IssueTypeEnum.WATER,
         safetyRisk: IssueRiskEnum.NO_RISK,
         passible: true,
         description: 'Trail is flooded',
@@ -32,6 +33,7 @@ describe('IssueService', () => {
         notifyReporter: true,
         reporterEmail: 'reporter@example.com',
         ownerEmail: 'reporter@example.com',
+        issueGroupId: null,
         longitude: -79.9901,
         latitude: 40.4406,
         createdAt: new Date(),
@@ -82,7 +84,7 @@ describe('IssueService', () => {
 
         const input: CreateIssueInput = {
             parkId: 1,
-            issueType: IssueTypeEnum.FLOODING,
+            issueType: IssueTypeEnum.WATER,
             safetyRisk: IssueRiskEnum.NO_RISK,
             passible: true,
             reporterEmail: 'reporter@example.com',
@@ -126,7 +128,7 @@ describe('IssueService', () => {
 
         const input = {
             parkId: 1,
-            issueType: IssueTypeEnum.FLOODING,
+            issueType: IssueTypeEnum.WATER,
             safetyRisk: IssueRiskEnum.NO_RISK,
             passible: true,
             description: 'Very flooded trail',
@@ -222,5 +224,62 @@ describe('IssueService', () => {
             issueGroupId: null,
             issueGroupMemberIds: [updated.issueId],
         });
+    });
+
+    test('should set issue group when all selected issues are in the same park', async () => {
+        const secondIssue = {
+            ...baseIssue,
+            issueId: 2,
+        };
+
+        issueRepositoryMock.getIssue.mockResolvedValue(baseIssue);
+        issueRepositoryMock.getAllIssues.mockResolvedValue([baseIssue, secondIssue]);
+        issueRepositoryMock.setIssueGroupMembers.mockResolvedValue({
+            ...baseIssue,
+            issueGroup: {
+                issueGroupId: 10,
+                primaryIssueId: 1,
+                status: IssueStatusEnum.OPEN,
+                issues: [{ issueId: 1 }, { issueId: 2 }],
+            },
+        } as Awaited<ReturnType<IssueRepository['getIssue']>>);
+
+        const result = await issueService.setIssueGroup(1, {
+            issueGroupMemberIds: [2],
+        });
+
+        expect(issueRepositoryMock.setIssueGroupMembers).toHaveBeenCalledWith(1, [2]);
+        expect(result).toEqual(expect.objectContaining({
+            issueGroupId: 10,
+            issueGroupMemberIds: [1, 2],
+        }));
+    });
+
+    test('should reject setting issue group when selected issues are in a different park', async () => {
+        const otherParkIssue = {
+            ...baseIssue,
+            issueId: 2,
+            parkId: 999,
+            park: {
+                parkId: 999,
+                name: 'Other Park',
+                county: 'Allegheny',
+                minLatitude: 40,
+                minLongitude: 40,
+                maxLatitude: 80,
+                maxLongitude: 80,
+                isActive: true,
+                createdAt: new Date(),
+            },
+        };
+
+        issueRepositoryMock.getIssue.mockResolvedValue(baseIssue);
+        issueRepositoryMock.getAllIssues.mockResolvedValue([baseIssue, otherParkIssue]);
+
+        await expect(issueService.setIssueGroup(1, {
+            issueGroupMemberIds: [2],
+        })).rejects.toThrow(SAME_PARK_ISSUE_GROUP_ERROR);
+
+        expect(issueRepositoryMock.setIssueGroupMembers).not.toHaveBeenCalled();
     });
 });

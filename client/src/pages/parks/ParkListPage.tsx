@@ -35,6 +35,7 @@ export const ParkListPage: React.FC = () => {
             } catch (err) {
                  
                 setError('Failed to load parks. Please try again later.');
+                // eslint-disable-next-line no-console
                 console.error('Error fetching dashboard data:', err);
             } finally {
                 setIsLoading(false);
