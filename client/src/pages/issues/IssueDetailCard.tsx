@@ -37,6 +37,8 @@ export const IssueDetailCard: React.FC<{
     const [editedLongitude, setEditedLongitude] = useState<number | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isResolving, setIsResolving] = useState(false);
+    const [isIssueTypeDropdownOpen, setIsIssueTypeDropdownOpen] = useState(false);
+    const [isParkDropdownOpen, setIsParkDropdownOpen] = useState(false);
     const [isGroupDropdownOpen, setIsGroupDropdownOpen] = useState(false);
     const [isUpdatingPhotoVisibility, setIsUpdatingPhotoVisibility] = useState(false);
     const [selectedGroupIssueIds, setSelectedGroupIssueIds] = useState<string[]>([]);
@@ -46,6 +48,8 @@ export const IssueDetailCard: React.FC<{
     const leafletMap = useRef<LeafletMap | null>(null);
     const markerRef = useRef<LeafletMarker>(null);
     const latestCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
+    const issueTypeDropdownRef = useRef<HTMLDivElement>(null);
+    const parkDropdownRef = useRef<HTMLDivElement>(null);
     const groupDropdownRef = useRef<HTMLDivElement>(null);
 
     const { user } = useAuth();
@@ -283,6 +287,12 @@ export const IssueDetailCard: React.FC<{
     useEffect(() => {
         const onDown = (e: MouseEvent) => {
             const target = e.target as Node;
+            if (issueTypeDropdownRef.current && !issueTypeDropdownRef.current.contains(target)) {
+                setIsIssueTypeDropdownOpen(false);
+            }
+            if (parkDropdownRef.current && !parkDropdownRef.current.contains(target)) {
+                setIsParkDropdownOpen(false);
+            }
             if (groupDropdownRef.current && !groupDropdownRef.current.contains(target)) {
                 setIsGroupDropdownOpen(false);
             }
@@ -393,6 +403,9 @@ export const IssueDetailCard: React.FC<{
             return;
         }
         initializeEditedFields(issue);
+        setIsIssueTypeDropdownOpen(false);
+        setIsParkDropdownOpen(false);
+        setIsGroupDropdownOpen(false);
         setIsEditing(true);
     };
 
@@ -401,17 +414,36 @@ export const IssueDetailCard: React.FC<{
             return;
         }
         initializeEditedFields(issue);
+        setIsIssueTypeDropdownOpen(false);
+        setIsParkDropdownOpen(false);
+        setIsGroupDropdownOpen(false);
         setIsEditing(false);
     };
 
     const editTextareaClass = 'mt-2 w-full border border-gray-300 rounded-2xl p-3 min-h-[110px] text-sm text-gray-900 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300';
-    const editSelectClass = 'mt-2 w-full border border-gray-300 rounded-xl p-2.5 text-sm text-gray-900 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300';
     const issueTypeOptions = [
         { value: 'obstruction', label: 'Obstruction (tree down, etc.)' },
         { value: 'water', label: 'Standing Water/Mud' },
         { value: 'other', label: 'Other' },
     ];
     const activeParks = parks.filter((park) => park.isActive || park.parkId === editedParkId);
+    const issueTypeDisplayLabel = (type: IssueTypeEnum | string) => {
+        switch (type.toLowerCase()) {
+        case 'obstruction':
+            return 'Obstruction';
+        case 'water':
+            return 'Standing Water/Mud';
+        case 'other':
+            return 'Other';
+        default:
+            return type;
+        }
+    };
+    const selectedIssueTypeLabel = issueTypeOptions.find((option) => option.value === editedIssueType)?.label
+        ?? issueTypeDisplayLabel(issue?.issueType ?? editedIssueType);
+    const selectedParkLabel = activeParks.find((park) => park.parkId === editedParkId)?.name
+        ?? issue?.park?.name
+        ?? 'Select a park';
     const selectedGroupLabel = selectedGroupIssueIds.length === 0
         ? 'No grouped issues'
         : `${selectedGroupIssueIds.length} selected`;
@@ -528,26 +560,31 @@ export const IssueDetailCard: React.FC<{
                                                 <div>
                                                     {isEditing ? (
                                                         <div className="mt-2 max-w-md">
-                                                            <label htmlFor="issue-type-edit" className="text-sm font-medium text-gray-700">
-                                                                Issue Type
-                                                            </label>
-                                                            <select
-                                                                id="issue-type-edit"
-                                                                className={editSelectClass}
-                                                                value={editedIssueType}
-                                                                onChange={(e) => setEditedIssueType(e.target.value)}
-                                                            >
-                                                                {issueTypeOptions.map((option) => (
-                                                                    <option key={option.value} value={option.value}>
-                                                                        {option.label}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
+                                                            <IssueDropdown
+                                                                label="Issue Type"
+                                                                triggerLabel={selectedIssueTypeLabel}
+                                                                isOpen={isIssueTypeDropdownOpen}
+                                                                onToggle={() => setIsIssueTypeDropdownOpen((isOpen) => !isOpen)}
+                                                                onSelect={(value) => {
+                                                                    setEditedIssueType(value);
+                                                                    setIsIssueTypeDropdownOpen(false);
+                                                                }}
+                                                                selectedValues={[editedIssueType]}
+                                                                options={issueTypeOptions}
+                                                                dropdownRef={issueTypeDropdownRef}
+                                                                widthClass="w-full"
+                                                                menuAlign="left"
+                                                                menuWidthClass="w-full"
+                                                                triggerClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 inline-flex items-center justify-between shadow-sm"
+                                                                renderOptionLabel={(option) => (
+                                                                    <span className="text-sm text-gray-700">{option.label}</span>
+                                                                )}
+                                                            />
                                                         </div>
                                                     ) : (
                                                         <div className="flex items-baseline gap-2">
                                                             <span className="text-2xl md:text-3xl font-extrabold">
-                                                                {issue.issueType}
+                                                                {issueTypeDisplayLabel(issue.issueType)}
                                                             </span>
                                                             <span className="text-sm md:text-base font-semibold text-gray-500">
                                                                 #{issue.issueId}
@@ -566,21 +603,29 @@ export const IssueDetailCard: React.FC<{
                                                 {/* PARK */}
                                                 {isEditing ? (
                                                     <div className="max-w-md">
-                                                        <label htmlFor="park-edit" className="text-sm font-medium text-gray-700">
-                                                            Park
-                                                        </label>
-                                                        <select
-                                                            id="park-edit"
-                                                            className={editSelectClass}
-                                                            value={editedParkId}
-                                                            onChange={(e) => setEditedParkId(Number(e.target.value))}
-                                                        >
-                                                            {activeParks.map((park) => (
-                                                                <option key={park.parkId} value={park.parkId}>
-                                                                    {park.name}
-                                                                </option>
-                                                            ))}
-                                                        </select>
+                                                        <IssueDropdown
+                                                            label="Park"
+                                                            triggerLabel={selectedParkLabel}
+                                                            isOpen={isParkDropdownOpen}
+                                                            onToggle={() => setIsParkDropdownOpen((isOpen) => !isOpen)}
+                                                            onSelect={(value) => {
+                                                                setEditedParkId(Number(value));
+                                                                setIsParkDropdownOpen(false);
+                                                            }}
+                                                            selectedValues={[String(editedParkId)]}
+                                                            options={activeParks.map((park) => ({
+                                                                value: String(park.parkId),
+                                                                label: park.name,
+                                                            }))}
+                                                            dropdownRef={parkDropdownRef}
+                                                            widthClass="w-full"
+                                                            menuAlign="left"
+                                                            menuWidthClass="w-full"
+                                                            triggerClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 inline-flex items-center justify-between shadow-sm"
+                                                            renderOptionLabel={(option) => (
+                                                                <span className="text-sm text-gray-700">{option.label}</span>
+                                                            )}
+                                                        />
                                                     </div>
                                                 ) : (
                                                     <div className="text-lg font-semibold text-gray-900">
