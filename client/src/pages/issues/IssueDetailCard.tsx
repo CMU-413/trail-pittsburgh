@@ -487,7 +487,7 @@ export const IssueDetailCard: React.FC<{
                     ) : !issue ? null : (
                         <div className="relative p-4 md:p-8 pr-4 md:pr-16 overflow-y-auto">
                             {!isEditing && canEditIssue && issue?.status !== IssueStatusEnum.RESOLVED && (
-                                <div className="hidden md:block absolute top-8 right-16 z-10">
+                                <div className="absolute top-3 right-14 md:top-8 md:right-16 z-10">
                                     <Button
                                         variant="secondary"
                                         size="sm"
