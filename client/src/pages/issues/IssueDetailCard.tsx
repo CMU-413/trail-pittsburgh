@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Issue, IssueStatusEnum, IssueTypeEnum, UserRoleEnum
+    Issue, IssueStatusEnum, IssueTypeEnum, Park, UserRoleEnum
 } from '../../types';
 import {
     LeafletMap, LeafletMarker, LeafletMarkerDragEvent
@@ -25,7 +25,7 @@ export const IssueDetailCard: React.FC<{
     onUpdated?: () => void;
 }> = ({ issueId, onClose, onUpdated }) => {
     const [issue, setIssue] = useState<Issue | null>(null);
-    const [, setParks] = useState<{ parkId: number; name: string }[]>([]);
+    const [parks, setParks] = useState<Park[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -405,6 +405,13 @@ export const IssueDetailCard: React.FC<{
     };
 
     const editTextareaClass = 'mt-2 w-full border border-gray-300 rounded-2xl p-3 min-h-[110px] text-sm text-gray-900 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300';
+    const editSelectClass = 'mt-2 w-full border border-gray-300 rounded-xl p-2.5 text-sm text-gray-900 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300';
+    const issueTypeOptions = [
+        { value: 'obstruction', label: 'Obstruction (tree down, etc.)' },
+        { value: 'water', label: 'Standing Water/Mud' },
+        { value: 'other', label: 'Other' },
+    ];
+    const activeParks = parks.filter((park) => park.isActive || park.parkId === editedParkId);
     const selectedGroupLabel = selectedGroupIssueIds.length === 0
         ? 'No grouped issues'
         : `${selectedGroupIssueIds.length} selected`;
@@ -487,9 +494,9 @@ export const IssueDetailCard: React.FC<{
                     ) : !issue ? null : (
                         <div className="relative p-4 md:p-8 pr-4 md:pr-16 overflow-y-auto">
                             {!isEditing && canEditIssue && issue?.status !== IssueStatusEnum.RESOLVED && (
-                                <div className="absolute top-3 right-14 md:top-8 md:right-16 z-10">
+                                <div className="absolute top-4 right-14 md:top-8 md:right-16 z-10">
                                     <Button
-                                        variant="secondary"
+                                        variant="primary"
                                         size="sm"
                                         className="inline-flex items-center justify-center gap-1 whitespace-nowrap h-8 px-2 text-xs rounded-md font-medium bg-gray-50 hover:bg-gray-100 text-black w-auto md:h-9 md:px-3 md:text-sm"
                                         onClick={startEditing}
@@ -519,14 +526,34 @@ export const IssueDetailCard: React.FC<{
 
                                                 {/* TITLE + STATUS */}
                                                 <div>
-                                                    <div className="flex items-baseline gap-2">
-                                                        <span className="text-2xl md:text-3xl font-extrabold">
-                                                            {issue.issueType}
-                                                        </span>
-                                                        <span className="text-gray-500 font-semibold">
-                                                #{issue.issueId}
-                                                        </span>
-                                                    </div>
+                                                    {isEditing ? (
+                                                        <div className="mt-2 max-w-md">
+                                                            <label htmlFor="issue-type-edit" className="text-sm font-medium text-gray-700">
+                                                                Issue Type
+                                                            </label>
+                                                            <select
+                                                                id="issue-type-edit"
+                                                                className={editSelectClass}
+                                                                value={editedIssueType}
+                                                                onChange={(e) => setEditedIssueType(e.target.value)}
+                                                            >
+                                                                {issueTypeOptions.map((option) => (
+                                                                    <option key={option.value} value={option.value}>
+                                                                        {option.label}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex items-baseline gap-2">
+                                                            <span className="text-2xl md:text-3xl font-extrabold">
+                                                                {issue.issueType}
+                                                            </span>
+                                                            <span className="text-sm md:text-base font-semibold text-gray-500">
+                                                                #{issue.issueId}
+                                                            </span>
+                                                        </div>
+                                                    )}
 
                                                     <span className={[
                                                         'inline-flex mt-1 items-center rounded-full px-2 py-0.5 text-xs font-semibold',
@@ -537,9 +564,29 @@ export const IssueDetailCard: React.FC<{
                                                 </div>
 
                                                 {/* PARK */}
-                                                <div className="text-lg font-semibold text-gray-900">
-                                                    {issue.park?.name}
-                                                </div>
+                                                {isEditing ? (
+                                                    <div className="max-w-md">
+                                                        <label htmlFor="park-edit" className="text-sm font-medium text-gray-700">
+                                                            Park
+                                                        </label>
+                                                        <select
+                                                            id="park-edit"
+                                                            className={editSelectClass}
+                                                            value={editedParkId}
+                                                            onChange={(e) => setEditedParkId(Number(e.target.value))}
+                                                        >
+                                                            {activeParks.map((park) => (
+                                                                <option key={park.parkId} value={park.parkId}>
+                                                                    {park.name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-lg font-semibold text-gray-900">
+                                                        {issue.park?.name}
+                                                    </div>
+                                                )}
 
                                                 {/* DATE */}
                                                 <div className="text-sm text-gray-600">
@@ -591,7 +638,7 @@ export const IssueDetailCard: React.FC<{
                                             <div className="rounded-lg border border-gray-200 p-4">
                                                 {!isEditing && (
                                                     <div>
-                                                        <div className="text-sm font-medium text-gray-700">Status</div>
+                                                        <div className="text-md font-medium text-black bold">Status</div>
                                                     </div>
                                                 )}
 
@@ -649,7 +696,7 @@ export const IssueDetailCard: React.FC<{
 
                                                 {!isEditing && (
                                                     <div className="mt-4 border-t border-gray-100 pt-4">
-                                                        <div className="text-sm font-medium text-gray-700">Mark as a Duplicate</div>
+                                                        <div className="text-md font-medium text-black bold">Mark as a Duplicate</div>
                                                         <div className="mt-2 text-sm text-gray-600">Duplicate issues can be grouped together with other issues reported in the same park. Updates made to any issue in a group will be reflected in all related issues.</div>
 
                                                         <div className="mt-2 space-y-2">
@@ -694,7 +741,7 @@ export const IssueDetailCard: React.FC<{
 
                                                 {issue.image && (
                                                     <div className={isEditing ? '' : 'mt-4'}>
-                                                        <div className="text-sm font-medium text-gray-700">Photo Visibility</div>
+                                                        <div className="text-md font-medium text-black bold">Photo Visibility</div>
                                                         <div className="mt-2 text-sm text-gray-600">
                                                             {isImagePublic ? 'Photo is currently visible to all users.' : 'Photo is currently visible only to stewards/admins.'}
                                                         </div>
