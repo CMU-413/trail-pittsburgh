@@ -57,7 +57,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-cloudsql-instances'
-      - 'trail-pgh-issue-tracker:us-central1:trail-pgh-prod'
+      - 'trail-pgh-issue-tracker:us-central1:trail-pgh-prod-database'
       - '--set-secrets'
       - 'DATABASE_URL=database_url:latest,TRAIL_ISSUE_IMAGE_BUCKET=issue_image_bucket_name:latest,CLIENT_URL=client_url:latest,GOOGLE_CLIENT_ID=google_client_id:latest,GOOGLE_CLIENT_SECRET=google_client_secret:latest,SERVER_URL=server_url:latest,JWT_SECRET=jwt_secret:latest'
       - '--set-env-vars'
