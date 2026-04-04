@@ -26,7 +26,7 @@ steps:
       - '--region'
       - 'us-central1'
       - '--set-cloudsql-instances'
-      - 'trail-pgh-issue-tracker:us-central1:trail-pgh-prod'
+      - 'trail-pgh-issue-tracker:us-central1:trail-pgh-prod-database'
       - '--set-secrets'
       - 'DATABASE_URL=database_url:latest'
 
