@@ -2,6 +2,7 @@ import request from 'supertest';
 import { app } from '../../src/app';
 import { prisma } from '../../src/prisma/prismaClient';
 import { IssueStatusEnum, IssueTypeEnum, UserRoleEnum, IssueRiskEnum } from '@prisma/client';
+import { IssueStatusEnum, IssueTypeEnum, UserRoleEnum, IssueRiskEnum } from '@prisma/client';
 import { AuthRequest } from '../../src/middlewares/auth';
 import { Response, NextFunction } from 'express';
 

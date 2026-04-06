@@ -40,11 +40,10 @@ RUN npm install --production && npm install --save-dev tsconfig-paths
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/src/prisma ./src/prisma
 COPY --from=builder /app/src/prisma ./prisma
 
-# Generate Prisma client in production with explicit schema path
-ENV PRISMA_SCHEMA_PATH=/app/prisma/schema.prisma
-RUN npx prisma generate --schema=/app/prisma/schema.prisma
+RUN npx prisma generate
 
 # Copy and setup startup script
 COPY start.sh ./start.sh

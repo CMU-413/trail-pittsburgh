@@ -1,10 +1,16 @@
 import {
     IssueTypeEnum, IssueStatusEnum
+    IssueTypeEnum, IssueStatusEnum
 } from '@prisma/client';
 import { v4 as uuid } from 'uuid';
 
 import { GCSBucket, SignedUrl } from '@/lib/GCSBucket';
 import { IssueRepository } from '@/repositories';
+import {
+    CreateIssueInput,
+    SetIssueGroupInput
+} from '@/schemas/issueSchema';
+import { IssueNotificationService } from '@/services/IssueNotificationService';
 import {
     CreateIssueInput,
     SetIssueGroupInput
@@ -103,6 +109,11 @@ export class IssueService {
             ...(issueImage && { image: await this.getIssueImage(issueImage, 
                 providedImageMetadata?.contentType) })
         };
+    }
+
+    public async getIssue(issueId: number) {
+        const issue = await this.issueRepository.getIssue(issueId);
+        return this.toIssueResponse(issue);
     }
 
     public async getIssue(issueId: number) {

@@ -12,7 +12,7 @@ export interface AuthRequest extends Request {
 
 // Middleware to verify JWT from HTTP-only cookie
 export function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) {
-    const token = req.cookies.token;
+    const token = req.cookies.__session;
     
     if (!token) {
         req.user = null;
