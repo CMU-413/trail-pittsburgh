@@ -70,7 +70,7 @@ export const parkApi = {
 export const issueApi = {
 
     getAllIssues: async (filters?: { reporterEmail?: string; ownerEmail?: string }): Promise<Issue[]> => {
-        const url = new URL(`${API_BASE_URL}/issues`);
+        const url = new URL(`${API_BASE_URL}/issues`, window.location.origin);
 
         // Add any provided filters as query params
         Object.entries(filters || {}).forEach(([key, value]) => {
