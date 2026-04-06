@@ -155,7 +155,7 @@ export const ParkListPage: React.FC = () => {
                                         <div key={issue.issueId} className="flex items-start py-4 first:pt-0 last:pb-0">
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex justify-between">
-                                                    <Link to={`/issues/${issue.issueId}`} className="font-medium text-blue-600 hover:text-blue-500 truncate">
+                                                    <Link to={`/issues/card/${issue.issueId}`} className="font-medium text-blue-600 hover:text-blue-500 truncate">
                                                         {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
                                                     </Link>
                                                     <span className="text-sm text-gray-500 whitespace-nowrap ml-4">

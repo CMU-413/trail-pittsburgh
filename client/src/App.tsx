@@ -21,7 +21,6 @@ import {
     ParkCreatePage,
     ParkEditPage,
     IssueMapPage,
-    IssueDetailPage,
     IssueReportPage,
     UserDetailPage,
 } from './pages';
@@ -53,11 +52,6 @@ const AppContent: React.FC = () => {
                             <Route path="create" element={<ParkCreatePage />} />
                             <Route path=":parkId" element={<ParkDetailPage />} />
                             <Route path=":parkId/edit" element={<ParkEditPage />} />
-                        </Route>
-
-                        {/* Issues - except report page which is public */}
-                        <Route path="issues">
-                            <Route path=":issueId" element={<IssueDetailPage />} />
                         </Route>
                     </Route>
 

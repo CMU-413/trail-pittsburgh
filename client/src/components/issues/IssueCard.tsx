@@ -42,7 +42,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
     };
 
     return (
-        <Link to={`/issues/${issue.issueId}`} className="block hover:no-underline group">
+        <Link to={`/issues/card/${issue.issueId}`} className="block hover:no-underline group">
             <Card className="h-full transition-all duration-300 group-hover:shadow-lg border border-gray-100 group-hover:border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
