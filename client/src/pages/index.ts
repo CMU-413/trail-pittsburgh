@@ -9,7 +9,6 @@ export { ParkListPage } from './parks/ParkListPage';
 export { ParkDetailPage } from './parks/ParkDetailPage';
 export { ParkCreatePage } from './parks/ParkCreatePage';
 export { ParkEditPage } from './parks/ParkEditPage';
-export { PARKS } from './parks/ParkInfo';
 
 // Issues
 export { IssueMapPage } from './issues/IssueMapPage';

@@ -12,6 +12,7 @@ import {
     deleteIssueSchema,
     getIssuesByParkSchema,
     getIssueSchema,
+    getIssuesQuerySchema,
     unsubscribeIssueNotificationsSchema,
     getIssueMapPinsSchema,
     updateIssueStatusSchema,
@@ -63,12 +64,12 @@ router.put(
     issueController.updateIssue
 ); // Update an issue
 
-// Admin Routes
 router.get('/', 
     authenticateToken,
-    requireAdmin,
+    validateRequest(getIssuesQuerySchema),
     issueController.getAllIssues); // Get all issues
 
+// Admin Routes
 router.get('/park/:parkId', 
     authenticateToken,
     validateRequest(getIssuesByParkSchema), 

@@ -15,6 +15,8 @@ import { logger } from '@/utils/logger';
 type RepositoryIssue = Awaited<ReturnType<IssueRepository['getIssue']>>;
 type NotificationIssue = Parameters<IssueNotificationService['sendIssueCreatedConfirmation']>[0];
 
+export const SAME_PARK_ISSUE_GROUP_ERROR = 'Duplicate issues can only be grouped within the same park.';
+
 export class IssueService {
     private readonly issueRepository: IssueRepository;
     private readonly issueImageBucket: GCSBucket;
@@ -30,10 +32,19 @@ export class IssueService {
         this.issueNotificationService = issueNotificationService;
     }
 
-    private async getIssueImage(imageKey: string) {
+    private async getIssueImage(imageKey: string, providedContentType?: string) {
 
         try {
             const signedUrl = await this.issueImageBucket.getDownloadUrl(imageKey);
+
+            // Bypass GCS metadata fetch if we already know it (e.g., during issue creation)
+            if (providedContentType) {
+                return {
+                    ...signedUrl,
+                    contentType: providedContentType,
+                    metadata: {}
+                };
+            }
 
             const {
                 contentType,
@@ -63,7 +74,8 @@ export class IssueService {
         };
     }
 
-    private async toIssueResponse(issue: RepositoryIssue) {
+    private async toIssueResponse(issue: RepositoryIssue, 
+        providedImageMetadata?: { contentType: string }) {
         if (!issue) {
             return null;
         }
@@ -88,7 +100,8 @@ export class IssueService {
             status: issueGroup?.status ?? issue.status,
             issueGroupId: issue.issueGroupId ?? issueGroup?.issueGroupId ?? null,
             issueGroupMemberIds,
-            ...(issueImage && { image: await this.getIssueImage(issueImage) })
+            ...(issueImage && { image: await this.getIssueImage(issueImage, 
+                providedImageMetadata?.contentType) })
         };
     }
 
@@ -96,10 +109,9 @@ export class IssueService {
         const issue = await this.issueRepository.getIssue(issueId);
         return this.toIssueResponse(issue);
     }
-
-    public async getAllIssues() {
-        const issues = await this.issueRepository.getAllIssues();
-        return Promise.all(issues.map((issue) => this.toIssueResponse(issue)));
+    
+    public async getAllIssues(reporterEmail?: string, ownerEmail?: string) {
+        return this.issueRepository.getAllIssues(reporterEmail, ownerEmail);
     }
 
     public async getMapPins(minLat: number, 
@@ -141,7 +153,7 @@ export class IssueService {
             this.toNotificationIssue(issue)
         );
 
-        const issueResponse = await this.toIssueResponse(issue);
+        const issueResponse = await this.toIssueResponse(issue, imageMetadata);
 
         return {
             issue: issueResponse,
@@ -200,8 +212,37 @@ export class IssueService {
     }
 
     public async setIssueGroup(issueId: number, data: SetIssueGroupInput) {
+        const sourceIssue = await this.issueRepository.getIssue(issueId);
+
+        if (!sourceIssue) {
+            return null;
+        }
+
+        const requestedMemberIds = Array
+            .from(new Set(data.issueGroupMemberIds))
+            .filter((memberId) => memberId !== issueId);
+
+        if (requestedMemberIds.length > 0) {
+            const allIssues = await this.issueRepository.getAllIssues();
+            const requestedIssues = allIssues.filter(
+                (candidate) => requestedMemberIds.includes(candidate.issueId)
+            );
+
+            if (requestedIssues.length !== requestedMemberIds.length) {
+                return null;
+            }
+
+            const hasCrossParkIssue = requestedIssues.some(
+                (candidate) => candidate.parkId !== sourceIssue.parkId
+            );
+
+            if (hasCrossParkIssue) {
+                throw new Error(SAME_PARK_ISSUE_GROUP_ERROR);
+            }
+        }
+
         const issue = await this.issueRepository.setIssueGroupMembers(
-            issueId, data.issueGroupMemberIds
+            issueId, requestedMemberIds
         );
         return this.toIssueResponse(issue);
     }

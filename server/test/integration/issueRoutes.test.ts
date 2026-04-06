@@ -7,9 +7,22 @@ import { Response, NextFunction } from 'express';
 
 /// <reference types="jest" />
 
+jest.mock('../../src/services/IssueNotificationService', () => ({
+    IssueNotificationService: jest.fn().mockImplementation(() => ({
+        canSendEmails: jest.fn().mockReturnValue(false),
+        createUnsubscribeToken: jest.fn().mockReturnValue(null),
+        verifyUnsubscribeToken: jest.fn().mockReturnValue(null),
+        sendIssueCreatedConfirmation: jest.fn().mockResolvedValue(undefined),
+        sendIssueInProgressUpdate: jest.fn().mockResolvedValue(undefined),
+        sendIssueResolvedUpdate: jest.fn().mockResolvedValue(undefined),
+    }))
+}));
+
 let parkId: number;
+let secondParkId: number;
 let createdIssueId: number | undefined;
 let secondIssueId: number | undefined;
+let crossParkIssueId: number | undefined;
 let imagePublicIssueId: number | undefined;
 
 jest.mock('../../src/middlewares/index', () => ({
@@ -47,9 +60,28 @@ describe('Issue API End-to-End', () => {
         await prisma.park.deleteMany();
 
         const createdPark = await prisma.park.create({
-            data: { name: 'Test Park', county: 'Allegheny' }
+                data: {
+                    name: 'Test Park',
+                    county: 'Allegheny',
+                    minLatitude: 40.43,
+                    minLongitude: -80.0,
+                    maxLatitude: 40.46,
+                    maxLongitude: -79.95,
+                }
         });
         parkId = createdPark.parkId;
+
+        const secondPark = await prisma.park.create({
+                data: {
+                    name: 'Second Test Park',
+                    county: 'Allegheny',
+                    minLatitude: 40.5,
+                    minLongitude: -79.95,
+                    maxLatitude: 40.53,
+                    maxLongitude: -79.9,
+                }
+        });
+        secondParkId = secondPark.parkId;
     });
 
     it('POST /api/issues -> should create an issue and return 201 with issue', async () => {
@@ -93,13 +125,13 @@ describe('Issue API End-to-End', () => {
     it('POST /api/issues -> should create a second issue for group tests', async () => {
         const payload = {
             parkId,
-            issueType: 'FLOODING' as IssueTypeEnum,
+            issueType: 'WATER' as IssueTypeEnum,
             safetyRisk: 'MINOR_RISK' as IssueRiskEnum,
             reporterEmail: 'sample2@example.com',
             status: 'OPEN' as IssueStatusEnum,
             notifyReporter: true,
             isPublic: true,
-            description: 'A related flooding report'
+            description: 'A related water report'
         };
 
         const res = await request(app)
@@ -110,6 +142,28 @@ describe('Issue API End-to-End', () => {
         expect(res.status).toBe(201);
         secondIssueId = res.body.issue.issueId;
         expect(secondIssueId).toBeDefined();
+    });
+
+    it('POST /api/issues -> should create a cross-park issue for group validation', async () => {
+        const payload = {
+            parkId: secondParkId,
+            issueType: 'OTHER' as IssueTypeEnum,
+            safetyRisk: 'NO_RISK' as IssueRiskEnum,
+            reporterEmail: 'sample-cross-park@example.com',
+            status: 'OPEN' as IssueStatusEnum,
+            notifyReporter: true,
+            isPublic: true,
+            description: 'Issue in a different park'
+        };
+
+        const res = await request(app)
+            .post('/api/issues')
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send(payload);
+
+        expect(res.status).toBe(201);
+        crossParkIssueId = res.body.issue.issueId;
+        expect(crossParkIssueId).toBeDefined();
     });
 
     it('PUT /api/issues/:issueId/group -> should set issue group membership', async () => {
@@ -151,6 +205,18 @@ describe('Issue API End-to-End', () => {
             });
 
         expect(res.status).toBe(404);
+    });
+
+    it('PUT /api/issues/:issueId/group -> should reject grouping issues from a different park', async () => {
+        const res = await request(app)
+            .put(`/api/issues/${createdIssueId}/group`)
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send({
+                issueGroupMemberIds: [crossParkIssueId],
+            });
+
+        expect(res.status).toBe(400);
+        expect(res.body.message).toBe('Duplicate issues can only be grouped within the same park.');
     });
 
     it('PUT /api/issues/:issueId/group -> should ungroup and stop status propagation', async () => {

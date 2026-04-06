@@ -47,11 +47,16 @@ export class ParkController {
 
     public async createPark(req: express.Request, res: express.Response) {
         try {
-            const { name, county, isActive } = req.body;
+            const { name, county, minLatitude, minLongitude,
+				 maxLatitude, maxLongitude, isActive } = req.body;
 
             // Validate required fields
-            if (!name || !county) {
-                res.status(400).json({ message: 'Name and county are required' });
+            if (!name || !county || 
+				minLatitude === undefined ||
+				maxLatitude === undefined ||
+				minLongitude === undefined ||
+				maxLongitude === undefined) {
+                res.status(400).json({ message: 'Name, county, and all latitude/longitude values are required' });
                 return;
             }
 
@@ -59,6 +64,10 @@ export class ParkController {
             const parkData = {
                 name,
                 county,
+                minLatitude,
+                minLongitude,
+                maxLatitude,
+                maxLongitude,
                 isActive: isActive !== undefined ? isActive : true
             };
 
@@ -75,11 +84,16 @@ export class ParkController {
         const parkId = Number(req.params.parkId);
 
         try {
-            const { name, county, isActive } = req.body;
+            const { name, county, minLatitude, minLongitude, 
+                maxLatitude, maxLongitude, isActive } = req.body;
 
             const updatedPark = await this.parkService.updatePark(parkId, {
                 name,
                 county,
+                minLatitude,
+                minLongitude,
+                maxLatitude,
+                maxLongitude,
                 isActive
             });
 

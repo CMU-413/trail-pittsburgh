@@ -11,7 +11,7 @@
 CREATE TYPE "IssueStatusEnum" AS ENUM ('OPEN', 'IN_PROGRESS', 'RESOLVED');
 
 -- CreateEnum
-CREATE TYPE "IssueTypeEnum" AS ENUM ('OBSTRUCTION', 'FLOODING', 'OTHER');
+CREATE TYPE "IssueTypeEnum" AS ENUM ('OBSTRUCTION', 'WATER', 'OTHER');
 
 -- CreateEnum
 CREATE TYPE "IssueUrgencyEnum" AS ENUM ('LOW', 'MEDIUM', 'HIGH');

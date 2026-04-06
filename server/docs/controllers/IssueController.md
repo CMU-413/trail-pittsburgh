@@ -83,6 +83,46 @@ public async getIssuesByPark(req: Request, res: Response)
 
 ---
 
+### Method: `getMapPins`
+
+```ts
+public async getMapPins(req: Request, res: Response)
+```
+
+- **Route**: `GET /api/issues/map`
+- **Purpose**: Retrieve issue pins within a geographic bounding box, with optional filtering by issue type and status.
+- **Params**:
+  - `bbox` (string, required): The geographic bounding box (min/max latitude/longitude) to filter issues.
+  - `issueTypes` (string[], optional): Filters issues by their type (e.g., obstruction, standing water/mud, other).
+  - `statuses` (string[], optional): Filters issues by their current status (e.g., OPEN, IN_PROGRESS)
+- **Query Parameter**:
+
+```md
+bbox=40.44,-80.0,40.50,-79.9
+&issueTypes=OBSTRUCTION
+&issueTypes=WATER
+&statuses=OPEN
+&statuses=IN_PROGRESS
+```
+
+- **Responses**:
+  - `200 OK`:
+    ```json
+    {
+      "pins": [
+        {
+          "issueId": 1,
+          "latitude": 40.44,
+          "longitude": -79.99,
+          "issueType": "OBSTRUCTION",
+          "status": "OPEN"
+        }
+      ]
+    }
+    ```
+  - `400 Bad Request`: Invalid or missing query parameters.
+  - `500 Internal Server Error`: On failure to retrieve map pins.
+
 ### Method: `updateIssueStatus`
 
 ```ts
@@ -120,7 +160,7 @@ public async updateIssue(req: Request, res: Response)
   ```json
   {
     "description": "Updated description",
-    "issueType": "obstruction",
+    "issueType": "OBSTRUCTION",
     "parkId": 1,
     "latitude": 80,
     "longitude": 170

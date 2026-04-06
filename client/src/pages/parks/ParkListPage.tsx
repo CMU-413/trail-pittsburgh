@@ -28,13 +28,14 @@ export const ParkListPage: React.FC = () => {
                 const filteredIssues = issuesData.filter((issue) => issue.isPublic);
                 setIssues(filteredIssues);
 
-                // Fetch parks and trails for display
-                const parksData = await parkApi.getParks();
+                // Fetch parks for display
+                const parksData = await parkApi.getAllParks();
                 setParks(parksData);
 
             } catch (err) {
                  
                 setError('Failed to load parks. Please try again later.');
+                // eslint-disable-next-line no-console
                 console.error('Error fetching dashboard data:', err);
             } finally {
                 setIsLoading(false);

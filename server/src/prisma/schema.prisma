@@ -16,7 +16,7 @@ enum IssueStatusEnum {
 
 enum IssueTypeEnum {
   OBSTRUCTION
-  FLOODING
+  WATER
   OTHER
 }
 
@@ -33,11 +33,15 @@ enum UserRoleEnum {
 }
 
 model Park {
-  parkId    Int      @id @default(autoincrement()) @map("park_id")
-  name      String   @db.VarChar(50)
-  county    String   @db.VarChar(50)
-  isActive  Boolean  @default(true)                @map("is_active")
-  createdAt DateTime @default(now())               @map("created_at")
+  parkId       Int      @id @default(autoincrement()) @map("park_id")
+  name         String   @db.VarChar(50)
+  county       String   @db.VarChar(50)
+  minLatitude  Float
+  minLongitude Float
+  maxLatitude  Float
+  maxLongitude Float
+  isActive     Boolean  @default(true)                @map("is_active")
+  createdAt    DateTime @default(now())               @map("created_at")
   issues Issue[]
 }
 
@@ -59,6 +63,7 @@ model Issue {
   latitude       Float?
   createdAt      DateTime         @default(now())                 @map("created_at")
   resolvedAt     DateTime?                                        @map("resolved_at")
+  ownerEmail     String?          @db.VarChar(150)                @map("owner_email")
   park           Park             @relation(fields: [parkId], references: [parkId])
   issueGroup     IssueGroup?      @relation(fields: [issueGroupId], references: [issueGroupId])
   notifications  Notification[]

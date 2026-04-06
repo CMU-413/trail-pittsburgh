@@ -11,20 +11,25 @@ import { issueApi } from '../../services/api';
 export const IssueReportPage: React.FC = () => {
     const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string>('');
 
     const handleSubmit = async (data: IssueParams) => {
         try {
             const errorMsg = await issueApi.createIssue(data);
-            if (errorMsg) { 
-                // eslint-disable-next-line no-console
-                console.error(errorMsg); 
-            } // TODO Update UI to display error message
+            if (errorMsg) {
+                setErrorMessage(errorMsg);
+                setIsSubmitted(true);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
 
+            setErrorMessage('');
             // Set submission state to true to hide the form
             setIsSubmitted(true);
             // Scroll to top for better UX
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (err) {
+            setErrorMessage('Something went wrong while submitting the issue.');
             // eslint-disable-next-line no-console
             console.error('Error creating issue:', err);
             throw err;
@@ -32,6 +37,7 @@ export const IssueReportPage: React.FC = () => {
     };
 
     const handleSubmitAnother = () => {
+        setErrorMessage('');
         setIsSubmitted(false);
     };
 
@@ -66,22 +72,77 @@ export const IssueReportPage: React.FC = () => {
             )}
 
             {isSubmitted ? (
-                <Card className="max-w-3xl mx-auto">
-                    <div className="flex flex-col items-center py-12 text-center">
-                        <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-green-100 mb-6">
-                            <svg className="h-16 w-16 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                            </svg>
+                errorMessage ? (
+                    <Card className="max-w-3xl mx-auto">
+                        <div className="flex flex-col items-center py-12 text-center">
+                            <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-red-100 mb-6">
+                                <svg
+                                    className="h-16 w-16 text-red-600"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
+                                    />
+                                </svg>
+                            </div>
+
+                            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                                Submission Failed
+                            </h2>
+
+                            <p className="text-lg text-gray-600 max-w-lg mb-4">
+                                We couldn't submit your issue report.
+                            </p>
+
+                            {errorMessage && (
+                                <p className="text-sm text-red-600 max-w-lg mb-8">
+                                    {errorMessage}
+                                </p>
+                            )}
+
+                            <Button variant="primary" onClick={handleSubmitAnother}>
+                                Try Again
+                            </Button>
                         </div>
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Thank You!</h2>
-                        <p className="text-lg text-gray-600 max-w-lg mb-8">
-                            The issue has been successfully reported. We appreciate your help in maintaining our trails.
-                        </p>
-                        <Button variant="primary" onClick={handleSubmitAnother}>
-                            Report Another Issue
-                        </Button>
-                    </div>
-                </Card>
+                    </Card>
+                ) : (
+                    <Card className="max-w-3xl mx-auto">
+                        <div className="flex flex-col items-center py-12 text-center">
+                            <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-green-100 mb-6">
+                                <svg
+                                    className="h-16 w-16 text-green-600"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M5 13l4 4L19 7"
+                                    />
+                                </svg>
+                            </div>
+
+                            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                                Thank You!
+                            </h2>
+
+                            <p className="text-lg text-gray-600 max-w-lg mb-8">
+                                The issue has been successfully reported. We appreciate your help in maintaining our trails.
+                            </p>
+
+                            <Button variant="primary" onClick={handleSubmitAnother}>
+                                Report Another Issue
+                            </Button>
+                        </div>
+                    </Card>
+                )
             ) : (
                 <>
                     <IssueReportForm

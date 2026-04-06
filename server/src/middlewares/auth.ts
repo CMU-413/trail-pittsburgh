@@ -14,16 +14,7 @@ export interface AuthRequest extends Request {
 export function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) {
     const token = req.cookies.__session;
     
-    // eslint-disable-next-line
-    console.log("req", req);
-    // eslint-disable-next-line
-    console.log("req.cookies object:", req.cookies);
-    // eslint-disable-next-line
-    console.log("cookie keys:", Object.keys(req.cookies || {}));
-
     if (!token) {
-        // eslint-disable-next-line
-        console.log("No token found");
         req.user = null;
         return next();
     }
@@ -32,15 +23,9 @@ export function authenticateToken(req: AuthRequest, res: Response, next: NextFun
         const decoded = jwt.verify(token, process.env.JWT_SECRET!);
 
         // eslint-disable-next-line
-        console.log("JWT VERIFIED SUCCESSFULLY");
-        // eslint-disable-next-line
-        console.log("Decoded payload:", decoded);
-        // eslint-disable-next-line
         req.user = decoded as any;
         next();
     } catch (err) {
-        // eslint-disable-next-line
-        console.log("JWT VERIFY FAILED:");
         req.user = null;
         next();
     }

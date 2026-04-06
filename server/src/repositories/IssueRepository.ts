@@ -111,6 +111,7 @@ export class IssueRepository {
                         longitude: data.longitude,
                         notifyReporter: data.notifyReporter ?? true,
                         reporterEmail: data.reporterEmail ?? '',
+                        ownerEmail: data.ownerEmail ?? '',
                         issueImage: data.issueImageKey,
                     },
                     include: this.buildIssueInclude()
@@ -137,9 +138,22 @@ export class IssueRepository {
         }
     }
 
-    public async getAllIssues(): Promise<RepositoryIssue[]> {
+    public async getAllIssues(reporterEmail?: string, ownerEmail?: string) {
+        const filters = [];
+
+        if (reporterEmail) {
+            filters.push({ reporterEmail });
+        }
+
+        if (ownerEmail) {
+            filters.push({ ownerEmail });
+        }
+
         return prisma.issue.findMany({
-            include: this.buildIssueInclude()
+            where: filters.length > 0 ? { OR: filters } : {},
+            include: {
+                park: true,
+            }
         });
     }
 
@@ -402,9 +416,11 @@ export class IssueRepository {
                     });
 
                     if (remainingIssuesInPreviousGroup.length === 0) {
-                        await tx.issueGroup.delete({ where: { issueGroupId: previousGroupId } });
+                        await tx.issueGroup.deleteMany(
+                            { where: { issueGroupId: previousGroupId } }
+                        );
                     } else {
-                        await tx.issueGroup.update({
+                        await tx.issueGroup.updateMany({
                             where: { issueGroupId: previousGroupId },
                             data: {
                                 primaryIssueId: remainingIssuesInPreviousGroup[0].issueId

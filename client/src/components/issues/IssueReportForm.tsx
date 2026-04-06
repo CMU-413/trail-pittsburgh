@@ -14,6 +14,7 @@ import { TextArea } from '../ui/TextArea';
 import { parkApi } from '../../services/api';
 import { getParkByLatLng } from '../../utils/parkUtils';
 import { Select } from '../ui/Select';
+import { useAuth } from '../../providers/AuthProvider';
 
 interface IssueReportFormProps {
     onSubmit: (data: IssueParams) => Promise<void>;
@@ -29,12 +30,14 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
         passible: true,
         notifyReporter: false,
         reporterEmail: '',
+        ownerEmail: undefined,
         createdAt: new Date().toISOString(),
         longitude: undefined,
         latitude: undefined,
         imageMetadata: undefined
     });
 
+    const { user } = useAuth();
     const [imgPreview, setImgPreview] = useState<string>();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -48,14 +51,14 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
 
     const issueTypes = [
         { value: IssueTypeEnum.OBSTRUCTION, label: 'Obstruction (tree down, etc.)' },
-        { value: IssueTypeEnum.FLOODING, label: 'Standing Water/Mud' },
+        { value: IssueTypeEnum.WATER, label: 'Standing Water/Mud' },
         { value: IssueTypeEnum.OTHER, label: 'Other' }
     ];
 
     useEffect(() => {
         const fetchParks = async () => {
             try {
-                const parksData = await parkApi.getParks();
+                const parksData = await parkApi.getAllParks();
                 setParks(parksData.filter((park) => park.isActive));
             } catch (err) {
                 // eslint-disable-next-line no-console
@@ -113,38 +116,37 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
         setFormData((prev) => ({ ...prev, passible: level }));
     };
     
-    const handleImageChange = (file: File | null, previewUrl: string | null, metadata?: ImageMetadata) => {
-
+    const handleImageChange = async (file: File | null, previewUrl: string | null, metadata?: ImageMetadata) => {
         if (previewUrl) {
             setImgPreview(previewUrl);
         }
 
         if (file) {
-            setFormData((prev) => {
-                const lat = metadata?.latitude ?? metadata?.Latitude;
-                const lng = metadata?.longitude ?? metadata?.Longitude;
+            const lat = metadata?.latitude ?? metadata?.Latitude;
+            const lng = metadata?.longitude ?? metadata?.Longitude;
 
-                if (typeof lat === 'number' && typeof lng === 'number') {
-                    setLocationProvidedByImage(true);
-                    // Set ParkId
-                    const park = getParkByLatLng([lat, lng]);
-                    if (park !== null) {
-                        const park_info = parks.find((p) => (p.name === park.name));
-                        if (park_info) {
-                            setFormData((prev) => ({ ...prev, parkId: park_info.parkId }));
-                            setLocationProvided(true);
-                        } 
-                    }
+            let parkId: number | undefined;
+
+            if (typeof lat === 'number' && typeof lng === 'number') {
+                setLocationProvidedByImage(true);
+                // Set ParkId
+                const park = await getParkByLatLng(lat, lng);
+                if (park !== null) {
+                    const parkInfo = parks.find((p) => (p.name === park.name));
+                    if (parkInfo) {
+                        parkId = parkInfo.parkId;
+                        setLocationProvided(true);
+                    } 
                 }
-                const newData = {
-                    ...prev,
-                    image: file,
-                    imageMetadata: metadata || {},
-                    latitude: (typeof lat === 'number' ? lat : prev.latitude),
-       				longitude: (typeof lng === 'number' ? lng : prev.longitude),
-                };
-                return newData;
-            });
+            }
+            setFormData((prev) => ({
+                ...prev,
+                image: file,
+                imageMetadata: metadata || {},
+                latitude: (typeof lat === 'number' ? lat : prev.latitude),
+                longitude: (typeof lng === 'number' ? lng : prev.longitude),
+                parkId: parkId ?? prev.parkId,
+            }));
         } else {
             setLocationConfirmed(null);
             setAtIssueLocation(false);
@@ -159,23 +161,26 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
     };
 
     // Handle location selection
-    const handleLocationSelected = (latitude: number, longitude: number) => {
-        setFormData((prev) => {
+    const handleLocationSelected = async (latitude: number, longitude: number) => {
+        let parkId: number | undefined;
 
-            if (typeof latitude === 'number' && typeof longitude === 'number')
-            {
-                const park = getParkByLatLng([latitude, longitude]);
-                if (park !== null) {
-                    const park_info = parks.find((p) => (p.name === park.name));
-                    if (park_info) {
-                        setFormData((prev) => ({ ...prev, parkId: park_info.parkId }));
-                        setLocationProvided(true);
-                        return { ...prev, latitude, longitude };
-                    } 
-                }
+        if (typeof latitude === 'number' && typeof longitude === 'number') {
+            const park = await getParkByLatLng(latitude, longitude);
+            if (park !== null) {
+                const parkInfo = parks.find((p) => (p.name === park.name));
+                if (parkInfo) {
+                    parkId = parkInfo.parkId;
+           			setLocationProvided(true);
+                } 
             }
-            return { ...prev, latitude, longitude };
-        });
+        }
+
+        setFormData((prev) => ({
+            ...prev,
+            latitude,
+            longitude,
+            ...(parkId !== undefined ? { parkId } : {}),
+        }));
     };
 
     const mapStringToBool = (option: string) => {
@@ -195,7 +200,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
             );
-        case IssueTypeEnum.FLOODING:
+        case IssueTypeEnum.WATER:
             return (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0M3 19c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0" />
@@ -255,6 +260,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
             const dataToSubmit = {
                 ...formData,
                 reporterEmail: formData.notifyReporter ? formData.reporterEmail : undefined,
+                ownerEmail: user?.email || undefined,
                 reported_at: new Date().toISOString()
             } as IssueParams;
 

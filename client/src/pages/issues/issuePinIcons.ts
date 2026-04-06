@@ -2,6 +2,7 @@ import { IssueTypeEnum } from '../../types';
 import obstuctionPin from '../../assets/obstructionPin.png';
 import waterPin from '../../assets/waterPin.png';
 import otherPin from '../../assets/otherPin.png';
+import currentLocation from '../../assets/currentLocation.png';
 
 const makePinIcon = (url: string) =>
     window.L.icon({
@@ -11,11 +12,18 @@ const makePinIcon = (url: string) =>
         popupAnchor: [0, -34],
     });
 
+export const iconForCurrentLocation = () => {
+    return window.L.icon({
+        iconUrl: currentLocation,
+        iconSize: [60, 60],
+    });
+};
+
 export const iconForType = (type: IssueTypeEnum) => {
     if (type === IssueTypeEnum.OBSTRUCTION) {
         return makePinIcon(obstuctionPin);
     }
-    if (type === IssueTypeEnum.FLOODING) {
+    if (type === IssueTypeEnum.WATER) {
         return makePinIcon(waterPin);
     }
     return makePinIcon(otherPin);

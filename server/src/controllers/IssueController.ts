@@ -3,7 +3,7 @@ import {
 } from '@prisma/client';
 import express from 'express';
 
-import { IssueService } from '@/services/IssueService';
+import { IssueService, SAME_PARK_ISSUE_GROUP_ERROR } from '@/services/IssueService';
 import { logger } from '@/utils/logger';
 
 export class IssueController {
@@ -56,7 +56,10 @@ export class IssueController {
 
     public async getAllIssues(req: express.Request, res: express.Response) {
         try {
-            const issues = await this.issueService.getAllIssues();
+            const reporterEmail = req.query.reporterEmail as string | undefined;
+            const ownerEmail = req.query.ownerEmail as string | undefined;
+
+            const issues = await this.issueService.getAllIssues(reporterEmail, ownerEmail);
             res.json({ issues });
         } catch (error) {
             logger.error(`Error fetching all issues`, error);
@@ -190,8 +193,17 @@ export class IssueController {
 
             res.json({ issue });
         } catch (error) {
+            if (error instanceof Error && error.message === SAME_PARK_ISSUE_GROUP_ERROR) {
+                res.status(400).json({ message: error.message });
+                return;
+            }
+
             logger.error(`Error setting issue group for ${issueId}`, error);
-            res.status(500).json({ message: 'Failed to update issue group' });
+            res.status(500).json({
+                message: error instanceof Error && error.message
+                    ? error.message
+                    : 'Failed to update issue group'
+            });
         }
     }
 

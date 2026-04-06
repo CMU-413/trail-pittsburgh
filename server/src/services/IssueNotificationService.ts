@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 
-import { logger } from '@/utils/logger';
+import { EmailClient, MailgunEmailClient } from '@/services/email';
 
 type IssueWithRelations = Prisma.IssueGetPayload<{
     include: {
@@ -16,22 +16,13 @@ type UnsubscribeTokenPayload = {
 };
 
 export class IssueNotificationService {
-    private static readonly senderDisplayName = '[TrailPGH] Trail Pittsburgh Issue Tracker';
-    private readonly apiKey?: string;
-    private readonly domain?: string;
-    private readonly fromEmail?: string;
-    private readonly replyToEmail?: string;
-    private readonly baseUrl: string;
+    private readonly emailClient: EmailClient;
     private readonly unsubscribeSecret?: string;
     private readonly clientBaseUrl: string;
     private readonly serverBaseUrl: string;
 
-    constructor() {
-        this.apiKey = process.env.MAILGUN_API_KEY;
-        this.domain = process.env.MAILGUN_DOMAIN;
-        this.fromEmail = process.env.MAILGUN_FROM_EMAIL;
-        this.replyToEmail = process.env.MAILGUN_REPLY_TO;
-        this.baseUrl = process.env.MAILGUN_BASE_URL ?? 'https://api.mailgun.net';
+    constructor(emailClient: EmailClient = new MailgunEmailClient()) {
+        this.emailClient = emailClient;
         this.unsubscribeSecret =
             process.env.ISSUE_NOTIFICATION_UNSUBSCRIBE_SECRET ??
             process.env.JWT_SECRET;
@@ -40,7 +31,7 @@ export class IssueNotificationService {
     }
 
     public canSendEmails() {
-        return Boolean(this.apiKey && this.domain);
+        return this.emailClient.canSendEmails();
     }
 
     public createUnsubscribeToken(issueId: number, email: string) {
@@ -91,7 +82,7 @@ export class IssueNotificationService {
             return;
         }
 
-        await this.sendEmail({
+        await this.emailClient.send({
             to: issue.reporterEmail,
             subject: 'Trail issue report received',
             text: this.buildCreatedEmailText(issue),
@@ -104,7 +95,7 @@ export class IssueNotificationService {
             return;
         }
 
-        await this.sendEmail({
+        await this.emailClient.send({
             to: issue.reporterEmail,
             subject: 'Your trail issue is in progress',
             text: this.buildStatusUpdateEmailText(issue, 'in progress'),
@@ -117,7 +108,7 @@ export class IssueNotificationService {
             return;
         }
 
-        await this.sendEmail({
+        await this.emailClient.send({
             to: issue.reporterEmail,
             subject: 'Your trail issue has been resolved',
             text: this.buildStatusUpdateEmailText(issue, 'resolved'),
@@ -217,68 +208,6 @@ export class IssueNotificationService {
         }
 
         return `${this.serverBaseUrl}/api/issues/${issueId}/unsubscribe?token=${encodeURIComponent(token)}`;
-    }
-
-    private async sendEmail(email: {
-        to: string;
-        subject: string;
-        text: string;
-        html?: string;
-    }) {
-        if (!this.apiKey || !this.domain) {
-            logger.warn('MAILGUN_API_KEY or MAILGUN_DOMAIN missing. Skipping issue notification email.');
-            return;
-        }
-
-        const senderEmail = this.resolveSenderEmail();
-        const from = `${IssueNotificationService.senderDisplayName} <${senderEmail}>`;
-        const body = new URLSearchParams({
-            from,
-            to: email.to,
-            subject: email.subject,
-            text: email.text
-        });
-
-        if (email.html) {
-            body.append('html', email.html);
-        }
-
-        if (this.replyToEmail) {
-            body.append('h:Reply-To', this.replyToEmail);
-        }
-
-        try {
-            const response = await fetch(`${this.baseUrl}/v3/${this.domain}/messages`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Basic ${Buffer.from(`api:${this.apiKey}`).toString('base64')}`,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: body.toString()
-            });
-
-            if (!response.ok) {
-                const responseBody = await response.text();
-                logger.error(`Mailgun send failed with status ${response.status}: ${responseBody}`);
-            }
-        } catch (error) {
-            logger.error('Failed to send Mailgun notification email', error);
-        }
-    }
-
-    private resolveSenderEmail() {
-        const fromEmail = this.fromEmail?.trim();
-
-        if (!fromEmail) {
-            return `postmaster@${this.domain}`;
-        }
-
-        const emailMatch = fromEmail.match(/<([^>]+)>/);
-        if (emailMatch?.[1]) {
-            return emailMatch[1].trim();
-        }
-
-        return fromEmail;
     }
 
     private escapeHtml(value: string) {

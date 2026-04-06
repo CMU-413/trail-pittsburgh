@@ -8,6 +8,10 @@ export type Park = {
     parkId: number;
     name: string;
     county: string;
+	minLatitude: number | '';
+	minLongitude: number | '';
+	maxLatitude: number | '';
+	maxLongitude: number | '';
     isActive: boolean;
     createdAt: string;
 };
@@ -20,7 +24,7 @@ export enum IssueStatusEnum {
 
 export enum IssueTypeEnum {
     OBSTRUCTION = 'OBSTRUCTION',
-    FLOODING = 'FLOODING',
+    WATER = 'WATER',
     OTHER = 'OTHER'
 }
 
@@ -75,6 +79,7 @@ export type Issue = {
     latitude: number;
     notifyReporter: boolean;
     reporterEmail: string;
+    ownerEmail: string;
     createdAt: string;
     resolvedAt?: string;
     issueGroupMemberIds?: number[];
@@ -83,6 +88,15 @@ export type Issue = {
     	name: string;
   	};
 };  
+
+export type IssuePin = {
+	issueId: number;
+	latitude: number;
+	longitude: number;
+	issueType: IssueTypeEnum;
+	status: IssueStatusEnum ;
+	createdAt: string;
+}
 
 export type Image = {
     key: string;
