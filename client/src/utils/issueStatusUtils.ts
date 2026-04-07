@@ -3,7 +3,7 @@ import { IssueStatusEnum } from '../types';
 
 export const getIssueStatusColor = (status: IssueStatusEnum): string => {
     switch (status) {
-    case IssueStatusEnum.UNRESOLVED: return 'bg-red-500 text-white';
+    case IssueStatusEnum.UNRESOLVED: return 'bg-red-100 text-red-700';
     case IssueStatusEnum.IN_PROGRESS: return 'bg-yellow-500 text-white';
     case IssueStatusEnum.RESOLVED: return 'bg-green-500 text-white';
     default: return 'bg-gray-500 text-white';
@@ -21,7 +21,7 @@ export const getIssueStatusTextColor = (status: IssueStatusEnum): string => {
 
 export const getIssueStatusDotColor = (status: IssueStatusEnum): string => {
     switch (status) {
-    case IssueStatusEnum.UNRESOLVED: return 'bg-red-500';
+    case IssueStatusEnum.UNRESOLVED: return 'bg-red-400';
     case IssueStatusEnum.IN_PROGRESS: return 'bg-yellow-500';
     case IssueStatusEnum.RESOLVED: return 'bg-green-500';
     default: return 'bg-gray-500';

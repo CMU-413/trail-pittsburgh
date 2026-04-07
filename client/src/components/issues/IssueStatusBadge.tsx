@@ -10,9 +10,9 @@ interface IssueStatusBadgeProps {
 
 export const IssueStatusBadge: React.FC<IssueStatusBadgeProps> = ({ status, className = '' }) => {
     const statusVariant = {
-        [IssueStatusEnum.UNRESOLVED]: 'success',
+        [IssueStatusEnum.UNRESOLVED]: 'danger',
         [IssueStatusEnum.IN_PROGRESS]: 'warning',
-        [IssueStatusEnum.RESOLVED]: 'secondary'
+        [IssueStatusEnum.RESOLVED]: 'success'
     } as const;
 
     const statusLabel = {

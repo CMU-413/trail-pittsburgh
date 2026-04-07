@@ -136,7 +136,7 @@ export const ParkDetailPage: React.FC = () => {
                     <div className="space-y-4">
                         <div>
                             <p className="text-sm font-medium text-gray-500">Unresolved Issues</p>
-                            <p className="mt-1 text-2xl font-semibold text-yellow-600">{unresolvedIssuesCount}</p>
+                            <p className="mt-1 text-2xl font-semibold text-red-600">{unresolvedIssuesCount}</p>
                         </div>
                     </div>
                 </Card>
