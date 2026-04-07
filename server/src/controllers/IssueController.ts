@@ -309,7 +309,7 @@ export class IssueController {
     }
 
     private buildUnsubscribeHtml(title: string, message: string) {
-        const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
+        const clientUrl = (process.env.CLIENT_URL?.trim() || 'http://localhost:5173').replace(/\/+$/, '');
         return `<!doctype html>
 <html lang="en">
 <head>
