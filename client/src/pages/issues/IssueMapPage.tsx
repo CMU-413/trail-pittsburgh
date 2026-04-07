@@ -14,9 +14,8 @@ import {
     IssueStatusEnum, IssueTypeEnum, 
     Park
 } from '../../types';
-import { IssueDetailCard } from './IssueDetailCard';
 import { 
-    Link, useNavigate, useParams 
+    Link, useLocation, useNavigate
 } from 'react-router-dom';
 import { IssueFilterDropdown, PinLegend } from './IssueFilterDropdown';
 import { iconForType, iconForCurrentLocation } from './issuePinIcons';
@@ -100,7 +99,7 @@ export const IssueMapPage: React.FC = () => {
     const selectedTypesRef = useRef<IssueTypeEnum[]>([]);
     const [isLoading, setIsLoading] = useState(true); const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
-    const { issueId } = useParams<{ issueId?: string }>();
+    const location = useLocation();
 
     const clearIssueMarkers = useCallback(() => {
         issueMarkersRef.current.forEach((m) => m.remove());
@@ -108,15 +107,16 @@ export const IssueMapPage: React.FC = () => {
     }, []);
 
     const openIssueDetail = useCallback((id: number) => {
-        navigate(`/issues/card/${id}`);
-    }, [navigate]);
-
-    const closeIssueDetail = () => {
-        navigate('/issues');
-    };
-
-    const selectedIssueId = issueId ? Number(issueId) : null;
-    const isDetailOpen = typeof selectedIssueId === 'number' && Number.isInteger(selectedIssueId) && selectedIssueId > 0;
+        navigate(`/issues/card/${id}`, {
+			 state: {
+                backgroundLocation: {
+                    pathname: location.pathname,
+                    search: location.search,
+                    hash: location.hash
+                }
+            }
+        });
+    }, [navigate, location]);
 
     const refreshPinsForView = useCallback(async () => {
         if (!leafletMap.current || typeof window.L === 'undefined') {return;}
@@ -329,52 +329,33 @@ export const IssueMapPage: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const init = () => {
-            if (!mapRef.current || leafletMap.current)
-            {return;}
+        if (!mapRef.current || leafletMap.current)
+        {return;}
 
-            leafletMap.current = window.L.map(mapRef.current!).setView([40.4406, -79.9959], 12 );;
-            
-            window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 22,
-                attribution: '&copy; OpenStreetMap contributors',
-            }).addTo(leafletMap.current!);
-            leafletMap.current.on('moveend', refreshPinsForView);
+        leafletMap.current = window.L.map(mapRef.current!).setView([40.4406, -79.9959], 12 );;
+		
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 22,
+            attribution: '&copy; OpenStreetMap contributors',
+        }).addTo(leafletMap.current!);
+        leafletMap.current.on('moveend', refreshPinsForView);
 
-            const savedPreference =
-		   		(sessionStorage.getItem(LOCATION_PREF_KEY) ??
-				localStorage.getItem(LOCATION_PREF_KEY)) as LocationPreference | null;
-            
-            if (savedPreference === 'allow') {
-                setLocationPreference('allow');
-                centerMapOnCurrentLocation();
-            } else if (savedPreference === 'deny') {
-                setLocationPreference('deny');
-                applyFallbackView();
-                refreshPinsForView();
-            } else {
-                setLocationPreference('unknown');
-                setShowLocationModal(true);
-                applyFallbackView();
-                refreshPinsForView();
-            }
-        };
-	
-        if (typeof window.L === 'undefined') {
-            // CSS
-            const cssLink = document.createElement('link');
-            cssLink.rel = 'stylesheet';
-            cssLink.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-            document.head.appendChild(cssLink);
-	
-            // JS
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-            script.async = true;
-            script.onload = init;
-            document.body.appendChild(script);
+        const savedPreference =
+			(sessionStorage.getItem(LOCATION_PREF_KEY) ??
+			localStorage.getItem(LOCATION_PREF_KEY)) as LocationPreference | null;
+		
+        if (savedPreference === 'allow') {
+            setLocationPreference('allow');
+            centerMapOnCurrentLocation();
+        } else if (savedPreference === 'deny') {
+            setLocationPreference('deny');
+            applyFallbackView();
+            refreshPinsForView();
         } else {
-            init();
+            setLocationPreference('unknown');
+            setShowLocationModal(true);
+            applyFallbackView();
+            refreshPinsForView();
         }
 	
         return () => {
@@ -422,16 +403,6 @@ export const IssueMapPage: React.FC = () => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
-    useEffect(() => {
-        if (!issueId) {
-            return;
-        }
-        const parsedId = Number(issueId);
-        if (!Number.isInteger(parsedId) || parsedId <= 0) {
-            navigate('/issues', { replace: true });
-        }
-    }, [issueId, navigate]);
 	
     const selectedParkName = selectedPark
         ? (parks.find((park) => park.name === selectedPark)?.name ?? 'Current Location')
@@ -662,15 +633,7 @@ export const IssueMapPage: React.FC = () => {
                                 clear={() => setSelectedTypes([])}
                             />
                         </div>
-                    </div>
-
-                    {isDetailOpen && selectedIssueId !== null && (
-                        <IssueDetailCard 
-                            issueId={selectedIssueId} 
-                            onClose={closeIssueDetail} 
-                            onUpdated={refreshPinsForView}
-                        />
-                    )}
+                    </div>         
                 </>
             )}
 

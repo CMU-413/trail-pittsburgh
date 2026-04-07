@@ -58,7 +58,7 @@ describe('Auth Router Integration Tests', () => {
             
             const response = await request(app)
                 .get('/api/auth/me')
-                .set('Cookie', [`token=${token}`])
+                .set('Cookie', [`__session=${token}`])
                 .send();
             
             expect(response.status).toBe(200);
@@ -93,7 +93,7 @@ describe('Auth Router Integration Tests', () => {
             
             const response = await request(app)
                 .get('/api/auth/me')
-                .set('Cookie', [`token=${token}`])
+                .set('Cookie', [`__session=${token}`])
                 .send();
             
             expect(response.status).toBe(200);

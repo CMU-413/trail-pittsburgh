@@ -2,5 +2,8 @@
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/mocha": "^10.0.10"
+  },
+  "dependencies": {
+    "heic-decode": "^2.1.0"
   }
 }
