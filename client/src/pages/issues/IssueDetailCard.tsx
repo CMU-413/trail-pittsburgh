@@ -12,7 +12,11 @@ import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { ImageMetadataDisplay } from '../../components/ui/ImageMetadataDisplay';
 import { issueApi, parkApi } from '../../services/api';
 import { issueTypeFrontendToEnum } from '../../utils/issueTypeUtils';
-import { getIssueStatusColor } from '../../utils/issueStatusUtils';
+import {
+    getIssueStatusColor,
+    getIssueStatusLabel,
+    getIssueStatusTooltip,
+} from '../../utils/issueStatusUtils';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../providers/AuthProvider';
 import { iconForType } from './issuePinIcons';
@@ -595,7 +599,9 @@ export const IssueDetailCard: React.FC<{
                                                         'inline-flex mt-1 items-center rounded-full px-2 py-0.5 text-xs font-semibold',
                                                         getIssueStatusColor(issue.status),
                                                     ].join(' ')}>
-                                                        {issue.status.replace('_', ' ')}
+                                                        <span title={getIssueStatusTooltip(issue.status)}>
+                                                            {getIssueStatusLabel(issue.status)}
+                                                        </span>
                                                     </span>
                                                 </div>
 

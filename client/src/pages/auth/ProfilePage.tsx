@@ -14,6 +14,7 @@ import { formatUserRole, hasAccess } from '../../utils/formatters';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { issueApi } from '../../services/api';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
+import { getIssueStatusLabel, getIssueStatusTooltip } from '../../utils/issueStatusUtils';
 
 export const ProfilePage: React.FC = () => {
     const location = useLocation();
@@ -136,8 +137,9 @@ export const ProfilePage: React.FC = () => {
                                         {/* Status Badge */}
                                         <span
                                             className={`px-2 py-1 text-xs font-semibold rounded ${statusColors[issue.status]}`}
+                                            title={getIssueStatusTooltip(issue.status)}
                                         >
-                                            {issue.status.replace('_', ' ')}
+                                            {getIssueStatusLabel(issue.status)}
                                         </span>
 
                                         {/* Issue Type / Title */}

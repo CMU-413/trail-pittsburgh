@@ -36,3 +36,25 @@ export const getIssueStatusLightBgColor = (status: IssueStatusEnum): string => {
     default: return 'bg-gray-100';
     }
 };
+
+export const getIssueStatusLabel = (status: IssueStatusEnum): string => {
+    switch (status) {
+    case IssueStatusEnum.UNRESOLVED: return 'Unresolved';
+    case IssueStatusEnum.IN_PROGRESS: return 'In Progress';
+    case IssueStatusEnum.RESOLVED: return 'Resolved';
+    default: return 'Unknown';
+    }
+};
+
+export const getIssueStatusTooltip = (status: IssueStatusEnum): string => {
+    switch (status) {
+    case IssueStatusEnum.UNRESOLVED:
+        return 'This issue has been reported and may still affect the trail.';
+    case IssueStatusEnum.IN_PROGRESS:
+        return 'Work is currently being done to fix this issue.';
+    case IssueStatusEnum.RESOLVED:
+        return 'This issue has been fixed and should no longer impact the trail.';
+    default:
+        return 'Issue status is unknown.';
+    }
+};
