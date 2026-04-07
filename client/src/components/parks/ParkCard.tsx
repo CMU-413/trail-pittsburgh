@@ -16,7 +16,7 @@ export const ParkCard: React.FC<ParkCardProps> = ({ park, allIssues }) => {
     const isError = !allIssues;
     
     // Default counts to 0 if there's an error/no issues
-    const openIssuesCount = isError ? 0 : allIssues.filter((issue) => issue.status === IssueStatusEnum.UNRESOLVED).length;
+    const unresolvedIssuesCount = isError ? 0 : allIssues.filter((issue) => issue.status === IssueStatusEnum.UNRESOLVED).length;
     const inprocessIssuesCount = isError ? 0 : allIssues.filter((issue) => issue.status === IssueStatusEnum.IN_PROGRESS).length;
     const resolvedIssuesCount = isError ? 0 : allIssues.filter((issue) => issue.status === IssueStatusEnum.RESOLVED).length;
 
@@ -28,7 +28,7 @@ export const ParkCard: React.FC<ParkCardProps> = ({ park, allIssues }) => {
 
                     <div className="flex justify-between text-sm">
                         <span className="text-red-600 font-medium">
-                            Open: {openIssuesCount}
+                            Unresolved: {unresolvedIssuesCount}
                         </span>
                         <span className="text-yellow-600 font-medium">
                             In Progress: {inprocessIssuesCount}

@@ -16,7 +16,7 @@ export const IssueStatusBadge: React.FC<IssueStatusBadgeProps> = ({ status, clas
     } as const;
 
     const statusLabel = {
-        [IssueStatusEnum.UNRESOLVED]: 'Open',
+        [IssueStatusEnum.UNRESOLVED]: 'Unresolved',
         [IssueStatusEnum.IN_PROGRESS]: 'In Progress',
         [IssueStatusEnum.RESOLVED]: 'Resolved'
     };
