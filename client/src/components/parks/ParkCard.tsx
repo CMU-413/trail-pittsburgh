@@ -16,7 +16,7 @@ export const ParkCard: React.FC<ParkCardProps> = ({ park, allIssues }) => {
     const isError = !allIssues;
     
     // Default counts to 0 if there's an error/no issues
-    const openIssuesCount = isError ? 0 : allIssues.filter((issue) => issue.status === IssueStatusEnum.OPEN).length;
+    const openIssuesCount = isError ? 0 : allIssues.filter((issue) => issue.status === IssueStatusEnum.UNRESOLVED).length;
     const inprocessIssuesCount = isError ? 0 : allIssues.filter((issue) => issue.status === IssueStatusEnum.IN_PROGRESS).length;
     const resolvedIssuesCount = isError ? 0 : allIssues.filter((issue) => issue.status === IssueStatusEnum.RESOLVED).length;
 

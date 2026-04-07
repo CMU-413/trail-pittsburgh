@@ -117,7 +117,7 @@ export const issueApi = {
             params.append('issueTypes', t);
         }
 
-        params.append('statuses', IssueStatusEnum.OPEN);
+        params.append('statuses', IssueStatusEnum.UNRESOLVED);
         params.append('statuses', IssueStatusEnum.IN_PROGRESS);
 
         const response = await fetch(`${API_BASE_URL}/issues/map?${params.toString()}`, {

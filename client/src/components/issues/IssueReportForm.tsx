@@ -23,7 +23,7 @@ interface IssueReportFormProps {
 export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) => {
     const [formData, setFormData] = useState<Partial<IssueParams>>({
         isPublic: true,
-        status: IssueStatusEnum.OPEN,
+        status: IssueStatusEnum.UNRESOLVED,
         description: '',
         issueType: IssueTypeEnum.OBSTRUCTION,
         safetyRisk: IssueRiskEnum.NO_RISK,
@@ -270,7 +270,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
             // Reset form
             setFormData({
                 isPublic: true,
-                status: IssueStatusEnum.OPEN,
+                status: IssueStatusEnum.UNRESOLVED,
                 // description: '',
                 issueType: IssueTypeEnum.OTHER,
                 safetyRisk: IssueRiskEnum.NO_RISK,

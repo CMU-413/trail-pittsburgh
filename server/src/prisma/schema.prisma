@@ -9,7 +9,7 @@ datasource db {
 }
 
 enum IssueStatusEnum {
-  OPEN
+  UNRESOLVED
   IN_PROGRESS
   RESOLVED
 }
@@ -51,7 +51,7 @@ model Issue {
   parkId         Int                                              @map("park_id")
   isPublic       Boolean                                          @map("is_public")  
   isImagePublic  Boolean          @default(false)                 @map("is_image_public")
-  status         IssueStatusEnum  @default(OPEN)
+  status         IssueStatusEnum  @default(UNRESOLVED)
   description    String?          @db.VarChar(450)
   issueType      IssueTypeEnum                                    @map("issue_type")
   safetyRisk     IssueRiskEnum
@@ -72,7 +72,7 @@ model Issue {
 model IssueGroup {
   issueGroupId Int              @id @default(autoincrement())   @map("issue_group_id")
   primaryIssueId Int?                                           @map("primary_issue_id")
-  status       IssueStatusEnum  @default(OPEN)
+  status       IssueStatusEnum  @default(UNRESOLVED)
   createdAt    DateTime         @default(now())                 @map("created_at")
   updatedAt    DateTime         @updatedAt                      @map("updated_at")
   issues       Issue[]

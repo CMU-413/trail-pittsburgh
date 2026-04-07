@@ -87,7 +87,7 @@ export const ParkDetailPage: React.FC = () => {
     }
 
     // Count open issues
-    const openIssuesCount = issues.filter((issue) => issue.status === IssueStatusEnum.OPEN).length;
+    const openIssuesCount = issues.filter((issue) => issue.status === IssueStatusEnum.UNRESOLVED).length;
 
     return (
         <div>

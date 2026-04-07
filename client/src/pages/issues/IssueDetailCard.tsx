@@ -695,7 +695,7 @@ export const IssueDetailCard: React.FC<{
                                                     </div>
                                                 )}
 
-                                                {!isEditing && issue.status === IssueStatusEnum.OPEN && (
+                                                {!isEditing && issue.status === IssueStatusEnum.UNRESOLVED && (
                                                     <div className="mt-3 flex flex-wrap items-center gap-2">
                                                         <Button
                                                             variant="success"

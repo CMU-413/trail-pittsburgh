@@ -26,9 +26,9 @@ export const HomePage: React.FC = () => {
                                         Report an Issue
                                     </Button>
                                 </Link>
-                                <Link to="/parks">
+                                <Link to="/issues">
                                     <Button variant="secondary" size="lg" className="transition-all hover:-translate-y-0.5">
-                                        View Parks
+                                        View Issues
                                     </Button>
                                 </Link>
                             </div>
