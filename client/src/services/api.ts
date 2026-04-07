@@ -1,6 +1,7 @@
 import {
     Park, Issue, IssueParams, IssueStatusEnum,
     IssueTypeEnum,
+    IssueRiskEnum,
     UserRoleEnum,
     User,
     IssuePin
@@ -237,6 +238,7 @@ export const issueApi = {
 
     updateIssue: async (issueId: number, data: {
         description?: string;
+        safetyRisk?: IssueRiskEnum;
         issueType?: IssueTypeEnum;
         isImagePublic?: boolean;
         parkId?: number;

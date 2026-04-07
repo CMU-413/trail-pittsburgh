@@ -4,8 +4,64 @@ export const getSafetyRiskLabel = (level: IssueRiskEnum): string => {
     switch (level) {
     case IssueRiskEnum.NO_RISK: return 'No Risk';
     case IssueRiskEnum.MINOR_RISK: return 'Minor Risk';
-    case IssueRiskEnum.SERIOUS_RISK: return 'Serious Risk/Immediate Danger';
+    case IssueRiskEnum.SERIOUS_RISK: return 'Serious Risk / Immediate Danger';
     default: return 'No Risk';
+    }
+};
+
+export const getSafetyRiskShortLabel = (level: IssueRiskEnum): string => {
+    switch (level) {
+    case IssueRiskEnum.NO_RISK:
+        return 'No Risk';
+    case IssueRiskEnum.MINOR_RISK:
+        return 'Minor';
+    case IssueRiskEnum.SERIOUS_RISK:
+        return 'Serious';
+    default:
+        return 'No Risk';
+    }
+};
+
+export const getReportedSafetyRiskBadgeLabel = (level: IssueRiskEnum): string => {
+    return `Reported ${getSafetyRiskShortLabel(level)}`;
+};
+
+export const getSafetyRiskDescription = (level: IssueRiskEnum): string => {
+    switch (level) {
+    case IssueRiskEnum.NO_RISK:
+        return 'Lowest level. Typically still passable and less severe than Minor Risk or Serious Risk / Immediate Danger.';
+    case IssueRiskEnum.MINOR_RISK:
+        return 'Middle level. More severe than No Risk, but below Serious Risk / Immediate Danger.';
+    case IssueRiskEnum.SERIOUS_RISK:
+        return 'Highest level. More severe than No Risk or Minor Risk and may require immediate attention.';
+    default:
+        return 'Lowest level. Typically still passable and less severe than Minor Risk or Serious Risk / Immediate Danger.';
+    }
+};
+
+export const getStewardSafetyRiskDescription = (level: IssueRiskEnum): string => {
+    switch (level) {
+    case IssueRiskEnum.NO_RISK:
+        return 'Reporter selected the lowest risk level available on the form, indicating they believed the issue was likely still passable and less severe than the other available options.';
+    case IssueRiskEnum.MINOR_RISK:
+        return 'Reporter selected the middle risk level available on the form, indicating they believed the issue was more severe than No Risk, but below Serious Risk / Immediate Danger.';
+    case IssueRiskEnum.SERIOUS_RISK:
+        return 'Reporter selected the highest risk level available on the form, indicating they believed the issue may need prompt attention.';
+    default:
+        return 'Reporter selected the lowest risk level available on the form.';
+    }
+};
+
+export const getSafetyRiskBadgeColor = (level: IssueRiskEnum): string => {
+    switch (level) {
+    case IssueRiskEnum.NO_RISK:
+        return 'bg-green-100 text-green-800 border border-green-200';
+    case IssueRiskEnum.MINOR_RISK:
+        return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+    case IssueRiskEnum.SERIOUS_RISK:
+        return 'bg-red-100 text-red-800 border border-red-200';
+    default:
+        return 'bg-gray-100 text-gray-800 border border-gray-200';
     }
 };
 

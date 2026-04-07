@@ -212,10 +212,11 @@ export class IssueController {
         
         try {
             const { 
-                description, issueType, isImagePublic, parkId, latitude, longitude 
+                description, safetyRisk, issueType, isImagePublic, parkId, latitude, longitude 
             } = req.body;
             const issue = await this.issueService.updateIssue(issueId, {
                 description,
+                safetyRisk,
                 issueType,
                 isImagePublic,
                 parkId,

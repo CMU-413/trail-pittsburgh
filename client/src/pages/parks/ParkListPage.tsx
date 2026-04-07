@@ -6,11 +6,17 @@ import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { ParkCard } from '../../components/parks/ParkCard';
 import { Card } from '../../components/ui/Card';
+import { Select } from '../../components/ui/Select';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { parkApi, issueApi } from '../../services/api';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { getIssueStatusDotColor } from '../../utils/issueStatusUtils';
+import {
+    getSafetyRiskBadgeColor,
+    getReportedSafetyRiskBadgeLabel,
+    getSafetyRiskLevelIndex
+} from '../../utils/issueSafetyRiskUtils';
 
 export const ParkListPage: React.FC = () => {
     const [parks, setParks] = useState<Park[]>([]);
@@ -19,6 +25,7 @@ export const ParkListPage: React.FC = () => {
     const [showInactive, setShowInactive] = useState(false);
     const [issues, setIssues] = useState<Issue[]>([]);
     const [recentIssuesOpen, setRecentIssuesOpen] = useState(true);
+    const [recentIssuesSort, setRecentIssuesSort] = useState<'recent' | 'severityHigh' | 'severityLow'>('recent');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -109,10 +116,22 @@ export const ParkListPage: React.FC = () => {
         );
     }
 
-    // Get the most recent issues
-    const recentIssues = [...issues].sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    ).slice(0, 5);
+    // Sort recent issues by selected steward preference.
+    const recentIssues = [...issues].sort((a, b) => {
+        const recencyDiff = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+
+        if (recentIssuesSort === 'severityHigh') {
+            const severityDiff = getSafetyRiskLevelIndex(b.safetyRisk) - getSafetyRiskLevelIndex(a.safetyRisk);
+            return severityDiff !== 0 ? severityDiff : recencyDiff;
+        }
+
+        if (recentIssuesSort === 'severityLow') {
+            const severityDiff = getSafetyRiskLevelIndex(a.safetyRisk) - getSafetyRiskLevelIndex(b.safetyRisk);
+            return severityDiff !== 0 ? severityDiff : recencyDiff;
+        }
+
+        return recencyDiff;
+    }).slice(0, 5);
 
     return (
         <div>
@@ -141,12 +160,25 @@ export const ParkListPage: React.FC = () => {
                         <Card 
                             title="Recent Issues"
                             headerAction={
-                                <button
-                                    onClick={() => setRecentIssuesOpen(!recentIssuesOpen)}
-                                    className="text-gray-400 hover:text-gray-600 text-4xl"
-                                >
-                                    {recentIssuesOpen ? '▾' : '▸'}
-                                </button>
+                                <div className="flex items-center gap-3">
+                                    <Select
+                                        name="recentIssuesSort"
+                                        value={recentIssuesSort}
+                                        onChange={(value) => setRecentIssuesSort(value as 'recent' | 'severityHigh' | 'severityLow')}
+                                        options={[
+                                            { value: 'recent', label: 'Most Recent' },
+                                            { value: 'severityHigh', label: 'Highest Severity' },
+                                            { value: 'severityLow', label: 'Lowest Severity' }
+                                        ]}
+                                    />
+                                    <button
+                                        onClick={() => setRecentIssuesOpen(!recentIssuesOpen)}
+                                        className="text-gray-400 hover:text-gray-600 text-4xl"
+                                        aria-label={recentIssuesOpen ? 'Collapse recent issues' : 'Expand recent issues'}
+                                    >
+                                        {recentIssuesOpen ? '▾' : '▸'}
+                                    </button>
+                                </div>
                             }
                         >
                             {recentIssuesOpen && (
@@ -167,9 +199,17 @@ export const ParkListPage: React.FC = () => {
                                                         className="font-medium text-blue-600 hover:text-blue-500 truncate">
                                                         {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
                                                     </Link>
-                                                    <span className="text-sm text-gray-500 whitespace-nowrap ml-4">
-                                                        {formatDistanceToNow(new Date(issue.createdAt), { addSuffix: true })}
-                                                    </span>
+                                                    <div className="ml-4 flex items-center gap-2 whitespace-nowrap">
+                                                        <span className={[
+                                                            'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                                                            getSafetyRiskBadgeColor(issue.safetyRisk)
+                                                        ].join(' ')}>
+                                                            {getReportedSafetyRiskBadgeLabel(issue.safetyRisk)}
+                                                        </span>
+                                                        <span className="text-sm text-gray-500">
+                                                            {formatDistanceToNow(new Date(issue.createdAt), { addSuffix: true })}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <p className="text-sm text-gray-600 mt-1 line-clamp-2">{issue.description}</p>
                                                 <p className="text-xs text-gray-500 mt-1 flex items-center">

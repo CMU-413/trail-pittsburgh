@@ -4,7 +4,10 @@ import React, { useState, useEffect } from 'react';
 import {
     Park, ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum
 } from '../../types';
-import { getSafetyRiskLabel } from '../../utils/issueSafetyRiskUtils';
+import {
+    getSafetyRiskDescription,
+    getSafetyRiskLabel,
+} from '../../utils/issueSafetyRiskUtils';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
@@ -53,6 +56,11 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
         { value: IssueTypeEnum.OBSTRUCTION, label: 'Obstruction (tree down, etc.)' },
         { value: IssueTypeEnum.WATER, label: 'Standing Water/Mud' },
         { value: IssueTypeEnum.OTHER, label: 'Other' }
+    ];
+    const safetyRiskLevels = [
+        IssueRiskEnum.NO_RISK,
+        IssueRiskEnum.MINOR_RISK,
+        IssueRiskEnum.SERIOUS_RISK,
     ];
 
     useEffect(() => {
@@ -519,15 +527,14 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                             Safety Risk?
                         </label>
-                        {/* For large screens: all options in one row */}
-                        <div className="hidden md:grid md:grid-cols-3 gap-3">
-                            {Object.values(IssueRiskEnum).map((level) => (
+                        <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
+                            {safetyRiskLevels.map((level) => (
                                 <button
                                     key={level}
                                     type="button"
                                     onClick={() => handleSafetyRiskSelect(level)}
                                     className={`
-                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
+                                        rounded-lg border p-4 text-left transition-all hover:bg-gray-50 cursor-pointer
                                         ${formData.safetyRisk === level
                                     ? 'border-blue-600 bg-blue-50'
                                     : 'border-gray-200'
@@ -535,26 +542,7 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                                     `}
                                 >
                                     <div className="text-sm font-medium">{getSafetyRiskLabel(level)}</div>
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* For mobile: options stacked one per row */}
-                        <div className="grid grid-cols-1 gap-3 md:hidden">
-                            {Object.values(IssueRiskEnum).map((level) => (
-                                <button
-                                    key={level}
-                                    type="button"
-                                    onClick={() => handleSafetyRiskSelect(level)}
-                                    className={`
-                                        flex items-center p-4 rounded-lg border transition-all hover:bg-gray-50 cursor-pointer
-                                        ${formData.safetyRisk === level
-                                    ? 'border-blue-600 bg-blue-50'
-                                    : 'border-gray-200'
-                                }
-                                    `}
-                                >
-                                    <div className="text-sm font-medium">{getSafetyRiskLabel(level)}</div>
+                                    <p className="mt-1 text-xs text-gray-600">{getSafetyRiskDescription(level)}</p>
                                 </button>
                             ))}
                         </div>
