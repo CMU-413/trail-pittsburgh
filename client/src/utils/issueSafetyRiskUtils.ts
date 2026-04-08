@@ -29,22 +29,22 @@ export const getReportedSafetyRiskBadgeLabel = (level: IssueRiskEnum): string =>
 export const getSafetyRiskDescription = (level: IssueRiskEnum): string => {
     switch (level) {
     case IssueRiskEnum.NO_RISK:
-        return 'Lowest level. Typically still passable and less severe than Minor Risk or Serious Risk / Immediate Danger.';
+        return 'Small issue, safe to pass through.';
     case IssueRiskEnum.MINOR_RISK:
-        return 'Middle level. More severe than No Risk, but below Serious Risk / Immediate Danger.';
+        return 'Requires caution to avoid injury.';
     case IssueRiskEnum.SERIOUS_RISK:
-        return 'Highest level. More severe than No Risk or Minor Risk and may require immediate attention.';
+        return 'Dangerous condition, risk of serious harm.';
     default:
-        return 'Lowest level. Typically still passable and less severe than Minor Risk or Serious Risk / Immediate Danger.';
+        return 'Small issue, safe to pass through.';
     }
 };
 
 export const getStewardSafetyRiskDescription = (level: IssueRiskEnum): string => {
     switch (level) {
     case IssueRiskEnum.NO_RISK:
-        return 'Reporter selected the lowest risk level available on the form, indicating they believed the issue was likely still passable and less severe than the other available options.';
+        return 'Reporter selected the lowest risk level available on the form, indicating they believed the issue was safe to pass through.';
     case IssueRiskEnum.MINOR_RISK:
-        return 'Reporter selected the middle risk level available on the form, indicating they believed the issue was more severe than No Risk, but below Serious Risk / Immediate Danger.';
+        return 'Reporter selected the middle risk level available on the form, indicating they believed the issue required caution, but was not immediately dangerous.';
     case IssueRiskEnum.SERIOUS_RISK:
         return 'Reporter selected the highest risk level available on the form, indicating they believed the issue may need prompt attention.';
     default:
