@@ -13,6 +13,8 @@ import { parkApi, issueApi } from '../../services/api';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { getIssueStatusDotColor } from '../../utils/issueStatusUtils';
 import {
+    getPassabilityBadgeColor,
+    getPassabilityBadgeLabel,
     getSafetyRiskBadgeColor,
     getReportedSafetyRiskBadgeLabel,
     getSafetyRiskLevelIndex
@@ -205,6 +207,12 @@ export const ParkListPage: React.FC = () => {
                                                             getSafetyRiskBadgeColor(issue.safetyRisk)
                                                         ].join(' ')}>
                                                             {getReportedSafetyRiskBadgeLabel(issue.safetyRisk)}
+                                                        </span>
+                                                        <span className={[
+                                                            'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                                                            getPassabilityBadgeColor(issue.passible)
+                                                        ].join(' ')}>
+                                                            {getPassabilityBadgeLabel(issue.passible)}
                                                         </span>
                                                         <span className="text-sm text-gray-500">
                                                             {formatDistanceToNow(new Date(issue.createdAt), { addSuffix: true })}

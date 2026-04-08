@@ -18,7 +18,11 @@ import {
     getIssueStatusTooltip,
 } from '../../utils/issueStatusUtils';
 import {
+    getPassabilityBadgeColor,
+    getPassabilityBadgeLabel,
     getSafetyRiskLabel,
+    getSafetyRiskBadgeColor,
+    getReportedSafetyRiskBadgeLabel,
     getStewardSafetyRiskDescription,
 } from '../../utils/issueSafetyRiskUtils';
 import { Button } from '../../components/ui/Button';
@@ -667,6 +671,20 @@ export const IssueDetailCard: React.FC<{
                                                     <p className="mt-1 text-xs text-gray-600">
                                                         User-submitted, relative severity rating.
                                                     </p>
+                                                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                                                        <span className={[
+                                                            'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                                                            getSafetyRiskBadgeColor(issue.safetyRisk)
+                                                        ].join(' ')}>
+                                                            {getReportedSafetyRiskBadgeLabel(issue.safetyRisk)}
+                                                        </span>
+                                                        <span className={[
+                                                            'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                                                            getPassabilityBadgeColor(issue.passible)
+                                                        ].join(' ')}>
+                                                            {getPassabilityBadgeLabel(issue.passible)}
+                                                        </span>
+                                                    </div>
                                                     {isEditing && canManageIssueStatus ? (
                                                         <div className="mt-2">
                                                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">

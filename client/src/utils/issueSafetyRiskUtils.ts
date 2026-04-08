@@ -29,13 +29,13 @@ export const getReportedSafetyRiskBadgeLabel = (level: IssueRiskEnum): string =>
 export const getSafetyRiskDescription = (level: IssueRiskEnum): string => {
     switch (level) {
     case IssueRiskEnum.NO_RISK:
-        return 'Small issue, safe to pass through.';
+        return 'Safe to pass through.';
     case IssueRiskEnum.MINOR_RISK:
         return 'Requires caution to avoid injury.';
     case IssueRiskEnum.SERIOUS_RISK:
         return 'Dangerous condition, risk of serious harm.';
     default:
-        return 'Small issue, safe to pass through.';
+        return 'Safe to pass through.';
     }
 };
 
@@ -63,6 +63,16 @@ export const getSafetyRiskBadgeColor = (level: IssueRiskEnum): string => {
     default:
         return 'bg-gray-100 text-gray-800 border border-gray-200';
     }
+};
+
+export const getPassabilityBadgeLabel = (isPassable: boolean): string => {
+    return isPassable ? 'Passable' : 'Unpassable';
+};
+
+export const getPassabilityBadgeColor = (isPassable: boolean): string => {
+    return isPassable
+        ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+    : 'bg-red-100 text-red-800 border border-red-200';
 };
 
 export const getSafetyRiskLevelIndex = (level: IssueRiskEnum): number => {
