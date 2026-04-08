@@ -72,7 +72,7 @@ export const getPassabilityBadgeLabel = (isPassable: boolean): string => {
 export const getPassabilityBadgeColor = (isPassable: boolean): string => {
     return isPassable
         ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-    : 'bg-red-100 text-red-800 border border-red-200';
+        : 'bg-red-100 text-red-800 border border-red-200';
 };
 
 export const getSafetyRiskLevelIndex = (level: IssueRiskEnum): number => {
