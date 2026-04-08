@@ -29,7 +29,7 @@ describe('IssueService', () => {
         description: 'Trail is flooded',
         isPublic: true,
         isImagePublic: false,
-        status: IssueStatusEnum.OPEN,
+        status: IssueStatusEnum.UNRESOLVED,
         notifyReporter: true,
         reporterEmail: 'reporter@example.com',
         ownerEmail: 'reporter@example.com',
@@ -93,7 +93,7 @@ describe('IssueService', () => {
             longitude: -79.9901,
             isPublic: true,
             isImagePublic: false,
-            status: IssueStatusEnum.OPEN,
+            status: IssueStatusEnum.UNRESOLVED,
             notifyReporter: true,
             imageMetadata: {
                 contentType: 'image/jpeg'
@@ -239,7 +239,7 @@ describe('IssueService', () => {
             issueGroup: {
                 issueGroupId: 10,
                 primaryIssueId: 1,
-                status: IssueStatusEnum.OPEN,
+                status: IssueStatusEnum.UNRESOLVED,
                 issues: [{ issueId: 1 }, { issueId: 2 }],
             },
         } as Awaited<ReturnType<IssueRepository['getIssue']>>);

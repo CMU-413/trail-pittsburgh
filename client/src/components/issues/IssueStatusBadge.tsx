@@ -2,6 +2,7 @@
 import React from 'react';
 import { IssueStatusEnum } from '../../types';
 import { Badge } from '../ui/Badge';
+import { getIssueStatusLabel, getIssueStatusTooltip } from '../../utils/issueStatusUtils';
 
 interface IssueStatusBadgeProps {
     status: IssueStatusEnum;
@@ -10,20 +11,18 @@ interface IssueStatusBadgeProps {
 
 export const IssueStatusBadge: React.FC<IssueStatusBadgeProps> = ({ status, className = '' }) => {
     const statusVariant = {
-        [IssueStatusEnum.OPEN]: 'success',
+        [IssueStatusEnum.UNRESOLVED]: 'danger',
         [IssueStatusEnum.IN_PROGRESS]: 'warning',
-        [IssueStatusEnum.RESOLVED]: 'secondary'
+        [IssueStatusEnum.RESOLVED]: 'success'
     } as const;
 
-    const statusLabel = {
-        [IssueStatusEnum.OPEN]: 'Open',
-        [IssueStatusEnum.IN_PROGRESS]: 'In Progress',
-        [IssueStatusEnum.RESOLVED]: 'Resolved'
-    };
-
     return (
-        <Badge variant={statusVariant[status]} className={className}>
-            {statusLabel[status]}
+        <Badge
+            variant={statusVariant[status]}
+            className={className}
+            title={getIssueStatusTooltip(status)}
+        >
+            {getIssueStatusLabel(status)}
         </Badge>
     );
 };

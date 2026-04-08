@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-    Issue, IssueStatusEnum, IssueTypeEnum, Park, UserRoleEnum
+    Issue, IssueRiskEnum, IssueStatusEnum, IssueTypeEnum, Park, UserRoleEnum
 } from '../../types';
 import {
     LeafletMap, LeafletMarker, LeafletMarkerDragEvent
@@ -12,7 +12,19 @@ import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { ImageMetadataDisplay } from '../../components/ui/ImageMetadataDisplay';
 import { issueApi, parkApi } from '../../services/api';
 import { issueTypeFrontendToEnum } from '../../utils/issueTypeUtils';
-import { getIssueStatusColor } from '../../utils/issueStatusUtils';
+import {
+    getIssueStatusColor,
+    getIssueStatusLabel,
+    getIssueStatusTooltip,
+} from '../../utils/issueStatusUtils';
+import {
+    getPassabilityBadgeColor,
+    getPassabilityBadgeLabel,
+    getSafetyRiskLabel,
+    getSafetyRiskBadgeColor,
+    getReportedSafetyRiskBadgeLabel,
+    getStewardSafetyRiskDescription,
+} from '../../utils/issueSafetyRiskUtils';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../providers/AuthProvider';
 import { iconForType } from './issuePinIcons';
@@ -32,6 +44,7 @@ export const IssueDetailCard: React.FC<{
     const [isEditing, setIsEditing] = useState(false);
     const [editedDescription, setEditedDescription] = useState('');
     const [editedIssueType, setEditedIssueType] = useState('');
+    const [editedSafetyRisk, setEditedSafetyRisk] = useState<IssueRiskEnum>(IssueRiskEnum.NO_RISK);
     const [editedParkId, setEditedParkId] = useState<number>(0);
     const [editedLatitude, setEditedLatitude] = useState<number | null>(null);
     const [editedLongitude, setEditedLongitude] = useState<number | null>(null);
@@ -133,6 +146,7 @@ export const IssueDetailCard: React.FC<{
 
             const updateData: {
                 description?: string;
+                safetyRisk?: IssueRiskEnum;
                 issueType?: IssueTypeEnum;
                 parkId?: number;
                 latitude?: number;
@@ -146,6 +160,10 @@ export const IssueDetailCard: React.FC<{
             const editedIssueTypeEnum = issueTypeFrontendToEnum(editedIssueType);
             if (editedIssueTypeEnum !== issue.issueType) {
                 updateData.issueType = editedIssueTypeEnum;
+            }
+
+            if (editedSafetyRisk !== issue.safetyRisk) {
+                updateData.safetyRisk = editedSafetyRisk;
             }
 
             if (editedParkId !== issue.parkId) {
@@ -370,6 +388,7 @@ export const IssueDetailCard: React.FC<{
     const initializeEditedFields = (sourceIssue: Issue) => {
         setEditedDescription(sourceIssue.description ?? '');
         setEditedIssueType(sourceIssue.issueType.toLowerCase());
+        setEditedSafetyRisk(sourceIssue.safetyRisk);
         setEditedParkId(sourceIssue.parkId);
         setEditedLatitude(sourceIssue.latitude ?? null);
         setEditedLongitude(sourceIssue.longitude ?? null);
@@ -424,6 +443,11 @@ export const IssueDetailCard: React.FC<{
         { value: 'obstruction', label: 'Obstruction (tree down, etc.)' },
         { value: 'water', label: 'Standing Water/Mud' },
         { value: 'other', label: 'Other' },
+    ];
+    const safetyRiskLevels = [
+        IssueRiskEnum.NO_RISK,
+        IssueRiskEnum.MINOR_RISK,
+        IssueRiskEnum.SERIOUS_RISK,
     ];
     const activeParks = parks.filter((park) => park.isActive || park.parkId === editedParkId);
     const issueTypeDisplayLabel = (type: IssueTypeEnum | string) => {
@@ -595,7 +619,9 @@ export const IssueDetailCard: React.FC<{
                                                         'inline-flex mt-1 items-center rounded-full px-2 py-0.5 text-xs font-semibold',
                                                         getIssueStatusColor(issue.status),
                                                     ].join(' ')}>
-                                                        {issue.status.replace('_', ' ')}
+                                                        <span title={getIssueStatusTooltip(issue.status)}>
+                                                            {getIssueStatusLabel(issue.status)}
+                                                        </span>
                                                     </span>
                                                 </div>
 
@@ -637,6 +663,55 @@ export const IssueDetailCard: React.FC<{
                                                     {issue.status === IssueStatusEnum.RESOLVED && issue.resolvedAt
                                                         ? `Resolved on ${new Date(issue.resolvedAt).toLocaleString()}`
                                                         : `Reported on ${new Date(issue.createdAt).toLocaleString()}`}
+                                                </div>
+
+                                                {/* SAFETY RISK */}
+                                                <div className="max-w-md">
+                                                    <div className="text-sm font-medium text-gray-700">User-Reported Safety Risk</div>
+                                                    <p className="mt-1 text-xs text-gray-600">
+                                                        User-submitted, relative severity rating.
+                                                    </p>
+                                                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                                                        <span className={[
+                                                            'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                                                            getSafetyRiskBadgeColor(issue.safetyRisk)
+                                                        ].join(' ')}>
+                                                            {getReportedSafetyRiskBadgeLabel(issue.safetyRisk)}
+                                                        </span>
+                                                        <span className={[
+                                                            'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                                                            getPassabilityBadgeColor(issue.passible)
+                                                        ].join(' ')}>
+                                                            {getPassabilityBadgeLabel(issue.passible)}
+                                                        </span>
+                                                    </div>
+                                                    {isEditing && canManageIssueStatus ? (
+                                                        <div className="mt-2">
+                                                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                                                {safetyRiskLevels.map((riskLevel) => (
+                                                                    <button
+                                                                        key={riskLevel}
+                                                                        type="button"
+                                                                        onClick={() => setEditedSafetyRisk(riskLevel)}
+                                                                        className={[
+                                                                            'rounded-md border p-2 text-left transition-colors cursor-pointer',
+                                                                            editedSafetyRisk === riskLevel
+                                                                                ? 'border-blue-500 bg-blue-50'
+                                                                                : 'border-gray-200 bg-white hover:bg-gray-50'
+                                                                        ].join(' ')}
+                                                                    >
+                                                                        <div className="text-xs font-semibold text-gray-900">{getSafetyRiskLabel(riskLevel)}</div>
+                                                                        <div className="mt-1 text-xs text-gray-600">{getStewardSafetyRiskDescription(riskLevel)}</div>
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="mt-2 rounded-md border border-gray-200 bg-gray-50 p-3">
+                                                            <div className="text-sm font-semibold text-gray-900">{getSafetyRiskLabel(issue.safetyRisk)}</div>
+                                                            <div className="mt-1 text-sm text-gray-600">{getStewardSafetyRiskDescription(issue.safetyRisk)}</div>
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 {/* GROUP */}
@@ -695,7 +770,7 @@ export const IssueDetailCard: React.FC<{
                                                     </div>
                                                 )}
 
-                                                {!isEditing && issue.status === IssueStatusEnum.OPEN && (
+                                                {!isEditing && issue.status === IssueStatusEnum.UNRESOLVED && (
                                                     <div className="mt-3 flex flex-wrap items-center gap-2">
                                                         <Button
                                                             variant="success"

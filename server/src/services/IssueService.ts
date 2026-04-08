@@ -1,5 +1,5 @@
 import {
-    IssueTypeEnum, IssueStatusEnum
+    IssueTypeEnum, IssueStatusEnum, IssueRiskEnum
 } from '@prisma/client';
 import { v4 as uuid } from 'uuid';
 
@@ -274,6 +274,7 @@ export class IssueService {
 
     public async updateIssue(issueId: number, data: {
         description?: string;
+        safetyRisk?: IssueRiskEnum;
         issueType?: IssueTypeEnum;
         isImagePublic?: boolean;
         parkId?: number;

@@ -8,7 +8,7 @@
 
 */
 -- CreateEnum
-CREATE TYPE "IssueStatusEnum" AS ENUM ('OPEN', 'IN_PROGRESS', 'RESOLVED');
+CREATE TYPE "IssueStatusEnum" AS ENUM ('UNRESOLVED', 'IN_PROGRESS', 'RESOLVED');
 
 -- CreateEnum
 CREATE TYPE "IssueTypeEnum" AS ENUM ('OBSTRUCTION', 'WATER', 'OTHER');
@@ -21,7 +21,7 @@ CREATE TYPE "UserRoleEnum" AS ENUM ('ROLE_USER', 'ROLE_ADMIN', 'ROLE_SUPERADMIN'
 
 -- AlterTable
 ALTER TABLE "Issue" DROP COLUMN "status",
-ADD COLUMN     "status" "IssueStatusEnum" NOT NULL DEFAULT 'OPEN',
+ADD COLUMN     "status" "IssueStatusEnum" NOT NULL DEFAULT 'UNRESOLVED',
 DROP COLUMN "issue_type",
 ADD COLUMN     "issue_type" "IssueTypeEnum" NOT NULL,
 DROP COLUMN "urgency",

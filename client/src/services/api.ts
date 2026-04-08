@@ -1,6 +1,7 @@
 import {
     Park, Issue, IssueParams, IssueStatusEnum,
     IssueTypeEnum,
+    IssueRiskEnum,
     UserRoleEnum,
     User,
     IssuePin
@@ -117,7 +118,7 @@ export const issueApi = {
             params.append('issueTypes', t);
         }
 
-        params.append('statuses', IssueStatusEnum.OPEN);
+        params.append('statuses', IssueStatusEnum.UNRESOLVED);
         params.append('statuses', IssueStatusEnum.IN_PROGRESS);
 
         const response = await fetch(`${API_BASE_URL}/issues/map?${params.toString()}`, {
@@ -237,6 +238,7 @@ export const issueApi = {
 
     updateIssue: async (issueId: number, data: {
         description?: string;
+        safetyRisk?: IssueRiskEnum;
         issueType?: IssueTypeEnum;
         isImagePublic?: boolean;
         parkId?: number;

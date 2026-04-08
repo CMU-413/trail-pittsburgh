@@ -212,10 +212,11 @@ export class IssueController {
         
         try {
             const { 
-                description, issueType, isImagePublic, parkId, latitude, longitude 
+                description, safetyRisk, issueType, isImagePublic, parkId, latitude, longitude 
             } = req.body;
             const issue = await this.issueService.updateIssue(issueId, {
                 description,
+                safetyRisk,
                 issueType,
                 isImagePublic,
                 parkId,
@@ -308,7 +309,7 @@ export class IssueController {
     }
 
     private buildUnsubscribeHtml(title: string, message: string) {
-        const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
+        const clientUrl = (process.env.CLIENT_URL?.trim() || 'http://localhost:5173').replace(/\/+$/, '');
         return `<!doctype html>
 <html lang="en">
 <head>

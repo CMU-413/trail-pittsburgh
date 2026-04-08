@@ -90,7 +90,7 @@ describe('Issue API End-to-End', () => {
             issueType: 'OBSTRUCTION' as IssueTypeEnum,
             safetyRisk: 'NO_RISK' as IssueRiskEnum,
             reporterEmail: 'sample1@example.com',
-            status: 'OPEN' as IssueStatusEnum,
+            status: 'UNRESOLVED' as IssueStatusEnum,
             notifyReporter: true,
             isPublic: true,
             description: 'Flooding trail again'
@@ -128,7 +128,7 @@ describe('Issue API End-to-End', () => {
             issueType: 'WATER' as IssueTypeEnum,
             safetyRisk: 'MINOR_RISK' as IssueRiskEnum,
             reporterEmail: 'sample2@example.com',
-            status: 'OPEN' as IssueStatusEnum,
+            status: 'UNRESOLVED' as IssueStatusEnum,
             notifyReporter: true,
             isPublic: true,
             description: 'A related water report'
@@ -150,7 +150,7 @@ describe('Issue API End-to-End', () => {
             issueType: 'OTHER' as IssueTypeEnum,
             safetyRisk: 'NO_RISK' as IssueRiskEnum,
             reporterEmail: 'sample-cross-park@example.com',
-            status: 'OPEN' as IssueStatusEnum,
+            status: 'UNRESOLVED' as IssueStatusEnum,
             notifyReporter: true,
             isPublic: true,
             description: 'Issue in a different park'
@@ -231,10 +231,10 @@ describe('Issue API End-to-End', () => {
         const reopenRes = await request(app)
             .put(`/api/issues/${createdIssueId}/status`)
             .set('Authorization', 'Bearer TEST_TOKEN')
-            .send({ status: 'OPEN' as IssueStatusEnum });
+            .send({ status: 'UNRESOLVED' as IssueStatusEnum });
 
         expect(reopenRes.status).toBe(200);
-        expect(reopenRes.body.issue.status).toBe('OPEN');
+        expect(reopenRes.body.issue.status).toBe('UNRESOLVED');
 
         const secondIssueRes = await request(app)
             .get(`/api/issues/${secondIssueId}`)
@@ -265,7 +265,7 @@ describe('Issue API End-to-End', () => {
             issueType: 'OTHER' as IssueTypeEnum,
             safetyRisk: 'NO_RISK' as IssueRiskEnum,
             reporterEmail: 'sample3@example.com',
-            status: 'OPEN' as IssueStatusEnum,
+            status: 'UNRESOLVED' as IssueStatusEnum,
             notifyReporter: true,
             isPublic: true,
             isImagePublic: true,

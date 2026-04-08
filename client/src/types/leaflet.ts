@@ -9,6 +9,14 @@ export type LeafletIconOptions = {
   popupAnchor?: [number, number];
 };
 
+export type LeafletDivIconOptions = {
+    className?: string;
+    html?: string;
+    iconSize?: [number, number];
+    iconAnchor?: [number, number];
+    popupAnchor?: [number, number];
+};
+
 export interface LeafletMap {
     setView: (center: [number, number], zoom: number) => LeafletMap;
 	fitBounds: (
@@ -51,6 +59,7 @@ export interface LeafletStatic {
     marker: (latlng: [number, number], options: Record<string, unknown>) => LeafletMarker;
     circle: (latlng: [number, number], options: Record<string, unknown>) => LeafletCircle;
 	icon: (options: LeafletIconOptions) => LeafletIcon;
+    divIcon: (options: LeafletDivIconOptions) => LeafletIcon;
 }
 
 // Extend the Window interface to include Leaflet

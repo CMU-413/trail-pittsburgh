@@ -50,7 +50,7 @@ export const ParkDetailPage: React.FC = () => {
                 
                 // Fetch issues for this park
                 const issuesData = await issueApi.getIssuesByPark(id);
-                // Filter to only show public issues or open issues
+                // Filter to only show public issues or unresolved issues
                 const filteredIssues = issuesData.filter((issue) => issue.isPublic);
                 setIssues(filteredIssues);
             } catch (err) {
@@ -86,8 +86,8 @@ export const ParkDetailPage: React.FC = () => {
         );
     }
 
-    // Count open issues
-    const openIssuesCount = issues.filter((issue) => issue.status === IssueStatusEnum.OPEN).length;
+    // Count unresolved issues
+    const unresolvedIssuesCount = issues.filter((issue) => issue.status === IssueStatusEnum.UNRESOLVED).length;
 
     return (
         <div>
@@ -135,8 +135,8 @@ export const ParkDetailPage: React.FC = () => {
                     <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Stats</h3>
                     <div className="space-y-4">
                         <div>
-                            <p className="text-sm font-medium text-gray-500">Open Issues</p>
-                            <p className="mt-1 text-2xl font-semibold text-yellow-600">{openIssuesCount}</p>
+                            <p className="text-sm font-medium text-gray-500">Unresolved Issues</p>
+                            <p className="mt-1 text-2xl font-semibold text-red-600">{unresolvedIssuesCount}</p>
                         </div>
                     </div>
                 </Card>

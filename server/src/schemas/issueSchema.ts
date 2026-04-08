@@ -43,9 +43,9 @@ export const getIssueMapPinsSchema = z.object({
             .union([z.nativeEnum(IssueStatusEnum), z.array(z.nativeEnum(IssueStatusEnum))])
             .transform((v) => (
                 v === undefined ? [
-                    IssueStatusEnum.OPEN, IssueStatusEnum.IN_PROGRESS
+                    IssueStatusEnum.UNRESOLVED, IssueStatusEnum.IN_PROGRESS
                 ] : Array.isArray(v) ? v : [v]))
-            .default([IssueStatusEnum.OPEN, IssueStatusEnum.IN_PROGRESS]),
+            .default([IssueStatusEnum.UNRESOLVED, IssueStatusEnum.IN_PROGRESS]),
     })
 });
 
@@ -92,7 +92,7 @@ export const createIssueSchema = z.object({
         passible: z.boolean().default(false),
         isPublic: z.boolean().default(false),
         isImagePublic: z.boolean().default(false),
-        status: z.nativeEnum(IssueStatusEnum).default(IssueStatusEnum.OPEN),
+        status: z.nativeEnum(IssueStatusEnum).default(IssueStatusEnum.UNRESOLVED),
         latitude: z.number().optional(),
         longitude: z.number().optional(),
         reporterEmail: z.string().email().optional(),

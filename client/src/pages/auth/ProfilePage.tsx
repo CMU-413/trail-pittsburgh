@@ -14,6 +14,7 @@ import { formatUserRole, hasAccess } from '../../utils/formatters';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { issueApi } from '../../services/api';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
+import { getIssueStatusLabel, getIssueStatusTooltip } from '../../utils/issueStatusUtils';
 
 export const ProfilePage: React.FC = () => {
     const location = useLocation();
@@ -21,8 +22,8 @@ export const ProfilePage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [issues, setIssues] = useState<Issue[]>([]);
     const statusColors: Record<IssueStatusEnum, string> = {
-        OPEN: 'bg-yellow-100 text-yellow-800',
-        IN_PROGRESS: 'bg-blue-100 text-blue-800',
+        UNRESOLVED: 'bg-red-100 text-red-700',
+        IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
         RESOLVED: 'bg-green-100 text-green-800',
     };
 
@@ -136,8 +137,9 @@ export const ProfilePage: React.FC = () => {
                                         {/* Status Badge */}
                                         <span
                                             className={`px-2 py-1 text-xs font-semibold rounded ${statusColors[issue.status]}`}
+                                            title={getIssueStatusTooltip(issue.status)}
                                         >
-                                            {issue.status.replace('_', ' ')}
+                                            {getIssueStatusLabel(issue.status)}
                                         </span>
 
                                         {/* Issue Type / Title */}

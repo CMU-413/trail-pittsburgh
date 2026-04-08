@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "IssueStatus" AS ENUM ('OPEN', 'IN_PROGRESS', 'RESOLVED');
+CREATE TYPE "IssueStatus" AS ENUM ('UNRESOLVED', 'IN_PROGRESS', 'RESOLVED');
 
 -- CreateEnum
 CREATE TYPE "IssueType" AS ENUM ('OBSTRUCTION', 'WATER', 'OTHER');
@@ -39,7 +39,7 @@ CREATE TABLE "Issue" (
     "park_id" INTEGER NOT NULL,
     "trail_id" INTEGER NOT NULL,
     "is_public" BOOLEAN NOT NULL,
-    "status" "IssueStatus" NOT NULL DEFAULT 'OPEN',
+    "status" "IssueStatus" NOT NULL DEFAULT 'UNRESOLVED',
     "description" VARCHAR(150),
     "issue_type" "IssueType" NOT NULL,
     "urgency" "Urgency" NOT NULL DEFAULT 'MEDIUM',

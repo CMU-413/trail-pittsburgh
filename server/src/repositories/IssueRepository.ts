@@ -1,5 +1,5 @@
 import {
-    IssueStatusEnum, IssueTypeEnum, Prisma
+    IssueStatusEnum, IssueTypeEnum, IssueRiskEnum, Prisma
 } from '@prisma/client';
 
 import { isNotFoundError, prisma } from '@/prisma/prismaClient';
@@ -471,6 +471,7 @@ export class IssueRepository {
 
     public async updateIssue(issueId: number, data: Partial<{
         description?: string;
+        safetyRisk?: IssueRiskEnum;
         issueType?: IssueTypeEnum;
 		isImagePublic?: boolean;
 		parkId?: number;
@@ -482,6 +483,7 @@ export class IssueRepository {
                 where: { issueId: issueId },
                 data: {
                     ...(data.description !== undefined && { description: data.description }),
+                    ...(data.safetyRisk !== undefined && { safetyRisk: data.safetyRisk }),
                     ...(data.issueType !== undefined && { issueType: data.issueType }),
                     ...(data.isImagePublic !== undefined && { isImagePublic: data.isImagePublic }),
                     ...(data.parkId !== undefined && { parkId: data.parkId }),
