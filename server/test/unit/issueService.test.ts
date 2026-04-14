@@ -206,6 +206,22 @@ describe('IssueService', () => {
         ]);
     });
 
+	test('should get map pins for issues within bounding box and filters', async () => {
+		const issues = [baseIssue];
+		issueRepositoryMock.getMapPins.mockResolvedValue(issues);
+
+		const result = await issueService.getMapPins(40.4306, -80.0059, 40.4506, -79.9859, [IssueTypeEnum.WATER], [IssueStatusEnum.OPEN]);
+
+		expect(issueRepositoryMock.getMapPins).toHaveBeenCalledWith(40.4306, -80.0059, 40.4506, -79.9859, [IssueTypeEnum.WATER], [IssueStatusEnum.OPEN]);
+		expect(result.length).toBe(1);
+		expect(result[0].issueId).toBe(baseIssue.issueId);
+		expect(result[0].issueType).toBe(baseIssue.issueType);
+		expect(result[0].status).toBe(baseIssue.status);
+		expect(result[0].createdAt).toBe(baseIssue.createdAt);
+		expect(result[0].latitude).toBe(baseIssue.latitude);
+		expect(result[0].longitude).toBe(baseIssue.longitude);
+	});
+
     test('should update issue status', async () => {
         const updated = { ...baseIssue, status: IssueStatusEnum.RESOLVED, resolvedAt: new Date() };
         issueRepositoryMock.getIssue.mockResolvedValue(baseIssue);
@@ -282,4 +298,40 @@ describe('IssueService', () => {
 
         expect(issueRepositoryMock.setIssueGroupMembers).not.toHaveBeenCalled();
     });
+
+	test('should update an issue', async () => {
+		const data = {
+			description: 'Tree is down blocking the path',
+			issueType: IssueTypeEnum.OBSTRUCTION,
+			parkId: 2,
+			longitude: -79.9905,
+			latitude: 40.4407,
+		}
+		const updatedIssue = {
+			...baseIssue,
+			...data
+		}
+
+		const {
+            issueImage: _updatedIssueImage,
+            ...updatedWithoutImage
+        } = updatedIssue;
+
+		issueRepositoryMock.getIssue.mockResolvedValue(baseIssue);
+		issueRepositoryMock.updateIssue.mockResolvedValue(updatedIssue);
+
+		const initial = await issueService.getIssue(1);
+		expect(initial).toEqual({
+			...baseIssueWithoutImage,
+			issueGroupId: null,
+			issueGroupMemberIds: [baseIssue.issueId],
+		});
+
+		const result = await issueService.updateIssue(1, data);
+		expect(result).toEqual({
+             ...updatedWithoutImage,
+            issueGroupId: null,
+            issueGroupMemberIds: [updatedIssue.issueId],
+        });
+	});
 });
