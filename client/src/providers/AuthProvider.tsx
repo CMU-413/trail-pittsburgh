@@ -1,5 +1,5 @@
 import React, {
-    createContext, useEffect, useState, useContext 
+    createContext, useEffect, useState, useContext, useRef
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '../types';
@@ -22,6 +22,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [loading, setLoading] = useState(true);
     const [userRole, setUserRole] = useState<UserRoleEnum | null>(null);
     const navigate = useNavigate();
+    const logoutTimer = useRef<number | null>(null);
 
     // Fetch current user on mount
     useEffect(() => {
@@ -95,8 +96,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const resetTimer = () => {
+        if (logoutTimer.current) {
+            clearTimeout(logoutTimer.current);
+        }
+
+        logoutTimer.current = window.setTimeout(() => {
+            logout();
+        }, 30 * 60 * 1000); // 30 minutes
+    };
+
     const isAuthenticated = !!user;
     const hasPermission = userRole;
+
+    useEffect(() => {
+        if (!isAuthenticated) {return;}
+
+        const events = ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'];
+
+        const handleActivity = () => {
+            resetTimer();
+        };
+
+        // Listern for any active activity and reset timer when detected
+        events.forEach((event) => {
+            window.addEventListener(event, handleActivity);
+        });
+
+        // start timer initially
+        resetTimer();
+
+        return () => {
+            events.forEach((event) => {
+                window.removeEventListener(event, handleActivity);
+            });
+
+            if (logoutTimer.current) {
+                clearTimeout(logoutTimer.current);
+            }
+        };
+    }, [isAuthenticated]);
 
     return (
         <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated, hasPermission, userRole }}>
