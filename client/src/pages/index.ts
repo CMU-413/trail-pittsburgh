@@ -12,7 +12,6 @@ export { ParkEditPage } from './parks/ParkEditPage';
 
 // Issues
 export { IssueMapPage } from './issues/IssueMapPage';
-export { IssueDetailPage } from './issues/IssueDetailPage';
 export { IssueReportPage } from './issues/IssueReportPage';
 export { IssueDetailCard } from './issues/IssueDetailCard';
 export { IssueFilterDropdown } from './issues/IssueFilterDropdown';

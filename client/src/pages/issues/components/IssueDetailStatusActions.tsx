@@ -34,7 +34,7 @@ export const IssueDetailStatusActions: React.FC<IssueDetailStatusActionsProps> =
                 </Button>
             )}
 
-            {canManageIssueStatus && !isEditing && (issueStatus === IssueStatusEnum.OPEN || issueStatus === IssueStatusEnum.RESOLVED) && (
+            {canManageIssueStatus && !isEditing && (issueStatus === IssueStatusEnum.UNRESOLVED || issueStatus === IssueStatusEnum.RESOLVED) && (
                 <Button
                     variant={issueStatus === IssueStatusEnum.RESOLVED ? 'secondary' : 'primary'}
                     size="md"

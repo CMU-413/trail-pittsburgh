@@ -5,7 +5,7 @@ ALTER TABLE "Issue" ADD COLUMN     "issue_group_id" INTEGER;
 CREATE TABLE "IssueGroup" (
     "issue_group_id" SERIAL NOT NULL,
     "primary_issue_id" INTEGER,
-    "status" "IssueStatusEnum" NOT NULL DEFAULT 'OPEN',
+    "status" "IssueStatusEnum" NOT NULL DEFAULT 'UNRESOLVED',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 

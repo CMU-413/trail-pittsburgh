@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 
 import { EmailClient, MailgunEmailClient } from '@/services/email';
+import { logger } from '@/utils/logger';
 
 type IssueWithRelations = Prisma.IssueGetPayload<{
     include: {
@@ -26,8 +27,21 @@ export class IssueNotificationService {
         this.unsubscribeSecret =
             process.env.ISSUE_NOTIFICATION_UNSUBSCRIBE_SECRET ??
             process.env.JWT_SECRET;
-        this.clientBaseUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
-        this.serverBaseUrl = process.env.SERVER_URL ?? 'http://localhost:3000';
+
+        const isProduction = process.env.NODE_ENV === 'production';
+        const configuredClientUrl = process.env.CLIENT_URL?.trim();
+        const configuredServerUrl = process.env.SERVER_URL?.trim();
+
+        if (isProduction && !configuredClientUrl) {
+            logger.error('CLIENT_URL is missing in production. Email links will fallback to localhost.');
+        }
+
+        if (isProduction && !configuredServerUrl) {
+            logger.warn('SERVER_URL is missing in production. Unsubscribe links will fallback to CLIENT_URL/localhost.');
+        }
+
+        this.clientBaseUrl = (configuredClientUrl || 'http://localhost:5173').replace(/\/+$/, '');
+        this.serverBaseUrl = (configuredServerUrl || this.clientBaseUrl || 'http://localhost:3000').replace(/\/+$/, '');
     }
 
     public canSendEmails() {

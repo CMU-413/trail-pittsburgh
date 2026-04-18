@@ -1,6 +1,6 @@
 // src/components/issues/IssueCard.tsx
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Issue, Park } from '../../types';
 import { Card } from '../ui/Card';
 import { IssueStatusBadge } from './IssueStatusBadge';
@@ -18,6 +18,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
     showLocation = true
 }) => {
     const groupedCount = issue.issueGroupMemberIds?.length ?? 0;
+    const location = useLocation();
 
     // Format date for better display
     const getFormattedDate = () => {
@@ -42,7 +43,16 @@ export const IssueCard: React.FC<IssueCardProps> = ({
     };
 
     return (
-        <Link to={`/issues/${issue.issueId}`} className="block hover:no-underline group">
+        <Link 
+            to={`/issues/card/${issue.issueId}`} 
+            state={{ 
+                backgroundLocation: {
+                    pathname: location.pathname,
+                    search: location.search,
+                    hash: location.hash
+                } 
+            }}
+            className="block hover:no-underline group">
             <Card className="h-full transition-all duration-300 group-hover:shadow-lg border border-gray-100 group-hover:border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">

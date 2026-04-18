@@ -7,12 +7,14 @@ interface BadgeProps {
     variant?: BadgeVariant;
     children: React.ReactNode;
     className?: string;
+    title?: string;
 }
 
 export const Badge: React.FC<BadgeProps> = ({
     variant = 'primary',
     children,
-    className = ''
+    className = '',
+    title
 }) => {
     const variantClasses = {
         primary: 'bg-blue-100 text-blue-800',
@@ -24,7 +26,10 @@ export const Badge: React.FC<BadgeProps> = ({
     };
     
     return (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variantClasses[variant]} ${className}`}>
+        <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variantClasses[variant]} ${className}`}
+            title={title}
+        >
             {children}
         </span>
     );
