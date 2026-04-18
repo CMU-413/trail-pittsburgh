@@ -71,11 +71,7 @@ export const parkApi = {
 export const issueApi = {
 
     getAllIssues: async (filters?: { reporterEmail?: string; ownerEmail?: string }): Promise<Issue[]> => {
-<<<<<<< HEAD
-        const url = new URL(`${API_BASE_URL}/issues`, window.location.origin);
-=======
         const url = new URL(`${API_BASE_URL}/issues`);
->>>>>>> origin/develop
 
         // Add any provided filters as query params
         Object.entries(filters || {}).forEach(([key, value]) => {
@@ -122,11 +118,7 @@ export const issueApi = {
             params.append('issueTypes', t);
         }
 
-<<<<<<< HEAD
-        params.append('statuses', IssueStatusEnum.UNRESOLVED);
-=======
         params.append('statuses', IssueStatusEnum.OPEN);
->>>>>>> origin/develop
         params.append('statuses', IssueStatusEnum.IN_PROGRESS);
 
         const response = await fetch(`${API_BASE_URL}/issues/map?${params.toString()}`, {

@@ -17,7 +17,7 @@ export type Park = {
 };
 
 export enum IssueStatusEnum {
-    UNRESOLVED = 'UNRESOLVED',
+    OPEN = 'OPEN',
     IN_PROGRESS = 'IN_PROGRESS',
     RESOLVED = 'RESOLVED'
 }

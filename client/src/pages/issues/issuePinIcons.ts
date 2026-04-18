@@ -13,22 +13,9 @@ const makePinIcon = (url: string) =>
     });
 
 export const iconForCurrentLocation = () => {
-<<<<<<< HEAD
-    return window.L.divIcon({
-        className: 'current-location-marker',
-        html: `
-            <div style="position: relative; width: 28px; height: 28px;">
-                <span style="position: absolute; inset: 0; border-radius: 9999px; background: rgba(59, 130, 246, 0.3);"></span>
-                <span style="position: absolute; top: 50%; left: 50%; width: 12px; height: 12px; transform: translate(-50%, -50%); border-radius: 9999px; background: #3b82f6; border: 2px solid #ffffff; box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.55);"></span>
-            </div>
-        `,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14],
-=======
     return window.L.icon({
         iconUrl: currentLocation,
         iconSize: [60, 60],
->>>>>>> origin/develop
     });
 };
 

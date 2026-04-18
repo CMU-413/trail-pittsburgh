@@ -288,8 +288,6 @@ export const IssueMapPage: React.FC = () => {
             prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
     };
 
-<<<<<<< HEAD
-=======
     useEffect(() => {
         if (locationPreference === 'deny' && parks.length > 0) {
             const fallbackPark = parks.find((p) => p.name === DEFAULT_PARK_NAME);
@@ -330,7 +328,6 @@ export const IssueMapPage: React.FC = () => {
         fetchParks();
     }, []);
 
->>>>>>> origin/develop
     useEffect(() => {
         if (locationPreference === 'deny' && parks.length > 0) {
             const fallbackPark = parks.find((p) => p.name === DEFAULT_PARK_NAME);
