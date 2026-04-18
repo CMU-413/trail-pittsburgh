@@ -1,6 +1,10 @@
 // src/pages/auth/ProfilePage.tsx
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { Link, useLocation } from 'react-router-dom';
+=======
+import { Link } from 'react-router-dom';
+>>>>>>> origin/develop
 import { useAuth } from '../../providers/AuthProvider';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Card } from '../../components/ui/Card';
@@ -14,7 +18,10 @@ import { formatUserRole, hasAccess } from '../../utils/formatters';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { issueApi } from '../../services/api';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
+<<<<<<< HEAD
 import { getIssueStatusLabel, getIssueStatusTooltip } from '../../utils/issueStatusUtils';
+=======
+>>>>>>> origin/develop
 
 export const ProfilePage: React.FC = () => {
     const location = useLocation();
@@ -22,8 +29,13 @@ export const ProfilePage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [issues, setIssues] = useState<Issue[]>([]);
     const statusColors: Record<IssueStatusEnum, string> = {
+<<<<<<< HEAD
         UNRESOLVED: 'bg-red-100 text-red-700',
         IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
+=======
+        OPEN: 'bg-yellow-100 text-yellow-800',
+        IN_PROGRESS: 'bg-blue-100 text-blue-800',
+>>>>>>> origin/develop
         RESOLVED: 'bg-green-100 text-green-800',
     };
 
@@ -137,14 +149,20 @@ export const ProfilePage: React.FC = () => {
                                         {/* Status Badge */}
                                         <span
                                             className={`px-2 py-1 text-xs font-semibold rounded ${statusColors[issue.status]}`}
+<<<<<<< HEAD
                                             title={getIssueStatusTooltip(issue.status)}
                                         >
                                             {getIssueStatusLabel(issue.status)}
+=======
+                                        >
+                                            {issue.status.replace('_', ' ')}
+>>>>>>> origin/develop
                                         </span>
 
                                         {/* Issue Type / Title */}
                                         <Link
                                             to={`/issues/card/${issue.issueId}`}
+<<<<<<< HEAD
     										state={{ 
                                                 backgroundLocation: {
                                                     pathname: location.pathname,
@@ -152,6 +170,8 @@ export const ProfilePage: React.FC = () => {
                                                     hash: location.hash
                                                 }
                                             }}
+=======
+>>>>>>> origin/develop
                                             className="font-medium text-blue-600 hover:text-blue-500 truncate"
                                         >
                                             {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}

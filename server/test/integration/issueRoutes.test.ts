@@ -24,6 +24,7 @@ let createdIssueId: number | undefined;
 let secondIssueId: number | undefined;
 let crossParkIssueId: number | undefined;
 let imagePublicIssueId: number | undefined;
+let createdAt: string;
 
 jest.mock('../../src/middlewares/index', () => ({
   ...jest.requireActual('../../src/middlewares/index'),
@@ -93,7 +94,9 @@ describe('Issue API End-to-End', () => {
             status: 'UNRESOLVED' as IssueStatusEnum,
             notifyReporter: true,
             isPublic: true,
-            description: 'Flooding trail again'
+            description: 'Tree down again',
+			longitude: -79.9959,
+			latitude: 40.4406
         };
     
         const res = await request(app)
@@ -109,6 +112,7 @@ describe('Issue API End-to-End', () => {
         });
 
         createdIssueId = res.body.issue.issueId; 
+		createdAt = res.body.issue.createdAt;
     });
 
     it('GET /api/issues/:issueId -> should return the created issue', async () => {
@@ -122,13 +126,67 @@ describe('Issue API End-to-End', () => {
         expect(createdIssueId).toBeDefined();
     });
 
-    it('POST /api/issues -> should create a second issue for group tests', async () => {
-        const payload = {
+	it('GET /api/issues/map -> should return map pins for issues', async () => {
+		const payload2 = {
             parkId,
             issueType: 'WATER' as IssueTypeEnum,
             safetyRisk: 'MINOR_RISK' as IssueRiskEnum,
             reporterEmail: 'sample2@example.com',
-            status: 'UNRESOLVED' as IssueStatusEnum,
+            status: 'OPEN' as IssueStatusEnum,
+            notifyReporter: true,
+            isPublic: true,
+            description: 'Flooding trail again',
+			longitude: -79.9960,
+			latitude: 40.4407
+        };
+
+		const sendRes = await request(app)
+            .post('/api/issues')
+            .set('Authorization', 'Bearer TEST_TOKEN')
+            .send(payload2);
+
+		const createdIssueId2 = sendRes.body.issue.issueId; 
+		const createdAt2 = sendRes.body.issue.createdAt;
+
+		const bbox = '40.4306,-80.0059,40.4506,-79.9859';
+
+		const res = await request(app)
+			.get('/api/issues/map')
+			.set('Authorization', 'Bearer TEST_TOKEN')
+			.query({
+				bbox,
+				issueTypes: ['OBSTRUCTION', 'WATER'],
+				statuses: ['OPEN', 'IN_PROGRESS']
+			});
+
+		expect(res.status).toBe(200);
+		expect(Array.isArray(res.body.pins)).toBe(true);
+		expect(res.body.pins.length).toBe(2);
+
+		const pin1 = res.body.pins.find((pin: any) => pin.issueId === createdIssueId);
+		expect(pin1).toBeDefined();
+		expect(pin1.issueType).toBe('OBSTRUCTION');
+		expect(pin1.status).toBe('OPEN');
+		expect(pin1.latitude).toBe(40.4406);
+		expect(pin1.longitude).toBe(-79.9959);
+		expect(pin1.createdAt).toBe(createdAt);
+
+		const pin2 = res.body.pins.find((pin: any) => pin.issueId === createdIssueId2);
+		expect(pin2).toBeDefined();
+		expect(pin2.issueType).toBe('WATER');
+		expect(pin2.status).toBe('OPEN');
+		expect(pin2.latitude).toBe(40.4407);
+		expect(pin2.longitude).toBe(-79.9960);
+		expect(pin2.createdAt).toBe(createdAt2);
+	});
+
+	it('GET /api/issues/map -> should return map pins for issues', async () => {
+		const payload2 = {
+            parkId,
+            issueType: 'WATER' as IssueTypeEnum,
+            safetyRisk: 'MINOR_RISK' as IssueRiskEnum,
+            reporterEmail: 'sample2@example.com',
+            status: 'OPEN' as IssueStatusEnum,
             notifyReporter: true,
             isPublic: true,
             description: 'A related water report'
@@ -137,7 +195,7 @@ describe('Issue API End-to-End', () => {
         const res = await request(app)
             .post('/api/issues')
             .set('Authorization', 'Bearer TEST_TOKEN')
-            .send(payload);
+            .send(payload2);
 
         expect(res.status).toBe(201);
         secondIssueId = res.body.issue.issueId;
@@ -150,7 +208,7 @@ describe('Issue API End-to-End', () => {
             issueType: 'OTHER' as IssueTypeEnum,
             safetyRisk: 'NO_RISK' as IssueRiskEnum,
             reporterEmail: 'sample-cross-park@example.com',
-            status: 'UNRESOLVED' as IssueStatusEnum,
+            status: 'OPEN' as IssueStatusEnum,
             notifyReporter: true,
             isPublic: true,
             description: 'Issue in a different park'

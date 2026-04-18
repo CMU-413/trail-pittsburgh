@@ -3,7 +3,11 @@ import React, {
 } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
+<<<<<<< HEAD
     Issue, IssueRiskEnum, IssueStatusEnum, IssueTypeEnum, Park, UserRoleEnum
+=======
+    Issue, IssueStatusEnum, IssueTypeEnum, Park, UserRoleEnum
+>>>>>>> origin/develop
 } from '../../types';
 import {
     LeafletMap, LeafletMarker, LeafletMarkerDragEvent
@@ -444,11 +448,14 @@ export const IssueDetailCard: React.FC<{
         { value: 'water', label: 'Standing Water/Mud' },
         { value: 'other', label: 'Other' },
     ];
+<<<<<<< HEAD
     const safetyRiskLevels = [
         IssueRiskEnum.NO_RISK,
         IssueRiskEnum.MINOR_RISK,
         IssueRiskEnum.SERIOUS_RISK,
     ];
+=======
+>>>>>>> origin/develop
     const activeParks = parks.filter((park) => park.isActive || park.parkId === editedParkId);
     const issueTypeDisplayLabel = (type: IssueTypeEnum | string) => {
         switch (type.toLowerCase()) {
@@ -619,9 +626,13 @@ export const IssueDetailCard: React.FC<{
                                                         'inline-flex mt-1 items-center rounded-full px-2 py-0.5 text-xs font-semibold',
                                                         getIssueStatusColor(issue.status),
                                                     ].join(' ')}>
+<<<<<<< HEAD
                                                         <span title={getIssueStatusTooltip(issue.status)}>
                                                             {getIssueStatusLabel(issue.status)}
                                                         </span>
+=======
+                                                        {issue.status.replace('_', ' ')}
+>>>>>>> origin/develop
                                                     </span>
                                                 </div>
 
@@ -665,6 +676,7 @@ export const IssueDetailCard: React.FC<{
                                                         : `Reported on ${new Date(issue.createdAt).toLocaleString()}`}
                                                 </div>
 
+<<<<<<< HEAD
                                                 {/* SAFETY RISK */}
                                                 <div className="max-w-md">
                                                     <div className="text-sm font-medium text-gray-700">User-Reported Safety Risk</div>
@@ -714,6 +726,8 @@ export const IssueDetailCard: React.FC<{
                                                     )}
                                                 </div>
 
+=======
+>>>>>>> origin/develop
                                                 {/* GROUP */}
                                                 {canManageIssueStatus && groupedIssueIds.length > 0 && (
                                                     <div className="inline-flex w-fit items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm">
@@ -721,6 +735,7 @@ export const IssueDetailCard: React.FC<{
                                                         <span className="ml-1">
                                                             {groupedIssueIds.map((id, i, arr) => (
                                                                 <span key={id}>
+<<<<<<< HEAD
                                                                     <Link 
                                                                         to={`/issues/card/${id}`} 
                                                                         state={{ 
@@ -731,6 +746,9 @@ export const IssueDetailCard: React.FC<{
                                                                             } 
                                                                         }}
                                                                         className="text-blue-600">
+=======
+                                                                    <Link to={`/issues/card/${id}`} className="text-blue-600">
+>>>>>>> origin/develop
                                                                         {id}
                                                                     </Link>
                                                                     {i < arr.length - 1 ? ', ' : ''}
@@ -770,7 +788,11 @@ export const IssueDetailCard: React.FC<{
                                                     </div>
                                                 )}
 
+<<<<<<< HEAD
                                                 {!isEditing && issue.status === IssueStatusEnum.UNRESOLVED && (
+=======
+                                                {!isEditing && issue.status === IssueStatusEnum.OPEN && (
+>>>>>>> origin/develop
                                                     <div className="mt-3 flex flex-wrap items-center gap-2">
                                                         <Button
                                                             variant="success"
@@ -899,7 +921,11 @@ export const IssueDetailCard: React.FC<{
 
                                         {isEditing && (
                                             <div className="mt-1 text-sm text-gray-600">
+<<<<<<< HEAD
                                    				Drag the map pin to update the location coordinates.
+=======
+                                    Drag the map pin to update the location coordinates.
+>>>>>>> origin/develop
                                             </div>
                                         )}
 
@@ -909,15 +935,20 @@ export const IssueDetailCard: React.FC<{
 
                                         {typeof issue.latitude === 'number' && typeof issue.longitude === 'number' && (
                                             <>
+<<<<<<< HEAD
                                                 <div className="mt-4 flex items-center gap-2 text-gray-700">
                                                     <svg className="w-5 h-5 text-gray-500 flex-shrink-0 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     </svg>
+=======
+                                                <div className="mt-4 text-gray-700 text-sm">
+>>>>>>> origin/develop
                                                     {issue.latitude}, {issue.longitude}
                                                 </div>
 
                                                 <div className="mt-3 flex gap-2 flex-wrap">
+<<<<<<< HEAD
                                                     <Button 
                                                         size="sm" 
                                                         onClick={copyCoords}>
@@ -925,6 +956,10 @@ export const IssueDetailCard: React.FC<{
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                                                         </svg>
                                         				Copy Coordinates
+=======
+                                                    <Button size="sm" onClick={copyCoords}>
+                                        Copy Coordinates
+>>>>>>> origin/develop
                                                     </Button>
 
                                                     <a
@@ -933,10 +968,14 @@ export const IssueDetailCard: React.FC<{
                                                         rel="noopener noreferrer"
                                                         className="inline-flex items-center gap-1 px-3 py-2 border border-slate-200 rounded-md text-sm text-gray-700 hover:bg-gray-50"
                                                     >
+<<<<<<< HEAD
                                                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                                         </svg>
                                         				Open in Google Maps
+=======
+                                        ↗ Open in Google Maps
+>>>>>>> origin/develop
                                                     </a>
                                                 </div>
                                             </>

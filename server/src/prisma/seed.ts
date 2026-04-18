@@ -106,7 +106,7 @@ async function main() {
 
     const groupedIssue = await prisma.issueGroup.create({
         data: {
-            status: IssueStatusEnum.UNRESOLVED,
+            status: IssueStatusEnum.OPEN,
         }
     });
 
@@ -122,7 +122,7 @@ async function main() {
             description: 'Heavy rainfall caused water pooling on the trail.',
             isPublic: true,
             isImagePublic: false,
-            status: IssueStatusEnum.UNRESOLVED,
+            status: IssueStatusEnum.OPEN,
             notifyReporter: true,
             reporterEmail: 'john@example.com',
             ownerEmail: 'john@example.com',
@@ -141,7 +141,7 @@ async function main() {
             description: 'A second report of the same obstruction farther along the same park trail.',
             isPublic: true,
             isImagePublic: false,
-            status: IssueStatusEnum.UNRESOLVED,
+            status: IssueStatusEnum.OPEN,
             notifyReporter: true,
             reporterEmail: 'jane@example.com',
             ownerEmail: 'jane@example.com',
@@ -166,7 +166,7 @@ async function main() {
             description: 'Severe erosion has made the path unsafe for bikers.',
             isPublic: true,
             isImagePublic: false,
-            status: IssueStatusEnum.UNRESOLVED,
+            status: IssueStatusEnum.OPEN,
             notifyReporter: true,
             reporterEmail: 'mike@example.com',
             ownerEmail: 'mike@example.com'

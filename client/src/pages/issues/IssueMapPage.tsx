@@ -288,6 +288,49 @@ export const IssueMapPage: React.FC = () => {
             prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
     };
 
+<<<<<<< HEAD
+=======
+    useEffect(() => {
+        if (locationPreference === 'deny' && parks.length > 0) {
+            const fallbackPark = parks.find((p) => p.name === DEFAULT_PARK_NAME);
+
+            if (fallbackPark &&
+				typeof fallbackPark.minLatitude === 'number' &&
+				typeof fallbackPark.minLongitude === 'number' &&
+				typeof fallbackPark.maxLatitude === 'number' &&
+				typeof fallbackPark.maxLongitude === 'number') {
+                setSelectedPark(fallbackPark.name);
+
+                const bounds: [[number, number], [number, number]] = [
+                    [fallbackPark.minLatitude, fallbackPark.minLongitude],
+                    [fallbackPark.maxLatitude, fallbackPark.maxLongitude]
+                ];
+
+                leafletMap.current?.fitBounds(bounds, {
+                    padding: [20, 20],
+                    maxZoom: 15
+                });
+            }
+        }
+    }, [locationPreference, parks]);
+		
+    useEffect(() => { 
+        const fetchParks = async () => {
+            try {
+                const parksData = await parkApi.getAllParks();
+                setParks(parksData.filter((p) => p.isActive));
+            } catch (err) {
+                // eslint-disable-next-line no-console
+                console.error('Error fetching parks:', err);
+                setError('Failed to load parks. Please try again later.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchParks();
+    }, []);
+
+>>>>>>> origin/develop
     useEffect(() => {
         if (locationPreference === 'deny' && parks.length > 0) {
             const fallbackPark = parks.find((p) => p.name === DEFAULT_PARK_NAME);

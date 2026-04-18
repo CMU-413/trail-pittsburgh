@@ -2,6 +2,7 @@ import { IssueTypeEnum } from '../../types';
 import obstuctionPin from '../../assets/obstructionPin.png';
 import waterPin from '../../assets/waterPin.png';
 import otherPin from '../../assets/otherPin.png';
+import currentLocation from '../../assets/currentLocation.png';
 
 const makePinIcon = (url: string) =>
     window.L.icon({
@@ -12,6 +13,7 @@ const makePinIcon = (url: string) =>
     });
 
 export const iconForCurrentLocation = () => {
+<<<<<<< HEAD
     return window.L.divIcon({
         className: 'current-location-marker',
         html: `
@@ -22,6 +24,11 @@ export const iconForCurrentLocation = () => {
         `,
         iconSize: [28, 28],
         iconAnchor: [14, 14],
+=======
+    return window.L.icon({
+        iconUrl: currentLocation,
+        iconSize: [60, 60],
+>>>>>>> origin/develop
     });
 };
 

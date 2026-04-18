@@ -94,14 +94,14 @@ public async getMapPins(req: Request, res: Response)
 - **Params**:
   - `bbox` (string, required): The geographic bounding box (min/max latitude/longitude) to filter issues.
   - `issueTypes` (string[], optional): Filters issues by their type (e.g., obstruction, standing water/mud, other).
-  - `statuses` (string[], optional): Filters issues by their current status (e.g., UNRESOLVED, IN_PROGRESS)
+  - `statuses` (string[], optional): Filters issues by their current status (e.g., OPEN, IN_PROGRESS)
 - **Query Parameter**:
 
 ```md
 bbox=40.44,-80.0,40.50,-79.9
 &issueTypes=OBSTRUCTION
 &issueTypes=WATER
-&statuses=UNRESOLVED
+&statuses=OPEN
 &statuses=IN_PROGRESS
 ```
 
@@ -115,7 +115,7 @@ bbox=40.44,-80.0,40.50,-79.9
           "latitude": 40.44,
           "longitude": -79.99,
           "issueType": "OBSTRUCTION",
-          "status": "UNRESOLVED"
+          "status": "OPEN"
         }
       ]
     }
