@@ -4,10 +4,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Park, ImageMetadata, IssueParams, IssueStatusEnum, IssueTypeEnum, IssueRiskEnum
 } from '../../types';
-import {
-    getSafetyRiskDescription,
-    getSafetyRiskLabel,
-} from '../../utils/issueSafetyRiskUtils';
+import { getSafetyRiskLabel } from '../../utils/issueSafetyRiskUtils';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
@@ -542,7 +539,6 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                                     `}
                                 >
                                     <div className="text-sm font-medium">{getSafetyRiskLabel(level)}</div>
-                                    <p className="mt-1 text-xs text-gray-600">{getSafetyRiskDescription(level)}</p>
                                 </button>
                             ))}
                         </div>

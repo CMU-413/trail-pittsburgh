@@ -51,6 +51,15 @@ export const IssueReportPage: React.FC = () => {
                 subtitle="Help us keep our trails in great condition by reporting issues you encounter"
             />
 
+            <div className="mt-10 max-w-3xl mx-auto bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h3 className="text-sm font-semibold text-blue-600 mb-1">
+					Sign in or opt-in email notification to edit this report later.
+                </h3>
+                <p className="text-sm italic text-blue-600">
+					Otherwise, you won’t be able to make changes to this report.
+                </p>
+            </div>
+
             {!isGeolocationSupported && !isSubmitted && (
                 <Alert variant="warning" className="mb-6">
                     Your device or browser doesn't support location services. You can still submit the report, but we won't be able to automatically detect the issue location.
@@ -134,7 +143,10 @@ export const IssueReportPage: React.FC = () => {
                             </h2>
 
                             <p className="text-lg text-gray-600 max-w-lg mb-8">
-                                The issue has been successfully reported. We appreciate your help in maintaining our trails.
+                                The issue has been successfully reported.
+                            </p>
+                            <p className="text-lg italic text-gray-600 max-w-lg mb-8">
+								You can view reported issue on either Issues or Profile page.
                             </p>
 
                             <Button variant="primary" onClick={handleSubmitAnother}>

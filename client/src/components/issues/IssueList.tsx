@@ -23,7 +23,7 @@ export const IssueList: React.FC<IssueListProps> = ({
         return (
             <EmptyState
                 title={emptyStateMessage}
-                description="Issues will appear here once they are reported."
+                description="Please double check filtering options. Otherwise, issues will appear here once they are reported."
                 action={
                     <Link to="/issues/report">
                         <Button variant="primary">Report an Issue</Button>

@@ -194,9 +194,10 @@ describe('IssueService', () => {
         const issues = [baseIssue];
         issueRepositoryMock.getIssuesByPark.mockResolvedValue(issues);
 
-        const result = await issueService.getIssuesByPark(1);
+		const statuses = [IssueStatusEnum.UNRESOLVED, IssueStatusEnum.IN_PROGRESS, IssueStatusEnum.RESOLVED];
+        const result = await issueService.getIssuesByPark(1, statuses);
 
-        expect(issueRepositoryMock.getIssuesByPark).toHaveBeenCalledWith(1);
+        expect(issueRepositoryMock.getIssuesByPark).toHaveBeenCalledWith(1, statuses, undefined, undefined);
         expect(result).toEqual([
             {
                 ...baseIssueWithoutImage,

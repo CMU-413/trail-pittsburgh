@@ -13,6 +13,7 @@ interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>
     fullWidth?: boolean;
     onChange?: (value: string) => void;
     helperText?: string;
+	sortOptions?: boolean;
 }
 
 export const Select: React.FC<SelectProps> = ({
@@ -25,6 +26,7 @@ export const Select: React.FC<SelectProps> = ({
     onChange,
     helperText,
     disabled,
+    sortOptions = true,
     ...props
 }) => {
     const selectId = id || label?.toLowerCase().replace(/\s+/g, '-');
@@ -36,13 +38,16 @@ export const Select: React.FC<SelectProps> = ({
         }
     };
 
-    const defaultOptions = options.filter((option) => option.value === '');
-    const otherOptions = options.filter((option) => option.value !== '');
+    let sortedOptions = options;
+    if (sortOptions) {
+        const defaultOptions = options.filter((option) => option.value === '');
+        const otherOptions = options.filter((option) => option.value !== '');
 
-    const sortedOptions = [
-        ...defaultOptions,
-        ...otherOptions.sort((a, b) => a.label.localeCompare(b.label)),
-    ];
+        sortedOptions = [
+            ...defaultOptions,
+            ...otherOptions.sort((a, b) => a.label.localeCompare(b.label)),
+        ];
+    }
 
     return (
         <div className={`${widthClass} ${className} mb-2`}>
