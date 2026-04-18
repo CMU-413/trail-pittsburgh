@@ -194,6 +194,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             ${error ? 'border-red-300' : ''}
             ${isProcessing ? 'opacity-70' : ''}
             transition-colors cursor-pointer`}
+                onClick={() => inputRef.current?.click()}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -221,23 +222,20 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                                 strokeLinejoin="round"
                             />
                         </svg>
-                        <div className="flex text-lg text-gray-600 ">
-                            <label
-                                htmlFor="file-upload"
-                                className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
-                            >
-                                <span>Upload a file</span>
-                                <input
-                                    id="file-upload"
-                                    name="file-upload"
-                                    type="file"
-                                    className="sr-only"
-                                    accept={acceptedFormats}
-                                    onChange={handleFileChange}
-                                    ref={inputRef}
-                                />
-                            </label>
-                            <p className="pl-1">or drag and drop</p>
+                        <div className="flex justify-center text-lg text-gray-600 ">
+                            <span className="font-medium text-blue-600">
+								Upload an image
+                            </span>
+                            <input
+                                id="file-upload"
+                                name="file-upload"
+                                type="file"
+                                className="sr-only"
+                                accept={acceptedFormats}
+                                onChange={handleFileChange}
+                                ref={inputRef}
+                            />
+	
                         </div>
                         <p className="text-xs text-gray-500">PNG, JPG, GIF, HEIC up to 10MB</p>
                     </div>

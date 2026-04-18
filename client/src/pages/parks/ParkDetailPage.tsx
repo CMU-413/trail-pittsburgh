@@ -1,30 +1,61 @@
 // src/pages/parks/ParkDetailPage.tsx
 import React, { useState, useEffect } from 'react';
 import {
-    Link, useParams, useNavigate
+    Link, useParams, useNavigate,
+    useLocation
 } from 'react-router-dom';
 import {
     Park, Issue, IssueStatusEnum
 } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
-import { Card } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
 import { LoadingSpinner } from '../../components/layout/LoadingSpinner';
 import { EmptyState } from '../../components/layout/EmptyState';
 import { IssueList } from '../../components/issues/IssueList';
 import {
     parkApi, issueApi
 } from '../../services/api';
+import { Select } from '../../components/ui/Select';
 
 export const ParkDetailPage: React.FC = () => {
     const { parkId } = useParams<{ parkId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     
     const [park, setPark] = useState<Park | null>(null);
     const [issues, setIssues] = useState<Issue[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const [statuses, setStatuses] = useState<IssueStatusEnum[]>([
+        IssueStatusEnum.UNRESOLVED,
+        IssueStatusEnum.IN_PROGRESS,
+    ]);
+
+    const [datePreset, setDatePreset] = useState<'7d' | '30d' | '3m' | '6m' | 'all'>('6m');
+
+    const getDateRange = () => {
+        const now = new Date();
+
+        if (datePreset === 'all') 
+        {return {};}
+
+        const start = new Date();
+
+        if (datePreset === '7d') 
+        {start.setDate(now.getDate() - 7);}
+        if (datePreset === '30d') 
+        {start.setDate(now.getDate() - 30);}
+        if (datePreset === '3m') 
+        {start.setMonth(now.getMonth() - 3);}
+        if (datePreset === '6m') 
+        {start.setMonth(now.getMonth() - 6);}
+
+        return {
+            startDate: start.toISOString(),
+            endDate: now.toISOString(),
+        };
+    };
 
     useEffect(() => {
         const fetchParkData = async () => {
@@ -49,10 +80,9 @@ export const ParkDetailPage: React.FC = () => {
                 setPark(parkData);
                 
                 // Fetch issues for this park
-                const issuesData = await issueApi.getIssuesByPark(id);
-                // Filter to only show public issues or unresolved issues
-                const filteredIssues = issuesData.filter((issue) => issue.isPublic);
-                setIssues(filteredIssues);
+                const { startDate, endDate } = getDateRange();
+                const issuesData = await issueApi.getIssuesByPark(id, statuses, startDate, endDate);
+                setIssues(issuesData);
             } catch (err) {
                 // eslint-disable-next-line no-console
                 console.error('Error fetching park details:', err);
@@ -63,7 +93,7 @@ export const ParkDetailPage: React.FC = () => {
         };
 
         fetchParkData();
-    }, [parkId]);
+    }, [parkId, statuses, datePreset, location.key]);
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -85,9 +115,6 @@ export const ParkDetailPage: React.FC = () => {
             </div>
         );
     }
-
-    // Count unresolved issues
-    const unresolvedIssuesCount = issues.filter((issue) => issue.status === IssueStatusEnum.UNRESOLVED).length;
 
     return (
         <div>
@@ -112,48 +139,50 @@ export const ParkDetailPage: React.FC = () => {
                 }
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <Card className="lg:col-span-2">
-                    <div className="flex justify-between mb-4">
-                        <h3 className="text-xl font-bold text-gray-900">Park Information</h3>
-                        {park.isActive ? (
-                            <Badge variant="success">Active</Badge>
-                        ) : (
-                            <Badge variant="secondary">Inactive</Badge>
-                        )}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
-                        <div>
-                            <p className="text-sm font-medium text-gray-500">County</p>
-                            <p className="mt-1 text-base text-gray-900">{park.county}</p>
-                        </div>
-                    </div>
-                </Card>
-
-                <Card>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Stats</h3>
-                    <div className="space-y-4">
-                        <div>
-                            <p className="text-sm font-medium text-gray-500">Unresolved Issues</p>
-                            <p className="mt-1 text-2xl font-semibold text-red-600">{unresolvedIssuesCount}</p>
-                        </div>
-                    </div>
-                </Card>
-            </div>
-
             <div>
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold text-gray-900">Recent Issues</h2>
-                    <Link to={`/issues/report?parkId=${park.parkId}`} className="text-sm text-blue-600 hover:text-blue-500 font-medium">
-                        Report Issue
-                    </Link>
+			    <div className="flex flex-wrap gap-4 items-center mb-4">
+                    {/* Status filter */}
+                    <div className="flex gap-2">
+                        {Object.values(IssueStatusEnum).map((status) => (
+                            <Button
+                                key={status}
+                                variant={statuses.includes(status) ? 'primary' : 'secondary'}
+  							size="sm"
+                                onClick={() => {
+                                    setStatuses((prev) =>
+                                        prev.includes(status)
+                                            ? prev.filter((s) => s !== status)
+                                            : [...prev, status]);
+                                }}
+                                className="rounded-full"
+                            >
+                                {status.replace('_', ' ')}
+                            </Button>
+                        ))}
+                    </div>
+
+                    {/* Date filter */}
+                    <div className="w-40">
+                        <Select
+                            name="datePreset"
+                            value={datePreset}
+                            onChange={(value) => setDatePreset(value as '7d' | '30d' | '3m' | '6m' | 'all')}
+                            options={[
+                                { value: '7d', label: 'Last 7 days' },
+                                { value: '30d', label: 'Last 30 days' },
+                                { value: '3m', label: 'Last 3 months' },
+                                { value: '6m', label: 'Last 6 months' },
+                                { value: 'all', label: 'All time' },
+                            ]}
+                            sortOptions={false}
+                        />
+                    </div>
                 </div>
 
                 <IssueList
                     issues={issues.slice(0, 6)}
                     showLocation={false}
-                    emptyStateMessage="No issues found for this park"
+                    emptyStateMessage="No issues found"
                 />
                 
                 {issues.length > 6 && (

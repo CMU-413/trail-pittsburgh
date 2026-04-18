@@ -4,7 +4,7 @@ export const getSafetyRiskLabel = (level: IssueRiskEnum): string => {
     switch (level) {
     case IssueRiskEnum.NO_RISK: return 'No Risk';
     case IssueRiskEnum.MINOR_RISK: return 'Minor Risk';
-    case IssueRiskEnum.SERIOUS_RISK: return 'Serious Risk / Immediate Danger';
+    case IssueRiskEnum.SERIOUS_RISK: return 'Serious Risk';
     default: return 'No Risk';
     }
 };
@@ -24,19 +24,6 @@ export const getSafetyRiskShortLabel = (level: IssueRiskEnum): string => {
 
 export const getReportedSafetyRiskBadgeLabel = (level: IssueRiskEnum): string => {
     return `Reported ${getSafetyRiskShortLabel(level)}`;
-};
-
-export const getSafetyRiskDescription = (level: IssueRiskEnum): string => {
-    switch (level) {
-    case IssueRiskEnum.NO_RISK:
-        return 'Safe to pass through.';
-    case IssueRiskEnum.MINOR_RISK:
-        return 'Requires caution to avoid injury.';
-    case IssueRiskEnum.SERIOUS_RISK:
-        return 'Dangerous condition, risk of serious harm.';
-    default:
-        return 'Safe to pass through.';
-    }
 };
 
 export const getStewardSafetyRiskDescription = (level: IssueRiskEnum): string => {

@@ -871,7 +871,7 @@ export const IssueDetailCard: React.FC<{
                                                     <div className={isEditing ? '' : 'mt-4'}>
                                                         <div className="text-md font-medium text-black bold">Photo Visibility</div>
                                                         <div className="mt-2 text-sm text-gray-600">
-                                                            {isImagePublic ? 'Photo is currently visible to all users.' : 'Photo is currently visible only to stewards/admins.'}
+                                                            {isImagePublic ? 'Photo is visible to everyone.' : 'Photo is only visible to admins.'}
                                                         </div>
                                                         <div className="mt-2">
                                                             <Button
@@ -881,7 +881,7 @@ export const IssueDetailCard: React.FC<{
                                                                 isLoading={isUpdatingPhotoVisibility}
                                                                 disabled={isUpdatingPhotoVisibility}
                                                             >
-                                                                {isImagePublic ? 'Revoke Public Photo Approval' : 'Approve for Public View'}
+                                                                {isImagePublic ? 'Make Private' : 'Make Public'}
                                                             </Button>
                                                         </div>
                                                     </div>

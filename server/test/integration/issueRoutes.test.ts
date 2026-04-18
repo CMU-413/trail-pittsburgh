@@ -132,7 +132,7 @@ describe('Issue API End-to-End', () => {
             issueType: 'WATER' as IssueTypeEnum,
             safetyRisk: 'MINOR_RISK' as IssueRiskEnum,
             reporterEmail: 'sample2@example.com',
-            status: 'OPEN' as IssueStatusEnum,
+            status: 'UNRESOLVED' as IssueStatusEnum,
             notifyReporter: true,
             isPublic: true,
             description: 'Flooding trail again',
@@ -144,6 +144,12 @@ describe('Issue API End-to-End', () => {
             .post('/api/issues')
             .set('Authorization', 'Bearer TEST_TOKEN')
             .send(payload2);
+		expect(sendRes.status).toBe(201);
+        expect(sendRes.body.issue).toMatchObject({
+            parkId: payload2.parkId,
+            issueType: payload2.issueType,
+            reporterEmail: payload2.reporterEmail,
+        });
 
 		const createdIssueId2 = sendRes.body.issue.issueId; 
 		const createdAt2 = sendRes.body.issue.createdAt;
@@ -156,7 +162,7 @@ describe('Issue API End-to-End', () => {
 			.query({
 				bbox,
 				issueTypes: ['OBSTRUCTION', 'WATER'],
-				statuses: ['OPEN', 'IN_PROGRESS']
+				statuses: ['UNRESOLVED', 'IN_PROGRESS']
 			});
 
 		expect(res.status).toBe(200);
@@ -166,7 +172,7 @@ describe('Issue API End-to-End', () => {
 		const pin1 = res.body.pins.find((pin: any) => pin.issueId === createdIssueId);
 		expect(pin1).toBeDefined();
 		expect(pin1.issueType).toBe('OBSTRUCTION');
-		expect(pin1.status).toBe('OPEN');
+		expect(pin1.status).toBe('UNRESOLVED');
 		expect(pin1.latitude).toBe(40.4406);
 		expect(pin1.longitude).toBe(-79.9959);
 		expect(pin1.createdAt).toBe(createdAt);
@@ -174,7 +180,7 @@ describe('Issue API End-to-End', () => {
 		const pin2 = res.body.pins.find((pin: any) => pin.issueId === createdIssueId2);
 		expect(pin2).toBeDefined();
 		expect(pin2.issueType).toBe('WATER');
-		expect(pin2.status).toBe('OPEN');
+		expect(pin2.status).toBe('UNRESOLVED');
 		expect(pin2.latitude).toBe(40.4407);
 		expect(pin2.longitude).toBe(-79.9960);
 		expect(pin2.createdAt).toBe(createdAt2);

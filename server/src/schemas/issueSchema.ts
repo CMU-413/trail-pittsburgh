@@ -6,7 +6,21 @@ import { z } from 'zod';
 export const getIssuesByParkSchema = z.object({
     params: z.object({
         parkId: z.coerce.number(),
-    })
+    }),
+    query: z.object({
+        statuses: z
+            .union([
+                z.literal('NONE'),
+                z.nativeEnum(IssueStatusEnum),
+                z.array(z.nativeEnum(IssueStatusEnum)),
+            ])
+            .transform((v) => {
+                if (v === 'NONE') {return [];}
+                return Array.isArray(v) ? v : [v];
+            }),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+    }),
 });
 
 export const getIssuesQuerySchema = z.object({
@@ -37,8 +51,8 @@ export const getIssueMapPinsSchema = z.object({
         bbox: z.string().min(1),
         issueTypes:z
             .union([z.nativeEnum(IssueTypeEnum), z.array(z.nativeEnum(IssueTypeEnum))])
- 		.transform((v) => (v === undefined ? [] : Array.isArray(v) ? v : [v]))
-  		.default([]),
+            .transform((v) => (v === undefined ? [] : Array.isArray(v) ? v : [v]))
+            .default([]),
         statuses: z
             .union([z.nativeEnum(IssueStatusEnum), z.array(z.nativeEnum(IssueStatusEnum))])
             .transform((v) => (

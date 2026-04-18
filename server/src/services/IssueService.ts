@@ -165,8 +165,14 @@ export class IssueService {
         return this.issueRepository.deleteIssue(issueId);
     }
 
-    public async getIssuesByPark(parkId: number) {
-        const issues = await this.issueRepository.getIssuesByPark(parkId);
+    public async getIssuesByPark(
+        parkId: number, 
+        statuses: IssueStatusEnum[], 
+        startDate?: string, 
+        endDate?: string
+    ) {
+        const issues = 
+		    await this.issueRepository.getIssuesByPark(parkId, statuses, startDate, endDate);
         return Promise.all(issues.map((issue) => this.toIssueResponse(issue)));
     }
 
