@@ -29,7 +29,7 @@ describe('IssueService', () => {
         description: 'Trail is flooded',
         isPublic: true,
         isImagePublic: false,
-        status: IssueStatusEnum.UNRESOLVED,
+        status: IssueStatusEnum.OPEN,
         notifyReporter: true,
         reporterEmail: 'reporter@example.com',
         ownerEmail: 'reporter@example.com',
@@ -57,7 +57,30 @@ describe('IssueService', () => {
         ...baseIssueWithoutImage
     } = baseIssue;
 
+    const issueTwo = {
+        ...baseIssue,
+        issueId: 2,
+        reporterEmail: 'john@example.com',
+        ownerEmail: 'john@example.com'
+    };
+
+    const issueThree = {
+        ...baseIssue,
+        issueId: 3,
+        reporterEmail: 'jane@example.com',
+        ownerEmail: 'jane@example.com'
+    };
+
+    const issueFour = {
+        ...baseIssue,
+        issueId: 4,
+        reporterEmail: 'jane@gmail.com',
+        ownerEmail: 'jane@example.com'
+    };
+
     beforeEach(() => {
+        jest.resetAllMocks();
+
         issueRepositoryMock = new IssueRepository() as jest.Mocked<IssueRepository>;
         issueImageBucketMock = {
             getUploadUrl: jest.fn().mockReturnValue(uploadUrl),
@@ -93,7 +116,7 @@ describe('IssueService', () => {
             longitude: -79.9901,
             isPublic: true,
             isImagePublic: false,
-            status: IssueStatusEnum.UNRESOLVED,
+            status: IssueStatusEnum.OPEN,
             notifyReporter: true,
             imageMetadata: {
                 contentType: 'image/jpeg'
@@ -194,7 +217,7 @@ describe('IssueService', () => {
         const issues = [baseIssue];
         issueRepositoryMock.getIssuesByPark.mockResolvedValue(issues);
 
-		const statuses = [IssueStatusEnum.UNRESOLVED, IssueStatusEnum.IN_PROGRESS, IssueStatusEnum.RESOLVED];
+		const statuses = [IssueStatusEnum.OPEN, IssueStatusEnum.IN_PROGRESS, IssueStatusEnum.RESOLVED];
         const result = await issueService.getIssuesByPark(1, statuses);
 
         expect(issueRepositoryMock.getIssuesByPark).toHaveBeenCalledWith(1, statuses, undefined, undefined);
@@ -211,9 +234,9 @@ describe('IssueService', () => {
 		const issues = [baseIssue];
 		issueRepositoryMock.getMapPins.mockResolvedValue(issues);
 
-		const result = await issueService.getMapPins(40.4306, -80.0059, 40.4506, -79.9859, [IssueTypeEnum.WATER], [IssueStatusEnum.UNRESOLVED]);
+		const result = await issueService.getMapPins(40.4306, -80.0059, 40.4506, -79.9859, [IssueTypeEnum.WATER], [IssueStatusEnum.OPEN]);
 
-		expect(issueRepositoryMock.getMapPins).toHaveBeenCalledWith(40.4306, -80.0059, 40.4506, -79.9859, [IssueTypeEnum.WATER], [IssueStatusEnum.UNRESOLVED]);
+		expect(issueRepositoryMock.getMapPins).toHaveBeenCalledWith(40.4306, -80.0059, 40.4506, -79.9859, [IssueTypeEnum.WATER], [IssueStatusEnum.OPEN]);
 		expect(result.length).toBe(1);
 		expect(result[0].issueId).toBe(baseIssue.issueId);
 		expect(result[0].issueType).toBe(baseIssue.issueType);
@@ -256,7 +279,7 @@ describe('IssueService', () => {
             issueGroup: {
                 issueGroupId: 10,
                 primaryIssueId: 1,
-                status: IssueStatusEnum.UNRESOLVED,
+                status: IssueStatusEnum.OPEN,
                 issues: [{ issueId: 1 }, { issueId: 2 }],
             },
         } as Awaited<ReturnType<IssueRepository['getIssue']>>);
@@ -335,4 +358,115 @@ describe('IssueService', () => {
             issueGroupMemberIds: [updatedIssue.issueId],
         });
 	});
+
+     test('should return empty array if no issues found', async () => {
+        
+        issueRepositoryMock.getAllIssues.mockResolvedValue([]);
+
+        const result = await issueService.getAllIssues();
+
+        expect(issueRepositoryMock.getAllIssues)
+            .toHaveBeenCalledWith(undefined, undefined);
+       
+        expect(result).toEqual([]);
+    });
+
+    test('should return all issues transformed with issueGroupMemberIds', async () => {
+
+        const issues = [baseIssue, issueTwo, issueThree, issueFour];
+
+        issueRepositoryMock.getAllIssues.mockResolvedValue(issues);
+
+        const result = await issueService.getAllIssues();
+
+        expect(issueRepositoryMock.getAllIssues)
+            .toHaveBeenCalledWith(undefined, undefined);
+
+        expect(result).toEqual([
+            {
+                ...baseIssueWithoutImage,
+                issueGroupId: null,
+                reporterEmail: 'reporter@example.com',
+                ownerEmail: 'reporter@example.com',
+                issueGroupMemberIds: [1],
+            },
+            {
+                ...baseIssueWithoutImage,
+                issueId: 2,
+                reporterEmail: 'john@example.com',
+                ownerEmail: 'john@example.com',
+                issueGroupId: null,
+                issueGroupMemberIds: [2],
+            },
+            {
+                ...baseIssueWithoutImage,
+                issueId: 3,
+                reporterEmail: 'jane@example.com',
+                ownerEmail: 'jane@example.com',
+                issueGroupId: null,
+                issueGroupMemberIds: [3],
+            },
+            {
+                ...baseIssueWithoutImage,
+                issueId: 4,
+                reporterEmail: 'jane@gmail.com',
+                ownerEmail: 'jane@example.com',
+                issueGroupId: null,
+                issueGroupMemberIds: [4],
+            }
+        ]);
+    });
+
+    test('should map grouped issues correctly', async () => {
+        const groupedIssue = {
+            ...baseIssue,
+            issueGroupId: 10,
+            issueGroup: {
+                issueGroupId: 10,
+                status: IssueStatusEnum.IN_PROGRESS,
+                issues: [{ issueId: 1 }, { issueId: 2 }],
+            },
+        };
+
+        issueRepositoryMock.getAllIssues.mockResolvedValue([groupedIssue]);
+
+        const result = await issueService.getAllIssues();
+
+        expect(result).toEqual([
+            expect.objectContaining({
+                issueGroupId: 10,
+                issueGroupMemberIds: [1, 2],
+                status: IssueStatusEnum.IN_PROGRESS, // overridden by group
+            }),
+        ]);
+    });
+
+    test('should include image data when issue has image', async () => {
+        const issueWithImage = {
+            ...baseIssue,
+            issueImage: 'image-key',
+        };
+
+        issueRepositoryMock.getAllIssues.mockResolvedValue([issueWithImage]);
+
+        issueImageBucketMock.getDownloadUrl.mockResolvedValue(uploadUrl);
+        issueImageBucketMock.getImageMetadata = jest.fn().mockResolvedValue({
+            contentType: 'image/jpeg',
+            metadata: {},
+        });
+
+        const result = await issueService.getAllIssues();
+
+        expect(result?.[0]).toHaveProperty('image');
+        expect(issueImageBucketMock.getDownloadUrl).toHaveBeenCalledWith('image-key');
+    });
+
+    test('should handle null issues gracefully', async () => {
+        issueRepositoryMock.getAllIssues.mockResolvedValue([null] as any);
+
+        const result = await issueService.getAllIssues();
+
+        expect(result).toEqual([null]);
+    });
+
 });
