@@ -764,7 +764,16 @@ export const IssueDetailCard: React.FC<{
                                             <div className="rounded-lg border border-gray-200 p-4">
                                                 {!isEditing && (
                                                     <div>
-                                                        <div className="text-md font-medium text-black bold">Status</div>
+                                                        <div className="text-md font-medium text-black bold">Update Status</div>
+                                                        <div className="mt-1 text-xs text-gray-600 flex items-center gap-2">
+                                                            <span>Currently:</span>
+                                                            <span className={[
+                                                                'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+                                                                getIssueStatusColor(issue.status),
+                                                            ].join(' ')}>
+                                                                {getIssueStatusLabel(issue.status)}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 )}
 
