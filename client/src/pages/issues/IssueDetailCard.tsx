@@ -23,7 +23,6 @@ import {
     getSafetyRiskLabel,
     getSafetyRiskBadgeColor,
     getReportedSafetyRiskBadgeLabel,
-    getStewardSafetyRiskDescription,
 } from '../../utils/issueSafetyRiskUtils';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../providers/AuthProvider';
@@ -685,7 +684,7 @@ export const IssueDetailCard: React.FC<{
                                                             {getPassabilityBadgeLabel(issue.passible)}
                                                         </span>
                                                     </div>
-                                                    {isEditing && canManageIssueStatus ? (
+                                                    {isEditing && canManageIssueStatus && (
                                                         <div className="mt-2">
                                                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                                                                 {safetyRiskLevels.map((riskLevel) => (
@@ -701,15 +700,9 @@ export const IssueDetailCard: React.FC<{
                                                                         ].join(' ')}
                                                                     >
                                                                         <div className="text-xs font-semibold text-gray-900">{getSafetyRiskLabel(riskLevel)}</div>
-                                                                        <div className="mt-1 text-xs text-gray-600">{getStewardSafetyRiskDescription(riskLevel)}</div>
                                                                     </button>
                                                                 ))}
                                                             </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="mt-2 rounded-md border border-gray-200 bg-gray-50 p-3">
-                                                            <div className="text-sm font-semibold text-gray-900">{getSafetyRiskLabel(issue.safetyRisk)}</div>
-                                                            <div className="mt-1 text-sm text-gray-600">{getStewardSafetyRiskDescription(issue.safetyRisk)}</div>
                                                         </div>
                                                     )}
                                                 </div>

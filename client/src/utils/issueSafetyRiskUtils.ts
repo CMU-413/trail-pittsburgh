@@ -26,19 +26,6 @@ export const getReportedSafetyRiskBadgeLabel = (level: IssueRiskEnum): string =>
     return `Reported ${getSafetyRiskShortLabel(level)}`;
 };
 
-export const getStewardSafetyRiskDescription = (level: IssueRiskEnum): string => {
-    switch (level) {
-    case IssueRiskEnum.NO_RISK:
-        return 'Reporter selected the lowest risk level available on the form, indicating they believed the issue was safe to pass through.';
-    case IssueRiskEnum.MINOR_RISK:
-        return 'Reporter selected the middle risk level available on the form, indicating they believed the issue required caution, but was not immediately dangerous.';
-    case IssueRiskEnum.SERIOUS_RISK:
-        return 'Reporter selected the highest risk level available on the form, indicating they believed the issue may need prompt attention.';
-    default:
-        return 'Reporter selected the lowest risk level available on the form.';
-    }
-};
-
 export const getSafetyRiskBadgeColor = (level: IssueRiskEnum): string => {
     switch (level) {
     case IssueRiskEnum.NO_RISK:
