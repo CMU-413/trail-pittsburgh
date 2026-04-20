@@ -66,16 +66,20 @@ export const IssueDetailCard: React.FC<{
     const location = useLocation();
 
     const { user } = useAuth();
+    const isOwner = user?.email === issue?.ownerEmail;
+    const isReporter = user?.email === issue?.reporterEmail;
     const canEditIssue = user?.role === UserRoleEnum.ROLE_ADMIN ||
-        user?.role === UserRoleEnum.ROLE_SUPERADMIN || user?.email === issue?.ownerEmail;
+        user?.role === UserRoleEnum.ROLE_SUPERADMIN || isOwner || isReporter;
     const canManageIssueStatus = user?.role === UserRoleEnum.ROLE_ADMIN ||
         user?.role === UserRoleEnum.ROLE_SUPERADMIN;
+    const canManagePhotoVisibility = canManageIssueStatus || isOwner || isReporter;
     const isImagePublic = issue?.isImagePublic ?? issue?.isPublic ?? false;
     const canViewImage =
         user?.role === UserRoleEnum.ROLE_ADMIN ||
         user?.role === UserRoleEnum.ROLE_SUPERADMIN ||
         isImagePublic || 
-        user?.email === issue?.ownerEmail;
+        isOwner ||
+        isReporter;
 
     const handleResolveIssue = async () => {
         if (!issue || !issueId) {return;}
@@ -395,7 +399,7 @@ export const IssueDetailCard: React.FC<{
     };
 
     const handleTogglePhotoPublic = async () => {
-        if (!issue || !canManageIssueStatus || !issue.image) {
+        if (!issue || !canManagePhotoVisibility || !issue.image) {
             return;
         }
 
@@ -470,7 +474,8 @@ export const IssueDetailCard: React.FC<{
         ? 'No grouped issues'
         : `${selectedGroupIssueIds.length} selected`;
     const hasPhotoVisibilityControl = Boolean(issue?.image);
-    const shouldShowStewardControls = canManageIssueStatus && (!isEditing || hasPhotoVisibilityControl);
+    const shouldShowStewardControls = (canManageIssueStatus || canManagePhotoVisibility)
+        && (!isEditing || hasPhotoVisibilityControl);
     const groupedIssueIds = (issue?.issueGroupMemberIds ?? []).filter((id) => id !== issue?.issueId);
 
     const groupOptions = linkableIssues.map((candidateIssue) => {
@@ -864,7 +869,9 @@ export const IssueDetailCard: React.FC<{
                                                     <div className={isEditing ? '' : 'mt-4'}>
                                                         <div className="text-md font-medium text-black bold">Photo Visibility</div>
                                                         <div className="mt-2 text-sm text-gray-600">
-                                                            {isImagePublic ? 'Photo is visible to everyone.' : 'Photo is only visible to admins.'}
+                                                            {isImagePublic
+                                                                ? 'Photo is visible to everyone.'
+                                                                : 'Photo is private and only visible to admins, the reporter, and the owner.'}
                                                         </div>
                                                         <div className="mt-2">
                                                             <Button
