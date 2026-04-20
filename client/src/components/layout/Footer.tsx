@@ -18,7 +18,7 @@ export const Footer: React.FC = () => {
     // Public navigation available to all users
     const publicNavigation : NavItem[] = [
         { name: 'Home', href: '/' },
-        { name: 'Issues', href: '/issues' },
+        { name: 'Issue Map', href: '/issues' },
     ];
 
     // Protected navigation for authenticated users with proper permissions

@@ -45,7 +45,7 @@ export const IssueFilterDropdown: React.FC<{
     }, []);
 
     const label =
-    selectedTypes.length === 0 ? 'All Issues' : `${selectedTypes.length} selected`;
+    selectedTypes.length === 0 ? 'All Issue Types' : `${selectedTypes.length} selected`;
 
     const options = [
         { value: IssueTypeEnum.OBSTRUCTION, label: 'Obstruction' },

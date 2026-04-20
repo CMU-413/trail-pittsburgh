@@ -28,7 +28,7 @@ export const HomePage: React.FC = () => {
                                 </Link>
                                 <Link to="/issues">
                                     <Button variant="secondary" size="lg" className="transition-all hover:-translate-y-0.5">
-                                        View Issues
+                                        View Issue Map
                                     </Button>
                                 </Link>
                             </div>

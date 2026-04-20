@@ -146,7 +146,7 @@ export const IssueReportPage: React.FC = () => {
                                 The issue has been successfully reported.
                             </p>
                             <p className="text-lg italic text-gray-600 max-w-lg mb-8">
-								You can view reported issue on either Issues or Profile page.
+								You can view reported issue on either Issue Map or Profile page.
                             </p>
 
                             <Button variant="primary" onClick={handleSubmitAnother}>
