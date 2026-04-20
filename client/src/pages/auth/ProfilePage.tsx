@@ -128,11 +128,19 @@ export const ProfilePage: React.FC = () => {
                     <Card title="My Reported Issues" className="mb-6">
                         <div className="space-y-4">
                             {filteredIssues.map((issue) => (
-                                <div
+                                <Link
                                     key={issue.issueId}
-                                    className="bg-white shadow-sm rounded-md p-4 mb-3 border border-gray-100 hover:shadow-md transition"
+                                    to={`/issues/card/${issue.issueId}`}
+                                    state={{
+                                        backgroundLocation: {
+                                            pathname: location.pathname,
+                                            search: location.search,
+                                            hash: location.hash
+                                        }
+                                    }}
+                                    className="block bg-white shadow-sm rounded-md p-4 mb-3 border border-gray-100 hover:shadow-md transition"
                                 >
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-3 min-w-0">
 
                                         {/* Status Badge */}
                                         <span
@@ -143,19 +151,9 @@ export const ProfilePage: React.FC = () => {
                                         </span>
 
                                         {/* Issue Type / Title */}
-                                        <Link
-                                            to={`/issues/card/${issue.issueId}`}
-    										state={{ 
-                                                backgroundLocation: {
-                                                    pathname: location.pathname,
-                                                    search: location.search,
-                                                    hash: location.hash
-                                                }
-                                            }}
-                                            className="font-medium text-blue-600 hover:text-blue-500 truncate"
-                                        >
+                                        <span className="min-w-0 flex-1 font-medium text-blue-600 hover:text-blue-500 truncate">
                                             {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
-                                        </Link>
+                                        </span>
 
                                         {/* Date */}
                                         <span className="text-sm text-gray-500 ml-auto whitespace-nowrap">
@@ -174,7 +172,7 @@ export const ProfilePage: React.FC = () => {
                                             Park: <span className="font-medium">{issue.park.name}</span>
                                         </p>
                                     )}
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     </Card>
