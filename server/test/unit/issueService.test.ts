@@ -29,7 +29,7 @@ describe('IssueService', () => {
         description: 'Trail is flooded',
         isPublic: true,
         isImagePublic: false,
-        status: IssueStatusEnum.OPEN,
+        status: IssueStatusEnum.UNRESOLVED,
         notifyReporter: true,
         reporterEmail: 'reporter@example.com',
         ownerEmail: 'reporter@example.com',
@@ -116,7 +116,7 @@ describe('IssueService', () => {
             longitude: -79.9901,
             isPublic: true,
             isImagePublic: false,
-            status: IssueStatusEnum.OPEN,
+            status: IssueStatusEnum.UNRESOLVED,
             notifyReporter: true,
             imageMetadata: {
                 contentType: 'image/jpeg'
@@ -217,7 +217,7 @@ describe('IssueService', () => {
         const issues = [baseIssue];
         issueRepositoryMock.getIssuesByPark.mockResolvedValue(issues);
 
-		const statuses = [IssueStatusEnum.OPEN, IssueStatusEnum.IN_PROGRESS, IssueStatusEnum.RESOLVED];
+		const statuses = [IssueStatusEnum.UNRESOLVED, IssueStatusEnum.IN_PROGRESS, IssueStatusEnum.RESOLVED];
         const result = await issueService.getIssuesByPark(1, statuses);
 
         expect(issueRepositoryMock.getIssuesByPark).toHaveBeenCalledWith(1, statuses, undefined, undefined);
@@ -234,9 +234,9 @@ describe('IssueService', () => {
 		const issues = [baseIssue];
 		issueRepositoryMock.getMapPins.mockResolvedValue(issues);
 
-		const result = await issueService.getMapPins(40.4306, -80.0059, 40.4506, -79.9859, [IssueTypeEnum.WATER], [IssueStatusEnum.OPEN]);
+		const result = await issueService.getMapPins(40.4306, -80.0059, 40.4506, -79.9859, [IssueTypeEnum.WATER], [IssueStatusEnum.UNRESOLVED]);
 
-		expect(issueRepositoryMock.getMapPins).toHaveBeenCalledWith(40.4306, -80.0059, 40.4506, -79.9859, [IssueTypeEnum.WATER], [IssueStatusEnum.OPEN]);
+		expect(issueRepositoryMock.getMapPins).toHaveBeenCalledWith(40.4306, -80.0059, 40.4506, -79.9859, [IssueTypeEnum.WATER], [IssueStatusEnum.UNRESOLVED]);
 		expect(result.length).toBe(1);
 		expect(result[0].issueId).toBe(baseIssue.issueId);
 		expect(result[0].issueType).toBe(baseIssue.issueType);
@@ -279,7 +279,7 @@ describe('IssueService', () => {
             issueGroup: {
                 issueGroupId: 10,
                 primaryIssueId: 1,
-                status: IssueStatusEnum.OPEN,
+                status: IssueStatusEnum.UNRESOLVED,
                 issues: [{ issueId: 1 }, { issueId: 2 }],
             },
         } as Awaited<ReturnType<IssueRepository['getIssue']>>);
