@@ -57,7 +57,30 @@ describe('IssueService', () => {
         ...baseIssueWithoutImage
     } = baseIssue;
 
+    const issueTwo = {
+        ...baseIssue,
+        issueId: 2,
+        reporterEmail: 'john@example.com',
+        ownerEmail: 'john@example.com'
+    };
+
+    const issueThree = {
+        ...baseIssue,
+        issueId: 3,
+        reporterEmail: 'jane@example.com',
+        ownerEmail: 'jane@example.com'
+    };
+
+    const issueFour = {
+        ...baseIssue,
+        issueId: 4,
+        reporterEmail: 'jane@gmail.com',
+        ownerEmail: 'jane@example.com'
+    };
+
     beforeEach(() => {
+        jest.resetAllMocks();
+
         issueRepositoryMock = new IssueRepository() as jest.Mocked<IssueRepository>;
         issueImageBucketMock = {
             getUploadUrl: jest.fn().mockReturnValue(uploadUrl),
@@ -335,4 +358,115 @@ describe('IssueService', () => {
             issueGroupMemberIds: [updatedIssue.issueId],
         });
 	});
+
+     test('should return empty array if no issues found', async () => {
+        
+        issueRepositoryMock.getAllIssues.mockResolvedValue([]);
+
+        const result = await issueService.getAllIssues();
+
+        expect(issueRepositoryMock.getAllIssues)
+            .toHaveBeenCalledWith(undefined, undefined);
+       
+        expect(result).toEqual([]);
+    });
+
+    test('should return all issues transformed with issueGroupMemberIds', async () => {
+
+        const issues = [baseIssue, issueTwo, issueThree, issueFour];
+
+        issueRepositoryMock.getAllIssues.mockResolvedValue(issues);
+
+        const result = await issueService.getAllIssues();
+
+        expect(issueRepositoryMock.getAllIssues)
+            .toHaveBeenCalledWith(undefined, undefined);
+
+        expect(result).toEqual([
+            {
+                ...baseIssueWithoutImage,
+                issueGroupId: null,
+                reporterEmail: 'reporter@example.com',
+                ownerEmail: 'reporter@example.com',
+                issueGroupMemberIds: [1],
+            },
+            {
+                ...baseIssueWithoutImage,
+                issueId: 2,
+                reporterEmail: 'john@example.com',
+                ownerEmail: 'john@example.com',
+                issueGroupId: null,
+                issueGroupMemberIds: [2],
+            },
+            {
+                ...baseIssueWithoutImage,
+                issueId: 3,
+                reporterEmail: 'jane@example.com',
+                ownerEmail: 'jane@example.com',
+                issueGroupId: null,
+                issueGroupMemberIds: [3],
+            },
+            {
+                ...baseIssueWithoutImage,
+                issueId: 4,
+                reporterEmail: 'jane@gmail.com',
+                ownerEmail: 'jane@example.com',
+                issueGroupId: null,
+                issueGroupMemberIds: [4],
+            }
+        ]);
+    });
+
+    test('should map grouped issues correctly', async () => {
+        const groupedIssue = {
+            ...baseIssue,
+            issueGroupId: 10,
+            issueGroup: {
+                issueGroupId: 10,
+                status: IssueStatusEnum.IN_PROGRESS,
+                issues: [{ issueId: 1 }, { issueId: 2 }],
+            },
+        };
+
+        issueRepositoryMock.getAllIssues.mockResolvedValue([groupedIssue]);
+
+        const result = await issueService.getAllIssues();
+
+        expect(result).toEqual([
+            expect.objectContaining({
+                issueGroupId: 10,
+                issueGroupMemberIds: [1, 2],
+                status: IssueStatusEnum.IN_PROGRESS, // overridden by group
+            }),
+        ]);
+    });
+
+    test('should include image data when issue has image', async () => {
+        const issueWithImage = {
+            ...baseIssue,
+            issueImage: 'image-key',
+        };
+
+        issueRepositoryMock.getAllIssues.mockResolvedValue([issueWithImage]);
+
+        issueImageBucketMock.getDownloadUrl.mockResolvedValue(uploadUrl);
+        issueImageBucketMock.getImageMetadata = jest.fn().mockResolvedValue({
+            contentType: 'image/jpeg',
+            metadata: {},
+        });
+
+        const result = await issueService.getAllIssues();
+
+        expect(result?.[0]).toHaveProperty('image');
+        expect(issueImageBucketMock.getDownloadUrl).toHaveBeenCalledWith('image-key');
+    });
+
+    test('should handle null issues gracefully', async () => {
+        issueRepositoryMock.getAllIssues.mockResolvedValue([null] as any);
+
+        const result = await issueService.getAllIssues();
+
+        expect(result).toEqual([null]);
+    });
+
 });
