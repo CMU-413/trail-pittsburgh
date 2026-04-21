@@ -1,12 +1,13 @@
 export async function triggerAuth() {
     try {
+        const redirectPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                redirectPath: window.location.pathname
+                redirectPath
             }),
             credentials: 'include'
         });

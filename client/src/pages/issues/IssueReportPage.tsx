@@ -7,8 +7,10 @@ import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { issueApi } from '../../services/api';
+import { useAuth } from '../../providers/AuthProvider';
 
 export const IssueReportPage: React.FC = () => {
+    const { login } = useAuth();
     const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
@@ -53,11 +55,16 @@ export const IssueReportPage: React.FC = () => {
 
             <div className="mt-10 max-w-3xl mx-auto bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <h3 className="text-sm font-semibold text-blue-600 mb-1">
-					Sign in or opt-in email notification to edit this report later.
+					To edit this report later,{' '}
+                    <button
+                        type="button"
+                        onClick={() => login()}
+                        className="underline hover:text-blue-800 cursor-pointer"
+                    >
+                        sign in
+                    </button>{' '}
+                    or opt-in to email updates.
                 </h3>
-                <p className="text-sm italic text-blue-600">
-					Otherwise, you won’t be able to make changes to this report.
-                </p>
             </div>
 
             {!isGeolocationSupported && !isSubmitted && (
