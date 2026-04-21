@@ -348,27 +348,54 @@ export const IssueDetailCard: React.FC<{
         const latitude = issue?.latitude;
         const longitude = issue?.longitude;
 
-        if (typeof latitude !== 'number' || typeof longitude !== 'number') {return;}
+        const hasCoordinates = typeof latitude === 'number' && typeof longitude === 'number';
+        const initialLat = hasCoordinates ? latitude : 40.4406;
+        const initialLng = hasCoordinates ? longitude : -79.9959;
 
-        leafletMap.current = window.L.map(mapRef.current!).setView([latitude, longitude], 15);
+        leafletMap.current = window.L.map(mapRef.current!).setView([initialLat, initialLng], hasCoordinates ? 15 : 13);
 
         window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 22,
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(leafletMap.current!);
 
-        markerRef.current = window.L
-            .marker([latitude, longitude], { draggable: isEditing, icon: iconForType(issue.issueType) })
-            .addTo(leafletMap.current!);
+        const attachDragHandler = (marker: LeafletMarker) => {
+            marker.on('drag', (e: LeafletMarkerDragEvent) => {
+                const newPos = e.target.getLatLng();
+                if (!newPos) {return;}
 
-        markerRef.current.on('drag', (e: LeafletMarkerDragEvent) => {
-            const newPos = e.target.getLatLng();
-            if (!newPos) {return;}
+                latestCoordsRef.current = { lat: newPos.lat, lng: newPos.lng };
+                setEditedLatitude(newPos.lat);
+                setEditedLongitude(newPos.lng);
+            });
+        };
 
-            latestCoordsRef.current = { lat: newPos.lat, lng: newPos.lng };
-            setEditedLatitude(newPos.lat);
-            setEditedLongitude(newPos.lng);
-        });
+        if (hasCoordinates) {
+            markerRef.current = window.L
+                .marker([latitude, longitude], { draggable: isEditing, icon: iconForType(issue.issueType) })
+                .addTo(leafletMap.current!);
+
+            attachDragHandler(markerRef.current);
+        }
+
+        if (isEditing && leafletMap.current) {
+            leafletMap.current.on('click', (e) => {
+                const { lat, lng } = e.latlng;
+
+                if (markerRef.current) {
+                    markerRef.current.remove();
+                }
+
+                markerRef.current = window.L
+                    .marker([lat, lng], { draggable: true, icon: iconForType(issue.issueType) })
+                    .addTo(leafletMap.current!);
+                attachDragHandler(markerRef.current);
+
+                latestCoordsRef.current = { lat, lng };
+                setEditedLatitude(lat);
+                setEditedLongitude(lng);
+            });
+        }
 
         return () => {
             leafletMap.current?.remove();
@@ -908,7 +935,7 @@ export const IssueDetailCard: React.FC<{
 
                                         {isEditing && (
                                             <div className="mt-1 text-sm text-gray-600">
-                                   				Drag the map pin to update the location coordinates.
+								Click the map to place a pin, then drag it to fine-tune the location coordinates.
                                             </div>
                                         )}
 
