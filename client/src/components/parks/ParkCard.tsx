@@ -18,24 +18,15 @@ export const ParkCard: React.FC<ParkCardProps> = ({ park, allIssues }) => {
     // Default counts to 0 if there's an error/no issues
     const unresolvedIssuesCount = isError ? 0 : allIssues.filter((issue) => issue.status === IssueStatusEnum.UNRESOLVED).length;
     const inprocessIssuesCount = isError ? 0 : allIssues.filter((issue) => issue.status === IssueStatusEnum.IN_PROGRESS).length;
-    const resolvedIssuesCount = isError ? 0 : allIssues.filter((issue) => issue.status === IssueStatusEnum.RESOLVED).length;
 
     return (
         <Link to={`/parks/${park.parkId}`} className="block hover:no-underline">
             <Card 
                 className="h-full transition-shadow hover:shadow-lg"
                 footer={!isError && (
-
-                    <div className="flex justify-between text-sm gap-2">
-                        <span className="rounded-md bg-red-100 px-2 py-1 text-red-700 font-medium">
-                            Unresolved: {unresolvedIssuesCount}
-                        </span>
-                        <span className="rounded-md bg-yellow-100 px-2 py-1 text-yellow-800 font-medium">
-                            In Progress: {inprocessIssuesCount}
-                        </span>
-                        <span className="rounded-md bg-green-100 px-2 py-1 text-green-800 font-medium">
-                            Resolved: {resolvedIssuesCount}
-                        </span>
+                    <div className="flex flex-col items-start gap-1 text-sm text-gray-600 border-t border-gray-100 pt-3">
+                        <div className="whitespace-nowrap">Unresolved: {unresolvedIssuesCount}</div>
+                        <div className="whitespace-nowrap">In Progress: {inprocessIssuesCount}</div>
                     </div>
                 )}
             >
