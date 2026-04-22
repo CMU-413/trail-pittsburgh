@@ -352,7 +352,13 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                     />
                     {!formData.imageMetadata && (
                         <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
-                            Adding a photo helps stewards triage faster.
+                            Adding a photo helps stewards triage faster.<br></br><br></br>
+
+                            Please note: On iOS devices (iPhone/iPad), photos taken 
+                            directly through the browser might not include GPS 
+                            location data. For the best experience, we recommend 
+                            taking the photo first with your camera app and then 
+                            uploading it here.
                         </p>
                     )}
                 </div>
