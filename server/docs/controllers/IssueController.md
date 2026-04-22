@@ -94,7 +94,10 @@ public async getMapPins(req: Request, res: Response)
 - **Params**:
   - `bbox` (string, required): The geographic bounding box (min/max latitude/longitude) to filter issues.
   - `issueTypes` (string[], optional): Filters issues by their type (e.g., obstruction, standing water/mud, other).
+    <<<<<<< HEAD
+  - # `statuses` (string[], optional): Filters issues by their current status (e.g., OPEN, IN_PROGRESS)
   - `statuses` (string[], optional): Filters issues by their current status (e.g., UNRESOLVED, IN_PROGRESS)
+    > > > > > > > origin/main
 - **Query Parameter**:
 
 ```md
@@ -109,17 +112,21 @@ bbox=40.44,-80.0,40.50,-79.9
   - `200 OK`:
     ```json
     {
-      "pins": [
-        {
-          "issueId": 1,
-          "latitude": 40.44,
-          "longitude": -79.99,
-          "issueType": "OBSTRUCTION",
-          "status": "UNRESOLVED"
+    "pins": [
+    {
+    "issueId": 1,
+    "latitude": 40.44,
+    "longitude": -79.99,
+    "issueType": "OBSTRUCTION",
+    <<<<<<< HEAD
+    "status": "OPEN"
+    =======
+    "status": "UNRESOLVED"
+    > > > > > > > origin/main
+            }
+          ]
         }
-      ]
-    }
-    ```
+        ```
   - `400 Bad Request`: Invalid or missing query parameters.
   - `500 Internal Server Error`: On failure to retrieve map pins.
 

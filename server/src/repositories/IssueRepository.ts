@@ -201,9 +201,31 @@ export class IssueRepository {
         }
     }
 
-    public async getIssuesByPark(parkId: number): Promise<RepositoryIssue[]> {
+    public async getIssuesByPark(
+        parkId: number, 
+        statuses: IssueStatusEnum[], 
+        startDate?: string, 
+        endDate?: string
+    ): Promise<RepositoryIssue[]> {
         return prisma.issue.findMany({
-            where: { parkId },
+            where: { 
+                parkId, 
+                isPublic: true,
+                ...(statuses.length > 0
+                    ? { status: { in: statuses } }
+                    : { status: { in: [] } }), 
+                ...(startDate || endDate
+                    ? {
+                        createdAt: {
+                            ...(startDate ? { gte: new Date(startDate) } : {}),
+                            ...(endDate ? { lte: new Date(endDate) } : {}),
+                        },
+                    } 
+                    : {}),
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
             include: this.buildIssueInclude()
         });
     }

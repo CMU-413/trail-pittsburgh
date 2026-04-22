@@ -14,6 +14,7 @@ export const UserDetailPage: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -76,6 +77,14 @@ export const UserDetailPage: React.FC = () => {
         );
     }
 
+    const filteredUsers = users.filter((user) => {
+        const term = searchTerm.toLowerCase();
+        return (
+            user.username?.toLowerCase().includes(term) ||
+			user.email?.toLowerCase().includes(term)
+        );
+    });
+
     return (
         <div>
             <PageHeader
@@ -90,10 +99,21 @@ export const UserDetailPage: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <Card className="lg:col-span-3">
-                    <div className="flex justify-between mb-4">
+                    <div className="flex justify-between items-center mb-4">
                         <h3 className="text-xl font-bold text-gray-900">User Management</h3>
-                        <div className="flex space-x-2">
-                            <Badge key="total-users" variant="secondary">{users.length} Total Users</Badge>
+
+                        <div className="flex items-center gap-3">
+                            {/* Search box */}
+                            <input
+                                type="text"
+                                placeholder="Search by name or email..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="border border-gray-300 rounded-md px-3 py-2 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-[#BD4602]"
+                            />
+
+                            {/* Total users */}
+                            <Badge variant="secondary">{filteredUsers.length} Users</Badge>
                         </div>
                     </div>
 
@@ -119,7 +139,7 @@ export const UserDetailPage: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {users.map((user) => (
+                                {filteredUsers.map((user) => (
                                     <tr key={user.userId}>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center">

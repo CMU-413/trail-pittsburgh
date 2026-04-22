@@ -5,27 +5,32 @@ import { useAuth } from '../../providers/AuthProvider';
 import {
     APP_NAME, FACEBOOK_LINK, INSTAGRAM_LINK, X_LINK
 } from '../../constants/config';
+import { triggerAuth } from '../../utils/auth';
+
+type NavItem =
+    | { name: string; href: string; isButton?: false }
+    | { name: string; isButton: true; href?: undefined };
 
 export const Footer: React.FC = () => {
     // Get authentication context
     const { isAuthenticated, hasPermission } = useAuth();
 
     // Public navigation available to all users
-    const publicNavigation = [
+    const publicNavigation : NavItem[] = [
         { name: 'Home', href: '/' },
-        { name: 'Issues', href: '/issues' },
+        { name: 'Issue Map', href: '/issues' },
     ];
 
     // Protected navigation for authenticated users with proper permissions
-    const protectedNavigation = [
+    const protectedNavigation : NavItem[] = [
         { name: 'Dashboard', href: '/parks' },
     ];
 
     // Report Issue link (public)
-    const reportIssueLink = { name: 'Report Issue', href: '/issues/report' };
+    const reportIssueLink : NavItem = { name: 'Report Issue', href: '/issues/report' };
 
     // Determine which navigation links to display based on auth status
-    const mainNavigation = isAuthenticated && hasPermission
+    const mainNavigation : NavItem[] = isAuthenticated && hasPermission
         ? [...publicNavigation, ...protectedNavigation, reportIssueLink]
         : [...publicNavigation, reportIssueLink];
 
@@ -71,9 +76,9 @@ export const Footer: React.FC = () => {
     const filteredSocialNavigation = socialNavigation.filter((item) => item.href);
 
     // Add login/profile link based on authentication status
-    const authLink = isAuthenticated
+    const authLink : NavItem = isAuthenticated
         ? { name: 'Profile', href: '/profile' }
-        : { name: 'Sign In', href: '/login' };
+        : { name: 'Sign in', isButton: true };
 
     mainNavigation.push(authLink);
 
@@ -98,13 +103,23 @@ export const Footer: React.FC = () => {
 
                 <div className="py-4 border-t border-gray-100 flex flex-wrap justify-center space-x-6 md:justify-center">
                     {mainNavigation.map((item) => (
-                        <Link
-                            key={item.name}
-                            to={item.href}
-                            className="text-sm text-gray-500 hover:text-[#BD4602] transition-colors duration-200"
-                        >
-                            {item.name}
-                        </Link>
+                        item.isButton ? (
+                            <button
+                                key={item.name}
+                                onClick={triggerAuth}
+                                className="text-sm text-gray-500 hover:text-[#BD4602] transition-colors duration-200"
+                            >
+                                {item.name}
+                            </button>
+                        ) : (
+                            <Link
+                                key={item.name}
+                                to={item.href}
+                                className="text-sm text-gray-500 hover:text-[#BD4602] transition-colors duration-200"
+                            >
+                                {item.name}
+                            </Link>
+                        )
                     ))}
                 </div>
 

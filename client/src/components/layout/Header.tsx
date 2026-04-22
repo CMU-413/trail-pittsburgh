@@ -7,6 +7,7 @@ import { useAuth } from '../../providers/AuthProvider';
 import { APP_NAME } from '../../constants/config';
 import { UserRoleEnum } from '../../types/index';
 import { formatUserRole } from '../../utils/formatters';
+import { triggerAuth } from '../../utils/auth';
 
 export const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,7 +47,7 @@ export const Header: React.FC = () => {
     // Navigation links for public
     const publicNavigation = [
         { name: 'Home', href: '/', current: location.pathname === '/' },
-        { name: 'Issues', href: '/issues', current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report' },
+        { name: 'Issue Map', href: '/issues', current: location.pathname.startsWith('/issues') && location.pathname !== '/issues/report' },
     ];
 
     // Navigation links for admins
@@ -81,29 +82,6 @@ export const Header: React.FC = () => {
         logout();
         navigate('/');
     };
-
-    async function auth() {
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    redirectPath: window.location.pathname
-                }),
-                credentials: 'include'
-            });
-            const data = await response.json();
-            
-            if (data.url) {
-                window.location.href = data.url;
-            }
-        } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error('Authentication error:', error);
-        }
-    }
 
     return (
         <nav className={`fixed w-full z-10 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-white/80 backdrop-blur-md'
@@ -191,7 +169,7 @@ export const Header: React.FC = () => {
                                 </div>
                             ) : (
                                 <button
-                                    onClick={auth}
+                                    onClick={triggerAuth}
                                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD4602] hover:bg-[#a33e02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD4602]"
                                 >
                                     Sign in
@@ -214,14 +192,6 @@ export const Header: React.FC = () => {
                                             onClick={() => setIsProfileOpen(false)}
                                         >
                                             Profile
-                                        </Link>
-                                        <Link
-                                            to="/settings"
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            role="menuitem"
-                                            onClick={() => setIsProfileOpen(false)}
-                                        >
-                                            Settings
                                         </Link>
                                         <button
                                             className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:cursor-pointer"
@@ -322,7 +292,7 @@ export const Header: React.FC = () => {
                         </div>
                     ) : (
                         <button
-                            onClick={auth}
+                            onClick={triggerAuth}
                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD4602] hover:bg-[#a33e02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD4602]"
                         >
                             Sign in

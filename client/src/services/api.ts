@@ -96,8 +96,32 @@ export const issueApi = {
         return response.issue;
     },
 
-    getIssuesByPark: async (parkId: number): Promise<Issue[]> => {
-        const response = await fetch(`${API_BASE_URL}/issues/park/${parkId}`, {
+    getIssuesByPark: async (
+        parkId: number,
+        statuses?: string[],
+        startDate?: string,
+        endDate?: string
+  	): Promise<Issue[]> => {
+        const params = new URLSearchParams();
+
+        if (statuses !== undefined) {
+            if (statuses.length === 0) {
+                params.append('statuses', 'NONE');
+            } else {
+                statuses.forEach((status) => {
+                    params.append('statuses', status);
+                });
+            }
+        }
+
+        if (startDate) {
+            params.append('startDate', startDate);
+        }
+
+        if (endDate) {
+            params.append('endDate', endDate);
+        }
+        const response = await fetch(`${API_BASE_URL}/issues/park/${parkId}?${params.toString()}`, {
             credentials: 'include'
         })
             .then(handleResponse);

@@ -3,6 +3,7 @@ import {
 } from '@prisma/client';
 import express from 'express';
 
+import { getIssuesByParkSchema } from '@/schemas/issueSchema';
 import { IssueService, SAME_PARK_ISSUE_GROUP_ERROR } from '@/services/IssueService';
 import { logger } from '@/utils/logger';
 
@@ -69,8 +70,15 @@ export class IssueController {
 
     public async getIssuesByPark(req: express.Request, res: express.Response) {
         try {
-            const parkId = Number(req.params.parkId);
-            const issues = await this.issueService.getIssuesByPark(parkId);
+            const parsed = getIssuesByParkSchema.parse({
+                params: req.params,
+                query: req.query,
+            });
+
+            const { parkId } = parsed.params;
+            const { statuses, startDate, endDate } = parsed.query;
+            const issues = 
+			    await this.issueService.getIssuesByPark(parkId, statuses, startDate, endDate);
             res.json({ issues });
         } catch (error) {
             logger.error(`Error getting issues by park ${req.params.parkId}:`, error);

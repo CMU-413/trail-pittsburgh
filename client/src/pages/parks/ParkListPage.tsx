@@ -199,7 +199,7 @@ export const ParkListPage: React.FC = () => {
                                                             } 
                                                         }}
                                                         className="font-medium text-blue-600 hover:text-blue-500 truncate">
-                                                        {issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)}
+                                                        {`${issue.issueType.charAt(0).toUpperCase() + issue.issueType.slice(1)  } #${ issue.issueId.toString()}` }
                                                     </Link>
                                                     <div className="ml-4 flex items-center gap-2 whitespace-nowrap">
                                                         <span className={[

@@ -7,8 +7,10 @@ import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { issueApi } from '../../services/api';
+import { useAuth } from '../../providers/AuthProvider';
 
 export const IssueReportPage: React.FC = () => {
+    const { login } = useAuth();
     const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
@@ -50,6 +52,20 @@ export const IssueReportPage: React.FC = () => {
                 title="Report Trail Issue"
                 subtitle="Help us keep our trails in great condition by reporting issues you encounter"
             />
+
+            <div className="mt-10 max-w-3xl mx-auto bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h3 className="text-sm font-semibold text-blue-600 mb-1">
+					To edit this report later,{' '}
+                    <button
+                        type="button"
+                        onClick={() => login()}
+                        className="underline hover:text-blue-800 cursor-pointer"
+                    >
+                        sign in
+                    </button>{' '}
+                    or opt-in to email updates.
+                </h3>
+            </div>
 
             {!isGeolocationSupported && !isSubmitted && (
                 <Alert variant="warning" className="mb-6">
@@ -134,7 +150,7 @@ export const IssueReportPage: React.FC = () => {
                             </h2>
 
                             <p className="text-lg text-gray-600 max-w-lg mb-8">
-                                The issue has been successfully reported. We appreciate your help in maintaining our trails.
+                                This issue has been successfully reported. The issue report can be found on the Issue Map or Profile page.
                             </p>
 
                             <Button variant="primary" onClick={handleSubmitAnother}>
