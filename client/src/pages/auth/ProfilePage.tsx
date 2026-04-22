@@ -94,11 +94,6 @@ export const ProfilePage: React.FC = () => {
                             )}
 
                             <div className="mt-4 flex flex-col space-y-2 w-full px-4">
-                                <Link to="/settings" className="w-full">
-                                    <Button variant="secondary" fullWidth>
-                                        Account Settings
-                                    </Button>
-                                </Link>
                                 <Button variant="danger" onClick={logout} fullWidth>
                                     Sign Out
                                 </Button>

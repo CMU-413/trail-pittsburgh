@@ -14,7 +14,6 @@ import { ProtectedRoute, PublicRoute } from './components/auth/ProtectedRoute';
 // Auth pages
 import { UnauthorizedPage } from './pages/auth/UnauthorizedPage';
 import { ProfilePage } from './pages/auth/ProfilePage';
-import { SettingsPage } from './pages/auth/SettingsPage';
 
 // Public and protected pages
 import {
@@ -65,7 +64,6 @@ const AppContent: React.FC = () => {
                     <Route element={<ProtectedRoute />}>
                         {/* User Routes - available to all authenticated users */}
                         <Route path="profile" element={<ProfilePage />} />
-                        <Route path="settings" element={<SettingsPage />} />
 
                         {/* Admin Routes - require admin role */}
                         <Route element={<ProtectedRoute isAdmin={true} />}>
