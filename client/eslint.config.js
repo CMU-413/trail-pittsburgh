@@ -1,5 +1,7 @@
 import js from '@eslint/js';
+import security from 'eslint-plugin-security';
 import globals from 'globals';
+import noUnsanitized from 'eslint-plugin-no-unsanitized';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
@@ -10,6 +12,8 @@ export default tseslint.config(
     {
         plugins: {
             'import': configs.recommended,
+            'no-unsanitized': noUnsanitized,
+            security,
         },
     },
     {
@@ -25,10 +29,13 @@ export default tseslint.config(
         },
         rules: {
             ...reactHooks.configs.recommended.rules,
+            ...security.configs.recommended.rules,
             'react-refresh/only-export-components': [
                 'warn',
                 { allowConstantExport: true },
             ],
+            'no-unsanitized/method': 'error',
+            'no-unsanitized/property': 'error',
             'prefer-const': 'error',
             'no-console': 'warn',
             'eqeqeq': ['error', 'always'],

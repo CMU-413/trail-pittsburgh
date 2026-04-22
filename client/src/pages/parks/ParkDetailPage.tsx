@@ -24,6 +24,11 @@ export const ParkDetailPage: React.FC = () => {
     
     const [park, setPark] = useState<Park | null>(null);
     const [issues, setIssues] = useState<Issue[]>([]);
+    const [statusCounts, setStatusCounts] = useState<Record<IssueStatusEnum, number>>({
+        [IssueStatusEnum.UNRESOLVED]: 0,
+        [IssueStatusEnum.IN_PROGRESS]: 0,
+        [IssueStatusEnum.RESOLVED]: 0,
+    });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -78,9 +83,23 @@ export const ParkDetailPage: React.FC = () => {
                 }
                 
                 setPark(parkData);
-                
-                // Fetch issues for this park
+
                 const { startDate, endDate } = getDateRange();
+                const allStatuses = Object.values(IssueStatusEnum);
+
+                const allIssuesForCounts = await issueApi.getIssuesByPark(id, allStatuses, startDate, endDate);
+                setStatusCounts(
+                    allIssuesForCounts.reduce((counts, issue) => {
+                        counts[issue.status] = (counts[issue.status] ?? 0) + 1;
+                        return counts;
+                    }, {
+                        [IssueStatusEnum.UNRESOLVED]: 0,
+                        [IssueStatusEnum.IN_PROGRESS]: 0,
+                        [IssueStatusEnum.RESOLVED]: 0,
+                    } as Record<IssueStatusEnum, number>)
+                );
+
+                // Fetch issues for this park
                 const issuesData = await issueApi.getIssuesByPark(id, statuses, startDate, endDate);
                 setIssues(issuesData);
             } catch (err) {
@@ -156,7 +175,7 @@ export const ParkDetailPage: React.FC = () => {
                                 }}
                                 className="rounded-full"
                             >
-                                {status.replace('_', ' ')}
+                                {`${status.replace('_', ' ')} (${statusCounts[status as IssueStatusEnum] ?? 0})`}
                             </Button>
                         ))}
                     </div>

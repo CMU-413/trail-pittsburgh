@@ -23,9 +23,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
     useEffect(() => {
         if (!isAuthenticated && !loading) {
-            login();
+            login(`${location.pathname}${location.search}${location.hash}`);
         }
-    }, [isAuthenticated, loading, login]);
+    }, [isAuthenticated, loading, login, location.pathname, location.search, location.hash]);
 
     // Show loading spinner while authentication state is being determined
     if (loading) {

@@ -1,5 +1,6 @@
 import pluginJs from '@eslint/js';
 import importPlugin from 'eslint-plugin-import';
+import security from 'eslint-plugin-security';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -13,6 +14,11 @@ export default [
     },
     pluginJs.configs.recommended,
     ...tseslint.configs.recommended,
+    {
+        plugins: {
+            security,
+        },
+    },
     {
         files: ['**/*.ts'], // Only apply TypeScript-specific parser options to TypeScript files
         languageOptions: {
@@ -39,6 +45,7 @@ export default [
             '@typescript-eslint/no-unused-vars': ['error',
                 { 'caughtErrors': 'none', 'argsIgnorePattern': '^_', }
             ],
+            ...security.configs.recommended.rules,
             // General JavaScript rules
 
             'prefer-const': 'error',

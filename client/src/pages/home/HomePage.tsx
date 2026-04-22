@@ -28,7 +28,7 @@ export const HomePage: React.FC = () => {
                                 </Link>
                                 <Link to="/issues">
                                     <Button variant="secondary" size="lg" className="transition-all hover:-translate-y-0.5">
-                                        View Issues
+                                        View Issue Map
                                     </Button>
                                 </Link>
                             </div>
@@ -66,48 +66,63 @@ export const HomePage: React.FC = () => {
                     </div>
 
                     <div className="mt-16 grid gap-8 md:grid-cols-3">
-                        <div className="relative p-6 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl mb-8 md:mb-0">
-                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 p-4 shadow-lg">
-                                <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
+                        <Link
+                            to="/issues/report"
+                            className="group block h-full rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                        >
+                            <div className="relative h-full p-6 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl mb-8 md:mb-0">
+                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 p-4 shadow-lg transition-transform duration-300 group-hover:scale-105">
+                                    <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                                <div className="pt-4 text-center">
+                                    <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-3">Report</h3>
+                                    <p className="text-gray-600">
+                                        See an issue on the trail? Report it quickly through our easy-to-use form.
+                                    </p>
+                                </div>
                             </div>
-                            <div className="pt-4 text-center">
-                                <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-3">Report</h3>
-                                <p className="text-gray-600">
-                                    See an issue on the trail? Report it quickly through our easy-to-use form.
-                                </p>
-                            </div>
-                        </div>
+                        </Link>
 
-                        <div className="relative p-6 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl mb-8 md:mb-0">
-                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 p-4 shadow-lg">
-                                <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
+                        <Link
+                            to="/issues"
+                            className="group block h-full rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                        >
+                            <div className="relative h-full p-6 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl mb-8 md:mb-0">
+                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 p-4 shadow-lg transition-transform duration-300 group-hover:scale-105">
+                                    <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </div>
+                                <div className="pt-4 text-center">
+                                    <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-3">Track</h3>
+                                    <p className="text-gray-600">
+                                        Follow the progress of reported issues as stewards and volunteers address them.
+                                    </p>
+                                </div>
                             </div>
-                            <div className="pt-4 text-center">
-                                <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-3">Track</h3>
-                                <p className="text-gray-600">
-                                    Follow the progress of reported issues as stewards and volunteers address them.
-                                </p>
-                            </div>
-                        </div>
+                        </Link>
 
-                        <div className="relative p-6 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl mb-8 md:mb-0">
-                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 p-4 shadow-lg">
-                                <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
+                        <Link
+                            to="/parks"
+                            className="group block h-full rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                        >
+                            <div className="relative h-full p-6 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl mb-8 md:mb-0">
+                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 p-4 shadow-lg transition-transform duration-300 group-hover:scale-105">
+                                    <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div className="pt-4 text-center">
+                                    <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-3">Resolve</h3>
+                                    <p className="text-gray-600">
+                                        Stewards and volunteers work to fix issues, keeping our trails safe and enjoyable.
+                                    </p>
+                                </div>
                             </div>
-                            <div className="pt-4 text-center">
-                                <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-3">Resolve</h3>
-                                <p className="text-gray-600">
-                                    Stewards and volunteers work to fix issues, keeping our trails safe and enjoyable.
-                                </p>
-                            </div>
-                        </div>
+                        </Link>
                     </div>
                 </div>
             </section>

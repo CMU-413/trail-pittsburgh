@@ -8,7 +8,7 @@ import { UserRoleEnum } from '../types/index';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: () => void;
+    login: (redirectPath?: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
   hasPermission: UserRoleEnum | null;
@@ -62,13 +62,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     // Start OAuth flow
-    const login = async () => {
+    const login = async (redirectPath?: string) => {
         try {
+            const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
             const res = await fetch(`/api/auth`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ })
+                body: JSON.stringify({ redirectPath: redirectPath ?? currentPath })
             });
             const data = await res.json();
             if (data.url) {

@@ -244,8 +244,20 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
                 throw new Error('Please select an issue type.');
             }
 
-            if (!formData.imageMetadata) {
-                throw new Error('Please provide an image of the issue.');
+            if (!formData.safetyRisk) {
+                throw new Error('Please select a safety risk level.');
+            }
+
+            if (typeof formData.passible !== 'boolean') {
+                throw new Error('Please indicate whether the trail is passible.');
+            }
+
+            const hasPhoto = Boolean(formData.imageMetadata);
+            const hasLocation = typeof formData.latitude === 'number' && typeof formData.longitude === 'number';
+            const hasPark = Boolean(formData.parkId);
+
+            if (!hasPhoto && !hasLocation && !hasPark) {
+                throw new Error('When no photo is uploaded, provide either a location or select a park.');
             }
 
             // Check email if notification is enabled
@@ -331,13 +343,18 @@ export const IssueReportForm: React.FC<IssueReportFormProps> = ({ onSubmit }) =>
             <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                 <div className="space-y-6">
                     <ImageUpload
-                        label="Add a photo (Required)"
+                        label="Add a photo (Optional)"
                         description='By uploading a photo, you agree to share its embedded GPS location data so we can identify the issue’s location.'
                         onChange={handleImageChange}
                         existingImageUrl={imgPreview}
                         existingMetadata={formData.imageMetadata}
                         acceptedFormats="image/jpeg,image/png,image/gif,image/heic,image/heif"
                     />
+                    {!formData.imageMetadata && (
+                        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                            Adding a photo helps stewards triage faster.
+                        </p>
+                    )}
                 </div>
             </div>
 

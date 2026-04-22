@@ -23,7 +23,6 @@ import {
     getSafetyRiskLabel,
     getSafetyRiskBadgeColor,
     getReportedSafetyRiskBadgeLabel,
-    getStewardSafetyRiskDescription,
 } from '../../utils/issueSafetyRiskUtils';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../providers/AuthProvider';
@@ -67,16 +66,20 @@ export const IssueDetailCard: React.FC<{
     const location = useLocation();
 
     const { user } = useAuth();
+    const isOwner = user?.email === issue?.ownerEmail;
+    const isReporter = user?.email === issue?.reporterEmail;
     const canEditIssue = user?.role === UserRoleEnum.ROLE_ADMIN ||
-        user?.role === UserRoleEnum.ROLE_SUPERADMIN || user?.email === issue?.ownerEmail;
+        user?.role === UserRoleEnum.ROLE_SUPERADMIN || isOwner || isReporter;
     const canManageIssueStatus = user?.role === UserRoleEnum.ROLE_ADMIN ||
         user?.role === UserRoleEnum.ROLE_SUPERADMIN;
+    const canManagePhotoVisibility = canManageIssueStatus || isOwner || isReporter;
     const isImagePublic = issue?.isImagePublic ?? issue?.isPublic ?? false;
     const canViewImage =
         user?.role === UserRoleEnum.ROLE_ADMIN ||
         user?.role === UserRoleEnum.ROLE_SUPERADMIN ||
         isImagePublic || 
-        user?.email === issue?.ownerEmail;
+        isOwner ||
+        isReporter;
 
     const handleResolveIssue = async () => {
         if (!issue || !issueId) {return;}
@@ -345,27 +348,54 @@ export const IssueDetailCard: React.FC<{
         const latitude = issue?.latitude;
         const longitude = issue?.longitude;
 
-        if (typeof latitude !== 'number' || typeof longitude !== 'number') {return;}
+        const hasCoordinates = typeof latitude === 'number' && typeof longitude === 'number';
+        const initialLat = hasCoordinates ? latitude : 40.4406;
+        const initialLng = hasCoordinates ? longitude : -79.9959;
 
-        leafletMap.current = window.L.map(mapRef.current!).setView([latitude, longitude], 15);
+        leafletMap.current = window.L.map(mapRef.current!).setView([initialLat, initialLng], hasCoordinates ? 15 : 13);
 
         window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 22,
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(leafletMap.current!);
 
-        markerRef.current = window.L
-            .marker([latitude, longitude], { draggable: isEditing, icon: iconForType(issue.issueType) })
-            .addTo(leafletMap.current!);
+        const attachDragHandler = (marker: LeafletMarker) => {
+            marker.on('drag', (e: LeafletMarkerDragEvent) => {
+                const newPos = e.target.getLatLng();
+                if (!newPos) {return;}
 
-        markerRef.current.on('drag', (e: LeafletMarkerDragEvent) => {
-            const newPos = e.target.getLatLng();
-            if (!newPos) {return;}
+                latestCoordsRef.current = { lat: newPos.lat, lng: newPos.lng };
+                setEditedLatitude(newPos.lat);
+                setEditedLongitude(newPos.lng);
+            });
+        };
 
-            latestCoordsRef.current = { lat: newPos.lat, lng: newPos.lng };
-            setEditedLatitude(newPos.lat);
-            setEditedLongitude(newPos.lng);
-        });
+        if (hasCoordinates) {
+            markerRef.current = window.L
+                .marker([latitude, longitude], { draggable: isEditing, icon: iconForType(issue.issueType) })
+                .addTo(leafletMap.current!);
+
+            attachDragHandler(markerRef.current);
+        }
+
+        if (isEditing && leafletMap.current) {
+            leafletMap.current.on('click', (e) => {
+                const { lat, lng } = e.latlng;
+
+                if (markerRef.current) {
+                    markerRef.current.remove();
+                }
+
+                markerRef.current = window.L
+                    .marker([lat, lng], { draggable: true, icon: iconForType(issue.issueType) })
+                    .addTo(leafletMap.current!);
+                attachDragHandler(markerRef.current);
+
+                latestCoordsRef.current = { lat, lng };
+                setEditedLatitude(lat);
+                setEditedLongitude(lng);
+            });
+        }
 
         return () => {
             leafletMap.current?.remove();
@@ -396,7 +426,7 @@ export const IssueDetailCard: React.FC<{
     };
 
     const handleTogglePhotoPublic = async () => {
-        if (!issue || !canManageIssueStatus || !issue.image) {
+        if (!issue || !canManagePhotoVisibility || !issue.image) {
             return;
         }
 
@@ -471,7 +501,8 @@ export const IssueDetailCard: React.FC<{
         ? 'No grouped issues'
         : `${selectedGroupIssueIds.length} selected`;
     const hasPhotoVisibilityControl = Boolean(issue?.image);
-    const shouldShowStewardControls = canManageIssueStatus && (!isEditing || hasPhotoVisibilityControl);
+    const shouldShowStewardControls = (canManageIssueStatus || canManagePhotoVisibility)
+        && (!isEditing || hasPhotoVisibilityControl);
     const groupedIssueIds = (issue?.issueGroupMemberIds ?? []).filter((id) => id !== issue?.issueId);
 
     const groupOptions = linkableIssues.map((candidateIssue) => {
@@ -685,7 +716,7 @@ export const IssueDetailCard: React.FC<{
                                                             {getPassabilityBadgeLabel(issue.passible)}
                                                         </span>
                                                     </div>
-                                                    {isEditing && canManageIssueStatus ? (
+                                                    {isEditing && canManageIssueStatus && (
                                                         <div className="mt-2">
                                                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                                                                 {safetyRiskLevels.map((riskLevel) => (
@@ -701,15 +732,9 @@ export const IssueDetailCard: React.FC<{
                                                                         ].join(' ')}
                                                                     >
                                                                         <div className="text-xs font-semibold text-gray-900">{getSafetyRiskLabel(riskLevel)}</div>
-                                                                        <div className="mt-1 text-xs text-gray-600">{getStewardSafetyRiskDescription(riskLevel)}</div>
                                                                     </button>
                                                                 ))}
                                                             </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="mt-2 rounded-md border border-gray-200 bg-gray-50 p-3">
-                                                            <div className="text-sm font-semibold text-gray-900">{getSafetyRiskLabel(issue.safetyRisk)}</div>
-                                                            <div className="mt-1 text-sm text-gray-600">{getStewardSafetyRiskDescription(issue.safetyRisk)}</div>
                                                         </div>
                                                     )}
                                                 </div>
@@ -766,7 +791,16 @@ export const IssueDetailCard: React.FC<{
                                             <div className="rounded-lg border border-gray-200 p-4">
                                                 {!isEditing && (
                                                     <div>
-                                                        <div className="text-md font-medium text-black bold">Status</div>
+                                                        <div className="text-md font-medium text-black bold">Update Status</div>
+                                                        <div className="mt-1 text-xs text-gray-600 flex items-center gap-2">
+                                                            <span>Currently:</span>
+                                                            <span className={[
+                                                                'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+                                                                getIssueStatusColor(issue.status),
+                                                            ].join(' ')}>
+                                                                {getIssueStatusLabel(issue.status)}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 )}
 
@@ -871,7 +905,9 @@ export const IssueDetailCard: React.FC<{
                                                     <div className={isEditing ? '' : 'mt-4'}>
                                                         <div className="text-md font-medium text-black bold">Photo Visibility</div>
                                                         <div className="mt-2 text-sm text-gray-600">
-                                                            {isImagePublic ? 'Photo is visible to everyone.' : 'Photo is only visible to admins.'}
+                                                            {isImagePublic
+                                                                ? 'Photo is visible to everyone.'
+                                                                : 'Photo is private and only visible to admins, the reporter, and the owner.'}
                                                         </div>
                                                         <div className="mt-2">
                                                             <Button
@@ -899,7 +935,7 @@ export const IssueDetailCard: React.FC<{
 
                                         {isEditing && (
                                             <div className="mt-1 text-sm text-gray-600">
-                                   				Drag the map pin to update the location coordinates.
+								Click the map to place a pin, then drag it to fine-tune the location coordinates.
                                             </div>
                                         )}
 
