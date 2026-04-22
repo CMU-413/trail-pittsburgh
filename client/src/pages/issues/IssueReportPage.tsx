@@ -150,10 +150,7 @@ export const IssueReportPage: React.FC = () => {
                             </h2>
 
                             <p className="text-lg text-gray-600 max-w-lg mb-8">
-                                The issue has been successfully reported.
-                            </p>
-                            <p className="text-lg italic text-gray-600 max-w-lg mb-8">
-								You can view reported issue on either Issue Map or Profile page.
+                                This issue has been successfully reported. The issue report can be found on the Issue Map or Profile page.
                             </p>
 
                             <Button variant="primary" onClick={handleSubmitAnother}>
