@@ -8,6 +8,7 @@ import { APP_NAME } from '../../constants/config';
 import { UserRoleEnum } from '../../types/index';
 import { formatUserRole } from '../../utils/formatters';
 import { triggerAuth } from '../../utils/auth';
+import trailPghBadge from '../../assets/TrailPGHbadge.png';
 
 export const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -91,35 +92,12 @@ export const Header: React.FC = () => {
                     <div className="flex">
                         <div className="flex-shrink-0 flex items-center">
                             <Link to="/" className="flex items-center space-x-2">
-                                <svg
-                                    className="h-9 w-9 text-[#BD4602]"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z"
-                                        stroke="currentColor"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                    <path
-                                        d="M12 12L16 10M12 12L12 17M12 12L8 10M12 12L15 8.5M12 12L9 8.5"
-                                        stroke="currentColor"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                    <path
-                                        d="M12 7.01L12.01 6.99889"
-                                        stroke="currentColor"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                                <span className="text-[#BD4602] text-xl font-bold">{APP_NAME}</span>
+                                <img
+                                    src={trailPghBadge}
+                                    alt="Trail Pittsburgh badge"
+                                    className="h-11 w-11 object-contain"
+                                />
+                                <span className="text-black text-xl font-bold">{APP_NAME}</span>
                             </Link>
                         </div>
                         <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
