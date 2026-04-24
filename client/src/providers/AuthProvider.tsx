@@ -104,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         logoutTimer.current = window.setTimeout(() => {
             logout();
-        }, 30 * 60 * 1000); // 30 minutes
+        }, 120 * 60 * 1000); // 120 minutes = 2 hrs
     };
 
     const isAuthenticated = !!user;
