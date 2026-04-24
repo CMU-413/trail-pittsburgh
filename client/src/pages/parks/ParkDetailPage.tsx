@@ -37,6 +37,8 @@ export const ParkDetailPage: React.FC = () => {
         IssueStatusEnum.IN_PROGRESS,
     ]);
 
+    const [showAllIssues, setShowAllIssues] = useState(false);
+
     const [datePreset, setDatePreset] = useState<'7d' | '30d' | '3m' | '6m' | 'all'>('6m');
 
     const getDateRange = () => {
@@ -199,16 +201,24 @@ export const ParkDetailPage: React.FC = () => {
                 </div>
 
                 <IssueList
-                    issues={issues.slice(0, 6)}
+                    issues={showAllIssues ? issues : issues.slice(0, 6)}
                     showLocation={false}
                     emptyStateMessage="No issues found"
                 />
                 
-                {issues.length > 6 && (
+                {issues.length > 6 && !showAllIssues && (
                     <div className="mt-6 text-center">
-                        <Link to={`/issues?parkId=${park.parkId}`}>
-                            <Button variant="secondary">View All Issues</Button>
-                        </Link>
+                        <Button variant="secondary" onClick={() => setShowAllIssues(true)}>
+                            View All Issues
+                        </Button>
+                    </div>
+                )}
+
+                {issues.length > 6 && showAllIssues && (
+                    <div className="mt-6 text-center">
+                        <Button variant="secondary" onClick={() => setShowAllIssues(false)}>
+                            Show Less
+                        </Button>
                     </div>
                 )}
             </div>

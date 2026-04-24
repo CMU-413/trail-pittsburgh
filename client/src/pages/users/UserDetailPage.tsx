@@ -90,11 +90,6 @@ export const UserDetailPage: React.FC = () => {
             <PageHeader
                 title="Users"
                 subtitle="Manage user roles and permissions"
-                action={
-                    <Button variant="primary" onClick={() => navigate('/users/new')}>
-                        Add New User
-                    </Button>
-                }
             />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
