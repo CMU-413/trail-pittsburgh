@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { User, UserRoleEnum } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
@@ -10,7 +9,6 @@ import { EmptyState } from '../../components/layout/EmptyState';
 import { userApi } from '../../services/api';
 
 export const UserDetailPage: React.FC = () => {
-    const navigate = useNavigate();
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
